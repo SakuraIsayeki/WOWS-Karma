@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WoWS_Karma.Api
+namespace WowsKarma.Api
 {
 	public class Startup
 	{
@@ -26,12 +26,12 @@ namespace WoWS_Karma.Api
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-
 			services.AddControllers();
 			services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "WoWS_Karma.Api", Version = "v1" });
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "WowsKarma.Api", Version = "v1" });
 			});
+			services.AddHttpClient();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,7 +41,7 @@ namespace WoWS_Karma.Api
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WoWS_Karma.Api v1"));
+				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WowsKarma.Api v1"));
 			}
 
 			app.UseHttpsRedirection();

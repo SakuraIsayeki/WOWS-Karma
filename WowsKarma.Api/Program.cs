@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WoWS_Karma.Api
+namespace WowsKarma.Api
 {
 	public class Program
 	{

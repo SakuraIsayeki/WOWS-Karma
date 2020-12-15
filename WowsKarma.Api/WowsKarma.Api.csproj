@@ -14,4 +14,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Wargaming.WebAPI\Wargaming.WebAPI.Models\Wargaming.WebAPI.Models.csproj" />
+    <ProjectReference Include="..\Wargaming.WebAPI\Wargaming.WebAPI\Wargaming.WebAPI.csproj" />
+  </ItemGroup>
+
 </Project>

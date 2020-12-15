@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "WoWS_Karma.Api": {
+    "WowsKarma.Api": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["WoWS-Karma.Api/WoWS-Karma.Api.csproj", "WoWS-Karma.Api/"]
-RUN dotnet restore "WoWS-Karma.Api/WoWS-Karma.Api.csproj"
+COPY ["WowsKarma.Api/WowsKarma.Api.csproj", "WowsKarma.Api/"]
+RUN dotnet restore "WowsKarma.Api/WowsKarma.Api.csproj"
 COPY . .
-WORKDIR "/src/WoWS-Karma.Api"
-RUN dotnet build "WoWS-Karma.Api.csproj" -c Release -o /app/build
+WORKDIR "/src/WowsKarma.Api"
+RUN dotnet build "WowsKarma.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "WoWS-Karma.Api.csproj" -c Release -o /app/publish
+RUN dotnet publish "WowsKarma.Api.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "WoWS-Karma.Api.dll"]
+ENTRYPOINT ["dotnet", "WowsKarma.Api.dll"]

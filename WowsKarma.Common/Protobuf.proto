@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+option csharp_namespace = "WowsKarma.Common";
+
+package WowsKarma.Common.dev;
+
+service ApiService {
+	rpc ListAccounts (ListAccountsRequest) returns (ListAccountsResponse) {}
+	rpc GetAccount (GetAccountRequest) returns (GetAccountResponse) {}
+}
+
+
+/*
+ *	REQUESTS
+ */
+
+message ListAccountsRequest {
+	string Search = 1;
+}
+
+message GetAccountRequest {
+	uint32 AccountId = 1;
+}
+
+
+/*
+ *	RESPONSES
+ */
+
+message AccountActivityResponse {
+	Account Account = 1;
+	repeated string PostsGuidsReceived = 2;
+	repeated string PostsGuidsSent = 3;
+}
+
+message GetAccountResponse {
+	Account Account = 1;
+}
+
+message ListAccountsResponse {
+	message Result {
+		uint32 AccountId = 1;
+		string Username = 2;
+	}
+
+	repeated Result results = 1;
+}
+
+message PostResponse {
+	string PostGuid = 1;
+	string Username = 2;
+	int32 WgKarma = 3;
+}
+
+
+/*
+ *	OBJECTS
+ */
+
+message Account {
+	uint32 AccountId = 1;
+	string Username = 2;
+	int32 WgKarma = 3;
+	int64 WgAccountCreatedAt = 4;
+}

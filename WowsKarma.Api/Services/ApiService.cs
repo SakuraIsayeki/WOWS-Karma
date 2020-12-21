@@ -14,16 +14,16 @@ namespace WowsKarma.Api.Services
 {
 	public class ApiService : ApiServiceProto.ApiServiceBase
 	{
-		private readonly ILogger<ApiService> logger;
-		private readonly WorldOfWarshipsHandler wowsApi;
-		private readonly VortexApiHandler vortexApi;
+		private readonly ILogger<ApiService> _logger;
+		private readonly WorldOfWarshipsHandler _wowsApi;
+		private readonly VortexApiHandler _vortexApi;
 
 
 		public ApiService(ILogger<ApiService> logger, WorldOfWarshipsHandler wowsApi, VortexApiHandler vortexApi)
 		{
-			this.logger = logger;
-			this.wowsApi = wowsApi;
-			this.vortexApi = vortexApi;
+			_logger = logger;
+			_wowsApi = wowsApi;
+			_vortexApi = vortexApi;
 		}
 
 
@@ -34,7 +34,7 @@ namespace WowsKarma.Api.Services
 				return null;
 			}
 			
-			IEnumerable<AccountListing> results = await wowsApi.ListPlayersAsync(request.Search);
+			IEnumerable<AccountListing> results = await _wowsApi.ListPlayersAsync(request.Search);
 			
 			if (results is null || results.Count() is 0)
 			{
@@ -53,7 +53,7 @@ namespace WowsKarma.Api.Services
 
 		public override async Task<GetAccountResponse> GetAccount(GetAccountRequest request, ServerCallContext context)
 		{
-			AccountInfo result = await vortexApi.FetchAccountAsync(request.AccountId);
+			AccountInfo result = await _vortexApi.FetchAccountAsync(request.AccountId);
 			return new()
 			{
 				Account = new()

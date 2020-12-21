@@ -1,6 +1,6 @@
 using System;
 
-namespace WowsKarma.Web.Models
+namespace WowsKarma.Web.Models.ViewModels
 {
 	public class ErrorViewModel
 	{

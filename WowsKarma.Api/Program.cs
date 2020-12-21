@@ -18,9 +18,9 @@ namespace WowsKarma.Api
 	{
 		public static void Main(string[] args)
 		{
-			var host = CreateHostBuilder(args).Build();
-
+			using IHost host = CreateHostBuilder(args).Build();
 			using IServiceScope scope = host.Services.CreateScope();
+
 			ApiDbContext db = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
 
 			db.Database.Migrate();

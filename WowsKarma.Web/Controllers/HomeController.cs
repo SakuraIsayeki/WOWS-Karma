@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using WowsKarma.Web.Models;
+using WowsKarma.Web.Models.ViewModels;
 
 namespace WowsKarma.Web.Controllers
 {
@@ -23,15 +24,8 @@ namespace WowsKarma.Web.Controllers
 			return View();
 		}
 
-		public IActionResult Privacy()
-		{
-			return View();
-		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-		public IActionResult Error()
-		{
-			return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-		}
+		public IActionResult Error() => View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 	}
 }

@@ -1,0 +1,21 @@
+FROM mcr.microsoft.com/dotnet/sdk:5.0
+ARG BUILD_CONFIGURATION=Debug
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://+:80
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+EXPOSE 9090
+
+WORKDIR /src
+COPY ["Wargaming.WebAPI/Wargaming.WebAPI.Models/Wargaming.WebAPI.Models.csproj", "Wargaming.WebAPI/Wargaming.WebAPI.Models/"]
+COPY ["Wargaming.WebAPI/Wargaming.WebAPI/Wargaming.WebAPI.csproj", "Wargaming.WebAPI/Wargaming.WebAPI/"]
+COPY ["WowsKarma.Api/WowsKarma.Api.csproj", "WowsKarma.Api/"]
+COPY ["WowsKarma.Common/WowsKarma.Common.csproj", "WowsKarma.Common/"]
+
+RUN dotnet restore "WowsKarma.Api/WowsKarma.Api.csproj"
+COPY . .
+WORKDIR "/src/WowsKarma.Api"
+RUN dotnet build --no-restore "WowsKarma.Api.csproj" -c $BUILD_CONFIGURATION
+
+RUN echo "exec dotnet run --no-build --no-launch-profile -c $BUILD_CONFIGURATION --" > /entrypoint.sh
+
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  wowskarma.api:
+    image: ${DOCKER_REGISTRY-}wowskarmaapi
+    build:
+      context: .
+      dockerfile: WowsKarma.Api/Dockerfile
+    ports:
+    - 9090:9090
+    - 9091:9091
+  wowskarma.web:
+    image: ${DOCKER_REGISTRY-}wowskarmaweb
+    build:
+      context: .
+      dockerfile: WowsKarma.Web/Dockerfile
+    ports:
+    - 5000:80
+    - 5001:443

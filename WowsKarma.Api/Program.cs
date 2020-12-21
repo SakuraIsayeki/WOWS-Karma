@@ -44,6 +44,11 @@ namespace WowsKarma.Api
 			Host.CreateDefaultBuilder(args)
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
+					webBuilder.UseUrls(
+						"http://+:9090/",
+						"https://+:9091/"
+					);	
+
 					webBuilder.UseStartup<Startup>();
 					webBuilder.UseKestrel();
 					webBuilder.UseSerilog();

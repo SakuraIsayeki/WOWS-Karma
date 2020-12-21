@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +25,18 @@ namespace WowsKarma.Api
 
 			db.Database.Migrate();
 
+			Log.Logger = new LoggerConfiguration()
+#if DEBUG
+				.MinimumLevel.Verbose()
+#else
+				.MinimumLevel.Information()
+#endif
+//				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+				.Enrich.FromLogContext()
+				.WriteTo.Console()
+//				.WriteTo.Logger(fileLogger)
+				.CreateLogger();
+
 			host.Run();
 		}
 
@@ -31,6 +45,8 @@ namespace WowsKarma.Api
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
 					webBuilder.UseStartup<Startup>();
+					webBuilder.UseKestrel();
+					webBuilder.UseSerilog();
 				});
 	}
 }

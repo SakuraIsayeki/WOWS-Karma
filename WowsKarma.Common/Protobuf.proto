@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "WowsKarma.Common";
 
-package WowsKarma.Common.dev;
+package WowsKarma.dev;
 
 service ApiService {
 	rpc ListAccounts (ListAccountsRequest) returns (ListAccountsResponse) {}

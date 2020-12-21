@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Wargaming.WebAPI;
+using Wargaming.WebAPI.Models;
+using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
+using WowsKarma.Api.Services;
 
 namespace WowsKarma.Api
 {
@@ -29,18 +34,16 @@ namespace WowsKarma.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddGrpc();
-			services.AddGrpcHttpApi();
-			services.AddGrpcSwagger();
 
 			services.AddDbContext<ApiDbContext>(options => 
 				options.UseSqlServer(Configuration.GetConnectionString("ApiDbConnectionString"), 
 					providerOptions => providerOptions.EnableRetryOnFailure()));
 
-			services.AddSwaggerGen(c =>
-			{
-				c.SwaggerDoc("v1", new OpenApiInfo { Title = "WowsKarma.Api", Version = "v1" });
-			});
 			services.AddHttpClient();
+
+			services.AddSingleton(new WorldOfWarshipsHandlerOptions(GetApiRegion(), Configuration["Api:AppId"]));
+			services.AddSingleton<WorldOfWarshipsHandler>();
+			services.AddSingleton<VortexApiHandler>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,20 +52,28 @@ namespace WowsKarma.Api
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseSwagger();
-				app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WowsKarma.Api v1"));
 			}
-
-			app.UseHttpsRedirection();
 
 			app.UseRouting();
 
-//			app.UseAuthorization();
-
 			app.UseEndpoints(endpoints =>
 			{
-//				endpoints.MapControllers();
+				endpoints.MapGrpcService<ApiService>();
+
+				endpoints.MapGet("/", async context =>
+				{
+					await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+				});
 			});
 		}
+
+		Region GetApiRegion() => Configuration["Api:Region"] switch
+		{
+			"EU" => Region.EU,
+			"NA" => Region.NA,
+			"CIS" or "RU" => Region.CIS,
+			"ASIA" => Region.ASIA,
+			_ => throw new ArgumentOutOfRangeException()
+		};
 	}
 }

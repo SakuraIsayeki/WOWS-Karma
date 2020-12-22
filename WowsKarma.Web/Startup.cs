@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
-
+using Microsoft.Extensions.Options;
+using System;
+using System.Net.Http;
+using WowsKarma.Web.Services;
 
 namespace WowsKarma.Web
 {
@@ -21,6 +23,9 @@ namespace WowsKarma.Web
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllersWithViews();
+			services.AddHttpClient(Options.DefaultName, config => config.BaseAddress = new(Configuration["Api:Host"]));
+
+			services.AddSingleton<AccountService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

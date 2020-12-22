@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
-
+using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Data.Models
 {
@@ -20,5 +19,13 @@ namespace WowsKarma.Api.Data.Models
 
 		public IEnumerable<Post> PostsReceived { get; init; }
 		public IEnumerable<Post> PostsSent { get; init; }
+
+		public static implicit operator PlayerProfileDTO(Player value) => new()
+		{
+			Id = value.Id,
+			Username = value.Username,
+			WgAccountCreatedAt = value.WgAccountCreatedAt,
+			WgKarma = value.WgKarma
+		};
 	}
 }

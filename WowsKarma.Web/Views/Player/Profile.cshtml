@@ -1,4 +1,4 @@
-﻿@model WowsKarma.Common.Account
+﻿@model PlayerProfileDTO
 
 
 @{
@@ -6,6 +6,6 @@
 }
 
 <h1 class="mb-3">@Model.Username</h1>
-<p><b>Account ID :</b> @Model.AccountId</p>
-<p><b>Created On :</b> @DateTime.UnixEpoch.AddSeconds(Model.WgAccountCreatedAt).ToLongDateString()</p>
+<p><b>Account ID :</b> @Model.Id</p>
+<p><b>Created On :</b> @Model.WgAccountCreatedAt.ToLongTimeString()</p>
 <p><b>Karma :</b> @Model.WgKarma</p>

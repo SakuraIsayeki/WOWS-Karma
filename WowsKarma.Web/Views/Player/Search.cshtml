@@ -1,4 +1,4 @@
-﻿@model SearchViewModel<PlayerListing>
+﻿@model SearchViewModel<AccountListingDTO>
 
 @{
     ViewData["Title"] = "Search";
@@ -8,8 +8,8 @@
 
 
 <ul>
-    @foreach (PlayerListing player in Model.Results)
+    @foreach (AccountListingDTO player in Model.Results)
     {
-        <li><a href="/player/@player.Id,@player.Username/">@player.Username</a></li>
+        <li><a href="/player/@player.AccountId,@player.Username/">@player.Username</a></li>
     }
 </ul>

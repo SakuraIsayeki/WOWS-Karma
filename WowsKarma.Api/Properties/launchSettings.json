@@ -31,10 +31,6 @@
     "Docker": {
       "commandName": "Docker",
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/",
-      "environmentVariables": {
-        "ASPNETCORE_URLS": "http://+:9090;https://+:9091",
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
       "publishAllPorts": true,
       "ASPNETCORE_URLS": "https://+:5001;http://+:5000",
       "useSSL": true

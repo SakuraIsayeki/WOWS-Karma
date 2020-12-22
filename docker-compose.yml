@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: WowsKarma.Api/Dockerfile
     ports:
-    - 9090:9090
-    - 9091:9091
+    - 5010:80
+    - 5011:443
   wowskarma.web:
     image: ${DOCKER_REGISTRY-}wowskarmaweb
     build:

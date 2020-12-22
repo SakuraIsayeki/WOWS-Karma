@@ -4,10 +4,10 @@ services:
   wowskarma.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:9090;https://+:9091
+      - ASPNETCORE_URLS=https://+:443;http://+:80
     ports:
-      - "9090"
-      - "9091"
+      - "80"
+      - "443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

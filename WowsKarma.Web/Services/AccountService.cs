@@ -39,7 +39,7 @@ namespace WowsKarma.Web.Services
 			if (response.IsSuccessStatusCode)
 			{
 				PlayerProfileDTO player = await Utilities.DeserializeFromHttpResponseAsync<PlayerProfileDTO>(response);
-				return player;
+				return new(player) { Id = id };
 			}
 
 			return null;

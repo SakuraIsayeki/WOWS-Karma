@@ -52,10 +52,4 @@
     <ProjectReference Include="..\WowsKarma.Common\WowsKarma.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Protobuf Include="..\WowsKarma.Common\protobuf.proto" GrpcServices="Server">
-      <Link>Protos\protobuf.proto</Link>
-    </Protobuf>
-  </ItemGroup>
-
 </Project>

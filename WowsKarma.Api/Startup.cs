@@ -1,19 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Wargaming.WebAPI;
 using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
@@ -33,7 +24,7 @@ namespace WowsKarma.Api
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddGrpc();
+			services.AddControllers();
 
 			services.AddDbContext<ApiDbContext>(options => 
 				options.UseSqlServer(Configuration.GetConnectionString("ApiDbConnectionString"), 
@@ -44,6 +35,7 @@ namespace WowsKarma.Api
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(GetApiRegion(), Configuration["Api:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
+			services.AddSingleton<WgApiFetcherService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,16 +50,11 @@ namespace WowsKarma.Api
 
 			app.UseEndpoints(endpoints =>
 			{
-				endpoints.MapGrpcService<ApiService>();
-
-				endpoints.MapGet("/", async context =>
-				{
-					await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-				});
+				endpoints.MapDefaultControllerRoute();
 			});
 		}
 
-		Region GetApiRegion() => Configuration["Api:Region"] switch
+		private Region GetApiRegion() => Configuration["Api:Region"] switch
 		{
 			"EU" => Region.EU,
 			"NA" => Region.NA,

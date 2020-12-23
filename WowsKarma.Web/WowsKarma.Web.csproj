@@ -17,13 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.34.0" />
-    <PackageReference Include="Grpc.Net.Client" Version="2.34.0" />
-    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.34.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.34.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.10" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.1" />
@@ -33,12 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WowsKarma.Common\WowsKarma.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Protobuf Include="..\WowsKarma.Common\Protobuf.proto" GrpcServices="Client">
-      <Link>Protos\Protobuf.proto</Link>
-    </Protobuf>
   </ItemGroup>
 
 </Project>

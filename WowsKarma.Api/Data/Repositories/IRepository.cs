@@ -10,7 +10,7 @@ namespace WowsKarma.Api.Data
 		where TId : struct
 	{
 		public IQueryable<TEntity> GetAll();
-		public Task<TEntity> Get(TId id);
+		public Task<TEntity> GetAsync(TId id);
 		
 		public Task CreateAsync(TEntity entity);
 		public Task UpdateAsync(TEntity entity);

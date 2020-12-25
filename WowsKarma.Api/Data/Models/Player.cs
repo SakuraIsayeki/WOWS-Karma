@@ -11,6 +11,9 @@ namespace WowsKarma.Api.Data.Models
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public uint Id { get; init; }
 
+		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+		public DateTime LastUpdated { get; set; }
+
 		public string Username { get; set; }
 
 		public int WgKarma { get; set; }

@@ -22,9 +22,13 @@ namespace WowsKarma.Api.Data.Repositories
 		internal DbSet<TEntity> GetDbSet() => context.Set<TEntity>();
 		public IQueryable<TEntity> GetAll() => GetDbSet();
 
-		public async Task<TEntity> Get(TId id) => await GetDbSet().FindAsync(id);
+		public async Task<TEntity> GetAsync(TId id) => await GetDbSet().FindAsync(id);
 
-		public async Task CreateAsync(TEntity entity) => GetDbSet().Add(entity);
+		public Task CreateAsync(TEntity entity)
+		{
+			GetDbSet().Add(entity);
+			return Task.CompletedTask;
+		}
 
 		public Task DeleteAsync(TEntity entity)
 		{

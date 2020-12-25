@@ -1,4 +1,5 @@
 ﻿using Wargaming.WebAPI.Models.WorldOfWarships.Responses;
+using WowsKarma.Api.Data.Models;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Utilities
@@ -7,7 +8,7 @@ namespace WowsKarma.Api.Utilities
 	{
 		public static AccountListingDTO ToDTO(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);
 
-		public static PlayerProfileDTO ToDTO(this AccountInfo accountInfo) => new()
+		public static Player ToDbModel(this AccountInfo accountInfo) => new()
 		{
 			Id = accountInfo.AccountId,
 			Username = accountInfo.Nickname,

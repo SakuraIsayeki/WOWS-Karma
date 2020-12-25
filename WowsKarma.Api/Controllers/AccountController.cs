@@ -12,11 +12,11 @@ namespace WowsKarma.Api.Controllers
 	[ApiController, Route("api/[controller]")]
 	public class AccountController : ControllerBase
 	{
-		private readonly WgApiFetcherService fetcher;
+		private readonly PlayerService service;
 
-		public AccountController(WgApiFetcherService wgApiFetcherService)
+		public AccountController(PlayerService playerService)
 		{
-			fetcher = wgApiFetcherService;
+			service = playerService;
 		}
 
 		[HttpGet("Search/{query}")]
@@ -27,7 +27,7 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(400, new ArgumentNullException(nameof(query)));
 			}
 
-			IEnumerable<AccountListingDTO> accounts = await fetcher.ListAccountsAsync(query);
+			IEnumerable<AccountListingDTO> accounts = await service.ListPlayersAsync(query);
 
 			return accounts is null
 				? StatusCode(204) 
@@ -42,7 +42,7 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(400, new ArgumentException(null, nameof(id)));
 			}
 
-			PlayerProfileDTO playerProfile = await fetcher.FetchAcccountAsync(id);
+			PlayerProfileDTO playerProfile = await service.GetPlayerAsync(id);
 
 			return playerProfile is null
 				? StatusCode(204)

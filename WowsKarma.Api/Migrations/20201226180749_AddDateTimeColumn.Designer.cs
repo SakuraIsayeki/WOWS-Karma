@@ -10,8 +10,8 @@ using WowsKarma.Api.Data;
 namespace WowsKarma.Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20201225094937_AddLastUpdatedColumn")]
-    partial class AddLastUpdatedColumn
+    [Migration("20201226180749_AddDateTimeColumn")]
+    partial class AddDateTimeColumn
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,7 +28,8 @@ namespace WowsKarma.Api.Migrations
 
                     b.Property<DateTime>("LastUpdated")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("Username")
                         .HasColumnType("nvarchar(max)");

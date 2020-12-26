@@ -70,20 +70,16 @@ namespace WowsKarma.Api.Services
 		{
 			Player player = (await vortex.FetchAccountAsync(accountId)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
 
-			new Task(async () =>
+			if (firstEntry)
 			{
-				if (firstEntry)
-				{
-					await data.PlayerRepository.CreateAsync(player);
-				}
-				else
-				{
-					await data.PlayerRepository.UpdateAsync(player);
-				}
+				await data.PlayerRepository.CreateAsync(player);
+			}
+			else
+			{
+				await data.PlayerRepository.UpdateAsync(player);
+			}
 
-			   await data.SaveChangesAsync();
-			}).Start();
-
+			await data.SaveChangesAsync();
 			return player;
 		}
 

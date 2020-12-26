@@ -39,6 +39,14 @@ namespace WowsKarma.Api
 			services.AddTransient<UnitOfWork>();
 
 			services.AddTransient<PlayerService>();
+
+
+			services.AddApplicationInsightsTelemetry(options =>
+			{
+#if DEBUG
+				options.DeveloperMode = true;
+#endif
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

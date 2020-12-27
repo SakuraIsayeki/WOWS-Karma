@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +36,17 @@ namespace WowsKarma.Api
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(GetApiRegion(), Configuration["Api:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
-			services.AddSingleton<WgApiFetcherService>();
+			services.AddTransient<UnitOfWork>();
+
+			services.AddTransient<PlayerService>();
+
+
+			services.AddApplicationInsightsTelemetry(options =>
+			{
+#if DEBUG
+				options.DeveloperMode = true;
+#endif
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +58,14 @@ namespace WowsKarma.Api
 			}
 
 			app.UseRouting();
+
+			if (env.IsProduction()) // Nginx configuration step
+			{
+				app.UseForwardedHeaders(new ForwardedHeadersOptions
+				{
+					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+				});
+			}
 
 			app.UseEndpoints(endpoints =>
 			{

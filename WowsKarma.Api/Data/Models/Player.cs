@@ -11,6 +11,9 @@ namespace WowsKarma.Api.Data.Models
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public uint Id { get; init; }
 
+		// Handled by MSSQL DB Engine - Function "CURRENT_TIMESTAMP"
+		public DateTime LastUpdated { get; set; }
+
 		public string Username { get; set; }
 
 		public int WgKarma { get; set; }

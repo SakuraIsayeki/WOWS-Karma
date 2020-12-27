@@ -1,12 +1,7 @@
 {
   "dependencies": {
-    "mssql1": {
-      "type": "mssql",
-      "connectionId": "ApiDbConnectionString"
-    },
     "secrets1": {
-      "type": "secrets",
-      "connectionId": null
+      "type": "secrets"
     },
     "appInsights1": {
       "type": "appInsights",

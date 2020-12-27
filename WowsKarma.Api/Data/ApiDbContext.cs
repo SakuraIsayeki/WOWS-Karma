@@ -29,6 +29,11 @@ namespace WowsKarma.Api.Data
 				.HasMany(p => p.PostsSent)
 				.WithOne(p => p.Author);
 
+			modelBuilder.Entity<Player>()
+				.Property(p => p.LastUpdated)
+				.ValueGeneratedOnAddOrUpdate()
+				.HasDefaultValueSql("CURRENT_TIMESTAMP");
+
 			#endregion
 		}
 	}

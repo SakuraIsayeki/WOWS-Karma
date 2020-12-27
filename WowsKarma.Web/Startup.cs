@@ -27,6 +27,20 @@ namespace WowsKarma.Web
 			services.AddHttpClient(Options.DefaultName, config => config.BaseAddress = new(Configuration["Api:Host"]));
 
 			services.AddSingleton<AccountService>();
+			services.AddApplicationInsightsTelemetry(options => 
+			{ 
+#if DEBUG
+				options.DeveloperMode = true; 
+#endif
+			});
+#if RELEASE
+			services.AddHsts(options =>
+			{
+				options.Preload = true;
+			});
+#endif
+
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,10 +61,13 @@ namespace WowsKarma.Web
 
 			app.UseRouting();
 
-			app.UseForwardedHeaders(new ForwardedHeadersOptions
+			if (env.IsProduction()) // Nginx configuration step
 			{
-				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-			});
+				app.UseForwardedHeaders(new ForwardedHeadersOptions
+				{
+					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+				});
+			}
 
 			app.UseAuthentication();
 

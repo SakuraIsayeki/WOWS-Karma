@@ -4,4 +4,8 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Wargaming.WebAPI\Wargaming.WebAPI.Models\Wargaming.WebAPI.Models.csproj" />
+  </ItemGroup>
+
 </Project>

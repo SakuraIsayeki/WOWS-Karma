@@ -6,8 +6,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-
-
+using Wargaming.WebAPI.Models;
 
 namespace WowsKarma.Web
 {
@@ -25,5 +24,15 @@ namespace WowsKarma.Web
 			TResult result = JsonSerializer.Deserialize<TResult>(json, JsonSerializerOptions);
 			return result;
 		}
+
+		public static string GetOidcEndpoint(Region region) => region switch
+		{
+			Region.EU => "https://eu.wargaming.net/id/",
+			Region.NA => "https://na.wargaming.net/id/",
+			Region.CIS => "https://ru.wargaming.net/id/",
+			Region.ASIA => "https://asia.wargaming.net/id/",
+
+			_ => throw new NotImplementedException()
+		};
 	}
 }

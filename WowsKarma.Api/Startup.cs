@@ -10,6 +10,7 @@ using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Services;
+using static WowsKarma.Common.Utilities;
 
 namespace WowsKarma.Api
 {
@@ -33,7 +34,7 @@ namespace WowsKarma.Api
 
 			services.AddHttpClient();
 
-			services.AddSingleton(new WorldOfWarshipsHandlerOptions(GetApiRegion(), Configuration["Api:AppId"]));
+			services.AddSingleton(new WorldOfWarshipsHandlerOptions(GetRegionConfigString(Configuration["Api:Region"]), Configuration["Api:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
 			services.AddTransient<UnitOfWork>();
@@ -72,14 +73,5 @@ namespace WowsKarma.Api
 				endpoints.MapDefaultControllerRoute();
 			});
 		}
-
-		private Region GetApiRegion() => Configuration["Api:Region"] switch
-		{
-			"EU" => Region.EU,
-			"NA" => Region.NA,
-			"CIS" or "RU" => Region.CIS,
-			"ASIA" => Region.ASIA,
-			_ => throw new ArgumentOutOfRangeException()
-		};
 	}
 }

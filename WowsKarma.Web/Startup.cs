@@ -5,9 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using System;
-using System.Net.Http;
 using WowsKarma.Web.Services;
+using static WowsKarma.Common.Utilities;
+using static WowsKarma.Web.Utilities;
 
 namespace WowsKarma.Web
 {
@@ -24,11 +24,12 @@ namespace WowsKarma.Web
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllersWithViews();
+			services.AddRazorPages();
 			services.AddHttpClient(Options.DefaultName, config => config.BaseAddress = new(Configuration["Api:Host"]));
 
 			services.AddSingleton<AccountService>();
-			services.AddApplicationInsightsTelemetry(options => 
-			{ 
+			services.AddApplicationInsightsTelemetry(options =>
+			{
 #if DEBUG
 				options.DeveloperMode = true; 
 #endif
@@ -40,7 +41,11 @@ namespace WowsKarma.Web
 			});
 #endif
 
-
+			services.AddAuthentication().AddOpenId("Wargaming", "Wargaming", options =>
+			{
+				options.Authority = new(GetOidcEndpoint(GetRegionConfigString(Configuration["Api:Region"])));
+				options.CallbackPath = "/signin-wargaming";
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,6 +81,7 @@ namespace WowsKarma.Web
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+				endpoints.MapRazorPages();
 			});
 		}
 	}

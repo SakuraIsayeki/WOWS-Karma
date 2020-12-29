@@ -1,3 +1,5 @@
+using AspNet.Security.OpenId;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -6,13 +8,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
-using System.Net.Http;
 using WowsKarma.Web.Services;
+using static WowsKarma.Common.Utilities;
+using static WowsKarma.Web.Utilities;
 
 namespace WowsKarma.Web
 {
 	public class Startup
 	{
+		public const string WgAuthScheme = "Wargaming";
+		public const string CookieAuthScheme = "Cookie";
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -24,11 +30,12 @@ namespace WowsKarma.Web
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllersWithViews();
+			services.AddRazorPages();
 			services.AddHttpClient(Options.DefaultName, config => config.BaseAddress = new(Configuration["Api:Host"]));
 
 			services.AddSingleton<AccountService>();
-			services.AddApplicationInsightsTelemetry(options => 
-			{ 
+			services.AddApplicationInsightsTelemetry(options =>
+			{
 #if DEBUG
 				options.DeveloperMode = true; 
 #endif
@@ -40,7 +47,17 @@ namespace WowsKarma.Web
 			});
 #endif
 
-
+			services.AddAuthentication(options =>
+			{
+				options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = WgAuthScheme;
+			})
+			.AddCookie()
+			.AddOpenId(WgAuthScheme, "Wargaming.net", options =>
+			{
+				options.Authority = new(GetOidcEndpoint(GetRegionConfigString(Configuration["Api:Region"])));
+				options.CallbackPath = OpenIdAuthenticationDefaults.CallbackPath;
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,6 +93,7 @@ namespace WowsKarma.Web
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+				endpoints.MapRazorPages();
 			});
 		}
 	}

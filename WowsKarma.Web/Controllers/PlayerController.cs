@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using WowsKarma.Common.Models.DTOs;
@@ -19,7 +20,7 @@ namespace WowsKarma.Web.Controllers
 		public IActionResult Index() => View();
 
 
-		[Route("/{controller}/{id},{name}")]
+		[Route("/{controller}/{id},{name}"), Authorize]
 		public async Task<IActionResult> Profile(uint id) => View(await service.FetchPlayerProfileAsync(id));
 
 		public async Task<IActionResult> Search(string id) => View(new SearchViewModel<AccountListingDTO>()

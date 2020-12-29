@@ -1,0 +1,29 @@
+﻿@using System.Security.Claims;
+@using WowsKarma.Common.Models.DTOs;
+
+@if (Context.User?.Identity is not null && Context.User.Claims?.Any() is true)
+{
+	AccountListingDTO account = Utilities.GetAccountInfoFromOidcUrl(Context.User?.FindFirst(ClaimTypes.NameIdentifier).Value);
+
+	<form asp-controller="Home" asp-action="Logout" method="post" id="logoutForm" class="navbar-right">
+		<ul class="nav navbar-nav navbar-right">
+			<li>Welcome, @account.Username.</li>
+			&emsp;
+			<li><a asp-controller="Home" asp-action="Logout">Logout</a></li>
+		</ul>
+	</form>
+}
+else
+{
+	<ul class="nav navbar-nav navbar-right">
+		<li><a asp-controller="Home" asp-action="Login">Login</a></li>
+	</ul>
+}
+
+@section Scripts {
+	<script>
+		$(function () {
+			$('[data-toggle="tooltip"]').tooltip()
+		})
+	</script>
+}

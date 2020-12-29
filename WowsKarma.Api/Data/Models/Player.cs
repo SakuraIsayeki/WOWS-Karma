@@ -23,6 +23,12 @@ namespace WowsKarma.Api.Data.Models
 		public IEnumerable<Post> PostsReceived { get; init; }
 		public IEnumerable<Post> PostsSent { get; init; }
 
+
+
+		/*
+		 * Mapping
+		 */
+
 		public static implicit operator PlayerProfileDTO(Player value) => new()
 		{
 			Id = value.Id,
@@ -30,5 +36,13 @@ namespace WowsKarma.Api.Data.Models
 			WgAccountCreatedAt = value.WgAccountCreatedAt,
 			WgKarma = value.WgKarma
 		};
+
+		public static Player Map(Player source, Player mod)
+		{
+			source.Username = mod.Username;
+			source.WgKarma = mod.WgKarma;
+
+			return source;
+		}
 	}
 }

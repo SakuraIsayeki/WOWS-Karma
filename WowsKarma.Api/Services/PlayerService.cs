@@ -15,14 +15,14 @@ namespace WowsKarma.Api.Services
 	{
 		public static TimeSpan DataUpdateSpan => new(24, 0, 0);	// 24 hrs
 
-		private readonly UnitOfWork data;
+		private readonly ApiDbContext context;
 		private readonly WorldOfWarshipsHandler wgApi;
 		private readonly VortexApiHandler vortex;
 
 
-		public PlayerService(UnitOfWork unitOfWork, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
+		public PlayerService(ApiDbContext context, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
 		{
-			data = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+			this.context = context ?? throw new ArgumentNullException(nameof(context));
 			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
 			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));
 		}
@@ -34,7 +34,7 @@ namespace WowsKarma.Api.Services
 				return null;
 			}
 			
-			Player player = await data.PlayerRepository.GetAsync(accountId);
+			Player player = await context.Players.FindAsync(accountId);
 
 			try
 			{
@@ -72,14 +72,14 @@ namespace WowsKarma.Api.Services
 
 			if (firstEntry)
 			{
-				await data.PlayerRepository.CreateAsync(player);
+				context.Players.Add(player);
 			}
 			else
 			{
-				await data.PlayerRepository.UpdateAsync(player);
+				Player.Map(await context.Players.FindAsync(accountId), player);
 			}
 
-			await data.SaveChangesAsync();
+			await context.SaveChangesAsync();
 			return player;
 		}
 

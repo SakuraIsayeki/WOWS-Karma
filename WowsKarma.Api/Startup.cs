@@ -37,9 +37,8 @@ namespace WowsKarma.Api
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(GetRegionConfigString(Configuration["Api:Region"]), Configuration["Api:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
-			services.AddTransient<UnitOfWork>();
 
-			services.AddTransient<PlayerService>();
+			services.AddScoped<PlayerService>();
 
 
 			services.AddApplicationInsightsTelemetry(options =>

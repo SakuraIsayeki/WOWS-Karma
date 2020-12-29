@@ -69,6 +69,7 @@ namespace WowsKarma.Api.Services
 		internal async Task<Player> UpdatePlayerRecordAsync(uint accountId, bool firstEntry)
 		{
 			Player player = (await vortex.FetchAccountAsync(accountId)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
+			player.LastUpdated = DateTime.Now; // Forcing LastUpdated refresh
 
 			if (firstEntry)
 			{

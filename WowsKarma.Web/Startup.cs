@@ -1,3 +1,5 @@
+using AspNet.Security.OpenId;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -5,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System;
 using WowsKarma.Web.Services;
 using static WowsKarma.Common.Utilities;
 using static WowsKarma.Web.Utilities;
@@ -13,6 +16,9 @@ namespace WowsKarma.Web
 {
 	public class Startup
 	{
+		public const string WgAuthScheme = "Wargaming";
+		public const string CookieAuthScheme = "Cookie";
+
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -41,10 +47,16 @@ namespace WowsKarma.Web
 			});
 #endif
 
-			services.AddAuthentication().AddOpenId("Wargaming", "Wargaming", options =>
+			services.AddAuthentication(options =>
+			{
+				options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = WgAuthScheme;
+			})
+			.AddCookie()
+			.AddOpenId(WgAuthScheme, "Wargaming.net", options =>
 			{
 				options.Authority = new(GetOidcEndpoint(GetRegionConfigString(Configuration["Api:Region"])));
-				options.CallbackPath = "/signin-wargaming";
+				options.CallbackPath = OpenIdAuthenticationDefaults.CallbackPath;
 			});
 		}
 

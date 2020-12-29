@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WowsKarma.Web.Data;
 
 namespace WowsKarma.Web
 {
@@ -30,10 +29,6 @@ namespace WowsKarma.Web
 				.WriteTo.Console()
 //				.WriteTo.Logger(fileLogger)
 				.CreateLogger();
-
-
-			using IServiceScope scope = host.Services.CreateScope();
-			await scope.ServiceProvider.GetRequiredService<IdentityDbContext>().Database.MigrateAsync();
 
 			await host.RunAsync();
 		}

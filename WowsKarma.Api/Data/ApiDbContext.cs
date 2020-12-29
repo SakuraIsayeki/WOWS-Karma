@@ -30,9 +30,9 @@ namespace WowsKarma.Api.Data
 				.WithOne(p => p.Author);
 
 			modelBuilder.Entity<Player>()
-				.Property(p => p.LastUpdated)
-				.ValueGeneratedOnAddOrUpdate()
-				.HasDefaultValueSql("CURRENT_TIMESTAMP");
+				.Property(p => p.LastUpdated);
+//				.ValueGeneratedOnAddOrUpdate()
+//				.HasDefaultValueSql("CURRENT_TIMESTAMP");
 
 			#endregion
 		}

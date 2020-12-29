@@ -11,7 +11,7 @@ namespace WowsKarma.Api.Data.Models
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public uint Id { get; init; }
 
-		// Handled by MSSQL DB Engine - Function "CURRENT_TIMESTAMP"
+		// FIXME (broken): Handled by MSSQL DB Engine - Function "CURRENT_TIMESTAMP"
 		public DateTime LastUpdated { get; set; }
 
 		public string Username { get; set; }
@@ -19,6 +19,7 @@ namespace WowsKarma.Api.Data.Models
 		public int WgKarma { get; set; }
 
 		public DateTime WgAccountCreatedAt { get; init; }
+		public DateTime LastBattleTime { get; set; }
 
 		public IEnumerable<Post> PostsReceived { get; init; }
 		public IEnumerable<Post> PostsSent { get; init; }
@@ -34,13 +35,15 @@ namespace WowsKarma.Api.Data.Models
 			Id = value.Id,
 			Username = value.Username,
 			WgAccountCreatedAt = value.WgAccountCreatedAt,
-			WgKarma = value.WgKarma
+			WgKarma = value.WgKarma,
+			LastBattleTime = value.LastBattleTime
 		};
 
 		public static Player Map(Player source, Player mod)
 		{
 			source.Username = mod.Username;
 			source.WgKarma = mod.WgKarma;
+			source.LastBattleTime = mod.LastBattleTime;
 
 			return source;
 		}

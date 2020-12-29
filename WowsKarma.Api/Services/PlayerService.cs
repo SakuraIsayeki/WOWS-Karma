@@ -13,7 +13,7 @@ namespace WowsKarma.Api.Services
 {
 	public class PlayerService
 	{
-		public static TimeSpan DataUpdateSpan => new(24, 0, 0);	// 24 hrs
+		public static TimeSpan DataUpdateSpan => new(1, 0, 0);	// 1 hour
 
 		private readonly ApiDbContext context;
 		private readonly WorldOfWarshipsHandler wgApi;

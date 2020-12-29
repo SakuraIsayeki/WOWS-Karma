@@ -17,7 +17,8 @@ namespace WowsKarma.Api.Utilities
 			Id = accountInfo.AccountId,
 			Username = accountInfo.Nickname,
 			WgAccountCreatedAt = accountInfo.CreatedAtTime,
-			WgKarma = accountInfo.Statistics.Basic.Karma
+			WgKarma = accountInfo.Statistics.Basic.Karma,
+			LastBattleTime = DateTime.UnixEpoch.AddSeconds(accountInfo.Statistics.Basic.LastBattleTime)
 		};
 	}
 }

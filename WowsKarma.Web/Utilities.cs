@@ -1,12 +1,15 @@
-﻿using System;
+﻿using AngleSharp.Text;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Wargaming.WebAPI.Models;
+using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Web
 {
@@ -34,5 +37,13 @@ namespace WowsKarma.Web
 
 			_ => throw new NotImplementedException()
 		};
+
+		// Example Identifier:
+		// https://eu.wargaming.net/id/0000000-JohnDoe/
+		public static AccountListingDTO GetAccountInfoFromOidcUrl(string url)
+		{
+			Match result = new Regex("([0-9]+)-(\\w+)").Match(url);
+			return new(result.Groups[1].Value.ToInteger(uint.MinValue), result.Groups[2].Value);
+		}
 	}
 }

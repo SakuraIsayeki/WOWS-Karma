@@ -1,15 +1,16 @@
+using AspNetCore.Authentication.ApiKey;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Authentication;
 using static WowsKarma.Common.Utilities;
 
 namespace WowsKarma.Api
@@ -40,7 +41,6 @@ namespace WowsKarma.Api
 
 			services.AddScoped<PlayerService>();
 
-
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
@@ -66,6 +66,9 @@ namespace WowsKarma.Api
 					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 				});
 			}
+
+			app.UseAuthentication();
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{

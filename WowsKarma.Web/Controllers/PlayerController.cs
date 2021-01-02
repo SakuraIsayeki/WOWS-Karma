@@ -23,10 +23,11 @@ namespace WowsKarma.Web.Controllers
 		[Route("/{controller}/{id},{name}")]
 		public async Task<IActionResult> Profile(uint id) => View(await service.FetchPlayerProfileAsync(id));
 
-		public async Task<IActionResult> Search(string id) => View(new SearchViewModel<AccountListingDTO>()
+/*		public async Task<IActionResult> Search(string id) => View(new SearchViewModel<AccountListingDTO>()
 		{
 			Search = id,
 			Results = (id is null || id.Length > 2) ? await service.SearchPlayersAsync(id) : null
 		});
-	}
+*/	}
+
 }

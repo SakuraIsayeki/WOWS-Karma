@@ -1,0 +1,23 @@
+﻿@namespace WowsKarma.Web.Shared
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-3">
+	<div class="container-fluid">
+		<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WOWS Karma</a><span class="badge badge-pill badge-primary">WIP</span> &emsp;
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+				aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+			<NavLogin />
+			<ul class="navbar-nav flex-grow-1">
+				<li class="nav-item">
+					<NavLink class="nav-link text-light" href="" Match="NavLinkMatch.All">Home</NavLink>
+				</li>
+				<li class="nav-item">
+					<NavLink class="nav-link text-light" href="Player">Players</NavLink>
+				</li>
+			</ul>
+		</div>
+	</div>
+	
+</nav>

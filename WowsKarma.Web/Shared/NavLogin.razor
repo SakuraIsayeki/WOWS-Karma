@@ -1,0 +1,19 @@
+﻿@namespace WowsKarma.Web.Shared
+@inherits ComponentBase
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@using System.Security.Claims;
+
+<AuthorizeView>
+	<Authorized>
+		<ul class="navbar-nav">
+			<span class="navbar-text text-light">Welcome, @GetAccountInfoFromOidcUrl(context.User.FindFirst(ClaimTypes.NameIdentifier).Value).Username. &emsp;</span>
+			<li class="nav-item"><a class="nav-link text-white" href="logout">Logout</a></li>
+		</ul>
+	</Authorized>
+	<NotAuthorized>
+		<ul class="navbar-nav">
+			<li class="nav-item"><a class="nav-link text-white" href="login">Login</a></li>
+		</ul>
+	</NotAuthorized>
+</AuthorizeView>

@@ -45,5 +45,11 @@ namespace WowsKarma.Web
 			Match result = new Regex("([0-9]+)-(\\w+)").Match(url);
 			return new(result.Groups[1].Value.ToInteger(uint.MinValue), result.Groups[2].Value);
 		}
+
+		public static uint GetIdFromRouteParameter(string routeParameter)
+		{
+			Match result = new Regex("([0-9]+),(\\w+)").Match(routeParameter);
+			return result.Groups[1].Value.ToInteger(uint.MinValue);
+		}
 	}
 }

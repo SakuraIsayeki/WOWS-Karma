@@ -34,7 +34,7 @@ namespace WowsKarma.Web
 
 			services.AddHttpClient(Options.DefaultName, config => config.BaseAddress = new(Configuration["Api:Host"]));
 
-			services.AddSingleton<AccountService>();
+			services.AddSingleton<PlayerService>();
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG

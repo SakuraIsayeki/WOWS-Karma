@@ -29,11 +29,12 @@ namespace WowsKarma.Web
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllersWithViews();
+			services.AddServerSideBlazor();
 			services.AddRazorPages();
+
 			services.AddHttpClient(Options.DefaultName, config => config.BaseAddress = new(Configuration["Api:Host"]));
 
-			services.AddSingleton<AccountService>();
+			services.AddSingleton<PlayerService>();
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
@@ -58,6 +59,9 @@ namespace WowsKarma.Web
 				options.Authority = new(GetOidcEndpoint(GetRegionConfigString(Configuration["Api:Region"])));
 				options.CallbackPath = OpenIdAuthenticationDefaults.CallbackPath;
 			});
+
+			services.AddAuthorizationCore();
+			services.AddHttpContextAccessor();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -92,8 +96,8 @@ namespace WowsKarma.Web
 
 			app.UseEndpoints(endpoints =>
 			{
-				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-				endpoints.MapRazorPages();
+				endpoints.MapBlazorHub();
+				endpoints.MapFallbackToPage("/_Host");
 			});
 		}
 	}

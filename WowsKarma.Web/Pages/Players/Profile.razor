@@ -1,0 +1,38 @@
+﻿@page "/player/{idnamepair}/"
+@inject WowsKarma.Web.Services.PlayerService PlayerService
+
+@if (Player is not null)
+{
+	<h1 class="mb-3">@Player.Username</h1>
+	<p><b>Account ID :</b> @Player.Id</p>
+	<p><b>Created On :</b> @Player.WgAccountCreatedAt.ToString("f")</p>
+	<p><b>Last Battle :</b> @Player.LastBattleTime.ToString("f")</p>
+	<p><b>Karma :</b> @Player.WgKarma</p>
+}
+else if (Loaded)
+{
+	<h4 class="text-warning">Player not found.</h4>
+}
+else
+{
+	<h4 class="text-info">Loading...</h4>
+}
+
+
+@code {
+	[Parameter]
+	public string IdNamePair { get; set; }
+
+	public PlayerProfileDTO Player { get; set; }
+
+	public bool Loaded { get; private set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		uint id = GetIdFromRouteParameter(IdNamePair);
+		Player = id is 0 ? null : await PlayerService.FetchPlayerProfileAsync(id);
+
+		await base.OnInitializedAsync();
+		Loaded = true;
+	}
+}

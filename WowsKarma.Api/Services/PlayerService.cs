@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,9 +21,9 @@ namespace WowsKarma.Api.Services
 		private readonly VortexApiHandler vortex;
 
 
-		public PlayerService(ApiDbContext context, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
+		public PlayerService(IDbContextFactory<ApiDbContext> contextFactory, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
 		{
-			this.context = context ?? throw new ArgumentNullException(nameof(context));
+			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
 			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
 			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));
 		}
@@ -69,7 +70,7 @@ namespace WowsKarma.Api.Services
 		internal async Task<Player> UpdatePlayerRecordAsync(uint accountId, bool firstEntry)
 		{
 			Player player = (await vortex.FetchAccountAsync(accountId)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
-			player.LastUpdated = DateTime.Now; // Forcing LastUpdated refresh
+			player.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 
 			if (firstEntry)
 			{
@@ -84,6 +85,8 @@ namespace WowsKarma.Api.Services
 			return player;
 		}
 
-		internal static bool UpdateNeeded(Player player) => player.LastUpdated.Add(DataUpdateSpan) < DateTime.Now;
+		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;
+
+
 	}
 }

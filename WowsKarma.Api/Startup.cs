@@ -29,7 +29,7 @@ namespace WowsKarma.Api
 		{
 			services.AddControllers();
 
-			services.AddDbContext<ApiDbContext>(options => 
+			services.AddDbContextFactory<ApiDbContext>(options => 
 				options.UseSqlServer(Configuration.GetConnectionString("ApiDbConnectionString"), 
 					providerOptions => providerOptions.EnableRetryOnFailure()));
 
@@ -39,7 +39,8 @@ namespace WowsKarma.Api
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
 
-			services.AddScoped<PlayerService>();
+			services.AddSingleton<PlayerService>();
+			services.AddSingleton<PostService>();
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{

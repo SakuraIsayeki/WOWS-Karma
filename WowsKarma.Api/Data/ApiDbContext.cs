@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 
@@ -23,16 +25,37 @@ namespace WowsKarma.Api.Data
 
 			modelBuilder.Entity<Player>()
 				.HasMany(p => p.PostsReceived)
-				.WithOne(p => p.Player);
+				.WithOne(p => p.Player)
+				.HasForeignKey(p => p.PlayerId)
+				.IsRequired(false)
+				.OnDelete(DeleteBehavior.Restrict);
 
 			modelBuilder.Entity<Player>()
 				.HasMany(p => p.PostsSent)
-				.WithOne(p => p.Author);
+				.WithOne(p => p.Author)
+				.HasForeignKey(p => p.AuthorId)
+				.IsRequired(false)
+				.OnDelete(DeleteBehavior.Restrict);
+
 
 			modelBuilder.Entity<Player>()
-				.Property(p => p.LastUpdated);
-//				.ValueGeneratedOnAddOrUpdate()
-//				.HasDefaultValueSql("CURRENT_TIMESTAMP");
+				.Property(p => p.UpdatedAt)
+				.ValueGeneratedOnAddOrUpdate()
+				.HasDefaultValueSql("GETUTCDATE()");
+
+			#endregion
+
+			#region Posts
+
+			modelBuilder.Entity<Post>()
+				.Property(p => p.CreatedAt)
+				.ValueGeneratedOnAdd()
+				.HasDefaultValueSql("GETUTCDATE()");
+
+			modelBuilder.Entity<Post>()
+				.Property(p => p.UpdatedAt)
+				.ValueGeneratedOnAddOrUpdate()
+				.HasDefaultValueSql("GETUTCDATE()");
 
 			#endregion
 		}

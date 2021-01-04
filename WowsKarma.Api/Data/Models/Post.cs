@@ -23,7 +23,9 @@ namespace WowsKarma.Api.Data.Models
 		[Required]
 		public Player Author { get; init; }
 
-		public PostFlairs PostFlairs { get; set; }
+		public PostFlairs Flairs { get; set; }
+		public PostFlairsParsed ParsedFlairs => Flairs.ParseFlairsEnum();
+	
 		public bool NegativeKarmaAble { get; init; }
 
 		public string Title { get; set; }
@@ -41,7 +43,7 @@ namespace WowsKarma.Api.Data.Models
 			AuthorId = value.AuthorId,
 			Title = value.Title,
 			Content = value.Content,
-			PostFlairs = value.PostFlairs,
+			Flairs = value.Flairs,
 			PostedAt = value.CreatedAt,
 			UpdatedAt = value.UpdatedAt
 		};

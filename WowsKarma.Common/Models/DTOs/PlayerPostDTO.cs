@@ -13,7 +13,7 @@ namespace WowsKarma.Common.Models.DTOs
 		public uint PlayerId { get; init; }
 		public uint AuthorId { get; init; }
 
-		public PostFlairs PostFlairs { get; init; }
+		public PostFlairs Flairs { get; init; }
 
 		public string Title { get; init; }
 		public string Content { get; init; }

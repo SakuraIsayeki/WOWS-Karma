@@ -39,8 +39,8 @@ namespace WowsKarma.Api.Data
 
 
 			modelBuilder.Entity<Player>()
-				.Property(p => p.UpdatedAt)
-				.ValueGeneratedOnAddOrUpdate()
+				.Property(p => p.CreatedAt)
+				.ValueGeneratedOnAdd()
 				.HasDefaultValueSql("GETUTCDATE()");
 
 			#endregion
@@ -50,11 +50,6 @@ namespace WowsKarma.Api.Data
 			modelBuilder.Entity<Post>()
 				.Property(p => p.CreatedAt)
 				.ValueGeneratedOnAdd()
-				.HasDefaultValueSql("GETUTCDATE()");
-
-			modelBuilder.Entity<Post>()
-				.Property(p => p.UpdatedAt)
-				.ValueGeneratedOnAddOrUpdate()
 				.HasDefaultValueSql("GETUTCDATE()");
 
 			#endregion

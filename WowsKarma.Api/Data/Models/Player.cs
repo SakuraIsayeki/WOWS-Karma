@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using WowsKarma.Api.Utilities;
 using WowsKarma.Common.Models.DTOs;
+
+
 
 namespace WowsKarma.Api.Data.Models
 {
@@ -21,6 +21,10 @@ namespace WowsKarma.Api.Data.Models
 		public int SiteKarma { get; set; }
 		public int GameKarma { get; set; }
 
+		public int PerformanceRating { get; set; }
+		public int TeamplayRating { get; set; }
+		public int CourtesyRating { get; set; }
+
 		public DateTime WgAccountCreatedAt { get; init; }
 		public DateTime LastBattleTime { get; set; }
 
@@ -29,6 +33,7 @@ namespace WowsKarma.Api.Data.Models
 
 
 		public bool NegativeKarmaAble => (SiteKarma + GameKarma) > -20;
+
 
 
 		/*

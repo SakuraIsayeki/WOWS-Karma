@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Services
@@ -16,6 +17,16 @@ namespace WowsKarma.Api.Services
 
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
+
+		public delegate void PostAddedEventHandler(object sender, PostEventArgs e);
+		public delegate void PostAddedOrUpdatedEventHandler(object sender, PostUpdatedEventArgs e);
+		public delegate void PostDeletedHandler(object sender, PostEventArgs e);
+
+		public static event PostAddedEventHandler PostAdded;
+		public static event PostAddedOrUpdatedEventHandler PostUpdated;
+		public static event PostDeletedHandler PostDeleted;
+
+
 
 		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService)
 		{
@@ -29,7 +40,7 @@ namespace WowsKarma.Api.Services
 			Player player = context.Players.Include(p => p.PostsReceived).FirstOrDefault(p => p.Id == playerId);
 
 			return player.PostsReceived is not null
-				? lastResults > 0 && lastResults < player.PostsReceived.Count()
+				? lastResults > 0 && lastResults < player.PostsReceived.Count
 					? player.PostsReceived.OrderBy(p => p.CreatedAt).TakeLast(lastResults)
 					: player.PostsReceived.OrderBy(p => p.CreatedAt)
 				: null;
@@ -40,7 +51,7 @@ namespace WowsKarma.Api.Services
 			Player author = context.Players.Include(p => p.PostsSent).FirstOrDefault(p => p.Id == authorId);
 
 			return author?.PostsSent is not null
-				? lastResults > 0 && lastResults < author.PostsSent.Count()
+				? lastResults > 0 && lastResults < author.PostsSent.Count
 					? author.PostsSent.OrderBy(p => p.CreatedAt).TakeLast(lastResults)
 					: author.PostsSent.OrderBy(p => p.CreatedAt)
 				: null;
@@ -66,11 +77,14 @@ namespace WowsKarma.Api.Services
 				PlayerId = postDTO.PlayerId,
 				Title = postDTO.Title,
 				Content = postDTO.Content,
-				PostFlairs = postDTO.PostFlairs,
+				Flairs = postDTO.Flairs,
 				NegativeKarmaAble = author.NegativeKarmaAble,
 			};
 
-			await AddPostAsync(post);
+			context.Posts.Add(post);
+			OnPostAdded(new() { Post = post });
+
+			await context.SaveChangesAsync();
 		}
 
 		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO)
@@ -78,21 +92,23 @@ namespace WowsKarma.Api.Services
 			ValidatePostContents(editedPostDTO);
 
 			Post post = await context.Posts.FindAsync(id) ?? throw new ArgumentException($"No post with ID {id} found.", nameof(id));
+			PostUpdatedEventArgs eventArgs = new() { PreviousFlairs = post.ParsedFlairs };
 
 			post.Title = editedPostDTO.Title;
 			post.Content = editedPostDTO.Content;
-			post.PostFlairs = editedPostDTO.PostFlairs;
+			post.Flairs = editedPostDTO.Flairs;
 			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 
+			eventArgs.Post = post;
+			OnPostUpdated(eventArgs);
 			await context.SaveChangesAsync();
-			
 		}
 
 		public async Task DeletePostAsync(Guid id)
 		{
 			Post post = await context.Posts.FindAsync(id) ?? throw new ArgumentException($"No post with ID {id} found.", nameof(id));
 			context.Posts.Remove(post);
-
+			OnPostDeleted(new() { Post = post });
 			await context.SaveChangesAsync();
 		}
 
@@ -107,10 +123,17 @@ namespace WowsKarma.Api.Services
 			_ = post.Content.Length > PostContentMaxSize ? throw new ArgumentException($"Post Content Length exceeds {PostContentMaxSize} characters", nameof(post)) : false;
 		}
 
-		protected async Task AddPostAsync(Post post)
-		{
-			context.Posts.Add(post);
-			await context.SaveChangesAsync();
-		}
+		protected virtual void OnPostAdded(PostEventArgs e) => PostAdded?.Invoke(this, e);
+		protected virtual void OnPostUpdated(PostUpdatedEventArgs e) => PostUpdated?.Invoke(this, e);
+		protected virtual void OnPostDeleted(PostEventArgs e) => PostDeleted?.Invoke(this, e);
+	}
+
+	public class PostEventArgs : EventArgs
+	{
+		public Post Post { get; set; }
+	}
+	public class PostUpdatedEventArgs : PostEventArgs
+	{ 
+		public PostFlairsParsed PreviousFlairs { get; set; }
 	}
 }

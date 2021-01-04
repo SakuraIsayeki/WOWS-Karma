@@ -63,7 +63,7 @@ namespace WowsKarma.Web
 			};
 		}
 
-		internal static string GetKarmaColor(int karmaCount, int lowThreshold = -1, int highThreshold = 1) 
+		internal static string GetKarmaColor(int karmaCount, int lowThreshold = 0, int highThreshold = 0) 
 		{
 			if (karmaCount < lowThreshold)
 			{

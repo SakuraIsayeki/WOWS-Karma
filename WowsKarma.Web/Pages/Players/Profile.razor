@@ -1,4 +1,5 @@
 ﻿@page "/player/{idnamepair}/"
+@using WowsKarma.Web.Pages.Posts
 @inject PlayerService PlayerService
 
 @if (Player is not null)
@@ -52,7 +53,7 @@
 
 
 	<hr class="my-3" />
-	<Posts AccountId="@Player.Id"/>
+	<Posts AccountId="@Player.Id" />
 }
 else if (Loaded)
 {
@@ -74,12 +75,12 @@ else
 
 	public bool Loaded { get; private set; }
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnParametersSetAsync()
 	{
 		uint id = GetIdFromRouteParameter(IdNamePair);
 		Player = id is 0 ? null : await PlayerService.FetchPlayerProfileAsync(id);
 
-		await base.OnInitializedAsync();
+		await base.OnParametersSetAsync();
 		Loaded = true;
 	}
 }

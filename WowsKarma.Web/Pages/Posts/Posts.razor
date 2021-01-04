@@ -6,7 +6,10 @@
 
 @if (Loaded)
 {
-	<h2 class="mb-5">Posts</h2>
+	<div class="row justify-content-between align-content-end">
+		<h2 class="col-auto mb-5">Posts</h2>
+		<div class="col-auto mb-5"><Create DestAccountId="AccountId" PostModel="new()" /></div>
+	</div>
 
 	@if (PlayerPosts is null || PlayerPosts.Count() is 0)
 	{
@@ -24,7 +27,7 @@
 				</div>
 				<div class="card-footer">
 					<p class="blockquote-footer mb-0">
-						<a href="/player/@post.AuthorId,@post.AuthorUsername">@post.AuthorUsername</a>,
+						<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}") >@post.AuthorUsername</NavLink>,
 						@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
 					</p>
 				</div>
@@ -50,11 +53,11 @@ else
 
 	public bool Loaded { get; private set; }
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnParametersSetAsync()
 	{
 		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
 
-		await base.OnInitializedAsync();
+		await base.OnParametersSetAsync();
 		Loaded = true;
 	}
 }

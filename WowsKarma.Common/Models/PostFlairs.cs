@@ -20,8 +20,12 @@ namespace WowsKarma.Common.Models
 		CourtesyBad		= 0x20
 	}
 
-	public record PostFlairsParsed(bool? Performance, bool? Teamplay, bool? Courtesy);
-
+	public record PostFlairsParsed
+	{
+		public bool? Performance { get; set; }
+		public bool? Teamplay { get; set; }
+		public bool? Courtesy { get; set; }
+	}
 
 	public static class PostFlairsUtils 
 	{
@@ -36,12 +40,23 @@ namespace WowsKarma.Common.Models
 			return flairs;
 		}
 
-		public static PostFlairsParsed ParseFlairsEnum(this PostFlairs flairs) => flairs is 0 ? null : new
-		(
-			ParseBalancedFlags(flairs, PostFlairs.PerformanceGood, PostFlairs.PerformanceBad),
-			ParseBalancedFlags(flairs, PostFlairs.TeamplayGood, PostFlairs.TeamplayBad),
-			ParseBalancedFlags(flairs, PostFlairs.CourtesyGood, PostFlairs.CourtesyBad)
-		);
+		public static PostFlairsParsed ParseFlairsEnum(this PostFlairs flairs) => flairs is 0 ? null : new()
+		{
+			Performance = ParseBalancedFlags(flairs, PostFlairs.PerformanceGood, PostFlairs.PerformanceBad),
+			Teamplay = ParseBalancedFlags(flairs, PostFlairs.TeamplayGood, PostFlairs.TeamplayBad),
+			Courtesy = ParseBalancedFlags(flairs, PostFlairs.CourtesyGood, PostFlairs.CourtesyBad)
+		};
+
+		public static PostFlairs ToEnum(this PostFlairsParsed flairsParsed)
+		{
+			ushort flairCount = 0x00;
+
+			flairCount += flairsParsed.Performance is null ? 0x00 : flairsParsed.Performance.Value ? 0x01 : 0x02;
+			flairCount += flairsParsed.Teamplay is null ? 0x00 : flairsParsed.Teamplay.Value ? 0x04 : 0x08;
+			flairCount += flairsParsed.Courtesy is null ? 0x00 : flairsParsed.Courtesy.Value ? 0x10 : 0x20;
+
+			return (PostFlairs)flairCount;
+		}
 
 		public static sbyte CountBalance(PostFlairsParsed flairs) => CountBalance(flairs?.Performance, flairs?.Teamplay, flairs?.Courtesy);
 		public static sbyte CountBalance(params bool?[] flairs)

@@ -2,13 +2,11 @@
 
 <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-3">
 	<div class="container-fluid">
-		<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WOWS Karma</a><span class="badge badge-pill badge-primary">WIP</span> &emsp;
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-				aria-expanded="false" aria-label="Toggle navigation">
+		<NavLink class="navbar-brand" href="/">WOWS Karma</NavLink><span class="badge badge-pill badge-primary">WIP</span> &emsp;
+		<button class="navbar-toggler" @onclick="Toggle">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-			<NavLogin />
+		<div class="navbar-collapse @CssClass">
 			<ul class="navbar-nav flex-grow-1">
 				<li class="nav-item">
 					<NavLink class="nav-link text-light" href="" Match="NavLinkMatch.All">Home</NavLink>
@@ -17,7 +15,16 @@
 					<NavLink class="nav-link text-light" href="Player">Players</NavLink>
 				</li>
 			</ul>
+			<NavLogin />
 		</div>
 	</div>
-	
+
 </nav>
+
+@code {
+	bool collapse = true;
+
+	string CssClass => collapse ? "collapse" : null;
+
+	void Toggle() => collapse = !collapse;
+}

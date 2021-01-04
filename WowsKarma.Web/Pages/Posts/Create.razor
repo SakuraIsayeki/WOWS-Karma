@@ -1,0 +1,113 @@
+﻿@inject PostService PostService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<CascadingAuthenticationState>
+	<AuthorizeView>
+		<NotAuthorized>
+			<h5 class="text-warning">You must be logged in to create a Post.</h5>
+		</NotAuthorized>
+		<Authorized>
+			<button class="btn btn-success" @onclick="() => { ModalDisplay(); AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }">New Post</button>
+
+			@if (showModal && DestAccountId != AuthorAccountId)
+			{
+				<div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+					<div class="modal-dialog">
+						<div class="modal-content">
+
+							<!-- Modal Header -->
+							<div class="modal-header">
+								<h4 class="modal-title">Create Post</h4>
+							</div>
+							<EditForm Context="EditFormContext" Model="PostModel" OnValidSubmit="ModalSubmitAsync">
+								<DataAnnotationsValidator />
+								<ValidationSummary />
+								<!-- Modal body -->
+
+								<div class="modal-body">
+									<div class="form-group">
+										<label for="Title">Title</label>
+										<InputText DisplayName=Title @bind-Value=PostModel.Title id="Title" class="form-control" />
+									</div>
+
+									<div class="form-group">
+										<label for="Content">Content</label>
+										<InputTextArea DisplayName=Content @bind-Value=PostModel.Content id="Content" class="form-control" />
+									</div>
+
+									<hr class="m-5" />
+
+									<h5>Flairs</h5>
+
+									<div class="btn-group" role="group" aria-label="Basic example">
+										<button type="button" class="btn btn-danger @(PostFlairs.Performance is false ? "active" : "")" @onclick="() => { PostFlairs.Performance = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Performance is null ? "active" : "")" @onclick="() => { PostFlairs.Performance = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
+										<p class="lead ml-3">Performance</p>
+									</div>
+									
+									<div class="btn-group" role="group" aria-label="Basic example">
+										<button type="button" class="btn btn-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
+										<p class="lead ml-3">Teamplay</p>
+									</div>
+
+									<div class="btn-group" role="group" aria-label="Basic example">
+										<button type="button" class="btn btn-danger @(PostFlairs.Courtesy is false ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Courtesy is null ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
+										<p class="lead ml-3">Courtesy</p>
+									</div>
+
+								</div>
+
+								<!-- Modal footer -->
+								<div class="modal-footer">
+									<button type="button" class="btn btn-danger" @onclick="@ModalCancel">Cancel</button>
+									<button type="submit" class="btn btn-success" value="Create">Create</button>
+								</div>
+							</EditForm>
+						</div>
+					</div>
+				</div>
+			}
+		</Authorized>
+	</AuthorizeView>
+</CascadingAuthenticationState>
+
+
+@code {
+
+	[Parameter]
+	public uint DestAccountId { get; set; }
+	public uint AuthorAccountId { get; set; }
+
+	[Parameter]
+	public PlayerPostViewModel PostModel { get; set; }
+	public PostFlairsParsed PostFlairs { get; set; }
+
+	private bool showModal = false;
+	void ModalDisplay()
+	{
+		PostFlairs ??= new();
+		showModal = true;
+
+	}
+	void ModalCancel() => showModal = false;
+
+	async Task ModalSubmitAsync()
+	{
+		PostModel.PlayerId = DestAccountId;
+		PostModel.Flairs = PostFlairs.ToEnum();
+		await PostService.SubmitNewPostAsync(PostModel.AuthorId, PlayerPostViewModel.ToDTO(PostModel));
+		showModal = false;
+	}
+
+	void AssignAuthorId(string accountUrl)
+	{
+		AuthorAccountId = GetAccountInfoFromOidcUrl(accountUrl).AccountId;
+		PostModel.AuthorId = AuthorAccountId;
+	}
+
+}

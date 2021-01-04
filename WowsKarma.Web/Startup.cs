@@ -32,9 +32,15 @@ namespace WowsKarma.Web
 			services.AddServerSideBlazor();
 			services.AddRazorPages();
 
-			services.AddHttpClient(Options.DefaultName, config => config.BaseAddress = new(Configuration["Api:Host"]));
+			services.AddHttpClient(Options.DefaultName, config =>
+			{
+				config.BaseAddress = new(Configuration["Api:Host"]);
+				config.DefaultRequestHeaders.Add("Access-Key", Configuration["Api:AccessKey"]);
+			});
 
 			services.AddSingleton<PlayerService>();
+			services.AddSingleton<PostService>();
+
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG

@@ -11,7 +11,9 @@ namespace WowsKarma.Common.Models.DTOs
 		public Guid? Id { get; init; }
 
 		public uint PlayerId { get; init; }
+		public string PlayerUsername { get; init; }
 		public uint AuthorId { get; init; }
+		public string AuthorUsername { get; init; }
 
 		public PostFlairs Flairs { get; init; }
 

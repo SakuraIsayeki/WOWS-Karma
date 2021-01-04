@@ -38,8 +38,8 @@ namespace WowsKarma.Api.Services
 
 		public static void UpdatePlayerKarma(Player player, PostFlairsParsed newFlairs, PostFlairsParsed oldFlairs, bool allowNegative)
 		{
-			byte? newKarmaBalance = newFlairs is null ? null : PostFlairsUtils.CountBalance(newFlairs);
-			byte? oldKarmaBalance = oldFlairs is null ? null : PostFlairsUtils.CountBalance(oldFlairs);
+			sbyte? newKarmaBalance = newFlairs is null ? null : PostFlairsUtils.CountBalance(newFlairs);
+			sbyte? oldKarmaBalance = oldFlairs is null ? null : PostFlairsUtils.CountBalance(oldFlairs);
 
 			// Revert Old Karma change
 			if (oldKarmaBalance is not null and not 0)

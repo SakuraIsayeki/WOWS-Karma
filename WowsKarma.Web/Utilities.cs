@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Wargaming.WebAPI.Models;
+using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Web
@@ -50,6 +51,30 @@ namespace WowsKarma.Web
 		{
 			Match result = new Regex("([0-9]+),(\\w+)").Match(routeParameter);
 			return result.Groups[1].Value.ToInteger(uint.MinValue);
+		}
+
+		internal static string GetPostBorderColor(PostFlairs postFlairs)
+		{
+			return ((int)PostFlairsUtils.CountBalance(postFlairs.ParseFlairsEnum())) switch
+			{
+				> 0 => "success",
+				< 0 => "danger",
+				_ => "warning"
+			};
+		}
+
+		internal static string GetKarmaColor(int karmaCount, int lowThreshold = -1, int highThreshold = 1) 
+		{
+			if (karmaCount < lowThreshold)
+			{
+				return "danger";
+			}
+			else if (karmaCount > highThreshold)
+			{
+				return "success";
+			}
+
+			return "warning";
 		}
 	}
 }

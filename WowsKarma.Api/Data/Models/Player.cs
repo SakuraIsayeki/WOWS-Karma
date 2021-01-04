@@ -45,7 +45,11 @@ namespace WowsKarma.Api.Data.Models
 			Id = value.Id,
 			Username = value.Username,
 			WgAccountCreatedAt = value.WgAccountCreatedAt,
-			WgKarma = value.GameKarma,
+			GameKarma = value.GameKarma,
+			SiteKarma = value.SiteKarma,
+			RatingPerformance = value.PerformanceRating,
+			RatingTeamplay = value.TeamplayRating,
+			RatingCourtesy = value.CourtesyRating,
 			LastBattleTime = value.LastBattleTime
 		};
 

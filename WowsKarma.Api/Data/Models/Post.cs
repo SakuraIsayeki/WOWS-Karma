@@ -40,7 +40,9 @@ namespace WowsKarma.Api.Data.Models
 		{
 			Id = value.Id,
 			PlayerId = value.PlayerId,
+			PlayerUsername = value.Player.Username,
 			AuthorId = value.AuthorId,
+			AuthorUsername = value.Author.Username,
 			Title = value.Title,
 			Content = value.Content,
 			Flairs = value.Flairs,

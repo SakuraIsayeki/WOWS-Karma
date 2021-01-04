@@ -43,19 +43,22 @@ namespace WowsKarma.Common.Models
 			ParseBalancedFlags(flairs, PostFlairs.CourtesyGood, PostFlairs.CourtesyBad)
 		);
 
-		public static byte CountBalance(PostFlairsParsed flairs) => CountBalance(flairs.Performance, flairs.Teamplay, flairs.Courtesy);
-		public static byte CountBalance(params bool?[] flairs)
+		public static sbyte CountBalance(PostFlairsParsed flairs) => CountBalance(flairs?.Performance, flairs?.Teamplay, flairs?.Courtesy);
+		public static sbyte CountBalance(params bool?[] flairs)
 		{
-			byte balance = 0;
+			sbyte balance = 0;
 			foreach (bool? flair in flairs)
 			{
-				if (flair is true)
+				if (flair is not null)
 				{
-					balance++;
-				}
-				else if (flair is false)
-				{
-					balance--;
+					if (flair is true)
+					{
+						balance++;
+					}
+					else
+					{
+						balance--;
+					}
 				}
 			}
 			return balance;

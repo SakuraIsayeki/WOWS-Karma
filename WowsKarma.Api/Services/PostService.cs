@@ -37,7 +37,10 @@ namespace WowsKarma.Api.Services
 
 		public IEnumerable<Post> GetReceivedPosts(uint playerId, int lastResults)
 		{
-			Player player = context.Players.Include(p => p.PostsReceived).FirstOrDefault(p => p.Id == playerId);
+			Player player = context.Players
+				.Include(p => p.PostsReceived).ThenInclude(p => p.Player)
+				.Include(p => p.PostsReceived).ThenInclude(p => p.Author)
+				.FirstOrDefault(p => p.Id == playerId);
 
 			return player.PostsReceived is not null
 				? lastResults > 0 && lastResults < player.PostsReceived.Count
@@ -48,7 +51,10 @@ namespace WowsKarma.Api.Services
 
 		public IEnumerable<Post> GetSentPosts(uint authorId, int lastResults)
 		{
-			Player author = context.Players.Include(p => p.PostsSent).FirstOrDefault(p => p.Id == authorId);
+			Player author = context.Players
+				.Include(p => p.PostsSent).ThenInclude(p => p.Player)
+				.Include(p => p.PostsSent).ThenInclude(p => p.Author)
+				.FirstOrDefault(p => p.Id == authorId);
 
 			return author?.PostsSent is not null
 				? lastResults > 0 && lastResults < author.PostsSent.Count

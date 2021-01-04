@@ -10,8 +10,6 @@ namespace WowsKarma.Api.Services
 {
 	public class KarmaService
 	{
-		private readonly ApiDbContext context;
-
 		public KarmaService()
 		{
 			PostService.PostAdded += OnPostAdded;
@@ -91,11 +89,11 @@ namespace WowsKarma.Api.Services
 
 
 			// Apply new flair
-			if (oldFlair is true)
+			if (newFlair is true)
 			{
 				rating++;
 			}
-			else if (oldFlair is false)
+			else if (newFlair is false)
 			{
 				rating--;
 			}

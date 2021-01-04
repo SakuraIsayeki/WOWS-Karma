@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,34 +11,17 @@ namespace WowsKarma.Api.Services
 {
 	public class KarmaService
 	{
-		public KarmaService()
+		private readonly ApiDbContext context;
+
+		public KarmaService(IDbContextFactory<ApiDbContext> contextFactory)
 		{
-			PostService.PostAdded += OnPostAdded;
-			PostService.PostUpdated += OnPostUpdated;
-			PostService.PostDeleted += OnPostDeleted;
+			context = contextFactory.CreateDbContext();
 		}
 
-		public void OnPostAdded(object _, PostEventArgs e)
+		public async Task UpdatePlayerKarmaAsync(uint playerId, PostFlairsParsed newFlairs, PostFlairsParsed oldFlairs, bool allowNegative)
 		{
-			UpdatePlayerKarma(e.Post.Player, e.Post.ParsedFlairs, null, e.Post.NegativeKarmaAble);
-			UpdatePlayerRatings(e.Post.Player, e.Post.ParsedFlairs, null);
-		}
+			Player player = await context.Players.FindAsync(playerId);
 
-		public void OnPostUpdated(object _, PostUpdatedEventArgs e)
-		{
-			UpdatePlayerKarma(e.Post.Player, e.Post.ParsedFlairs, e.PreviousFlairs, e.Post.NegativeKarmaAble);
-			UpdatePlayerRatings(e.Post.Player, e.Post.ParsedFlairs, e.PreviousFlairs);
-		}
-
-		public void OnPostDeleted(object _, PostEventArgs e)
-		{
-			UpdatePlayerKarma(e.Post.Player, null, e.Post.ParsedFlairs, e.Post.NegativeKarmaAble);
-			UpdatePlayerRatings(e.Post.Player, null, e.Post.ParsedFlairs);
-		}
-
-
-		public static void UpdatePlayerKarma(Player player, PostFlairsParsed newFlairs, PostFlairsParsed oldFlairs, bool allowNegative)
-		{
 			sbyte? newKarmaBalance = newFlairs is null ? null : PostFlairsUtils.CountBalance(newFlairs);
 			sbyte? oldKarmaBalance = oldFlairs is null ? null : PostFlairsUtils.CountBalance(oldFlairs);
 
@@ -66,13 +50,19 @@ namespace WowsKarma.Api.Services
 					player.SiteKarma--;
 				}
 			}
+
+			await context.SaveChangesAsync();
 		}
 
-		public static void UpdatePlayerRatings(Player player, PostFlairsParsed postFlairs, PostFlairsParsed oldFlairs)
+		public async Task UpdatePlayerRatingsAsync(uint playerId, PostFlairsParsed postFlairs, PostFlairsParsed oldFlairs)
 		{
-			player.PerformanceRating = UpdateRating(player.PerformanceRating, postFlairs.Performance, oldFlairs.Performance);
-			player.TeamplayRating = UpdateRating(player.TeamplayRating, postFlairs.Teamplay, oldFlairs.Teamplay);
-			player.CourtesyRating = UpdateRating(player.CourtesyRating, postFlairs.Courtesy, oldFlairs.Courtesy);
+			Player player = await context.Players.FindAsync(playerId);
+
+			player.PerformanceRating = UpdateRating(player.PerformanceRating, postFlairs?.Performance, oldFlairs?.Performance);
+			player.TeamplayRating = UpdateRating(player.TeamplayRating, postFlairs?.Teamplay, oldFlairs?.Teamplay);
+			player.CourtesyRating = UpdateRating(player.CourtesyRating, postFlairs?.Courtesy, oldFlairs?.Courtesy);
+
+			await context.SaveChangesAsync();
 		}
 
 		private static int UpdateRating(int rating, bool? newFlair, bool? oldFlair)

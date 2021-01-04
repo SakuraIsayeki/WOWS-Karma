@@ -38,8 +38,8 @@ namespace WowsKarma.Web
 				config.DefaultRequestHeaders.Add("Access-Key", Configuration["Api:AccessKey"]);
 			});
 
-			services.AddSingleton<PlayerService>();
-			services.AddSingleton<PostService>();
+			services.AddScoped<PlayerService>();
+			services.AddScoped<PostService>();
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{

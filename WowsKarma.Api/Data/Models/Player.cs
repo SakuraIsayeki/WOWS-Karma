@@ -53,7 +53,7 @@ namespace WowsKarma.Api.Data.Models
 			LastBattleTime = value.LastBattleTime
 		};
 
-		public static Player Map(Player source, Player mod)
+		public static Player MapFromApi(Player source, Player mod)
 		{
 			source.Username = mod.Username;
 			source.GameKarma = mod.GameKarma;

@@ -12,7 +12,6 @@ namespace WowsKarma.Web.Services
 	public class PostService
 	{
 		private readonly IHttpClientFactory httpClientFactory;
-		private readonly PlayerService playerService;
 
 
 		public PostService(IHttpClientFactory clientfactory)

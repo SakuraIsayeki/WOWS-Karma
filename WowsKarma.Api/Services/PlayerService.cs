@@ -70,7 +70,6 @@ namespace WowsKarma.Api.Services
 		internal async Task<Player> UpdatePlayerRecordAsync(uint accountId, bool firstEntry)
 		{
 			Player player = (await vortex.FetchAccountAsync(accountId)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
-			player.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 
 			if (firstEntry)
 			{
@@ -78,9 +77,10 @@ namespace WowsKarma.Api.Services
 			}
 			else
 			{
-				Player.Map(await context.Players.FindAsync(accountId), player);
+				player = Player.MapFromApi(await context.Players.FindAsync(accountId), player);
 			}
 
+			player.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 			await context.SaveChangesAsync();
 			return player;
 		}

@@ -39,8 +39,9 @@ namespace WowsKarma.Api
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
 
-			services.AddSingleton<PlayerService>();
-			services.AddSingleton<PostService>();
+			services.AddScoped<PlayerService>();
+			services.AddScoped<PostService>();
+			services.AddScoped<KarmaService>();
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{

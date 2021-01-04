@@ -3,29 +3,40 @@
 @inject PostService PostService
 
 
-<h3 class="mb-5">Posts</h3>
 
-
-@if (PlayerPosts is not null)
+@if (Loaded)
 {
+	<h2 class="mb-5">Posts</h2>
 
-<div class="row">
-	@foreach (PlayerPostDTO post in PlayerPosts)
+	@if (PlayerPosts is null || PlayerPosts.Count() is 0)
 	{
-		<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
-			<h5 class="card-header">@post.Title</h5>
-			<div class="card-body">
-				<p class="card-text">@post.Content</p>
-			</div>
-			<div class="card-footer">
-				<p class="blockquote-footer mb-0">
-					<a href="/player/@post.AuthorId,@post.AuthorUsername">@post.AuthorUsername</a>, 
-					@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
-				</p>
-			</div>
-		</div>
+		<h4 class="text-warning mb-5">No Posts found for this Player.</h4>
 	}
-</div>
+	else
+	{
+	<div class="row">
+		@foreach (PlayerPostDTO post in PlayerPosts)
+		{
+			<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
+				<h5 class="card-header">@post.Title</h5>
+				<div class="card-body">
+					<p class="card-text">@post.Content</p>
+				</div>
+				<div class="card-footer">
+					<p class="blockquote-footer mb-0">
+						<a href="/player/@post.AuthorId,@post.AuthorUsername">@post.AuthorUsername</a>,
+						@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
+					</p>
+				</div>
+			</div>
+		}
+	</div>
+	}
+
+}
+else
+{
+<h3 class="text-info">Loading Posts...</h3>
 }
 
 

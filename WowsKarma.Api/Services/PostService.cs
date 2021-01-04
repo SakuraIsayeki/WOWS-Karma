@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
@@ -17,21 +18,14 @@ namespace WowsKarma.Api.Services
 
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
-
-		public delegate void PostAddedEventHandler(object sender, PostEventArgs e);
-		public delegate void PostAddedOrUpdatedEventHandler(object sender, PostUpdatedEventArgs e);
-		public delegate void PostDeletedHandler(object sender, PostEventArgs e);
-
-		public static event PostAddedEventHandler PostAdded;
-		public static event PostAddedOrUpdatedEventHandler PostUpdated;
-		public static event PostDeletedHandler PostDeleted;
+		private readonly KarmaService karmaService;
 
 
-
-		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService)
+		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, KarmaService karmaService)
 		{
 			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
 			this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+			this.karmaService = karmaService ?? throw new ArgumentNullException(nameof(karmaService));
 		}
 
 
@@ -77,6 +71,7 @@ namespace WowsKarma.Api.Services
 			Player author = await playerService.GetPlayerAsync(postDTO.AuthorId) ?? throw new ArgumentException($"Author Account {postDTO.AuthorId} not found", nameof(postDTO));
 			_ = await playerService.GetPlayerAsync(postDTO.PlayerId) ?? throw new ArgumentException($"Player Account {postDTO.PlayerId} not found", nameof(postDTO));
 
+
 			Post post = new()
 			{
 				AuthorId = postDTO.AuthorId,
@@ -88,9 +83,10 @@ namespace WowsKarma.Api.Services
 			};
 
 			context.Posts.Add(post);
-			OnPostAdded(new() { Post = post });
-
 			await context.SaveChangesAsync();
+
+			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, post.ParsedFlairs, null, post.NegativeKarmaAble);
+			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, null);
 		}
 
 		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO)
@@ -98,23 +94,25 @@ namespace WowsKarma.Api.Services
 			ValidatePostContents(editedPostDTO);
 
 			Post post = await context.Posts.FindAsync(id) ?? throw new ArgumentException($"No post with ID {id} found.", nameof(id));
-			PostUpdatedEventArgs eventArgs = new() { PreviousFlairs = post.ParsedFlairs };
+			PostFlairsParsed previousFlairs = post.ParsedFlairs;
 
 			post.Title = editedPostDTO.Title;
 			post.Content = editedPostDTO.Content;
 			post.Flairs = editedPostDTO.Flairs;
 			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
-
-			eventArgs.Post = post;
-			OnPostUpdated(eventArgs);
 			await context.SaveChangesAsync();
+
+			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
+			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, previousFlairs);
 		}
 
 		public async Task DeletePostAsync(Guid id)
 		{
 			Post post = await context.Posts.FindAsync(id) ?? throw new ArgumentException($"No post with ID {id} found.", nameof(id));
 			context.Posts.Remove(post);
-			OnPostDeleted(new() { Post = post });
+
+			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, null, post.ParsedFlairs, post.NegativeKarmaAble);
+			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, null, post.ParsedFlairs);
 			await context.SaveChangesAsync();
 		}
 
@@ -128,18 +126,5 @@ namespace WowsKarma.Api.Services
 			_ = post.Title.Length > PostTitleMaxSize ? throw new ArgumentException($"Post Title Length exceeds {PostTitleMaxSize} characters", nameof(post)) : false;
 			_ = post.Content.Length > PostContentMaxSize ? throw new ArgumentException($"Post Content Length exceeds {PostContentMaxSize} characters", nameof(post)) : false;
 		}
-
-		protected virtual void OnPostAdded(PostEventArgs e) => PostAdded?.Invoke(this, e);
-		protected virtual void OnPostUpdated(PostUpdatedEventArgs e) => PostUpdated?.Invoke(this, e);
-		protected virtual void OnPostDeleted(PostEventArgs e) => PostDeleted?.Invoke(this, e);
-	}
-
-	public class PostEventArgs : EventArgs
-	{
-		public Post Post { get; set; }
-	}
-	public class PostUpdatedEventArgs : PostEventArgs
-	{ 
-		public PostFlairsParsed PreviousFlairs { get; set; }
 	}
 }

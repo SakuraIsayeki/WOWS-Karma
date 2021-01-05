@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,16 +14,16 @@ namespace WowsKarma.Api.Services
 {
 	public class PlayerService
 	{
-		public static TimeSpan DataUpdateSpan => new(24, 0, 0);	// 24 hrs
+		public static TimeSpan DataUpdateSpan => new(1, 0, 0);	// 1 hour
 
 		private readonly ApiDbContext context;
 		private readonly WorldOfWarshipsHandler wgApi;
 		private readonly VortexApiHandler vortex;
 
 
-		public PlayerService(ApiDbContext context, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
+		public PlayerService(IDbContextFactory<ApiDbContext> contextFactory, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
 		{
-			this.context = context ?? throw new ArgumentNullException(nameof(context));
+			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
 			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
 			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));
 		}
@@ -69,7 +70,6 @@ namespace WowsKarma.Api.Services
 		internal async Task<Player> UpdatePlayerRecordAsync(uint accountId, bool firstEntry)
 		{
 			Player player = (await vortex.FetchAccountAsync(accountId)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
-			player.LastUpdated = DateTime.Now; // Forcing LastUpdated refresh
 
 			if (firstEntry)
 			{
@@ -77,13 +77,16 @@ namespace WowsKarma.Api.Services
 			}
 			else
 			{
-				Player.Map(await context.Players.FindAsync(accountId), player);
+				player = Player.MapFromApi(await context.Players.FindAsync(accountId), player);
 			}
 
+			player.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 			await context.SaveChangesAsync();
 			return player;
 		}
 
-		internal static bool UpdateNeeded(Player player) => player.LastUpdated.Add(DataUpdateSpan) < DateTime.Now;
+		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;
+
+
 	}
 }

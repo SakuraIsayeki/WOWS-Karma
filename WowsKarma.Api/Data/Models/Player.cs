@@ -4,24 +4,35 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WowsKarma.Common.Models.DTOs;
 
+
+
 namespace WowsKarma.Api.Data.Models
 {
-	public record Player : IDataModel<uint>
+	public record Player : IDataModel<uint>, ITimestamped
 	{
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public uint Id { get; init; }
 
-		// Handled by MSSQL DB Engine - Function "CURRENT_TIMESTAMP"
-		public DateTime LastUpdated { get; set; }
+		public DateTime CreatedAt { get; init; }
+		public DateTime UpdatedAt { get; set; }
 
 		public string Username { get; set; }
 
-		public int WgKarma { get; set; }
+		public int SiteKarma { get; set; }
+		public int GameKarma { get; set; }
+
+		public int PerformanceRating { get; set; }
+		public int TeamplayRating { get; set; }
+		public int CourtesyRating { get; set; }
 
 		public DateTime WgAccountCreatedAt { get; init; }
+		public DateTime LastBattleTime { get; set; }
 
-		public IEnumerable<Post> PostsReceived { get; init; }
-		public IEnumerable<Post> PostsSent { get; init; }
+		public List<Post> PostsReceived { get; init; }
+		public List<Post> PostsSent { get; init; }
+
+
+		public bool NegativeKarmaAble => (SiteKarma + GameKarma) > -20;
 
 
 
@@ -34,13 +45,19 @@ namespace WowsKarma.Api.Data.Models
 			Id = value.Id,
 			Username = value.Username,
 			WgAccountCreatedAt = value.WgAccountCreatedAt,
-			WgKarma = value.WgKarma
+			GameKarma = value.GameKarma,
+			SiteKarma = value.SiteKarma,
+			RatingPerformance = value.PerformanceRating,
+			RatingTeamplay = value.TeamplayRating,
+			RatingCourtesy = value.CourtesyRating,
+			LastBattleTime = value.LastBattleTime
 		};
 
-		public static Player Map(Player source, Player mod)
+		public static Player MapFromApi(Player source, Player mod)
 		{
 			source.Username = mod.Username;
-			source.WgKarma = mod.WgKarma;
+			source.GameKarma = mod.GameKarma;
+			source.LastBattleTime = mod.LastBattleTime;
 
 			return source;
 		}

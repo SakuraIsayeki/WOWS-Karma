@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WowsKarma.Api.Data;
 
 namespace WowsKarma.Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201229183830_AddPlayerLBT")]
+    partial class AddPlayerLBT
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,30 +26,10 @@ namespace WowsKarma.Api.Migrations
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("CourtesyRating")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("GameKarma")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("LastBattleTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PerformanceRating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SiteKarma")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TeamplayRating")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime>("LastUpdated")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Username")
@@ -55,6 +37,9 @@ namespace WowsKarma.Api.Migrations
 
                     b.Property<DateTime>("WgAccountCreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("WgKarma")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -67,31 +52,23 @@ namespace WowsKarma.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("AuthorId")
+                    b.Property<long?>("AuthorId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("Flairs")
+                    b.Property<int>("NegativeKarma")
                         .HasColumnType("int");
 
-                    b.Property<bool>("NegativeKarmaAble")
-                        .HasColumnType("bit");
-
-                    b.Property<long>("PlayerId")
+                    b.Property<long?>("PlayerId")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("PositiveKarma")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -106,13 +83,11 @@ namespace WowsKarma.Api.Migrations
                 {
                     b.HasOne("WowsKarma.Api.Data.Models.Player", "Author")
                         .WithMany("PostsSent")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("AuthorId");
 
                     b.HasOne("WowsKarma.Api.Data.Models.Player", "Player")
                         .WithMany("PostsReceived")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("PlayerId");
 
                     b.Navigation("Author");
 

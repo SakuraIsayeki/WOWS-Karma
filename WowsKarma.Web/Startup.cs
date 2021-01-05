@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
+using WowsKarma.Common;
 using WowsKarma.Web.Services;
 using static WowsKarma.Common.Utilities;
 using static WowsKarma.Web.Utilities;
@@ -29,11 +30,20 @@ namespace WowsKarma.Web
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllersWithViews();
-			services.AddRazorPages();
-			services.AddHttpClient(Options.DefaultName, config => config.BaseAddress = new(Configuration["Api:Host"]));
+			CurrentRegion = GetRegionConfigString(Configuration["Api:Region"]);
 
-			services.AddSingleton<AccountService>();
+			services.AddServerSideBlazor();
+			services.AddRazorPages();
+
+			services.AddHttpClient(Options.DefaultName, config =>
+			{
+				config.BaseAddress = new(Configuration["Api:Host"]);
+				config.DefaultRequestHeaders.Add("Access-Key", Configuration["Api:AccessKey"]);
+			});
+
+			services.AddScoped<PlayerService>();
+			services.AddScoped<PostService>();
+
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
@@ -55,9 +65,12 @@ namespace WowsKarma.Web
 			.AddCookie()
 			.AddOpenId(WgAuthScheme, "Wargaming.net", options =>
 			{
-				options.Authority = new(GetOidcEndpoint(GetRegionConfigString(Configuration["Api:Region"])));
+				options.Authority = new(GetOidcEndpoint());
 				options.CallbackPath = OpenIdAuthenticationDefaults.CallbackPath;
 			});
+
+			services.AddAuthorizationCore();
+			services.AddHttpContextAccessor();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -92,8 +105,8 @@ namespace WowsKarma.Web
 
 			app.UseEndpoints(endpoints =>
 			{
-				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-				endpoints.MapRazorPages();
+				endpoints.MapBlazorHub();
+				endpoints.MapFallbackToPage("/_Host");
 			});
 		}
 	}

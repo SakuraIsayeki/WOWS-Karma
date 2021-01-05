@@ -1,0 +1,30 @@
+﻿@namespace WowsKarma.Web.Shared
+
+<nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-3">
+	<div class="container-fluid">
+		<NavLink class="navbar-brand" href="" Match="NavLinkMatch.All">WOWS Karma</NavLink><span class="badge badge-pill badge-primary">WIP</span> &emsp;
+		<button class="navbar-toggler" @onclick="Toggle">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="navbar-collapse @CssClass">
+			<ul class="navbar-nav flex-grow-1">
+				<li class="nav-item">
+					<NavLink class="nav-link text-light" href="" Match="NavLinkMatch.All">Home</NavLink>
+				</li>
+				<li class="nav-item">
+					<NavLink class="nav-link text-light" href="Player">Players</NavLink>
+				</li>
+			</ul>
+			<NavLogin />
+		</div>
+	</div>
+
+</nav>
+
+@code {
+	bool collapse = true;
+
+	string CssClass => collapse ? "collapse" : null;
+
+	void Toggle() => collapse = !collapse;
+}

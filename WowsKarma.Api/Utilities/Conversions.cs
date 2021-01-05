@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Wargaming.WebAPI.Models.WorldOfWarships.Responses;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Utilities
@@ -17,7 +18,10 @@ namespace WowsKarma.Api.Utilities
 			Id = accountInfo.AccountId,
 			Username = accountInfo.Nickname,
 			WgAccountCreatedAt = accountInfo.CreatedAtTime,
-			WgKarma = accountInfo.Statistics.Basic.Karma
+			GameKarma = accountInfo.Statistics.Basic.Karma,
+			LastBattleTime = DateTime.UnixEpoch.AddSeconds(accountInfo.Statistics.Basic.LastBattleTime)
 		};
+
+		public static int ToInt(this PostFlairs input) => (int)input;
 	}
 }

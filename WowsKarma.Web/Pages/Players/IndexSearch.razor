@@ -1,0 +1,73 @@
+﻿@page "/player"
+@inject WowsKarma.Web.Services.PlayerService PlayerService
+
+<div class="col-md-6">
+	<h1 class="mb-3">Search Players</h1>
+
+	<EditForm Model="CurrentSearch" OnValidSubmit="HandleValidSubmitAsync">
+		<DataAnnotationsValidator />
+		<ValidationSummary />
+
+		<div class="input-group">
+			<label class="sr-only" for="text">Username</label>
+			<InputText @bind-Value="CurrentSearch.Search" class="form-control" id="Search" placeholder="Username" DisplayName="Search" />
+			<div class="input-group-append">
+				<button type="submit" class="btn btn-primary px-3">Search</button>
+			</div>
+		</div>
+	</EditForm>
+</div>
+
+@if (AccountsResults is not null)
+{
+	<div class="mx-3 my-5">
+	@if (AccountsResults.Count() is not 0)
+	{
+		<h4 class="text-success mb-3">Found @AccountsResults.Count() Account(s) :</h4>
+		<ul>
+			@foreach (AccountListingDTO account in AccountsResults)
+			{
+				<li><a href="/player/@account.AccountId,@account.Username/">@account.Username</a></li>
+			}
+		</ul>
+	}
+	else 
+	{
+		<h4 class="text-warning">No Results found. Try again.</h4>
+	}
+	</div>
+}
+else if (Searching)
+{
+	<h4 class="text-info my-5">Searching...</h4>
+}
+
+
+
+@code {
+
+	public IEnumerable<AccountListingDTO> AccountsResults { get; set; }
+
+	[Parameter]
+	public SearchModel CurrentSearch { get; set; } = new SearchModel();
+
+	public bool Searching { get; private set; }
+
+	protected async Task HandleValidSubmitAsync()
+	{
+		AccountsResults = null;
+		Searching = true;
+		AccountsResults = ((CurrentSearch.Search is null || CurrentSearch.Search.Length > 2)
+			? await PlayerService.SearchPlayersAsync(CurrentSearch.Search) : null)
+			?? Array.Empty<AccountListingDTO>();
+		Searching = false;
+	}
+
+	public record SearchModel
+	{
+		[MinLength(3)]
+		public string Search { get; set; }
+	}
+
+
+}

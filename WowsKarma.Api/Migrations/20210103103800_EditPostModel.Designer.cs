@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WowsKarma.Api.Data;
 
 namespace WowsKarma.Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210103103800_EditPostModel")]
+    partial class EditPostModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,13 +26,8 @@ namespace WowsKarma.Api.Migrations
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("CourtesyRating")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("GameKarma")
                         .HasColumnType("int");
@@ -38,17 +35,13 @@ namespace WowsKarma.Api.Migrations
                     b.Property<DateTime>("LastBattleTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PerformanceRating")
-                        .HasColumnType("int");
-
                     b.Property<int>("SiteKarma")
                         .HasColumnType("int");
 
-                    b.Property<int>("TeamplayRating")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Username")
                         .HasColumnType("nvarchar(max)");
@@ -78,20 +71,22 @@ namespace WowsKarma.Api.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int>("Flairs")
-                        .HasColumnType("int");
-
                     b.Property<bool>("NegativeKarmaAble")
                         .HasColumnType("bit");
 
                     b.Property<long>("PlayerId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("PostFlairs")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.HasKey("Id");
 

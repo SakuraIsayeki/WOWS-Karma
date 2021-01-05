@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
+using WowsKarma.Common;
 using WowsKarma.Web.Services;
 using static WowsKarma.Common.Utilities;
 using static WowsKarma.Web.Utilities;
@@ -29,6 +30,8 @@ namespace WowsKarma.Web
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			CurrentRegion = GetRegionConfigString(Configuration["Api:Region"]);
+
 			services.AddServerSideBlazor();
 			services.AddRazorPages();
 
@@ -62,7 +65,7 @@ namespace WowsKarma.Web
 			.AddCookie()
 			.AddOpenId(WgAuthScheme, "Wargaming.net", options =>
 			{
-				options.Authority = new(GetOidcEndpoint(GetRegionConfigString(Configuration["Api:Region"])));
+				options.Authority = new(GetOidcEndpoint());
 				options.CallbackPath = OpenIdAuthenticationDefaults.CallbackPath;
 			});
 

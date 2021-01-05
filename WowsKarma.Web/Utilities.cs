@@ -16,6 +16,8 @@ namespace WowsKarma.Web
 {
 	public static class Utilities
 	{
+		public static Region CurrentRegion { get; internal set; }
+
 		public static JsonSerializerOptions JsonSerializerOptions { get; } = new()
 		{
 			PropertyNameCaseInsensitive = true,
@@ -29,12 +31,22 @@ namespace WowsKarma.Web
 			return result;
 		}
 
-		public static string GetOidcEndpoint(Region region) => region switch
+		public static string GetOidcEndpoint() => CurrentRegion switch
 		{
 			Region.EU => "https://eu.wargaming.net/id/",
 			Region.NA => "https://na.wargaming.net/id/",
 			Region.CIS => "https://ru.wargaming.net/id/",
 			Region.ASIA => "https://asia.wargaming.net/id/",
+
+			_ => throw new NotImplementedException()
+		};
+
+		public static string GetWowsNumbersBaseLink() => CurrentRegion switch
+		{
+			Region.EU => "https://wows-numbers.com/",
+			Region.NA => "https://na.wows-numbers.com/",
+			Region.CIS => "https://ru.wows-numbers.com/",
+			Region.ASIA => "https://asia.wows-numbers.com/",
 
 			_ => throw new NotImplementedException()
 		};

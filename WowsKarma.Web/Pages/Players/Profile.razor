@@ -27,6 +27,7 @@
 					<tr><th>Account ID :</th><td>@Player.Id</td></tr>
 					<tr><th>Created On :</th><td>@Player.WgAccountCreatedAt.ToString("f")</td></tr>
 					<tr><th>Last Battle :</th><td>@Player.LastBattleTime.ToString("f")</td></tr>
+					<tr><th>Statistics :</th><td><a href="@($"{GetWowsNumbersBaseLink()}player/{IdNamePair}/")">View on WOWS Numbers</a></td></tr>
 				</tbody>
 			</table>
 		</div>

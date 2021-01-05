@@ -8,7 +8,7 @@
 {
 	<div class="row justify-content-between align-content-end">
 		<h2 class="col-auto mb-5">Posts</h2>
-		<div class="col-auto mb-5"><Create DestAccountId="AccountId" PostModel="new()" /></div>
+		<div class="col-auto mb-5"><Create DestAccountId="AccountId" PostModel="new()" OnPostCreated="UpdatePostsAsync"/></div>
 	</div>
 
 	@if (PlayerPosts is null || PlayerPosts.Count() is 0)
@@ -20,18 +20,35 @@
 	<div class="row">
 		@foreach (PlayerPostDTO post in PlayerPosts)
 		{
-			<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
-				<h5 class="card-header">@post.Title</h5>
-				<div class="card-body">
-					<p class="card-text">@post.Content</p>
-				</div>
-				<div class="card-footer">
-					<p class="blockquote-footer mb-0">
-						<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}") >@post.AuthorUsername</NavLink>,
-						@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
-					</p>
-				</div>
+		<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
+			<h5 class="card-header">@post.Title</h5>
+			<div class="card-body">
+				<p class="card-text">@post.Content</p>
 			</div>
+
+			<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
+				@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
+				@if (parsed?.Performance is not null)
+				{
+					<small class="my-0 text-@(parsed.Performance.Value ? "success" : "danger")">@(parsed.Performance.Value ? "+" : "-") Performance</small><br />
+				}
+				@if (parsed?.Teamplay is not null)
+				{
+					<small class="my-0 text-@(parsed.Teamplay.Value ? "success" : "danger")">@(parsed.Teamplay.Value ? "+" : "-") Teamplay</small><br />
+				}
+				@if (parsed?.Courtesy is not null)
+				{
+					<small class="my-0 text-@(parsed.Courtesy.Value ? "success" : "danger")">@(parsed.Courtesy.Value ? "+" : "-") Courtesy</small>
+				}
+			</div>
+
+			<div class="card-footer">
+				<p class="blockquote-footer mb-0">
+					<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>,
+					@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
+				</p>
+			</div>
+		</div>
 		}
 	</div>
 	}
@@ -55,9 +72,14 @@ else
 
 	protected override async Task OnParametersSetAsync()
 	{
-		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
+		await UpdatePostsAsync();
 
 		await base.OnParametersSetAsync();
 		Loaded = true;
+	}
+
+	public async Task UpdatePostsAsync()
+	{
+		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
 	}
 }

@@ -104,7 +104,7 @@ namespace WowsKarma.Api.Services
 				}
 			}
 
-			TryProvisionNewUsersToDb(newPlayers.ToArray(), contextFactory.CreateDbContext(), vortex).Start();
+			_ = TryProvisionNewUsersToDb(newPlayers.ToArray(), contextFactory.CreateDbContext(), vortex);
 
 			return accountKarmas;
 		}
@@ -138,17 +138,10 @@ namespace WowsKarma.Api.Services
 
 		internal static async Task TryProvisionNewUsersToDb(uint[] newAccountIds, ApiDbContext context, VortexApiHandler vortex)
 		{
-			try
-			{
-				Player[] players = (await vortex.FetchAccountsAsync(newAccountIds)).ToDbModel();
-				context.Players.AddRange(players);
-				await context.SaveChangesAsync();
-				await context.DisposeAsync();
-			}
-			catch
-			{
-				return;
-			}
+			Player[] players = (await vortex.FetchAccountsAsync(newAccountIds)).ToDbModel();
+			context.Players.AddRange(players);
+			await context.SaveChangesAsync();
+			await context.DisposeAsync();
 		}
 
 		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;

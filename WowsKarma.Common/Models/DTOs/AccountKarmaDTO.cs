@@ -3,12 +3,10 @@
 namespace WowsKarma.Common.Models.DTOs
 {
 	// Used by WOWS Monitor
-	public record AccountFullKarmaDTO(uint Id, int Karma, int Performance, int Teamplay, int Courtesy);
+	public record AccountFullKarmaDTO(uint Id, int Karma, int Performance, int Teamplay, int Courtesy) : AccountKarmaDTO(Id, Karma);
 
 	public record AccountKarmaDTO(uint Id, int Karma)
 	{
-		public static implicit operator AccountKarmaDTO(AccountFullKarmaDTO value) => new(value.Id, value.Karma);
-
 		public static Dictionary<uint, int> ToDictionary(IEnumerable<AccountKarmaDTO> values)
 		{
 			Dictionary<uint, int> pairs = new();

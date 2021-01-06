@@ -17,7 +17,7 @@ namespace WowsKarma.Api.Utilities
 			Dictionary<TId, TModel> results = new();
 			foreach (TId id in ids)
 			{
-				results.Add(id, await entities.FindAsync());
+				results.Add(id, await entities.FindAsync(id));
 			}
 
 			return results;

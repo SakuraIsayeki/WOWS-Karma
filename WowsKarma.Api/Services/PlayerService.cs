@@ -17,15 +17,21 @@ namespace WowsKarma.Api.Services
 		public static TimeSpan DataUpdateSpan => new(1, 0, 0);	// 1 hour
 
 		private readonly ApiDbContext context;
+		private readonly IDbContextFactory<ApiDbContext> contextFactory;
 		private readonly WorldOfWarshipsHandler wgApi;
 		private readonly VortexApiHandler vortex;
 
 
 		public PlayerService(IDbContextFactory<ApiDbContext> contextFactory, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
 		{
-			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
+			this.contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+			context = contextFactory.CreateDbContext();
 			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
 			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));
+		}
+		~PlayerService()
+		{
+			context.Dispose();
 		}
 
 		public async Task<Player> GetPlayerAsync(uint accountId)
@@ -58,6 +64,51 @@ namespace WowsKarma.Api.Services
 			}
 		}
 
+		public async Task<IEnumerable<Player>> GetPlayersAsync(uint[] accountIds)
+		{
+			if (accountIds is null)
+			{
+				return null;
+			}
+
+			List<Player> players = new();
+
+			foreach (uint id in accountIds)
+			{
+				players.Add(await GetPlayerAsync(id));
+			}
+
+			return players;
+		}
+
+		public async Task<IEnumerable<AccountFullKarmaDTO>> GetPlayersFullKarmaAsync(uint[] accountIds)
+		{
+			if (accountIds is null)
+			{
+				return null;
+			}
+
+			IDictionary<uint, Player> players = await context.Players.FindManyAsync(accountIds);
+			IEnumerable<uint> newPlayers = from player in players where player.Value is null select player.Key;
+
+			List<AccountFullKarmaDTO> accountKarmas = new();
+			foreach (KeyValuePair<uint, Player> player in players)
+			{
+				if (player.Value is null)
+				{
+					accountKarmas.Add(new(player.Key, 0, 0, 0, 0));
+				}
+				else
+				{
+					accountKarmas.Add(new(player.Key, player.Value.SiteKarma, player.Value.PerformanceRating, player.Value.TeamplayRating, player.Value.CourtesyRating));
+				}
+			}
+
+			TryProvisionNewUsersToDb(newPlayers.ToArray(), contextFactory.CreateDbContext(), vortex).Start();
+
+			return accountKarmas;
+		}
+
 		public async Task<IEnumerable<AccountListingDTO>> ListPlayersAsync(string search)
 		{
 			IEnumerable<AccountListing> result = await wgApi.ListPlayersAsync(search);
@@ -85,8 +136,21 @@ namespace WowsKarma.Api.Services
 			return player;
 		}
 
+		internal static async Task TryProvisionNewUsersToDb(uint[] newAccountIds, ApiDbContext context, VortexApiHandler vortex)
+		{
+			try
+			{
+				Player[] players = (await vortex.FetchAccountsAsync(newAccountIds)).ToDbModel();
+				context.Players.AddRange(players);
+				await context.SaveChangesAsync();
+				await context.DisposeAsync();
+			}
+			catch
+			{
+				return;
+			}
+		}
+
 		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;
-
-
 	}
 }

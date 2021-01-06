@@ -21,6 +21,7 @@ namespace WowsKarma.Api.Utilities
 			GameKarma = accountInfo.Statistics.Basic.Karma,
 			LastBattleTime = DateTime.UnixEpoch.AddSeconds(accountInfo.Statistics.Basic.LastBattleTime)
 		};
+		public static Player[] ToDbModel(this AccountInfo[] accountInfos) => Array.ConvertAll(accountInfos, new Converter<AccountInfo, Player>(ToDbModel));
 
 		public static int ToInt(this PostFlairs input) => (int)input;
 	}

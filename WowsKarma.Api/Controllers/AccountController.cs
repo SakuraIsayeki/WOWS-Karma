@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Common.Models.DTOs;
+
+
 
 namespace WowsKarma.Api.Controllers
 {
@@ -48,5 +51,11 @@ namespace WowsKarma.Api.Controllers
 				? StatusCode(204)
 				: StatusCode(200, playerProfile);
 		}
+
+		[HttpPost("Karmas"), AccessKey]
+		public async Task<IActionResult> FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary((IEnumerable<AccountKarmaDTO>)await service.GetPlayersFullKarmaAsync(ids)));
+
+		[HttpPost("KarmasFull"), AccessKey]
+		public async Task<IActionResult> FetchFullKarmas([FromBody] uint[] ids) => StatusCode(200, await service.GetPlayersFullKarmaAsync(ids));
 	}
 }

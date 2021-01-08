@@ -27,7 +27,7 @@
 		<ul>
 			@foreach (AccountListingDTO account in AccountsResults)
 			{
-				<li><a href="/player/@account.AccountId,@account.Username/">@account.Username</a></li>
+				<li><a href="/player/@account.Id,@account.Username/">@account.Username</a></li>
 			}
 		</ul>
 	}

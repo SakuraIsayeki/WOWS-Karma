@@ -88,7 +88,7 @@ namespace WowsKarma.Api.Services
 				return null;
 			}
 
-			IDictionary<uint, Player> players = await context.Players.FindManyAsync(accountIds);
+			Dictionary<uint, Player> players = await (from player in context.Players where accountIds.Contains(player.Id) select player).ToDictionaryAsync(p => p.Id, p => p);
 			IEnumerable<uint> newPlayers = from player in players where player.Value is null select player.Key;
 
 			List<AccountFullKarmaDTO> accountKarmas = new();

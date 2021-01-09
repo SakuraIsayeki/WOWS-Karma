@@ -22,6 +22,7 @@ namespace WowsKarma.Api
 			using IServiceScope scope = host.Services.CreateScope();
 
 			ApiDbContext db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApiDbContext>>().CreateDbContext();
+			IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
 			db.Database.Migrate();
 
@@ -31,11 +32,13 @@ namespace WowsKarma.Api
 #else
 				.MinimumLevel.Information()
 #endif
-//				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+				//				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
 				.Enrich.FromLogContext()
 				.WriteTo.Console()
+				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
 //				.WriteTo.Logger(fileLogger)
 				.CreateLogger();
+
 
 			host.Run();
 		}

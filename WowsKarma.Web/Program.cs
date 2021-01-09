@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System.Threading.Tasks;
@@ -9,7 +11,11 @@ namespace WowsKarma.Web
 	{
 		public static async Task Main(string[] args)
 		{
-			IHost host = CreateHostBuilder(args).Build();
+			using IHost host = CreateHostBuilder(args).Build();
+			using IServiceScope scope = host.Services.CreateScope();
+
+			IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
 
 			Log.Logger = new LoggerConfiguration()
 #if DEBUG
@@ -20,6 +26,7 @@ namespace WowsKarma.Web
 //				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
 				.Enrich.FromLogContext()
 				.WriteTo.Console()
+				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
 //				.WriteTo.Logger(fileLogger)
 				.CreateLogger();
 

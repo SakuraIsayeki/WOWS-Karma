@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
+using Wargaming.WebAPI.Models;
 using WowsKarma.Common;
 using WowsKarma.Web.Services;
 using static WowsKarma.Common.Utilities;
@@ -26,12 +27,11 @@ namespace WowsKarma.Web
 		}
 
 		public IConfiguration Configuration { get; }
+		public static Region ApiRegion { get; internal set; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			CurrentRegion = GetRegionConfigString(Configuration["Api:Region"]);
-
 			services.AddServerSideBlazor();
 			services.AddRazorPages();
 

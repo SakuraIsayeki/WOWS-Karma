@@ -13,8 +13,8 @@ using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Services;
-using WowsKarma.Api.Services.Authentication;
-using static WowsKarma.Common.Utilities;
+
+
 
 namespace WowsKarma.Api
 {
@@ -23,10 +23,9 @@ namespace WowsKarma.Api
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
-			ApiRegion = GetRegionConfigString(Configuration["Api:Region"]);
 		}
 
-		public Region ApiRegion { get; init; }
+		public static Region ApiRegion { get; internal set; }
 		public IConfiguration Configuration { get; }
 
 		// This method gets called by the runtime. Use this method to add services to the container.

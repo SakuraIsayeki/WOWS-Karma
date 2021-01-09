@@ -8,6 +8,7 @@ services:
       dockerfile: WowsKarma.Api/Dockerfile
     ports:
     - 5010:80
+
   wowskarma.web:
     image: ${DOCKER_REGISTRY-}wowskarmaweb
     build:

@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 
@@ -16,15 +14,26 @@ namespace WowsKarma.Api
 {
 	public class Program
 	{
-		public static void Main(string[] args)
+		public static async Task Main(string[] args)
 		{
+			RootCommand rootCommand = new("WOWS Karma - API")
+			{
+				new Option<string>("--region", () => "EU", "WG Region to cover [EU,NA,RU,ASIA]")
+			};
+			rootCommand.Handler = CommandHandler.Create<string>((region) =>
+			{
+				Startup.ApiRegion = Common.Utilities.GetRegionConfigString(region);
+			});
+			await rootCommand.InvokeAsync(args);
+
+
 			using IHost host = CreateHostBuilder(args).Build();
 			using IServiceScope scope = host.Services.CreateScope();
 
 			ApiDbContext db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApiDbContext>>().CreateDbContext();
 			IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
-			db.Database.Migrate();
+			await db.Database.MigrateAsync();
 
 			Log.Logger = new LoggerConfiguration()
 #if DEBUG
@@ -32,15 +41,16 @@ namespace WowsKarma.Api
 #else
 				.MinimumLevel.Information()
 #endif
-				//				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+//				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
 				.Enrich.FromLogContext()
 				.WriteTo.Console()
 				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
 //				.WriteTo.Logger(fileLogger)
 				.CreateLogger();
 
+			Console.WriteLine("Region selected : {0}", Startup.ApiRegion);
 
-			host.Run();
+			await host.RunAsync();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>

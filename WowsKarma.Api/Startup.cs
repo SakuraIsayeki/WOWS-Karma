@@ -13,8 +13,7 @@ using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Services;
-
-
+using WowsKarma.Common;
 
 namespace WowsKarma.Api
 {
@@ -34,13 +33,13 @@ namespace WowsKarma.Api
 			services.AddControllers();
 
 			services.AddDbContextFactory<ApiDbContext>(options => 
-				options.UseSqlServer(Configuration.GetConnectionString("ApiDbConnectionString"), 
+				options.UseSqlServer(Configuration.GetConnectionString($"ApiDbConnectionString:{ApiRegion.ToRegionString()}"), 
 					providerOptions => providerOptions.EnableRetryOnFailure()));
 
 			services.AddHttpClient<WorldOfWarshipsHandler>(client => client.BaseAddress = new(ApiProperties.GetApiHost(ApiProperties.Game.WOWS, ApiRegion)));
 			services.AddHttpClient<VortexApiHandler>(client => client.BaseAddress = new(VortexApiHandler.GetApiHost(ApiRegion)));
 
-			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration["Api:AppId"]));
+			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration[$"Api:{ApiRegion.ToRegionString()}:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
 

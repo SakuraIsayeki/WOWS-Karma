@@ -6,6 +6,7 @@ using Serilog;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
+using WowsKarma.Common;
 
 namespace WowsKarma.Web
 {
@@ -38,6 +39,9 @@ namespace WowsKarma.Web
 #endif
 //				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
 				.Enrich.FromLogContext()
+				.Enrich.WithProperty("_Source", typeof(Program).Assembly.GetName())
+				.Enrich.WithProperty("_Environment", configuration["environment"])
+				.Enrich.WithProperty("_Region", Utilities.CurrentRegion.ToRegionString())
 				.WriteTo.Console()
 				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
 //				.WriteTo.Logger(fileLogger)

@@ -9,6 +9,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
+using WowsKarma.Common;
 
 namespace WowsKarma.Api
 {
@@ -43,6 +44,9 @@ namespace WowsKarma.Api
 #endif
 //				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
 				.Enrich.FromLogContext()
+				.Enrich.WithProperty("_Source", typeof(Program).Assembly.GetName())
+				.Enrich.WithProperty("_Environment", configuration["environment"])
+				.Enrich.WithProperty("_Region", Startup.ApiRegion.ToRegionString())
 				.WriteTo.Console()
 				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
 //				.WriteTo.Logger(fileLogger)

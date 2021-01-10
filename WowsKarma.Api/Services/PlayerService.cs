@@ -89,8 +89,7 @@ namespace WowsKarma.Api.Services
 			}
 
 			Dictionary<uint, Player> players = await (from player in context.Players where accountIds.Contains(player.Id) select player).ToDictionaryAsync(p => p.Id, p => p);
-			IEnumerable<uint> newPlayers = from player in players where player.Value is null select player.Key;
-
+			IEnumerable<uint> newPlayers = from uint id in accountIds where !players.ContainsKey(id) select id;
 			List<AccountFullKarmaDTO> accountKarmas = new();
 			foreach (KeyValuePair<uint, Player> player in players)
 			{

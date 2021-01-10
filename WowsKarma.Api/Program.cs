@@ -5,8 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.IO;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Common;
@@ -17,17 +16,6 @@ namespace WowsKarma.Api
 	{
 		public static async Task Main(string[] args)
 		{
-			RootCommand rootCommand = new("WOWS Karma - API")
-			{
-				new Option<string>("--region", () => "EU", "WG Region to cover [EU,NA,RU,ASIA]")
-			};
-			rootCommand.Handler = CommandHandler.Create<string>((region) =>
-			{
-				Startup.ApiRegion = Common.Utilities.GetRegionConfigString(region);
-			});
-			await rootCommand.InvokeAsync(args);
-
-
 			using IHost host = CreateHostBuilder(args).Build();
 			using IServiceScope scope = host.Services.CreateScope();
 
@@ -61,6 +49,14 @@ namespace WowsKarma.Api
 			Host.CreateDefaultBuilder(args)
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
+					webBuilder.ConfigureAppConfiguration((hostingContext, config) =>
+					{
+						config.SetBasePath(Directory.GetCurrentDirectory());
+						config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+							  .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+						config.AddEnvironmentVariables();
+						config.AddCommandLine(args);
+					}); 
 					webBuilder.UseStartup<Startup>();
 					webBuilder.UseSerilog();
 				});

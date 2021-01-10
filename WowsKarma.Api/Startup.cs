@@ -30,6 +30,8 @@ namespace WowsKarma.Api
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			ApiRegion = Common.Utilities.GetRegionConfigString(Configuration["Api:CurrentRegion"] ?? "EU");
+
 			services.AddControllers();
 
 			services.AddDbContextFactory<ApiDbContext>(options => 

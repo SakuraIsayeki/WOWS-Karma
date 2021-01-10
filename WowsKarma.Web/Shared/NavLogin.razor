@@ -10,7 +10,7 @@
 
 		<ul class="navbar-nav">
 			<li class="navbar-text text-light">Welcome, @account.Username.&emsp;</li>
-			<li class="nav-item"><NavLink class="nav-link text-white" href="@($"player/{account.AccountId},{account.Username}")">Profile</NavLink></li>
+			<li class="nav-item"><NavLink class="nav-link text-white" href="@($"player/{account.Id},{account.Username}")">Profile</NavLink></li>
 			<li class="nav-item"><NavLink class="nav-link text-white" href="logout">Logout</NavLink></li>
 		</ul>
 	</Authorized>

@@ -17,5 +17,14 @@ namespace WowsKarma.Common
 			"ASIA" => Region.ASIA,
 			_ => throw new ArgumentOutOfRangeException(nameof(configString))
 		};
+
+		public static string ToRegionString(this Region region) => region switch
+		{
+			Region.EU => "EU",
+			Region.NA => "NA",
+			Region.CIS => "CIS",
+			Region.ASIA => "ASIA",
+			_ => throw new ArgumentOutOfRangeException(nameof(region)),
+		};
 	}
 }

@@ -111,7 +111,7 @@
 
 	void AssignAuthorId(string accountUrl)
 	{
-		AuthorAccountId = GetAccountInfoFromOidcUrl(accountUrl).AccountId;
+		AuthorAccountId = GetAccountInfoFromOidcUrl(accountUrl).Id;
 		PostModel.AuthorId = AuthorAccountId;
 	}
 

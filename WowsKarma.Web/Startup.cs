@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
+using Wargaming.WebAPI.Models;
 using WowsKarma.Common;
 using WowsKarma.Web.Services;
 using static WowsKarma.Common.Utilities;
@@ -30,15 +31,13 @@ namespace WowsKarma.Web
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			CurrentRegion = GetRegionConfigString(Configuration["Api:Region"]);
-
 			services.AddServerSideBlazor();
 			services.AddRazorPages();
 
 			services.AddHttpClient(Options.DefaultName, config =>
 			{
-				config.BaseAddress = new(Configuration["Api:Host"]);
-				config.DefaultRequestHeaders.Add("Access-Key", Configuration["Api:AccessKey"]);
+				config.BaseAddress = new(Configuration[$"Api:{CurrentRegion.ToRegionString()}:Host"]);
+				config.DefaultRequestHeaders.Add("Access-Key", Configuration[$"Api:{CurrentRegion.ToRegionString()}:AccessKey"]);
 			});
 
 			services.AddScoped<PlayerService>();
@@ -72,6 +71,8 @@ namespace WowsKarma.Web
 			services.AddAuthorizationCore();
 			services.AddHttpContextAccessor();
 		}
+
+
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

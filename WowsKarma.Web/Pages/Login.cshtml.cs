@@ -10,6 +10,6 @@ namespace WowsKarma.Web.Pages
 {
 	public class LoginModel : PageModel
 	{
-		public IActionResult OnGet() => Challenge(new AuthenticationProperties { RedirectUri = "../" });
+		public async Task OnGet(string redirectUri) => await HttpContext.ChallengeAsync(new AuthenticationProperties { RedirectUri = redirectUri });
 	}
 }

@@ -54,7 +54,7 @@
 
 
 	<hr class="my-3" />
-	<Posts AccountId="@Player.Id" />
+	<Posts AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync />
 }
 else if (Loaded)
 {
@@ -84,4 +84,6 @@ else
 		await base.OnParametersSetAsync();
 		Loaded = true;
 	}
+
+	private async Task UpdatePlayerAsync() => Player = await PlayerService.FetchPlayerProfileAsync(Player.Id);
 }

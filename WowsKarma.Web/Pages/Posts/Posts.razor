@@ -1,14 +1,33 @@
 ﻿@using WowsKarma.Common.Models
 @using static WowsKarma.Common.Models.PostFlairsUtils
-@inject PostService PostService
 
+@inject PostService PostService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 
 @if (Loaded)
 {
 	<div class="row justify-content-between align-content-end">
 		<h2 class="col-auto mb-5">Posts</h2>
-		<div class="col-auto mb-5"><Create DestAccountId="AccountId" PostModel="new()" OnPostCreated="UpdatePostsAsync"/></div>
+
+		<div class="col-auto mb-5">
+			<AuthorizeView>
+				<Authorized>
+					@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
+					@if (AccountId != authorId)
+					{
+						<button class="btn btn-success" @onclick=CreatePost>New Post</button>
+					}
+					else
+					{
+						<h5 class="text-info">(You cannot self-post.)</h5>
+					}
+				</Authorized>
+				<NotAuthorized>
+					<h5 class="text-warning">You must first <a href="/login">login</a> before creating a Post.</h5>
+				</NotAuthorized>
+			</AuthorizeView>
+		</div>
 	</div>
 
 	@if (PlayerPosts is null || PlayerPosts.Count() is 0)
@@ -17,40 +36,57 @@
 	}
 	else
 	{
-	<div class="row">
-		@foreach (PlayerPostDTO post in PlayerPosts)
-		{
-		<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
-			<h5 class="card-header">@post.Title</h5>
-			<div class="card-body">
-				<p class="card-text">@post.Content</p>
-			</div>
+		<div class="row">
+			@foreach (PlayerPostDTO post in PlayerPosts)
+			{
+			<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
+				<h5 class="card-header">@post.Title</h5>
+				<div class="card-body">
+					<p class="card-text" style="white-space: pre-wrap;">@post.Content</p>
+				</div>
 
-			<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
-				@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
-				@if (parsed?.Performance is not null)
-				{
-					<small class="my-0 text-@(parsed.Performance.Value ? "success" : "danger")">@(parsed.Performance.Value ? "+" : "-") Performance</small><br />
-				}
-				@if (parsed?.Teamplay is not null)
-				{
-					<small class="my-0 text-@(parsed.Teamplay.Value ? "success" : "danger")">@(parsed.Teamplay.Value ? "+" : "-") Teamplay</small><br />
-				}
-				@if (parsed?.Courtesy is not null)
-				{
-					<small class="my-0 text-@(parsed.Courtesy.Value ? "success" : "danger")">@(parsed.Courtesy.Value ? "+" : "-") Courtesy</small>
-				}
-			</div>
+				<AuthorizeView>
+					<Authorized>
+						@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
 
-			<div class="card-footer">
-				<p class="blockquote-footer mb-0">
-					<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>,
-					@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
-				</p>
+						@if (post.AuthorId == authorId)
+						{
+							<div class="card-body">
+								<button class="btn btn-warning btn-sm" @onclick=@(() => EditPost(post))>Edit</button>
+							</div>
+						}
+					</Authorized>
+				</AuthorizeView>
+
+				<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
+					@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
+					@if (parsed?.Performance is not null)
+					{
+						<small class="my-0 text-@(parsed.Performance.Value ? "success" : "danger")">@(parsed.Performance.Value ? "+" : "-") Performance</small><br />
+					}
+					@if (parsed?.Teamplay is not null)
+					{
+						<small class="my-0 text-@(parsed.Teamplay.Value ? "success" : "danger")">@(parsed.Teamplay.Value ? "+" : "-") Teamplay</small><br />
+					}
+					@if (parsed?.Courtesy is not null)
+					{
+						<small class="my-0 text-@(parsed.Courtesy.Value ? "success" : "danger")">@(parsed.Courtesy.Value ? "+" : "-") Courtesy</small>
+					}
+				</div>
+
+				<div class="card-footer">
+					<p class="blockquote-footer mb-0">
+						<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>,
+						@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
+					</p>
+				</div>
 			</div>
+			}
 		</div>
+		@if (showModal)
+		{
+			<EditorModal PostModel=currentEditorPost OnPostSubmited=ModalSubmitAsync OnCancel=ModalCancel />
 		}
-	</div>
 	}
 
 }
@@ -66,20 +102,55 @@ else
 	[Parameter]
 	public uint AccountId { get; set; }
 
+	[Parameter]
+	public EventCallback OnPostsUpdate { get; set; }
+
 	public IEnumerable<PlayerPostDTO> PlayerPosts { get; set; }
 
 	public bool Loaded { get; private set; }
 
-	protected override async Task OnParametersSetAsync()
+	private bool showModal = false;
+	private PlayerPostViewModel currentEditorPost;
+	private uint authorId;
+
+
+	protected override async Task OnInitializedAsync()
 	{
 		await UpdatePostsAsync();
 
-		await base.OnParametersSetAsync();
+		await base.OnInitializedAsync();
 		Loaded = true;
+	}
+
+	private void CreatePost()
+	{
+		currentEditorPost = new();
+		currentEditorPost.PlayerId = AccountId;
+		currentEditorPost.AuthorId = authorId;
+
+		showModal = true;
+	}
+
+	private void EditPost(PlayerPostDTO post)
+	{
+		currentEditorPost = post;
+
+		showModal = true;
 	}
 
 	public async Task UpdatePostsAsync()
 	{
 		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
+
 	}
+
+	private void ModalCancel() => showModal = false;
+	private async Task ModalSubmitAsync()
+	{
+		showModal = false;
+		currentEditorPost = null;
+		await UpdatePostsAsync();
+	}
+
+	private void AssignAuthorId(string accountUrl) => authorId = GetAccountInfoFromOidcUrl(accountUrl).Id;
 }

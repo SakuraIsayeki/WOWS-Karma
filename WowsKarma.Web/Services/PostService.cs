@@ -48,5 +48,15 @@ namespace WowsKarma.Web.Services
 			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}
+
+		public async Task EditPostAsync(uint authorId, PlayerPostDTO post)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Put, $"Post/{authorId}");
+			string json = JsonSerializer.Serialize(post, new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+			request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
+			response.EnsureSuccessStatusCode();
+		}
 	}
 }

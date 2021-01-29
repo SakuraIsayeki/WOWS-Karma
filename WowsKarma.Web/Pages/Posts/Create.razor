@@ -78,7 +78,6 @@
 
 
 @code {
-
 	[Parameter]
 	public uint DestAccountId { get; set; }
 	public uint AuthorAccountId { get; set; }
@@ -88,7 +87,7 @@
 	public PostFlairsParsed PostFlairs { get; set; }
 
 	[Parameter]
-	public EventCallback OnPostCreated { get; set; }
+	public EventCallback OnPostSubmitted { get; set; }
 
 	private bool showModal = false;
 	void ModalDisplay()
@@ -103,10 +102,19 @@
 	{
 		PostModel.PlayerId = DestAccountId;
 		PostModel.Flairs = PostFlairs.ToEnum();
-		await PostService.SubmitNewPostAsync(PostModel.AuthorId, PlayerPostViewModel.ToDTO(PostModel));
+
+        if (PostModel.Id == Guid.Empty)
+        {
+            await PostService.SubmitNewPostAsync(PostModel.AuthorId, PlayerPostViewModel.ToDTO(PostModel));
+        }
+		else
+	{
+               await PostService.EditPostAsync(PostModel.AuthorId, PlayerPostViewModel.ToDTO(PostModel));
+		}
+
 		showModal = false;
 
-		await OnPostCreated.InvokeAsync(null);
+		await OnPostSubmitted.InvokeAsync(null);
 	}
 
 	void AssignAuthorId(string accountUrl)

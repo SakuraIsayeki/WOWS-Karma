@@ -3,6 +3,7 @@
 
 @inject PostService PostService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 
 @if (Loaded)
@@ -24,7 +25,10 @@
 					}
 				</Authorized>
 				<NotAuthorized>
-					<h5 class="text-warning">You must first <a href="/login">login</a> before creating a Post.</h5>
+					@{
+						string redirectUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+					}
+					<h5 class="text-warning">You must first <a href=@($"/login?redirectUrl={redirectUrl}")>login</a> before creating a Post.</h5>
 				</NotAuthorized>
 			</AuthorizeView>
 		</div>
@@ -39,59 +43,64 @@
 		<div class="row">
 			@foreach (PlayerPostDTO post in PlayerPosts)
 			{
-			<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
-				<h5 class="card-header">@post.Title</h5>
-				<div class="card-body">
-					<p class="card-text" style="white-space: pre-wrap;">@post.Content</p>
-				</div>
-				<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
-					@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
-					@if (parsed?.Performance is not null)
-					{
-						<small class="my-0 text-@(parsed.Performance.Value ? "success" : "danger")">@(parsed.Performance.Value ? "+" : "-") Performance</small><br />
-					}
-					@if (parsed?.Teamplay is not null)
-					{
-						<small class="my-0 text-@(parsed.Teamplay.Value ? "success" : "danger")">@(parsed.Teamplay.Value ? "+" : "-") Teamplay</small><br />
-					}
-					@if (parsed?.Courtesy is not null)
-					{
-						<small class="my-0 text-@(parsed.Courtesy.Value ? "success" : "danger")">@(parsed.Courtesy.Value ? "+" : "-") Courtesy</small>
-					}
-				</div>
+				<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
+					<h5 class="card-header">@post.Title</h5>
+					<div class="card-body">
+						<p class="card-text" style="white-space: pre-wrap;">@post.Content</p>
+					</div>
+					<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
+						@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
+						@if (parsed?.Performance is not null)
+						{
+							<small class="my-0 text-@(parsed.Performance.Value ? "success" : "danger")">@(parsed.Performance.Value ? "+" : "-") Performance</small><br />
+						}
+						@if (parsed?.Teamplay is not null)
+						{
+							<small class="my-0 text-@(parsed.Teamplay.Value ? "success" : "danger")">@(parsed.Teamplay.Value ? "+" : "-") Teamplay</small><br />
+						}
+						@if (parsed?.Courtesy is not null)
+						{
+							<small class="my-0 text-@(parsed.Courtesy.Value ? "success" : "danger")">@(parsed.Courtesy.Value ? "+" : "-") Courtesy</small>
+						}
+					</div>
 
-				<div class="card-footer">
-					<p class="blockquote-footer mb-0">
-						<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>,
-						@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
-					</p>
+					<div class="card-footer">
+						<p class="blockquote-footer mb-0">
+							<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>,
+							@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
+						</p>
 
-					<AuthorizeView>
-						<Authorized>
-							@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
+						<AuthorizeView>
+							<Authorized>
+								@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
 
-							@if (post.AuthorId == authorId)
-							{
-								<p class="mt-1 mb-0">
-									<button class="btn btn-warning btn-sm" @onclick=@(() => EditPost(post))>Edit</button>
-								</p>
-							}
-						</Authorized>
-					</AuthorizeView>
+								@if (post.AuthorId == authorId)
+								{
+									<p class="mt-1 mb-0">
+										<button class="btn btn-warning btn-sm" @onclick=@(() => EditPost(post))>Edit</button>
+										<button class="btn btn-danger btn-sm" @onclick=@(() => InitDeleteModal(post.Id.Value))>Delete</button>
+									</p>
+								}
+							</Authorized>
+						</AuthorizeView>
+					</div>
 				</div>
-			</div>
 			}
 		</div>
-		@if (showModal)
+		@if (showEditorModal)
 		{
-			<EditorModal PostModel=currentEditorPost OnPostSubmited=ModalSubmitAsync OnCancel=ModalCancel />
+			<EditorModal PostModel=currentEditorPost OnPostSubmited=EditorModalSubmitAsync OnCancel=EditorModalCancel />
+		}
+		else if (showDeleteModal)
+		{
+			<DeleteConfirm OnConfirm=DeleteModalSubmitAsync OnCancel=DeleteModalCancel />
 		}
 	}
 
 }
 else
 {
-<h3 class="text-info">Loading Posts...</h3>
+	<h3 class="text-info">Loading Posts...</h3>
 }
 
 
@@ -108,8 +117,12 @@ else
 
 	public bool Loaded { get; private set; }
 
-	private bool showModal = false;
+	private bool showEditorModal = false;
+	private bool showDeleteModal = false;
+
 	private PlayerPostViewModel currentEditorPost;
+	private Guid currentDeleteId;
+
 	private uint authorId;
 
 
@@ -127,14 +140,14 @@ else
 		currentEditorPost.PlayerId = AccountId;
 		currentEditorPost.AuthorId = authorId;
 
-		showModal = true;
+		showEditorModal = true;
 	}
 
 	private void EditPost(PlayerPostDTO post)
 	{
 		currentEditorPost = post;
 
-		showModal = true;
+		showEditorModal = true;
 	}
 
 	public async Task UpdatePostsAsync()
@@ -143,11 +156,25 @@ else
 		await OnPostsUpdate.InvokeAsync();
 	}
 
-	private void ModalCancel() => showModal = false;
-	private async Task ModalSubmitAsync()
+	private void EditorModalCancel() => showEditorModal = false;
+	private async Task EditorModalSubmitAsync()
 	{
-		showModal = false;
+		showEditorModal = false;
 		currentEditorPost = null;
+		await UpdatePostsAsync();
+	}
+
+
+	private void InitDeleteModal(Guid postId) 
+	{
+		currentDeleteId = postId;
+		showDeleteModal = true;
+	}
+	private void DeleteModalCancel() => showDeleteModal = false;
+	private async Task DeleteModalSubmitAsync()
+	{
+		showDeleteModal = false;
+		await PostService.DeletePostAsync(currentDeleteId);
 		await UpdatePostsAsync();
 	}
 

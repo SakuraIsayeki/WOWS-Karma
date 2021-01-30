@@ -58,5 +58,12 @@ namespace WowsKarma.Web.Services
 			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}
+
+		public async Task DeletePostAsync(Guid postId)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Delete, $"Post/{postId}");
+			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
+			response.EnsureSuccessStatusCode();
+		}
 	}
 }

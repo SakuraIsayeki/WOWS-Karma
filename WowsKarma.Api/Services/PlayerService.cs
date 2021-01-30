@@ -17,14 +17,12 @@ namespace WowsKarma.Api.Services
 		public static TimeSpan DataUpdateSpan => new(1, 0, 0);	// 1 hour
 
 		private readonly ApiDbContext context;
-		private readonly IDbContextFactory<ApiDbContext> contextFactory;
 		private readonly WorldOfWarshipsHandler wgApi;
 		private readonly VortexApiHandler vortex;
 
 
 		public PlayerService(IDbContextFactory<ApiDbContext> contextFactory, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
 		{
-			this.contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
 			context = contextFactory.CreateDbContext();
 			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
 			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));

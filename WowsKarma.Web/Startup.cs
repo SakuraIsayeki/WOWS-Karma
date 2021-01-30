@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System;
 using Wargaming.WebAPI.Models;
 using WowsKarma.Common;
+using WowsKarma.Web.Middlewares;
 using WowsKarma.Web.Services;
 using static WowsKarma.Common.Utilities;
 using static WowsKarma.Web.Utilities;
@@ -105,6 +106,8 @@ namespace WowsKarma.Web
 			app.UseAuthentication();
 
 			app.UseAuthorization();
+
+			app.UseMiddleware<RequestLoggingMiddleware>();
 
 			app.UseEndpoints(endpoints =>
 			{

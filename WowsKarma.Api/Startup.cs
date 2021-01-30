@@ -12,6 +12,7 @@ using Wargaming.WebAPI;
 using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
+using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
 
@@ -77,6 +78,8 @@ namespace WowsKarma.Api
 
 			app.UseAuthentication();
 			app.UseAuthorization();
+
+			app.UseMiddleware<RequestLoggingMiddleware>();
 
 			app.UseEndpoints(endpoints =>
 			{

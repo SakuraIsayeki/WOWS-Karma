@@ -1,16 +1,16 @@
 ﻿@namespace WowsKarma.Web.Shared
 @inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
 
 <header>
-	<Navbar />
+	<Navbar CurrentUri=@(NavigationManager.Uri) />
 </header>
 <div class="container" style="margin-top: 100px !important">
 	<main role="main">
 		@Body
 	</main>
 </div>
-<footer class="footer text-muted">
-	<div class="container">
-		&copy; 2020 - WOWS Karma (@WowsKarma.Web.Utilities.CurrentRegion.ToRegionString()) - <a href="https://github.com/DJDaemonix/WoWS-Karma">Github Repo</a>
-	</div>
-</footer>
+
+<Footer />
+

@@ -39,12 +39,46 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
+		public async Task<IEnumerable<PlayerPostDTO>> FetchSentPostsAsync(uint id, uint fetchLast)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Get, $"Post/{id}/sent");
+			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
+
+			if (response.StatusCode is HttpStatusCode.OK)
+			{
+				return new List<PlayerPostDTO>(await Utilities.DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response)).OrderByDescending(p => p.PostedAt);
+			}
+			else if (response.StatusCode is HttpStatusCode.NoContent)
+			{
+				return Enumerable.Empty<PlayerPostDTO>();
+			}
+
+			return null;
+		}
+
 		public async Task SubmitNewPostAsync(uint authorId, PlayerPostDTO post)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Post, $"Post/{authorId}");
 			string json = JsonSerializer.Serialize(post, new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 			request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
+			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
+			response.EnsureSuccessStatusCode();
+		}
+
+		public async Task EditPostAsync(uint authorId, PlayerPostDTO post)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Put, $"Post/{authorId}");
+			string json = JsonSerializer.Serialize(post, new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+			request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
+			response.EnsureSuccessStatusCode();
+		}
+
+		public async Task DeletePostAsync(Guid postId)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Delete, $"Post/{postId}");
 			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}

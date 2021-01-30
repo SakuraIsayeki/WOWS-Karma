@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
 using System.IO;
 using System.Threading.Tasks;
 using WowsKarma.Common;
@@ -24,8 +25,9 @@ namespace WowsKarma.Web
 				.MinimumLevel.Verbose()
 #else
 				.MinimumLevel.Information()
+				.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+				.MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
 #endif
-//				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
 				.Enrich.FromLogContext()
 				.Enrich.WithProperty("_Source", typeof(Program).Assembly.GetName())
 				.Enrich.WithProperty("_Environment", configuration["environment"])
@@ -34,6 +36,8 @@ namespace WowsKarma.Web
 				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
 //				.WriteTo.Logger(fileLogger)
 				.CreateLogger();
+
+			Log.Information("Region selected : {Region}", Utilities.CurrentRegion);
 
 			await host.RunAsync();
 		}

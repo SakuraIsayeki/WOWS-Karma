@@ -1,0 +1,119 @@
+﻿@inject PostService PostService
+
+<div class="modal fade show" id="post-editor-modal" tabindex="-1" style="display:block" aria-modal="true" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+
+			<!-- Modal Header -->
+			<div class="modal-header">
+				<h4 class="modal-title">Create Post</h4>
+			</div>
+
+			<EditForm Context="EditFormContext" Model="PostModel" OnValidSubmit="ModalSubmitAsync">
+				<DataAnnotationsValidator />
+				<ValidationSummary />
+
+				<!-- Modal body -->
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="Title">Title</label>
+						<InputText DisplayName=Title @bind-Value=PostModel.Title class="form-control" />
+					</div>
+
+					<div class="form-group">
+						<label for="Content">Content</label>
+						<InputTextArea DisplayName=Content @bind-Value=PostModel.Content class="form-control" style="height:10rem; min-height:100px;" />
+					</div>
+
+					<hr class="m-4" />
+
+					<h4 class="mb-3">Flairs</h4>
+
+					<table class="table table-borderless table-sm">
+						<tbody>
+							<tr>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-danger @(PostFlairs.Performance is false ? "active" : "")" @onclick="() => { PostFlairs.Performance = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Performance is null ? "active" : "")" @onclick="() => { PostFlairs.Performance = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
+									</div>
+								</td>
+								<td class="align-middle"><h5 class="m-0">Performance</h5></td>
+							</tr>
+							<tr>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
+										
+									</div>
+								</td>
+								<td class="align-middle"><h5 class="m-0">Teamplay</h5></td>
+							</tr>
+
+							<tr>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-danger @(PostFlairs.Courtesy is false ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Courtesy is null ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
+									</div>
+								</td>
+								<td class="align-middle"><h5 class="m-0">Courtesy</h5></td>
+							</tr>
+						</tbody>
+					</table>
+
+				</div>
+
+				<!-- Modal footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" @onclick=OnCancel>Cancel</button>
+					<button type="submit" class="btn btn-success" value="Create">Create</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+</div>
+
+<div class="modal-backdrop fade show"></div>
+
+
+@code {
+
+	[Parameter]
+	public PlayerPostViewModel PostModel { get; set; }
+	public PostFlairsParsed PostFlairs { get; set; }
+
+	[Parameter]
+	public EventCallback OnPostSubmited { get; set; }
+
+	[Parameter]
+	public EventCallback OnCancel { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		PostFlairs = PostModel.Flairs.ParseFlairsEnum() ?? new();
+
+		await base.OnInitializedAsync();
+	}
+
+	async Task ModalSubmitAsync()
+	{
+		PostModel.Flairs = PostFlairs.ToEnum();
+
+		if (PostModel.Id is null)
+		{
+			await PostService.SubmitNewPostAsync(PostModel.AuthorId, PlayerPostViewModel.ToDTO(PostModel));
+		}
+		else
+		{
+			await PostService.EditPostAsync(PostModel.AuthorId, PlayerPostViewModel.ToDTO(PostModel));
+		}
+
+		await OnPostSubmited.InvokeAsync(null);
+	}
+}

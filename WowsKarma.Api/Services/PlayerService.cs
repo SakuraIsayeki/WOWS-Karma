@@ -17,14 +17,12 @@ namespace WowsKarma.Api.Services
 		public static TimeSpan DataUpdateSpan => new(1, 0, 0);	// 1 hour
 
 		private readonly ApiDbContext context;
-		private readonly IDbContextFactory<ApiDbContext> contextFactory;
 		private readonly WorldOfWarshipsHandler wgApi;
 		private readonly VortexApiHandler vortex;
 
 
 		public PlayerService(IDbContextFactory<ApiDbContext> contextFactory, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
 		{
-			this.contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
 			context = contextFactory.CreateDbContext();
 			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
 			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));
@@ -64,48 +62,20 @@ namespace WowsKarma.Api.Services
 			}
 		}
 
-		public async Task<IEnumerable<Player>> GetPlayersAsync(uint[] accountIds)
+		public async Task<IEnumerable<AccountFullKarmaDTO>> GetPlayersFullKarmaAsync(IEnumerable<uint> accountIds)
 		{
 			if (accountIds is null)
 			{
 				return null;
 			}
 
-			List<Player> players = new();
+			Dictionary<uint, Player> players = await (from player in context.Players
+													  where player.Id != 0
+													  where accountIds.Contains(player.Id)
+													  select player).ToDictionaryAsync(p => p.Id, p => p);
 
-			foreach (uint id in accountIds)
-			{
-				players.Add(await GetPlayerAsync(id));
-			}
-
-			return players;
-		}
-
-		public async Task<IEnumerable<AccountFullKarmaDTO>> GetPlayersFullKarmaAsync(uint[] accountIds)
-		{
-			if (accountIds is null)
-			{
-				return null;
-			}
-
-			Dictionary<uint, Player> players = await (from player in context.Players where accountIds.Contains(player.Id) select player).ToDictionaryAsync(p => p.Id, p => p);
-			IEnumerable<uint> newPlayers = from uint id in accountIds where !players.ContainsKey(id) select id;
-			List<AccountFullKarmaDTO> accountKarmas = new();
-			foreach (KeyValuePair<uint, Player> player in players)
-			{
-				if (player.Value is null)
-				{
-					accountKarmas.Add(new(player.Key, 0, 0, 0, 0));
-				}
-				else
-				{
-					accountKarmas.Add(new(player.Key, player.Value.SiteKarma, player.Value.PerformanceRating, player.Value.TeamplayRating, player.Value.CourtesyRating));
-				}
-			}
-
-			_ = TryProvisionNewUsersToDb(newPlayers.ToArray(), contextFactory.CreateDbContext(), vortex);
-
-			return accountKarmas;
+			return from KeyValuePair<uint, Player> player in players
+				   select new AccountFullKarmaDTO(player.Key, player.Value.SiteKarma, player.Value.PerformanceRating, player.Value.TeamplayRating, player.Value.CourtesyRating);
 		}
 
 		public async Task<IEnumerable<AccountListingDTO>> ListPlayersAsync(string search)

@@ -44,20 +44,6 @@
 				<div class="card-body">
 					<p class="card-text" style="white-space: pre-wrap;">@post.Content</p>
 				</div>
-
-				<AuthorizeView>
-					<Authorized>
-						@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
-
-						@if (post.AuthorId == authorId)
-						{
-							<div class="card-body">
-								<button class="btn btn-warning btn-sm" @onclick=@(() => EditPost(post))>Edit</button>
-							</div>
-						}
-					</Authorized>
-				</AuthorizeView>
-
 				<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
 					@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
 					@if (parsed?.Performance is not null)
@@ -79,6 +65,19 @@
 						<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>,
 						@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
 					</p>
+
+					<AuthorizeView>
+						<Authorized>
+							@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
+
+							@if (post.AuthorId == authorId)
+							{
+								<p class="mt-1 mb-0">
+									<button class="btn btn-warning btn-sm" @onclick=@(() => EditPost(post))>Edit</button>
+								</p>
+							}
+						</Authorized>
+					</AuthorizeView>
 				</div>
 			</div>
 			}
@@ -141,7 +140,7 @@ else
 	public async Task UpdatePostsAsync()
 	{
 		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
-
+		await OnPostsUpdate.InvokeAsync();
 	}
 
 	private void ModalCancel() => showModal = false;

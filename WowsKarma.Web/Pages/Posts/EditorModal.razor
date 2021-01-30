@@ -1,6 +1,6 @@
 ﻿@inject PostService PostService
 
-<div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+<div class="modal fade show" id="post-editor-modal" tabindex="-1" style="display:block" aria-modal="true" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
 
@@ -22,33 +22,49 @@
 
 					<div class="form-group">
 						<label for="Content">Content</label>
-						<InputTextArea DisplayName=Content @bind-Value=PostModel.Content class="form-control" />
+						<InputTextArea DisplayName=Content @bind-Value=PostModel.Content class="form-control" style="height:10rem; min-height:100px;" />
 					</div>
 
-					<hr class="m-5" />
+					<hr class="m-4" />
 
-					<h5>Flairs</h5>
+					<h4 class="mb-3">Flairs</h4>
 
-					<div class="btn-group" role="group">
-						<button type="button" class="btn btn-danger @(PostFlairs.Performance is false ? "active" : "")" @onclick="() => { PostFlairs.Performance = false; }">Negative</button>
-						<button type="button" class="btn btn-warning @(PostFlairs.Performance is null ? "active" : "")" @onclick="() => { PostFlairs.Performance = null; }">Neutral</button>
-						<button type="button" class="btn btn-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
-						<p class="lead ml-3">Performance</p>
-					</div>
-									
-					<div class="btn-group" role="group">
-						<button type="button" class="btn btn-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
-						<button type="button" class="btn btn-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
-						<button type="button" class="btn btn-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
-						<p class="lead ml-3">Teamplay</p>
-					</div>
+					<table class="table table-borderless table-sm">
+						<tbody>
+							<tr>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-danger @(PostFlairs.Performance is false ? "active" : "")" @onclick="() => { PostFlairs.Performance = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Performance is null ? "active" : "")" @onclick="() => { PostFlairs.Performance = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
+									</div>
+								</td>
+								<td class="align-middle"><h5 class="m-0">Performance</h5></td>
+							</tr>
+							<tr>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
+										
+									</div>
+								</td>
+								<td class="align-middle"><h5 class="m-0">Teamplay</h5></td>
+							</tr>
 
-					<div class="btn-group" role="group">
-						<button type="button" class="btn btn-danger @(PostFlairs.Courtesy is false ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = false; }">Negative</button>
-						<button type="button" class="btn btn-warning @(PostFlairs.Courtesy is null ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = null; }">Neutral</button>
-						<button type="button" class="btn btn-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
-						<p class="lead ml-3">Courtesy</p>
-					</div>
+							<tr>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-danger @(PostFlairs.Courtesy is false ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = false; }">Negative</button>
+										<button type="button" class="btn btn-warning @(PostFlairs.Courtesy is null ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = null; }">Neutral</button>
+										<button type="button" class="btn btn-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
+									</div>
+								</td>
+								<td class="align-middle"><h5 class="m-0">Courtesy</h5></td>
+							</tr>
+						</tbody>
+					</table>
 
 				</div>
 
@@ -61,6 +77,8 @@
 		</div>
 	</div>
 </div>
+
+<div class="modal-backdrop fade show"></div>
 
 
 @code {

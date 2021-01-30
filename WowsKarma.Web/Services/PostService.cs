@@ -39,6 +39,23 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
+		public async Task<IEnumerable<PlayerPostDTO>> FetchSentPostsAsync(uint id, uint fetchLast)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Get, $"Post/{id}/sent");
+			using HttpResponseMessage response = await httpClientFactory.CreateClient().SendAsync(request);
+
+			if (response.StatusCode is HttpStatusCode.OK)
+			{
+				return new List<PlayerPostDTO>(await Utilities.DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response)).OrderByDescending(p => p.PostedAt);
+			}
+			else if (response.StatusCode is HttpStatusCode.NoContent)
+			{
+				return Enumerable.Empty<PlayerPostDTO>();
+			}
+
+			return null;
+		}
+
 		public async Task SubmitNewPostAsync(uint authorId, PlayerPostDTO post)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Post, $"Post/{authorId}");

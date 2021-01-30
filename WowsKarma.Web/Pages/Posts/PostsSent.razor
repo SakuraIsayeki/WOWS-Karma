@@ -8,35 +8,9 @@
 
 @if (Loaded)
 {
-	<div class="row justify-content-between align-content-end">
-		<h2 class="col-auto mb-5">Posts</h2>
-
-		<div class="col-auto mb-5">
-			<AuthorizeView>
-				<Authorized>
-					@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
-					@if (AccountId != authorId)
-					{
-						<button class="btn btn-success" @onclick=CreatePost>New Post</button>
-					}
-					else
-					{
-						<h5 class="text-info">(You cannot self-post.)</h5>
-					}
-				</Authorized>
-				<NotAuthorized>
-					@{
-						string redirectUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-					}
-					<h5 class="text-warning">You must first <a href=@($"/login?redirectUrl={redirectUrl}")>login</a> before creating a Post.</h5>
-				</NotAuthorized>
-			</AuthorizeView>
-		</div>
-	</div>
-
 	@if (PlayerPosts is null || PlayerPosts.Count() is 0)
 	{
-		<h4 class="text-warning mb-5">No Posts found for this Player.</h4>
+		<h4 class="text-warning mb-5">No Posts sent by this Player.</h4>
 	}
 	else
 	{
@@ -66,7 +40,7 @@
 
 					<div class="card-footer">
 						<p class="blockquote-footer mb-0">
-							<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>,
+							To <NavLink href=@($"/player/{post.PlayerId},{post.PlayerUsername}")>@post.PlayerUsername</NavLink>,
 							@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
 						</p>
 
@@ -110,9 +84,6 @@ else
 	[Parameter]
 	public uint AccountId { get; set; }
 
-	[Parameter]
-	public EventCallback OnPostsUpdate { get; set; }
-
 	public IEnumerable<PlayerPostDTO> PlayerPosts { get; set; }
 
 	public bool Loaded { get; private set; }
@@ -126,11 +97,11 @@ else
 	private uint authorId;
 
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnParametersSetAsync()
 	{
 		await UpdatePostsAsync();
+		await base.OnParametersSetAsync();
 
-		await base.OnInitializedAsync();
 		Loaded = true;
 	}
 
@@ -152,8 +123,7 @@ else
 
 	public async Task UpdatePostsAsync()
 	{
-		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
-		await OnPostsUpdate.InvokeAsync();
+		PlayerPosts = await PostService.FetchSentPostsAsync(AccountId, 0);
 	}
 
 	private void EditorModalCancel() => showEditorModal = false;
@@ -165,7 +135,7 @@ else
 	}
 
 
-	private void InitDeleteModal(Guid postId) 
+	private void InitDeleteModal(Guid postId)
 	{
 		currentDeleteId = postId;
 		showDeleteModal = true;

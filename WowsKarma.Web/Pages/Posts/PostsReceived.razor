@@ -85,16 +85,16 @@
 				</div>
 			}
 		</div>
-		@if (showEditorModal)
-		{
-			<EditorModal PostModel=currentEditorPost OnPostSubmited=EditorModalSubmitAsync OnCancel=EditorModalCancel />
-		}
-		else if (showDeleteModal)
-		{
-			<DeleteConfirm OnConfirm=DeleteModalSubmitAsync OnCancel=DeleteModalCancel />
-		}
 	}
 
+	@if (showEditorModal)
+	{
+		<EditorModal PostModel=currentEditorPost OnPostSubmited=EditorModalSubmitAsync OnCancel=EditorModalCancel />
+	}
+	else if (showDeleteModal)
+	{
+		<DeleteConfirm OnConfirm=DeleteModalSubmitAsync OnCancel=DeleteModalCancel />
+	}
 }
 else
 {
@@ -114,9 +114,7 @@ else
 	public IEnumerable<PlayerPostDTO> PlayerPosts { get; set; }
 
 	public bool Loaded { get; private set; }
-
-	private bool showEditorModal = false;
-	private bool showDeleteModal = false;
+	private bool showEditorModal, showDeleteModal;
 
 	private PlayerPostViewModel currentEditorPost;
 	private Guid currentDeleteId;

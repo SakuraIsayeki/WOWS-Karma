@@ -13,7 +13,11 @@
 			<AuthorizeView>
 				<Authorized>
 					@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
-					@if (AccountId != authorId)
+					@if (PostsDisable)
+					{
+						<h5 class="text-danger">You were banned from posting.</h5>
+					}
+					else if (AccountId != authorId)
 					{
 						<button class="btn btn-success px-4" @onclick=CreatePost>New Post</button>
 					}
@@ -107,6 +111,9 @@ else
 {
 	[Parameter]
 	public uint AccountId { get; set; }
+
+	[Parameter]
+	public bool PostsDisable { get; set; }
 
 	[Parameter]
 	public EventCallback OnPostsUpdate { get; set; }

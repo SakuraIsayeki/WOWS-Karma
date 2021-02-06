@@ -34,5 +34,8 @@ namespace WowsKarma.Common.Models.DTOs
 
 		public DateTime WgAccountCreatedAt { get; init; }
 		public DateTime LastBattleTime { get; init; }
+
+		public bool NegativeKarmaAble { get; init; }
+		public bool PostsBanned { get; init; }
 	}
 }

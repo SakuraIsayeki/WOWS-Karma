@@ -12,14 +12,21 @@
 		<div class="col-auto mb-3">
 			<AuthorizeView>
 				<Authorized>
-					@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
-					@if (AccountId != authorId)
+					@if (PostsDisable)
 					{
-						<button class="btn btn-success px-4" @onclick=CreatePost>New Post</button>
+						<h5 class="text-danger">You were banned from posting.</h5>
+					}
+					else if (AccountId == authorId)
+					{
+						<h5 class="text-info">You cannot self-post.</h5>
+					}
+					else if (CheckCooldown() is PostCooldownDTO postCooldown && postCooldown.OnCooldown)
+					{
+						<h5 class="text-info">You may post again for this Player after @postCooldown.EndsAt.ToString("dd/MM/yyyy @ HH:mm").</h5>
 					}
 					else
 					{
-						<h5 class="text-info">(You cannot self-post.)</h5>
+						<button class="btn btn-success px-4" @onclick=CreatePost>New Post</button>
 					}
 				</Authorized>
 				<NotAuthorized>
@@ -65,13 +72,11 @@
 					<div class="card-footer">
 						<p class="blockquote-footer mb-0">
 							<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>,
-							@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
+							@post.PostedAt.Value.ToString("dd/MM/yyyy @ HH:mm").
 						</p>
 
 						<AuthorizeView>
 							<Authorized>
-								@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
-
 								@if (post.AuthorId == authorId)
 								{
 									<p class="mt-1 mb-0">
@@ -105,8 +110,14 @@ else
 
 @code
 {
+	public static readonly TimeSpan CooldownPeriod = TimeSpan.FromDays(1);
+
+
 	[Parameter]
 	public uint AccountId { get; set; }
+
+	[Parameter]
+	public bool PostsDisable { get; set; }
 
 	[Parameter]
 	public EventCallback OnPostsUpdate { get; set; }
@@ -121,10 +132,16 @@ else
 
 	private uint authorId;
 
+	public record PostCooldownDTO(bool OnCooldown, DateTime EndsAt);
+	private PostCooldownDTO postCooldown;
+
 
 	protected override async Task OnParametersSetAsync()
 	{
 		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
+
+		await AssignAuthorId();
+
 		await base.OnParametersSetAsync();
 
 		Loaded = true;
@@ -174,5 +191,28 @@ else
 		await UpdatePostsAsync();
 	}
 
-	private void AssignAuthorId(string accountUrl) => authorId = GetAccountInfoFromOidcUrl(accountUrl).Id;
+	private async Task AssignAuthorId()
+	{
+		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl and not null)
+		{
+			authorId = GetAccountInfoFromOidcUrl(accountUrl).Id;
+		}
+	}
+
+	private PostCooldownDTO CheckCooldown()
+	{
+		PlayerPostDTO lastAuthoredPost = (from p in PlayerPosts where p.AuthorId == authorId orderby p.PostedAt select p).LastOrDefault();
+
+		if (lastAuthoredPost is not null)
+		{
+			DateTime endsAt = lastAuthoredPost.PostedAt.Value.Add(CooldownPeriod);
+			bool onCooldown = endsAt > DateTime.UtcNow;
+
+			return new(onCooldown, endsAt);
+		}
+
+		return new(false, default);
+	}
 }

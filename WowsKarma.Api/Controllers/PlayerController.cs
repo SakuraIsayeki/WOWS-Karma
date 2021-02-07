@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Common.Models.DTOs;
@@ -13,11 +14,11 @@ using WowsKarma.Common.Models.DTOs;
 namespace WowsKarma.Api.Controllers
 {
 	[ApiController, Route("api/[controller]")]
-	public class AccountController : ControllerBase
+	public class PlayerController : ControllerBase
 	{
 		private readonly PlayerService service;
 
-		public AccountController(PlayerService playerService)
+		public PlayerController(PlayerService playerService)
 		{
 			service = playerService;
 		}
@@ -50,6 +51,20 @@ namespace WowsKarma.Api.Controllers
 			return playerProfile is null
 				? StatusCode(204)
 				: StatusCode(200, playerProfile);
+		}
+
+		[HttpGet("{id}/banned")]
+		public async Task<IActionResult> GetBannedStatusAsync(uint id)
+		{
+			if (id is 0)
+			{
+				return StatusCode(400, new ArgumentException(null, nameof(id)));
+			}
+
+			return await service.GetPlayerAsync(id) is Player player and not null
+				? StatusCode(200, player.PostsBanned)
+				: StatusCode(404, new ArgumentException(null, nameof(id)));
+
 		}
 
 		[HttpPost("Karmas"), AccessKey]

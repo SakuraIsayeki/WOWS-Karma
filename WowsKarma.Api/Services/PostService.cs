@@ -15,6 +15,7 @@ namespace WowsKarma.Api.Services
 	{
 		private const ushort PostTitleMaxSize = 60;
 		private const ushort PostContentMaxSize = 1000;
+		private static readonly TimeSpan CooldownPeriod = TimeSpan.FromDays(1);
 
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
@@ -57,7 +58,7 @@ namespace WowsKarma.Api.Services
 				: null;
 		}
 
-		public async Task CreatePostAsync(PlayerPostDTO postDTO)
+		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassCooldown)
 		{
 			try
 			{
@@ -70,6 +71,11 @@ namespace WowsKarma.Api.Services
 
 			Player author = await playerService.GetPlayerAsync(postDTO.AuthorId) ?? throw new ArgumentException($"Author Account {postDTO.AuthorId} not found", nameof(postDTO));
 			_ = await playerService.GetPlayerAsync(postDTO.PlayerId) ?? throw new ArgumentException($"Player Account {postDTO.PlayerId} not found", nameof(postDTO));
+
+			if (!bypassCooldown && CheckCooldown(postDTO))
+			{
+				throw new ArgumentException("Author is on cooldown for this player.");
+			}
 
 
 			Post post = new()
@@ -125,6 +131,25 @@ namespace WowsKarma.Api.Services
 
 			_ = post.Title.Length > PostTitleMaxSize ? throw new ArgumentException($"Post Title Length exceeds {PostTitleMaxSize} characters", nameof(post)) : false;
 			_ = post.Content.Length > PostContentMaxSize ? throw new ArgumentException($"Post Content Length exceeds {PostContentMaxSize} characters", nameof(post)) : false;
+		}
+
+
+		private bool CheckCooldown(PlayerPostDTO post)
+		{
+			PlayerPostDTO lastAuthoredPost = 
+				(from p in context.Posts 
+				where p.AuthorId == post.AuthorId 
+				where p.PlayerId == post.PlayerId
+				orderby p.CreatedAt select p).LastOrDefault();
+
+			if (lastAuthoredPost is not null)
+			{
+				DateTime endsAt = lastAuthoredPost.PostedAt.Value.Add(CooldownPeriod);
+				return endsAt > DateTime.UtcNow;
+
+			}
+
+			return false;
 		}
 	}
 }

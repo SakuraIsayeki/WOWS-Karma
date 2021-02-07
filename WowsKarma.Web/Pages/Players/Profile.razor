@@ -1,6 +1,8 @@
 ﻿@page "/player/{idnamepair}/"
 @using WowsKarma.Web.Pages.Posts
+
 @inject PlayerService PlayerService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @if (Player is not null)
 {
@@ -68,7 +70,7 @@
 
 	@if (!ReceivedOrSent)
 	{
-		<PostsReceived AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync />
+		<PostsReceived AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync PostsDisable=CurrentUserBannedfromPosting />
 	}
 	else
 	{
@@ -93,6 +95,9 @@ else
 
 	public PlayerProfileDTO Player { get; set; }
 
+	public bool CurrentUserBannedfromPosting { get; set; }
+
+
 	public bool Loaded { get; private set; }
 	public bool ReceivedOrSent { get; set; }
 
@@ -102,8 +107,19 @@ else
 		uint id = GetIdFromRouteParameter(IdNamePair);
 		Player = id is 0 ? null : await PlayerService.FetchPlayerProfileAsync(id);
 		await base.OnParametersSetAsync();
+		await CheckBannedUser();
 		Loaded = true;
 	}
 
 	private async Task UpdatePlayerAsync() => Player = await PlayerService.FetchPlayerProfileAsync(Player.Id);
+
+	private async Task CheckBannedUser()
+	{
+		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl and not null)
+		{
+			CurrentUserBannedfromPosting = await PlayerService.CheckBannedPlayerAsync(GetAccountInfoFromOidcUrl(accountUrl).Id);
+		}
+	}
 }

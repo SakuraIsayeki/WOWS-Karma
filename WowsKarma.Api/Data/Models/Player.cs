@@ -33,7 +33,7 @@ namespace WowsKarma.Api.Data.Models
 
 
 		public bool NegativeKarmaAble => (SiteKarma + GameKarma) > -20;
-
+		public bool PostsBanned { get; set; }
 
 
 		/*

@@ -140,7 +140,7 @@ namespace WowsKarma.Api.Services
 				(from p in context.Posts 
 				where p.AuthorId == post.AuthorId 
 				where p.PlayerId == post.PlayerId
-				orderby p.CreatedAt select p).LastOrDefault();
+				orderby p.CreatedAt select p ?? null).LastOrDefault();
 
 			if (lastAuthoredPost is not null)
 			{

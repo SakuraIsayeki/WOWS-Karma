@@ -74,7 +74,7 @@ namespace WowsKarma.Api.Controllers
 		}
 
 		[HttpPost("{id}"), AccessKey]
-		public async Task<IActionResult> CreatePost(uint id, [FromBody] PlayerPostDTO post)
+		public async Task<IActionResult> CreatePost(uint id, [FromBody] PlayerPostDTO post, [FromQuery] bool ignoreCooldown = false)
 		{
 			if (await playerService.GetPlayerAsync(id) is null)
 			{
@@ -83,7 +83,7 @@ namespace WowsKarma.Api.Controllers
 
 			try
 			{
-				await postService.CreatePostAsync(post);
+				await postService.CreatePostAsync(post, ignoreCooldown);
 				return StatusCode(201);
 			}
 			catch (ArgumentException e)

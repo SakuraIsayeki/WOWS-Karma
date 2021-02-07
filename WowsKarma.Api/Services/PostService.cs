@@ -136,19 +136,23 @@ namespace WowsKarma.Api.Services
 
 		private bool CheckCooldown(PlayerPostDTO post)
 		{
-			PlayerPostDTO lastAuthoredPost = 
-				(from p in context.Posts 
-				where p.AuthorId == post.AuthorId 
-				where p.PlayerId == post.PlayerId
-				orderby p.CreatedAt select p ?? null).LastOrDefault();
+			IQueryable<Post> filteredPosts =
+				 from p in context.Posts
+				 where p.AuthorId == post.AuthorId
+				 where p.PlayerId == post.PlayerId
+				 select p;
 
-			if (lastAuthoredPost is not null)
+			if (filteredPosts.Any())
 			{
-				DateTime endsAt = lastAuthoredPost.PostedAt.Value.Add(CooldownPeriod);
-				return endsAt > DateTime.UtcNow;
+				PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault();
 
+				if (lastAuthoredPost is not null)
+				{
+					DateTime endsAt = lastAuthoredPost.PostedAt.Value.Add(CooldownPeriod);
+					return endsAt > DateTime.UtcNow;
+
+				}
 			}
-
 			return false;
 		}
 	}

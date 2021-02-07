@@ -88,8 +88,8 @@ else
 
 
 @code {
-		[Parameter]
-		public string IdNamePair { get; set; }
+	[Parameter]
+	public string IdNamePair { get; set; }
 
 	public int TotalKarma => Player.GameKarma + Player.SiteKarma;
 
@@ -117,9 +117,9 @@ else
 	{
 		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
-		if (authState?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value is string userLink and not null)
+		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl and not null)
 		{
-			CurrentUserBannedfromPosting = await PlayerService.CheckBannedPlayerAsync(GetAccountInfoFromOidcUrl(userLink).Id);
+			CurrentUserBannedfromPosting = await PlayerService.CheckBannedPlayerAsync(GetAccountInfoFromOidcUrl(accountUrl).Id);
 		}
 	}
 }

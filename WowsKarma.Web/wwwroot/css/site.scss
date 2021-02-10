@@ -54,6 +54,16 @@ button.accept-policy {
 	line-height: inherit;
 }
 
+.modal {
+	overflow-y: scroll;
+
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+.modal::-webkit-scrollbar {
+	display: none; /* Chrome, Safari and Opera */
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
 

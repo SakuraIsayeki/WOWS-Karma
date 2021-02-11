@@ -28,6 +28,8 @@ namespace WowsKarma.Common.Models.DTOs
 		public int GameKarma { get; init; }
 		public int SiteKarma { get; init; }
 
+		public bool Hidden { get; init; }
+
 		public int RatingPerformance { get; init; }
 		public int RatingTeamplay { get; init; }
 		public int RatingCourtesy { get; init; }

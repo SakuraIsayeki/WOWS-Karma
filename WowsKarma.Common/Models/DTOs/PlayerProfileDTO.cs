@@ -6,21 +6,6 @@ namespace WowsKarma.Common.Models.DTOs
 {
 	public record PlayerProfileDTO
 	{
-		public PlayerProfileDTO() { }
-		public PlayerProfileDTO(PlayerProfileDTO source)
-		{
-			Id = source.Id;
-			Username = source.Username;
-			GameKarma = source.GameKarma;
-			SiteKarma = source.SiteKarma;
-			RatingPerformance = source.RatingPerformance;
-			RatingTeamplay = source.RatingTeamplay;
-			RatingCourtesy = source.RatingCourtesy;
-			WgAccountCreatedAt = source.WgAccountCreatedAt;
-			LastBattleTime = source.LastBattleTime;
-		}
-
-
 		public uint Id { get; init; }
 
 		public string Username { get; init; }

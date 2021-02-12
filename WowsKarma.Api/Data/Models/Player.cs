@@ -13,10 +13,12 @@ namespace WowsKarma.Api.Data.Models
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public uint Id { get; init; }
 
+		public string Username { get; set; }
+
 		public DateTime CreatedAt { get; init; }
 		public DateTime UpdatedAt { get; set; }
 
-		public string Username { get; set; }
+		public bool WgHidden { get; set; }
 
 		public int SiteKarma { get; set; }
 		public int GameKarma { get; set; }
@@ -36,6 +38,7 @@ namespace WowsKarma.Api.Data.Models
 		public bool PostsBanned { get; set; }
 
 
+
 		/*
 		 * Mapping
 		 */
@@ -45,6 +48,7 @@ namespace WowsKarma.Api.Data.Models
 			Id = value.Id,
 			Username = value.Username,
 			WgAccountCreatedAt = value.WgAccountCreatedAt,
+			Hidden = value.WgHidden,
 			GameKarma = value.GameKarma,
 			SiteKarma = value.SiteKarma,
 			RatingPerformance = value.PerformanceRating,
@@ -58,6 +62,7 @@ namespace WowsKarma.Api.Data.Models
 			source.Username = mod.Username;
 			source.GameKarma = mod.GameKarma;
 			source.LastBattleTime = mod.LastBattleTime;
+			source.WgHidden = mod.WgHidden;
 
 			return source;
 		}

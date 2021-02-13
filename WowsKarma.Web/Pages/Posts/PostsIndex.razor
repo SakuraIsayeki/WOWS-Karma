@@ -1,5 +1,4 @@
 ﻿@page "/posts"
-@using WowsKarma.Web.Shared.Helpers 
 @inject PostService PostService
 
 <div class="row justify-content-between mb-5">
@@ -8,7 +7,7 @@
 	</div>
 
 	<div class="col-auto">
-		<div class="btn-group btn-group-lg mr-2" role="group" aria-label="Select count">
+		<div class="btn-group mr-2" role="group" aria-label="Select count">
 			<button @onclick=@(() => RefreshListAsync(10)) type="button" class="btn btn-secondary">10</button>
 			<button @onclick=@(() => RefreshListAsync(25)) type="button" class="btn btn-secondary">25</button>
 			<button @onclick=@(() => RefreshListAsync(50)) type="button" class="btn btn-secondary">50</button>
@@ -22,7 +21,7 @@
 	{
 		@if (Posts is null || Posts.Count() is 0)
 		{
-			<h4 class="text-warning mb-5">No Posts found for this Player.</h4>
+			<h4 class="text-warning mb-5">No Posts found.</h4>
 		}
 		else
 		{

@@ -30,10 +30,8 @@
 					}
 				</Authorized>
 				<NotAuthorized>
-					@{
-						string redirectUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-					}
-					<h5 class="text-warning">You must first <a href=@($"/login?redirectUrl={redirectUrl}")>login</a> before creating a Post.</h5>
+					@{ string redirectUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri); }
+					<h5 class="text-warning">You must first <a href=@($"/login?redirectUri={redirectUri}")>login</a> before creating a Post.</h5>
 				</NotAuthorized>
 			</AuthorizeView>
 		</div>

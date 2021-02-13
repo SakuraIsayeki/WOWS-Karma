@@ -3,22 +3,28 @@
 <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-3">
 	<div class="container-fluid">
 		<NavLink class="navbar-brand" href="" Match="NavLinkMatch.All">WOWS Karma</NavLink><span class="badge badge-pill badge-primary">WIP</span> &emsp;
-		<button class="navbar-toggler" @onclick="Toggle">
+
+		<button class="navbar-toggler" @onclick=Toggle>
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div class="navbar-collapse @CssClass">
+
+		<div class="navbar-collapse @(collapse ? "collapse" : null)">
 			<ul class="navbar-nav flex-grow-1">
 				<li class="nav-item">
 					<NavLink class="nav-link text-light" href="" Match="NavLinkMatch.All">Home</NavLink>
 				</li>
+
 				<li class="nav-item">
 					<NavLink class="nav-link text-light" href="Player">Players</NavLink>
+				</li>
+
+				<li class="nav-item">
+					<NavLink class="nav-link text-light" href="Posts">Posts</NavLink>
 				</li>
 			</ul>
 			<NavLogin CurrentUri=@CurrentUri />
 		</div>
 	</div>
-
 </nav>
 
 @code {
@@ -26,8 +32,6 @@
 	public string CurrentUri { get; set; }
 
 	bool collapse = true;
-
-	string CssClass => collapse ? "collapse" : null;
 
 	void Toggle() => collapse = !collapse;
 }

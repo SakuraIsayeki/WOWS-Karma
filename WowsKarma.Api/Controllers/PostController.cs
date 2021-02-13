@@ -74,7 +74,7 @@ namespace WowsKarma.Api.Controllers
 		}
 
 		[HttpGet("latest")]
-		public async Task<IActionResult> GetReceivedPosts([FromQuery] int count = 10)
+		public IActionResult GetLatestPosts([FromQuery] int count = 10)
 		{
 			List<PlayerPostDTO> postsDTOs = new();
 			foreach (Post post in postService.GetLatestPosts(count))

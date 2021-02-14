@@ -1,0 +1,101 @@
+﻿@page "/posts"
+@inject PostService PostService
+
+<div class="row justify-content-between mb-5">
+	<div class="col-auto">
+		<h1>Latest Posts</h1>
+	</div>
+
+	<div class="col-auto">
+		<div class="btn-group mr-2" role="group" aria-label="Select count">
+			<button @onclick=@(() => RefreshListAsync(10)) type="button" class="btn btn-secondary">10</button>
+			<button @onclick=@(() => RefreshListAsync(25)) type="button" class="btn btn-secondary">25</button>
+			<button @onclick=@(() => RefreshListAsync(50)) type="button" class="btn btn-secondary">50</button>
+			<button @onclick=@(() => RefreshListAsync(100)) type="button" class="btn btn-secondary">100</button>
+		</div>
+	</div>
+</div>
+
+<div>
+	@if (Loaded)
+	{
+		@if (Posts is null || Posts.Count() is 0)
+		{
+			<h4 class="text-warning mb-5">No Posts found.</h4>
+		}
+		else
+		{
+			<div class="row">
+				@foreach (PlayerPostDTO post in Posts)
+				{
+					<div class="mx-3 my-3">
+						<p class="text-body">
+							<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>
+							>
+							<NavLink href=@($"/player/{post.PlayerId},{post.PlayerUsername}")>@post.PlayerUsername</NavLink>
+						</p>
+
+						<div class="card border-@GetPostBorderColor(post.Flairs)" style="max-width: 20rem;">
+							<h5 class="card-header">@post.Title</h5>
+
+							<div class="card-body">
+								<p class="card-text" style="white-space: pre-wrap;">@post.Content</p>
+							</div>
+
+							<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
+								@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
+								@if (parsed?.Performance is not null)
+								{
+									<small class="my-0 text-@(parsed.Performance.Value ? "success" : "danger")">@(parsed.Performance.Value ? "+" : "-") Performance</small><br />
+								}
+								@if (parsed?.Teamplay is not null)
+								{
+									<small class="my-0 text-@(parsed.Teamplay.Value ? "success" : "danger")">@(parsed.Teamplay.Value ? "+" : "-") Teamplay</small><br />
+								}
+								@if (parsed?.Courtesy is not null)
+								{
+									<small class="my-0 text-@(parsed.Courtesy.Value ? "success" : "danger")">@(parsed.Courtesy.Value ? "+" : "-") Courtesy</small>
+								}
+							</div>
+
+							<div class="card-footer">
+								<p class="blockquote-footer mb-0">
+									@post.PostedAt.Value.ToString("dd/MM/yyyy @ HH:mm").
+								</p>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	}
+	else
+	{
+		<h3 class="text-info">Loading Posts...</h3>
+	}
+</div>
+
+
+
+@code {
+	public IEnumerable<PlayerPostDTO> Posts { get; set; }
+
+	public bool Loaded { get; private set; }
+
+	private string countValue;
+
+	protected async override Task OnParametersSetAsync()
+	{
+		Loaded = false;
+		Posts = await PostService.FetchLatestPostsAsync(10);
+		await base.OnParametersSetAsync();
+		Loaded = true;
+	}
+
+	public async Task RefreshListAsync(int count)
+	{
+		Loaded = false;
+		Posts = await PostService.FetchLatestPostsAsync(count);
+		Loaded = true;
+	}
+}

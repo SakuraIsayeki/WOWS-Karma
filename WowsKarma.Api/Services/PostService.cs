@@ -58,6 +58,12 @@ namespace WowsKarma.Api.Services
 				: null;
 		}
 
+		public IEnumerable<Post> GetLatestPosts(int count) => context.Posts
+			.Include(p => p.Author)
+			.Include(p => p.Player)
+			.OrderByDescending(p => p.CreatedAt)
+			.Take(count);
+
 		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassCooldown)
 		{
 			try

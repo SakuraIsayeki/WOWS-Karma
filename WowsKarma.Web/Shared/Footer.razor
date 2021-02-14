@@ -3,15 +3,36 @@
 		
 		<div class="row justify-content-between">
 			<div class="col-auto mb-3">
-				<strong>WOWS Karma (@WowsKarma.Web.Utilities.CurrentRegion.ToRegionString())</strong> <br />
-				Technical Preview #7 (<a href="https://github.com/SakuraIsayeki/WoWS-Karma">GitHub</a>, <a href="https://discord.gg/PrW9dtzK9K">Discord</a>)
+				<strong>WOWS Karma (@currentRegion)</strong> <br />
+
+				Technical Preview #8 
+				(<a target="_blank" href="https://github.com/SakuraIsayeki/WoWS-Karma">GitHub</a>, <a target="_blank" href="https://discord.gg/PrW9dtzK9K">Discord</a>)
 			</div>
 
 			<div class="col-auto mb-3">
 				Developed by <a href="/player/503379282,Sakura_Isayeki">Sakura Isayeki</a> <br />
-				Powered by <a href="https://nodsoft.net/">Nodsoft Systems</a>
+				Powered by <a target="_blank" href="https://nodsoft.net/">Nodsoft Systems</a>
 			</div>
 		</div>
 
 	</div>
 </footer>
+
+
+
+@code {
+
+	static string currentRegion;
+
+#if DEBUG
+	const string DevelopedByLink = "/player/503379282,Sakura_Isayeki";
+#else
+	const string DevelopedByLink = "https://wows-karma.com/player/503379282,Sakura_Isayeki"
+#endif
+
+
+	protected override void OnInitialized()
+	{
+		currentRegion ??= WowsKarma.Web.Utilities.CurrentRegion.ToRegionString();
+	}
+}

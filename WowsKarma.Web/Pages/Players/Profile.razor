@@ -6,12 +6,23 @@
 
 @if (Player is not null)
 {
-	<h1 class="text-center mb-5">@Player.Username&ensp;<sup class="text-@GetKarmaColor(TotalKarma)">@TotalKarma</sup></h1>
+	<div class="text-center mb-5">
+		<h1>@Player.Username&ensp;<sup class="text-@GetKarmaColor(TotalKarma)">@TotalKarma</sup></h1>
+	</div>
+
 	<div class="row justify-content-center text-center my-5">
 		<div class="col-4 m-4">
 			<h4>Game :</h4>
-			<h2 class="text-@GetKarmaColor(Player.GameKarma)">@Player.GameKarma</h2>
+			@if (Player.Hidden)
+			{
+				<h2 class="text-danger">N/A</h2>
+			}
+			else
+			{ 
+				<h2 class="text-@GetKarmaColor(Player.GameKarma)">@Player.GameKarma</h2>
+			}
 		</div>
+
 		<div class="col-4 m-4">
 			<h4>Site :</h4>
 			<h2 class="text-@GetKarmaColor(Player.SiteKarma)">@Player.SiteKarma</h2>
@@ -20,20 +31,30 @@
 
 
 	<div class="row justify-content-between">
-		<div class="col-md-6">
+		<div class="col-md-6 mb-3">
 			<h2 class="text-center mb-3">Info</h2>
 
 			<table class="table table-borderless">
 				<thead />
 				<tbody>
 					<tr><th>Account ID :</th><td>@Player.Id</td></tr>
-					<tr><th>Created On :</th><td>@Player.WgAccountCreatedAt.ToString("f")</td></tr>
-					<tr><th>Last Battle :</th><td>@Player.LastBattleTime.ToString("f")</td></tr>
-					<tr><th>Statistics :</th><td><a href="@($"{GetWowsNumbersBaseLink()}player/{IdNamePair}/")">View on WOWS Numbers</a></td></tr>
+
+					@if (!Player.Hidden)
+					{
+						<tr><th>Created On :</th><td>@Player.WgAccountCreatedAt.ToString("f")</td></tr>
+						<tr><th>Last Battle :</th><td>@Player.LastBattleTime.ToString("f")</td></tr>
+						<tr><th>Statistics :</th><td><a href="@($"{GetWowsNumbersBaseLink()}player/{IdNamePair}/")">View on WOWS Numbers</a></td></tr>
+					}
 				</tbody>
 			</table>
+
+			@if (Player.Hidden)
+			{
+				<h3 class="text-danger">Player Details Hidden</h3>
+			}
 		</div>
-		<div class="col-md-6">
+
+		<div class="col-md-6 mb-3">
 			<h2 class="text-center mb-5">Ratings</h2>
 
 			<div class="row justify-content-around text-center">

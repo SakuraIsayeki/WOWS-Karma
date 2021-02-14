@@ -15,6 +15,7 @@ namespace WowsKarma.Web.Services
 	public class PostService
 	{
 		private readonly HttpClient client;
+		public const string EndpointCategory = "Post";
 
 		private static readonly JsonSerializerOptions serializerOptions = new() 
 		{ 
@@ -35,7 +36,7 @@ namespace WowsKarma.Web.Services
 
 		public async Task<IEnumerable<PlayerPostDTO>> FetchReceivedPostsAsync(uint id, uint fetchLast)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"Post/{id}/received");
+			using HttpRequestMessage request = new(HttpMethod.Get, $"{EndpointCategory}/{id}/received");
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
@@ -50,9 +51,19 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
+		public async Task<IEnumerable<PlayerPostDTO>> FetchLatestPostsAsync(int count)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Get, $"{EndpointCategory}/latest?count={count}");
+			using HttpResponseMessage response = await client.SendAsync(request);
+
+			response.EnsureSuccessStatusCode();
+			return await Utilities.DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response);
+		}
+
+
 		public async Task<IEnumerable<PlayerPostDTO>> FetchSentPostsAsync(uint id, uint fetchLast)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"Post/{id}/sent");
+			using HttpRequestMessage request = new(HttpMethod.Get, $"{EndpointCategory}/{id}/sent");
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
@@ -69,7 +80,7 @@ namespace WowsKarma.Web.Services
 
 		public async Task SubmitNewPostAsync(uint authorId, PlayerPostDTO post)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Post, $"Post/{authorId}");
+			using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}/{authorId}");
 			string json = JsonSerializer.Serialize(post, serializerOptions);
 			request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -79,7 +90,7 @@ namespace WowsKarma.Web.Services
 
 		public async Task EditPostAsync(uint authorId, PlayerPostDTO post)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Put, $"Post/{authorId}");
+			using HttpRequestMessage request = new(HttpMethod.Put, $"{EndpointCategory}/{authorId}");
 			string json = JsonSerializer.Serialize(post, serializerOptions);
 			request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -89,7 +100,7 @@ namespace WowsKarma.Web.Services
 
 		public async Task DeletePostAsync(Guid postId)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Delete, $"Post/{postId}");
+			using HttpRequestMessage request = new(HttpMethod.Delete, $"{EndpointCategory}/{postId}");
 			using HttpResponseMessage response = await client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}

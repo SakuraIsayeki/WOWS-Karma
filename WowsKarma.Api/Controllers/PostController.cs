@@ -73,6 +73,19 @@ namespace WowsKarma.Api.Controllers
 			return StatusCode(200, postsDTOs);
 		}
 
+		[HttpGet("latest")]
+		public IActionResult GetLatestPosts([FromQuery] int count = 10)
+		{
+			List<PlayerPostDTO> postsDTOs = new();
+			foreach (Post post in postService.GetLatestPosts(count))
+			{
+				postsDTOs.Add(post);
+			}
+
+			return StatusCode(200, postsDTOs);
+		}
+
+
 		[HttpPost("{id}"), AccessKey]
 		public async Task<IActionResult> CreatePost(uint id, [FromBody] PlayerPostDTO post, [FromQuery] bool ignoreCooldown = false)
 		{

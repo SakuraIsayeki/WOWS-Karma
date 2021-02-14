@@ -62,20 +62,17 @@ namespace WowsKarma.Api.Services
 			}
 		}
 
-		public async Task<IEnumerable<AccountFullKarmaDTO>> GetPlayersFullKarmaAsync(IEnumerable<uint> accountIds)
+		public IQueryable<AccountFullKarmaDTO> GetPlayersFullKarma(IEnumerable<uint> accountIds)
 		{
-			if (accountIds is null)
-			{
-				return null;
-			}
-
-			Dictionary<uint, Player> players = await (from player in context.Players
-													  where player.Id != 0
-													  where accountIds.Contains(player.Id)
-													  select player).ToDictionaryAsync(p => p.Id, p => p);
-
-			return from KeyValuePair<uint, Player> player in players
-				   select new AccountFullKarmaDTO(player.Key, player.Value.SiteKarma, player.Value.PerformanceRating, player.Value.TeamplayRating, player.Value.CourtesyRating);
+			return from p in context.Players
+				   where accountIds.Contains(p.Id)
+				   select new AccountFullKarmaDTO(p.Id, p.SiteKarma, p.PerformanceRating, p.TeamplayRating, p.CourtesyRating);
+		}
+		public IQueryable<AccountKarmaDTO> GetPlayersKarma(IEnumerable<uint> accountIds)
+		{
+			return from p in context.Players
+				   where accountIds.Contains(p.Id)
+				   select new AccountKarmaDTO(p.Id, p.SiteKarma);
 		}
 
 		public async Task<IEnumerable<AccountListingDTO>> ListPlayersAsync(string search)
@@ -103,14 +100,6 @@ namespace WowsKarma.Api.Services
 			player.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 			await context.SaveChangesAsync();
 			return player;
-		}
-
-		internal static async Task TryProvisionNewUsersToDb(uint[] newAccountIds, ApiDbContext context, VortexApiHandler vortex)
-		{
-			Player[] players = (await vortex.FetchAccountsAsync(newAccountIds)).ToDbModel();
-			context.Players.AddRange(players);
-			await context.SaveChangesAsync();
-			await context.DisposeAsync();
 		}
 
 		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;

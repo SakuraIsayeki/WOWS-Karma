@@ -68,9 +68,9 @@ namespace WowsKarma.Api.Controllers
 		}
 
 		[HttpPost("Karmas"), AccessKey]
-		public async Task<IActionResult> FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary(await service.GetPlayersFullKarmaAsync(ids)));
+		public IActionResult FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary(service.GetPlayersKarma(ids)));
 
 		[HttpPost("KarmasFull"), AccessKey]
-		public async Task<IActionResult> FetchFullKarmas([FromBody] uint[] ids) => StatusCode(200, await service.GetPlayersFullKarmaAsync(ids));
+		public IActionResult FetchFullKarmas([FromBody] uint[] ids) => StatusCode(200, service.GetPlayersFullKarma(ids));
 	}
 }

@@ -36,6 +36,7 @@ namespace WowsKarma.Web
 
 			services.AddServerSideBlazor();
 			services.AddRazorPages();
+			services.AddHttpContextAccessor();
 
 			services.AddHttpClient(Options.DefaultName, config =>
 			{

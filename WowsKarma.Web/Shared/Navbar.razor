@@ -1,8 +1,11 @@
 ﻿@namespace WowsKarma.Web.Shared
+@using static ThemeUtils
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
 
 <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-3">
 	<div class="container-fluid">
-		<NavLink class="navbar-brand" href="" Match="NavLinkMatch.All">WOWS Karma</NavLink><span class="badge badge-pill badge-primary">WIP</span> &emsp;
+		<NavLink class="navbar-brand" href="" Match=NavLinkMatch.All>WOWS Karma</NavLink><span class="badge badge-pill badge-primary">WIP</span> &emsp;
 
 		<button class="navbar-toggler" @onclick=Toggle>
 			<span class="navbar-toggler-icon"></span>
@@ -10,19 +13,29 @@
 
 		<div class="navbar-collapse @(collapse ? "collapse" : null)">
 			<ul class="navbar-nav flex-grow-1">
-				<li class="nav-item">
-					<NavLink class="nav-link text-light" href="" Match="NavLinkMatch.All">Home</NavLink>
-				</li>
-
-				<li class="nav-item">
-					<NavLink class="nav-link text-light" href="Player">Players</NavLink>
-				</li>
-
-				<li class="nav-item">
-					<NavLink class="nav-link text-light" href="Posts">Posts</NavLink>
-				</li>
+				<li class="nav-item"><NavLink class="nav-link text-light" href="" Match=NavLinkMatch.All>Home</NavLink></li>
+				<li class="nav-item"><NavLink class="nav-link text-light" href="Player">Players</NavLink></li>
+				<li class="nav-item"><NavLink class="nav-link text-light" href="Posts">Posts</NavLink></li>
 			</ul>
-			<NavLogin CurrentUri=@CurrentUri />
+
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					@if (HttpContextAccessor.HttpContext.Request.Cookies[themeCookie] is lightTheme)
+					{
+						<NavLink class="nav-link text-light" href=@($"SwitchTheme?theme={darkTheme}&redirectUri={NavigationManager.ToBaseRelativePath(CurrentUri)}")>
+							<i class="bi bi-moon"></i>&emsp;
+						</NavLink>
+					}
+					else
+					{
+						<NavLink class="nav-link text-light" href=@($"SwitchTheme?theme={lightTheme}&redirectUri={NavigationManager.ToBaseRelativePath(CurrentUri)}")>
+							<i class="bi bi-sun"></i>&emsp;
+						</NavLink>
+					}
+				</li>
+
+				<NavLogin CurrentUri=@CurrentUri />
+			</ul>
 		</div>
 	</div>
 </nav>

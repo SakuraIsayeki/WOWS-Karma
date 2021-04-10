@@ -36,8 +36,12 @@ namespace WowsKarma.Api
 
 			services.AddControllers();
 
-			services.AddPooledDbContextFactory<ApiDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString($"ApiDbConnectionString:{ApiRegion.ToRegionString()}"),
-					providerOptions => providerOptions.EnableRetryOnFailure()), Configuration.GetValue<int>("Database:PoolSize"));
+
+			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
+
+			services.AddPooledDbContextFactory<ApiDbContext>(
+				options => options.UseNpgsql(Configuration.GetConnectionString($"ApiDbConnectionString:{ApiRegion.ToRegionString()}"),
+				providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 16 : dbPoolSize);
 
 			services.AddHttpClient<WorldOfWarshipsHandler>(client => client.BaseAddress = new(ApiProperties.GetApiHost(ApiProperties.Game.WOWS, ApiRegion)));
 			services.AddHttpClient<VortexApiHandler>(client => client.BaseAddress = new(VortexApiHandler.GetApiHost(ApiRegion)));

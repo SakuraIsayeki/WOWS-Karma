@@ -1,11 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
+
+
 
 namespace WowsKarma.Api.Data
 {
@@ -41,7 +37,7 @@ namespace WowsKarma.Api.Data
 			modelBuilder.Entity<Player>()
 				.Property(p => p.CreatedAt)
 				.ValueGeneratedOnAdd()
-				.HasDefaultValueSql("GETUTCDATE()");
+				.HasDefaultValueSql("NOW()");
 
 			#endregion
 
@@ -50,7 +46,7 @@ namespace WowsKarma.Api.Data
 			modelBuilder.Entity<Post>()
 				.Property(p => p.CreatedAt)
 				.ValueGeneratedOnAdd()
-				.HasDefaultValueSql("GETUTCDATE()");
+				.HasDefaultValueSql("NOW()");
 
 			#endregion
 		}

@@ -354,3 +354,5 @@ WowsKarma.Api/access-keys.txt
 WowsKarma.Web/wwwroot/css/*.css
 
 WowsKarma.Web/wwwroot/js/site.js
+
+appsettings.Production.json

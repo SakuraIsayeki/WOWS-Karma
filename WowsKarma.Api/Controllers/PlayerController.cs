@@ -67,10 +67,10 @@ namespace WowsKarma.Api.Controllers
 
 		}
 
-		[HttpPost("Karmas"), AccessKey]
+		[HttpPost("Karmas")]
 		public IActionResult FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary(service.GetPlayersKarma(ids)));
 
-		[HttpPost("KarmasFull"), AccessKey]
+		[HttpPost("KarmasFull")]
 		public IActionResult FetchFullKarmas([FromBody] uint[] ids) => StatusCode(200, service.GetPlayersFullKarma(ids));
 	}
 }

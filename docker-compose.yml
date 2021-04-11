@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   wowskarma.api:
+    hostname: api
     image: ${DOCKER_REGISTRY-}wowskarmaapi
     build:
       context: .
@@ -10,6 +11,7 @@ services:
     - 5010:80
 
   wowskarma.web:
+    hostname: web
     image: ${DOCKER_REGISTRY-}wowskarmaweb
     build:
       context: .

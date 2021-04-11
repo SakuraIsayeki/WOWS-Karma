@@ -7,8 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using System;
-using Wargaming.WebAPI.Models;
 using WowsKarma.Common;
 using WowsKarma.Web.Middlewares;
 using WowsKarma.Web.Services;
@@ -36,6 +34,7 @@ namespace WowsKarma.Web
 
 			services.AddServerSideBlazor();
 			services.AddRazorPages();
+			services.AddHttpContextAccessor();
 
 			services.AddHttpClient(Options.DefaultName, config =>
 			{

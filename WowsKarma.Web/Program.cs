@@ -33,8 +33,9 @@ namespace WowsKarma.Web
 				.Enrich.WithProperty("_Environment", configuration["environment"])
 				.Enrich.WithProperty("_Region", Utilities.CurrentRegion.ToRegionString())
 				.WriteTo.Console()
+#if DEBUG
 				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
-//				.WriteTo.Logger(fileLogger)
+#endif
 				.CreateLogger();
 
 			Log.Information("Region selected : {Region}", Utilities.CurrentRegion);
@@ -54,6 +55,7 @@ namespace WowsKarma.Web
 						config.AddEnvironmentVariables();
 						config.AddCommandLine(args);
 					});
+
 					webBuilder.UseStartup<Startup>();
 					webBuilder.UseSerilog();
 				});

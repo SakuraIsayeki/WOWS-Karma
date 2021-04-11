@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
@@ -38,8 +37,9 @@ namespace WowsKarma.Api
 				.Enrich.WithProperty("_Environment", configuration["environment"])
 				.Enrich.WithProperty("_Region", Startup.ApiRegion.ToRegionString())
 				.WriteTo.Console()
+#if DEBUG
 				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
-//				.WriteTo.Logger(fileLogger)
+#endif
 				.CreateLogger();
 
 			Log.Information("Region selected : {Region}", Startup.ApiRegion);
@@ -59,6 +59,7 @@ namespace WowsKarma.Api
 						config.AddEnvironmentVariables();
 						config.AddCommandLine(args);
 					}); 
+
 					webBuilder.UseStartup<Startup>();
 					webBuilder.UseSerilog();
 				});

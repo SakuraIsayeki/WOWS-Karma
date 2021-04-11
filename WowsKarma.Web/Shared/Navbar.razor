@@ -1,8 +1,9 @@
 ﻿@namespace WowsKarma.Web.Shared
+@inject NavigationManager NavigationManager
 
 <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-3">
 	<div class="container-fluid">
-		<NavLink class="navbar-brand" href="" Match="NavLinkMatch.All">WOWS Karma</NavLink><span class="badge badge-pill badge-primary">WIP</span> &emsp;
+		<NavLink class="navbar-brand" href="" Match=NavLinkMatch.All>WOWS Karma</NavLink><span class="badge badge-pill badge-primary">WIP</span> &emsp;
 
 		<button class="navbar-toggler" @onclick=Toggle>
 			<span class="navbar-toggler-icon"></span>
@@ -10,19 +11,21 @@
 
 		<div class="navbar-collapse @(collapse ? "collapse" : null)">
 			<ul class="navbar-nav flex-grow-1">
-				<li class="nav-item">
-					<NavLink class="nav-link text-light" href="" Match="NavLinkMatch.All">Home</NavLink>
-				</li>
-
-				<li class="nav-item">
-					<NavLink class="nav-link text-light" href="Player">Players</NavLink>
-				</li>
-
-				<li class="nav-item">
-					<NavLink class="nav-link text-light" href="Posts">Posts</NavLink>
-				</li>
+				<li class="nav-item"><NavLink class="nav-link text-light" href="" Match=NavLinkMatch.All>Home</NavLink></li>
+				<li class="nav-item"><NavLink class="nav-link text-light" href="Player">Players</NavLink></li>
+				<li class="nav-item"><NavLink class="nav-link text-light" href="Posts">Posts</NavLink></li>
 			</ul>
-			<NavLogin CurrentUri=@CurrentUri />
+
+			<ul class="navbar-nav">
+				<li class="nav-item">
+					<button class="btn btn-link text-light" onclick="setTheme()">
+						<i class="bi bi-moon" id="icon-theme-selector" onload="getThemeSelectorIcon()"></i>
+					</button>
+					&emsp;
+				</li>
+
+				<NavLogin CurrentUri=@CurrentUri />
+			</ul>
 		</div>
 	</div>
 </nav>

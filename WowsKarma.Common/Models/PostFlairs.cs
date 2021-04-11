@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+
+
 
 namespace WowsKarma.Common.Models
 {
@@ -49,7 +48,7 @@ namespace WowsKarma.Common.Models
 
 		public static PostFlairs ToEnum(this PostFlairsParsed flairsParsed)
 		{
-			ushort flairCount = 0x00;
+			int flairCount = 0x00;
 
 			flairCount += flairsParsed.Performance is null ? 0x00 : flairsParsed.Performance.Value ? 0x01 : 0x02;
 			flairCount += flairsParsed.Teamplay is null ? 0x00 : flairsParsed.Teamplay.Value ? 0x04 : 0x08;

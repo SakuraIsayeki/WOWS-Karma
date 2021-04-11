@@ -9,17 +9,13 @@
 	<Authorized>
 		@{AccountListingDTO account = GetAccountInfoFromOidcUrl(context.User.FindFirst(ClaimTypes.NameIdentifier).Value);}
 
-		<ul class="navbar-nav">
-			<li class="navbar-text text-light">Welcome, @account.Username.&emsp;</li>
-			<li class="nav-item"><NavLink class="nav-link text-white" href="@($"player/{account.Id},{account.Username}")">Profile</NavLink></li>
-			<li class="nav-item"><NavLink class="nav-link text-white" href="logout">Logout</NavLink></li>
-		</ul>
+		<li class="navbar-text text-light">Welcome, @account.Username.&emsp;</li>
+		<li class="nav-item"><NavLink class="nav-link text-white" href="@($"player/{account.Id},{account.Username}")">Profile</NavLink></li>
+		<li class="nav-item"><NavLink class="nav-link text-white" href="logout">Logout</NavLink></li>
 	</Authorized>
 
 	<NotAuthorized>
-		<ul class="navbar-nav">
-			<li class="nav-item"><NavLink class="nav-link text-white" href=@($"login?redirectUri={NavigationManager.ToBaseRelativePath(CurrentUri)}")>Login</NavLink></li>
-		</ul>
+		<li class="nav-item"><NavLink class="nav-link text-white" href=@($"login?redirectUri={NavigationManager.ToBaseRelativePath(CurrentUri)}")>Login</NavLink></li>
 	</NotAuthorized>
 </AuthorizeView>
 

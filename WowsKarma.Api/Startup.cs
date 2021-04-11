@@ -1,13 +1,10 @@
-using AspNetCore.Authentication.ApiKey;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using Wargaming.WebAPI;
 using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
@@ -35,9 +32,12 @@ namespace WowsKarma.Api
 
 			services.AddControllers();
 
-			services.AddDbContextFactory<ApiDbContext>(options => 
-				options.UseSqlServer(Configuration.GetConnectionString($"ApiDbConnectionString:{ApiRegion.ToRegionString()}"), 
-					providerOptions => providerOptions.EnableRetryOnFailure()));
+
+			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
+
+			services.AddPooledDbContextFactory<ApiDbContext>(
+				options => options.UseNpgsql(Configuration.GetConnectionString($"ApiDbConnectionString:{ApiRegion.ToRegionString()}"),
+				providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 16 : dbPoolSize);
 
 			services.AddHttpClient<WorldOfWarshipsHandler>(client => client.BaseAddress = new(ApiProperties.GetApiHost(ApiProperties.Game.WOWS, ApiRegion)));
 			services.AddHttpClient<VortexApiHandler>(client => client.BaseAddress = new(VortexApiHandler.GetApiHost(ApiRegion)));

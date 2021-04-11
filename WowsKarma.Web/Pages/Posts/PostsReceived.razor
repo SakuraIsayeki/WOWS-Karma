@@ -46,7 +46,7 @@
 		<div class="row">
 			@foreach (PlayerPostDTO post in PlayerPosts)
 			{
-				<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="max-width: 20rem;">
+				<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="width: 20rem; max-width: calc(100vw - 2rem);">
 					<h5 class="card-header">@post.Title</h5>
 					<div class="card-body">
 						<p class="card-text" style="white-space: pre-wrap;">@post.Content</p>

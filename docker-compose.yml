@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   wowskarma.api:
+    hostname: api
     image: ${DOCKER_REGISTRY-}wowskarmaapi
     build:
       context: .
@@ -10,6 +11,7 @@ services:
     - 5010:80
 
   wowskarma.web:
+    hostname: web
     image: ${DOCKER_REGISTRY-}wowskarmaweb
     build:
       context: .
@@ -17,3 +19,16 @@ services:
     ports:
     - 5000:80
     - 5001:443
+
+  seq:
+    hostname: seq
+    image: datalust/seq
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - wowskarma-seq:/data
+    ports:
+    - 5341:80
+
+volumes:
+  wowskarma-seq:

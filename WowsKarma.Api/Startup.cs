@@ -1,3 +1,4 @@
+using Discord.Webhook;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -45,6 +46,7 @@ namespace WowsKarma.Api
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration[$"Api:{ApiRegion.ToRegionString()}:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
+			services.AddSingleton(new DiscordWebhookClient(Configuration[$"Webhooks:Discord:{ApiRegion.ToRegionString()}"]));
 
 			services.AddScoped<PlayerService>();
 			services.AddScoped<PostService>();

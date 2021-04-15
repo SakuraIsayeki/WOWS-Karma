@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Discord;
+using Discord.Webhook;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +8,8 @@ using System.Numerics;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Utilities;
+using WowsKarma.Common;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
@@ -14,19 +18,20 @@ namespace WowsKarma.Api.Services
 	public class PostService
 	{
 		private const ushort PostTitleMaxSize = 60;
-		private const ushort PostContentMaxSize = 1000;
+		private const ushort PostContentMaxSize = 2000;
 		private static readonly TimeSpan CooldownPeriod = TimeSpan.FromDays(1);
 
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
 		private readonly KarmaService karmaService;
+		private readonly DiscordWebhookClient webhookClient;
 
-
-		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, KarmaService karmaService)
+		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, KarmaService karmaService, DiscordWebhookClient webhookClient)
 		{
 			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
 			this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
 			this.karmaService = karmaService ?? throw new ArgumentNullException(nameof(karmaService));
+			this.webhookClient = webhookClient;
 		}
 
 
@@ -76,7 +81,7 @@ namespace WowsKarma.Api.Services
 			}
 
 			Player author = await playerService.GetPlayerAsync(postDTO.AuthorId) ?? throw new ArgumentException($"Author Account {postDTO.AuthorId} not found", nameof(postDTO));
-			_ = await playerService.GetPlayerAsync(postDTO.PlayerId) ?? throw new ArgumentException($"Player Account {postDTO.PlayerId} not found", nameof(postDTO));
+			Player player = await playerService.GetPlayerAsync(postDTO.PlayerId) ?? throw new ArgumentException($"Player Account {postDTO.PlayerId} not found", nameof(postDTO));
 
 			if (!bypassCooldown && CheckCooldown(postDTO))
 			{
@@ -99,6 +104,8 @@ namespace WowsKarma.Api.Services
 
 			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, post.ParsedFlairs, null, post.NegativeKarmaAble);
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, null);
+
+			await SendDiscordWebhookMessage(post, author, player);
 		}
 
 		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO)
@@ -161,5 +168,40 @@ namespace WowsKarma.Api.Services
 			}
 			return false;
 		}
-	}
+
+		private async Task SendDiscordWebhookMessage(Post post, Player author, Player player)
+		{
+			EmbedBuilder embed = new()
+			{
+				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
+				Title = $"**New Post on {player.Username} :** \"{post.Title}\".",
+				Url = new(player.GetPlayerProfileLink()),
+				Description = post.Content,
+				Footer = new() { Text = $"WOWS Karma ({Startup.ApiRegion.ToRegionString()}) - Powered by Nodsoft Systems" },
+
+				Color = PostFlairsUtils.CountBalance(post.Flairs.ParseFlairsEnum()) switch
+				{
+					> 0 => Color.Green,
+					< 0 => Color.Red,
+					_ => Color.LighterGrey
+				},
+
+				Fields = new List<EmbedFieldBuilder>
+				{
+					new EmbedFieldBuilder { Name = "Performance", Value = GetFlairValueString(post.ParsedFlairs.Performance), IsInline = true },
+					new EmbedFieldBuilder { Name = "Teamplay", Value = GetFlairValueString(post.ParsedFlairs.Teamplay), IsInline = true },
+					new EmbedFieldBuilder { Name = "Courtesy", Value = GetFlairValueString(post.ParsedFlairs.Courtesy), IsInline = true }
+				}
+			};
+
+			await webhookClient.SendMessageAsync(embeds: new Embed[] { embed.Build() });
+		}
+
+		private static string GetFlairValueString(bool? value) => value switch
+		{
+			true => "Positive",
+			false => "Negative",
+			null or _ => "Neutral"
+		};
+}
 }

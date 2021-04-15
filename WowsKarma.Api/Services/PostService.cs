@@ -171,12 +171,14 @@ namespace WowsKarma.Api.Services
 
 		private async Task SendDiscordWebhookMessage(Post post, Player author, Player player)
 		{
-			EmbedBuilder embed = new EmbedBuilder()
+			EmbedBuilder embed = new()
 			{
 				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
 				Title = $"**New Post on {player.Username} :** \"{post.Title}\".",
 				Url = new(player.GetPlayerProfileLink()),
 				Description = post.Content,
+				Footer = new() { Text = $"WOWS Karma ({Startup.ApiRegion.ToRegionString()}) - Powered by Nodsoft Systems" },
+
 				Color = PostFlairsUtils.CountBalance(post.Flairs.ParseFlairsEnum()) switch
 				{
 					> 0 => Color.Green,
@@ -184,10 +186,22 @@ namespace WowsKarma.Api.Services
 					_ => Color.LighterGrey
 				},
 
-				Footer = new() { Text = $"WOWS Karma ({Startup.ApiRegion.ToRegionString()}) - Powered by Nodsoft Systems" },
+				Fields = new List<EmbedFieldBuilder>
+				{
+					new EmbedFieldBuilder { Name = "Performance", Value = GetFlairValueString(post.ParsedFlairs.Performance), IsInline = true },
+					new EmbedFieldBuilder { Name = "Teamplay", Value = GetFlairValueString(post.ParsedFlairs.Teamplay), IsInline = true },
+					new EmbedFieldBuilder { Name = "Courtesy", Value = GetFlairValueString(post.ParsedFlairs.Courtesy), IsInline = true }
+				}
 			};
 
 			await webhookClient.SendMessageAsync(embeds: new Embed[] { embed.Build() });
 		}
-	}
+
+		private static string GetFlairValueString(bool? value) => value switch
+		{
+			true => "Positive",
+			false => "Negative",
+			null or _ => "Neutral"
+		};
+}
 }

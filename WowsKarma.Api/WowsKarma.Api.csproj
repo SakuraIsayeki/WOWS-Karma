@@ -2,7 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>WowsKarma.Api</RootNamespace>
+    <Version>0.10.0</Version>
+    <Authors>Sakura Akeno Isayeki</Authors>
+    <Company>Nodsoft Systems</Company>
+    <Product>WOWS Karma (API)</Product>
+    <PackageProjectUrl>https://wows-karma.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SakuraIsayeki/WoWS-Karma</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+
     <UserSecretsId>8247eff5-32cd-4d58-ae32-52f2201e69c5</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
@@ -26,10 +33,11 @@
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0-preview.3.21201.4" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.10" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-preview2" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-preview3" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.2-dev-10284" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.3" />
   </ItemGroup>
 
   <ItemGroup>

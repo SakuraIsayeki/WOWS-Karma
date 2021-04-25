@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using System;
 using System.Reflection;
 using Wargaming.WebAPI;
 using Wargaming.WebAPI.Models;
@@ -13,6 +15,7 @@ using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api
@@ -36,7 +39,29 @@ namespace WowsKarma.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			services.AddSwaggerGen();
+
+			services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc(DisplayVersion, new OpenApiInfo
+				{
+					Version = DisplayVersion,
+					Title = $"WOWS Karma API ({ApiRegion.ToRegionString()})",
+					Contact = new OpenApiContact
+					{
+						Name = "Sakura Isayeki",
+						Email = "sakura.isayeki@nodsoft.net",
+						Url = new Uri("https://github.com/SakuraIsayeki"),
+					},
+					License = new OpenApiLicense
+					{
+						Name = "GNU-GPL v3",
+						Url = new Uri("https://github.com/SakuraIsayeki/WoWS-Karma/blob/main/LICENSE"),
+					}
+				});
+
+				c.OperationFilter<AccessKeySwaggerFilter>();
+			});
+
 
 
 			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
@@ -71,7 +96,7 @@ namespace WowsKarma.Api
 			app.UseSwagger();
 			app.UseSwaggerUI(c =>
 			{
-				c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+				c.SwaggerEndpoint($"/swagger/{DisplayVersion}/swagger.json", $"WOWS Karma API v{DisplayVersion}");
 			});
 
 			if (env.IsDevelopment())

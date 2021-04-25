@@ -15,6 +15,7 @@ using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api
@@ -39,7 +40,6 @@ namespace WowsKarma.Api
 		{
 			services.AddControllers();
 
-			services.AddSwaggerGen();
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc(DisplayVersion, new OpenApiInfo
@@ -58,7 +58,10 @@ namespace WowsKarma.Api
 						Url = new Uri("https://github.com/SakuraIsayeki/WoWS-Karma/blob/main/LICENSE"),
 					}
 				});
+
+				c.OperationFilter<AccessKeySwaggerFilter>();
 			});
+
 
 
 			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");

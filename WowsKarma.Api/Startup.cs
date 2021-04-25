@@ -45,7 +45,7 @@ namespace WowsKarma.Api
 				c.SwaggerDoc(DisplayVersion, new OpenApiInfo
 				{
 					Version = DisplayVersion,
-					Title = "WOWS Karma API",
+					Title = $"WOWS Karma API ({ApiRegion.ToRegionString()})",
 					Contact = new OpenApiContact
 					{
 						Name = "Sakura Isayeki",
@@ -96,7 +96,7 @@ namespace WowsKarma.Api
 			app.UseSwagger();
 			app.UseSwaggerUI(c =>
 			{
-				c.SwaggerEndpoint($"/swagger/{DisplayVersion}/swagger.json", $"WOWS Karma v{DisplayVersion}");
+				c.SwaggerEndpoint($"/swagger/{DisplayVersion}/swagger.json", $"WOWS Karma API v{DisplayVersion}");
 			});
 
 			if (env.IsDevelopment())

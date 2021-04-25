@@ -35,5 +35,14 @@ namespace WowsKarma.Common
 			Region.ASIA => "https://asia.wows-karma.com/",
 			_ => throw new ArgumentOutOfRangeException(nameof(region))
 		};
+
+		public static string GetRegionApiDomain(this Region region) => region switch
+		{
+			Region.EU => "https://api.wows-karma.com/",
+			Region.NA => "https://api.na.wows-karma.com/",
+			Region.CIS => "https://api.ru.wows-karma.com/",
+			Region.ASIA => "https://api.asia.wows-karma.com/",
+			_ => throw new ArgumentOutOfRangeException(nameof(region))
+		};
 	}
 }

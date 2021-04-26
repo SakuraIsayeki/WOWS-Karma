@@ -1,5 +1,6 @@
 ﻿@page "/posts"
 @inject PostService PostService
+@implements IAsyncDisposable
 
 <div class="row justify-content-between mb-5">
 	<div class="col-auto">
@@ -7,6 +8,19 @@
 	</div>
 
 	<div class="col-auto">
+		<div>
+			<h3>Updates :</h3>
+
+			@if (IsConnected)
+			{
+				<p class="lead text-success">Real-Time</p>
+			}
+			else
+			{
+				<p class="lead text-info">Press F5 to update</p>
+			}
+		</div>
+
 		<div class="btn-group mr-2" role="group" aria-label="Select count">
 			<button @onclick=@(() => RefreshListAsync(10)) type="button" class="btn btn-secondary">10</button>
 			<button @onclick=@(() => RefreshListAsync(25)) type="button" class="btn btn-secondary">25</button>
@@ -78,24 +92,45 @@
 
 
 @code {
-	public IEnumerable<PlayerPostDTO> Posts { get; set; }
+	public List<PlayerPostDTO> Posts { get; set; }
 
 	public bool Loaded { get; private set; }
 
-	private string countValue;
+	private HubConnection hubConnection;
 
 	protected async override Task OnParametersSetAsync()
 	{
 		Loaded = false;
-		Posts = await PostService.FetchLatestPostsAsync(10);
+		Posts ??= (await PostService.FetchLatestPostsAsync(10)).ToList();
 		await base.OnParametersSetAsync();
 		Loaded = true;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		hubConnection = new HubConnectionBuilder()
+			.WithUrl("http://api/api/hubs/post")
+			.Build();
+
+		hubConnection.On<string, PlayerPostDTO>("NewPost", (user, message) =>
+		{
+			Posts.Add(message);
+		});
+
+		await hubConnection.StartAsync();
 	}
 
 	public async Task RefreshListAsync(int count)
 	{
 		Loaded = false;
-		Posts = await PostService.FetchLatestPostsAsync(count);
+		Posts = (await PostService.FetchLatestPostsAsync(count)).ToList();
 		Loaded = true;
+	}
+
+	public bool IsConnected => hubConnection.State is HubConnectionState.Connected;
+
+	public async ValueTask DisposeAsync()
+	{
+		await hubConnection.DisposeAsync();
 	}
 }

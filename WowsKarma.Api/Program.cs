@@ -26,7 +26,7 @@ namespace WowsKarma.Api
 
 			Log.Logger = new LoggerConfiguration()
 #if DEBUG
-				.MinimumLevel.Verbose()
+				.MinimumLevel.Debug()
 #else
 				.MinimumLevel.Information()
 				.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)

@@ -43,6 +43,7 @@
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web.Extensions" Version="5.0.0-preview9.20513.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.0-preview.3.21201.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0-preview.3.21201.4" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.3.0-beta">
       <PrivateAssets>all</PrivateAssets>

@@ -2,17 +2,20 @@ using Discord.Webhook;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Linq;
 using System.Reflection;
 using Wargaming.WebAPI;
 using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
+using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
@@ -39,6 +42,7 @@ namespace WowsKarma.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
+			services.AddSignalR();
 
 			services.AddSwaggerGen(c =>
 			{
@@ -78,6 +82,8 @@ namespace WowsKarma.Api
 			services.AddSingleton<VortexApiHandler>();
 			services.AddSingleton(new DiscordWebhookClient(Configuration[$"Webhooks:Discord:{ApiRegion.ToRegionString()}"]));
 
+			services.AddTransient<PostHub>();
+
 			services.AddScoped<PlayerService>();
 			services.AddScoped<PostService>();
 			services.AddScoped<KarmaService>();
@@ -88,11 +94,19 @@ namespace WowsKarma.Api
 				options.DeveloperMode = true;
 #endif
 			});
+
+			services.AddResponseCompression(opts =>
+			{
+				opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+					new[] { "application/octet-stream" });
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.UseResponseCompression();
+
 			app.UseSwagger();
 			app.UseSwaggerUI(c =>
 			{
@@ -122,6 +136,7 @@ namespace WowsKarma.Api
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapDefaultControllerRoute();
+				endpoints.MapHub<PostHub>("/api/hubs/post");
 			});
 		}
 	}

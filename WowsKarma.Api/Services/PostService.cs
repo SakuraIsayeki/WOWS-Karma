@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Webhook;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
 using WowsKarma.Common.Models;
@@ -25,13 +27,15 @@ namespace WowsKarma.Api.Services
 		private readonly PlayerService playerService;
 		private readonly KarmaService karmaService;
 		private readonly DiscordWebhookClient webhookClient;
+		private readonly IHubContext<PostHub> hubContext;
 
-		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, KarmaService karmaService, DiscordWebhookClient webhookClient)
+		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, KarmaService karmaService, DiscordWebhookClient webhookClient, IHubContext<PostHub> hubContext)
 		{
 			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
 			this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
 			this.karmaService = karmaService ?? throw new ArgumentNullException(nameof(karmaService));
 			this.webhookClient = webhookClient;
+			this.hubContext = hubContext;
 		}
 
 
@@ -106,6 +110,7 @@ namespace WowsKarma.Api.Services
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, null);
 
 			await SendDiscordWebhookMessage(post, author, player);
+			await hubContext.Clients.All.SendAsync("NewPost", (PlayerPostDTO)post);
 		}
 
 		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO)
@@ -203,5 +208,5 @@ namespace WowsKarma.Api.Services
 			false => "Negative",
 			null or _ => "Neutral"
 		};
-}
+	}
 }

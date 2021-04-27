@@ -27,14 +27,14 @@
 			<p class="blockquote-footer mb-0">
 				@if (DisplayType is PostDisplayType.Received)
 				{
-					<span>From<NavLink href=@($"/player/{PlayerPost.AuthorId},{PlayerPost.AuthorUsername}")>@PlayerPost-.AuthorUsername</NavLink>,</span>
+					<span>From <NavLink href=@($"/player/{PlayerPost.AuthorId},{PlayerPost.AuthorUsername}")>@PlayerPost.AuthorUsername</NavLink>,</span>
 				}
 				else if (DisplayType is PostDisplayType.Sent)
 				{
-					<span>To<NavLink href=@($"/player/{PlayerPost.PlayerId},{PlayerPost.PlayerUsername}")>@PlayerPost.PlayerUsername</NavLink>,</span>
+					<span>To <NavLink href=@($"/player/{PlayerPost.PlayerId},{PlayerPost.PlayerUsername}")>@PlayerPost.PlayerUsername</NavLink>,</span>
 				}
 
-				@PlayerPost.PostedAt.Value.ToString("dd/MM/yyyy @ HH:mm")
+				@PlayerPost.PostedAt.Value.ToString("dd/MM/yyyy @ HH:mm UTC")
 			</p>
 
 			<AuthorizeView>
@@ -42,8 +42,8 @@
 					@if (PlayerPost.AuthorId == CurrentUserId)
 					{
 						<p class="mt-1 mb-0">
-							<button class="btn btn-warning btn-sm" @onclick=OnEditClick>Edit</button>
-							<button class="btn btn-danger btn-sm" @onclick=OnDeleteClick>Delete</button>
+							<button class="btn btn-warning btn-sm" @onclick=EditClicked>Edit</button>
+							<button class="btn btn-danger btn-sm" @onclick=DeleteClicked>Delete</button>
 						</p>
 					}
 				</Authorized>
@@ -58,13 +58,16 @@
 
 	[Parameter] public bool Editable { get; init; }
 	[Parameter] public uint CurrentUserId { get; init; }
-	[Parameter] public EventCallback OnEditClick { get; init; }
-	[Parameter] public EventCallback OnDeleteClick { get; init; }
+	[Parameter] public EventCallback<PlayerPostDTO> OnEditClick { get; init; }
+	[Parameter] public EventCallback<Guid> OnDeleteClick { get; init; }
 
 
 	private MarkupString GetFlairMarkup(string name, bool? value) => value is bool x
 		? new($"<small class=\"my-0 text-{(x ? "success" : "danger")}\">{(x ? "+" : "-")} {name}</small> <br />")
 		: new(string.Empty);
+
+	private Task EditClicked() => OnEditClick.InvokeAsync(PlayerPost);
+	private Task DeleteClicked() => OnDeleteClick.InvokeAsync(PlayerPost.Id.Value);
 
 
 	public enum PostDisplayType

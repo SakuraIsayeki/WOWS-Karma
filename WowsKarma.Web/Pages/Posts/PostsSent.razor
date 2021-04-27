@@ -17,48 +17,9 @@
 		<div class="row">
 			@foreach (PlayerPostDTO post in PlayerPosts)
 			{
-				<div class="card border-@GetPostBorderColor(post.Flairs) my-3 mx-3" style="width: 20rem; max-width: calc(100vw - 2rem);">
-					<h5 class="card-header">@post.Title</h5>
-					<div class="card-body">
-						<p class="card-text" style="white-space: pre-wrap;">@post.Content</p>
-					</div>
-					<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
-						@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
-						@if (parsed?.Performance is not null)
-						{
-							<small class="my-0 text-@(parsed.Performance.Value ? "success" : "danger")">@(parsed.Performance.Value ? "+" : "-") Performance</small><br />
-						}
-						@if (parsed?.Teamplay is not null)
-						{
-							<small class="my-0 text-@(parsed.Teamplay.Value ? "success" : "danger")">@(parsed.Teamplay.Value ? "+" : "-") Teamplay</small><br />
-						}
-						@if (parsed?.Courtesy is not null)
-						{
-							<small class="my-0 text-@(parsed.Courtesy.Value ? "success" : "danger")">@(parsed.Courtesy.Value ? "+" : "-") Courtesy</small>
-						}
-					</div>
-
-					<div class="card-footer">
-						<p class="blockquote-footer mb-0">
-							To <NavLink href=@($"/player/{post.PlayerId},{post.PlayerUsername}")>@post.PlayerUsername</NavLink>,
-							@post.PostedAt.Value.ToString("MM/dd/yyyy @ HH:mm").
-						</p>
-
-						<AuthorizeView>
-							<Authorized>
-								@{ AssignAuthorId(context.User.FindFirst(ClaimTypes.NameIdentifier).Value); }
-
-								@if (post.AuthorId == authorId)
-								{
-									<p class="mt-1 mb-0">
-										<button class="btn btn-warning btn-sm" @onclick=@(() => EditPost(post))>Edit</button>
-										<button class="btn btn-danger btn-sm" @onclick=@(() => InitDeleteModal(post.Id.Value))>Delete</button>
-									</p>
-								}
-							</Authorized>
-						</AuthorizeView>
-					</div>
-				</div>
+				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=authorId 
+					OnEditClick="() => EditPost(post)"
+					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />
 			}
 		</div>
 		@if (showEditorModal)
@@ -100,6 +61,7 @@ else
 	protected override async Task OnParametersSetAsync()
 	{
 		await UpdatePostsAsync();
+		await AssignAuthorIdAsync();
 		await base.OnParametersSetAsync();
 
 		Loaded = true;
@@ -148,5 +110,13 @@ else
 		await UpdatePostsAsync();
 	}
 
-	private void AssignAuthorId(string accountUrl) => authorId = GetAccountInfoFromOidcUrl(accountUrl).Id;
+	private async Task AssignAuthorIdAsync()
+	{
+		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl)
+		{
+			authorId = GetAccountInfoFromOidcUrl(accountUrl).Id;
+		}
+	}
 }

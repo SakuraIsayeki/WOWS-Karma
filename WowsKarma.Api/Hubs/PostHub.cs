@@ -20,7 +20,13 @@ namespace WowsKarma.Api.Hubs
 
 		public async Task GetLatestPosts(int count)
 		{
-			await Clients.Caller.SendAsync("GetLatestPosts", postService.GetLatestPosts(count));
+			List<PlayerPostDTO> postsDTOs = new();
+			foreach (Post post in postService.GetLatestPosts(count))
+			{
+				postsDTOs.Add(post);
+			}
+
+			await Clients.Caller.SendAsync("GetLatestPosts", postsDTOs);
 		}
 
 		public async Task NewPost(PlayerPostDTO postDTO)

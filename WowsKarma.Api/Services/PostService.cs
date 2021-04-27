@@ -110,7 +110,11 @@ namespace WowsKarma.Api.Services
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, null);
 
 			await SendDiscordWebhookMessage(post, author, player);
-			await hubContext.Clients.All.SendAsync("NewPost", (PlayerPostDTO)post);
+			await hubContext.Clients.All.SendAsync("NewPost", (PlayerPostDTO)post with 
+			{ 
+				AuthorUsername = author.Username,
+				PlayerUsername = player.Username
+			});
 		}
 
 		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO)

@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.Linq;
 using System.Reflection;
 using WowsKarma.Common;
 using WowsKarma.Web.Middlewares;
@@ -77,6 +79,12 @@ namespace WowsKarma.Web
 
 			services.AddAuthorizationCore();
 			services.AddHttpContextAccessor();
+
+			services.AddResponseCompression(opts =>
+			{
+				opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+					new[] { "application/octet-stream" });
+			});
 		}
 
 
@@ -84,6 +92,8 @@ namespace WowsKarma.Web
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.UseResponseCompression();
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

@@ -92,7 +92,7 @@
 
 
 @code {
-	public Queue<PlayerPostDTO> Posts { get; set; }
+	public LinkedList<PlayerPostDTO> Posts { get; set; }
 
 	public bool Loaded { get; private set; }
 
@@ -101,7 +101,7 @@
 	protected async override Task OnParametersSetAsync()
 	{
 		Loaded = false;
-		//		Posts ??= (await PostService.FetchLatestPostsAsync(10)).ToList();
+//		Posts ??= (await PostService.FetchLatestPostsAsync(10)).ToList();
 		await base.OnParametersSetAsync();
 		Loaded = true;
 	}
@@ -120,7 +120,7 @@
 
 		hubConnection.On<PlayerPostDTO>("NewPost", (message) =>
 		{
-			Posts.Enqueue(message);
+			Posts.AddFirst(message);
 			StateHasChanged();
 		});
 

@@ -132,6 +132,12 @@ namespace WowsKarma.Api.Services
 
 			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, previousFlairs);
+
+			await hubContext.Clients.All.SendAsync("EditedPost", (PlayerPostDTO)post with
+			{
+				AuthorUsername = post.Author?.Username,
+				PlayerUsername = post.Player?.Username
+			});
 		}
 
 		public async Task DeletePostAsync(Guid id)
@@ -142,6 +148,8 @@ namespace WowsKarma.Api.Services
 			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, null, post.ParsedFlairs, post.NegativeKarmaAble);
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, null, post.ParsedFlairs);
 			await context.SaveChangesAsync();
+
+			await hubContext.Clients.All.SendAsync("DeletedPost", id);
 		}
 
 		internal static void ValidatePostContents(PlayerPostDTO post)

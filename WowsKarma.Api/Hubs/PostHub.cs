@@ -29,9 +29,10 @@ namespace WowsKarma.Api.Hubs
 			await Clients.Caller.SendAsync("GetLatestPosts", postsDTOs);
 		}
 
-		public async Task NewPost(PlayerPostDTO postDTO)
-		{
-			await Clients.All.SendAsync("NewPost", postDTO);
-		}
+		internal async Task NewPost(PlayerPostDTO postDTO) => await Clients.All.SendAsync("NewPost", postDTO);
+
+		internal async Task EditedPost(PlayerPostDTO edited) => await Clients.All.SendAsync("EditedPost", edited);
+
+		internal async Task DeletedPost(Guid postId) => await Clients.All.SendAsync("DeletedPost", postId);
 	}
 }

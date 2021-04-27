@@ -1,5 +1,6 @@
 ﻿@page "/posts"
 @inject PostService PostService
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration 
 @implements IAsyncDisposable
 
 <div class="row justify-content-between mb-5">
@@ -31,9 +32,13 @@
 </div>
 
 <div>
-	@if (Loaded)
+	@if (Posts is null)
 	{
-		@if (Posts is null || Posts.Count() is 0)
+		<h3 class="text-info">Loading Posts...</h3>
+	}
+	else
+	{
+		@if (Posts.Count() is 0)
 		{
 			<h4 class="text-warning mb-5">No Posts found.</h4>
 		}
@@ -83,10 +88,6 @@
 			</div>
 		}
 	}
-	else
-	{
-		<h3 class="text-info">Loading Posts...</h3>
-	}
 </div>
 
 
@@ -98,41 +99,27 @@
 
 	private HubConnection hubConnection;
 
-	protected async override Task OnParametersSetAsync()
-	{
-		Loaded = false;
-//		Posts ??= (await PostService.FetchLatestPostsAsync(10)).ToList();
-		await base.OnParametersSetAsync();
-		Loaded = true;
-	}
-
 	protected override async Task OnInitializedAsync()
 	{
+		Loaded = false;
+
 		hubConnection = new HubConnectionBuilder()
-			.WithUrl("http://api/api/hubs/post")
+			.WithAutomaticReconnect()
+			.WithUrl(Configuration[$"Api:{CurrentRegion}:PostHub"])
 			.Build();
 
-		hubConnection.On<IEnumerable<PlayerPostDTO>>("GetLatestPosts", (message) =>
-		{
-			Posts = new(message);
-			StateHasChanged();
-		});
-
-		hubConnection.On<PlayerPostDTO>("NewPost", (message) =>
-		{
-			Posts.AddFirst(message);
-			StateHasChanged();
-		});
-
+		SetupEvents();
 		await hubConnection.StartAsync();
 
 		await hubConnection.SendAsync("GetLatestPosts", 10);
+
+		Loaded = true;
 	}
 
 	public async Task RefreshListAsync(int count)
 	{
 		Loaded = false;
-		Posts = new(await PostService.FetchLatestPostsAsync(count));
+		await hubConnection.SendAsync("GetLatestPosts", count);
 		Loaded = true;
 	}
 
@@ -141,5 +128,45 @@
 	public async ValueTask DisposeAsync()
 	{
 		await hubConnection.DisposeAsync();
+	}
+
+	public void SetupEvents()
+	{
+		hubConnection.On<IEnumerable<PlayerPostDTO>>("GetLatestPosts", (posts) =>
+		{
+			Posts = new(posts);
+			StateHasChanged();
+		});
+
+		hubConnection.On<PlayerPostDTO>("NewPost", (post) =>
+		{
+			Posts.AddFirst(post);
+			StateHasChanged();
+		});
+
+		hubConnection.On<PlayerPostDTO>("EditedPost", (edited) =>
+		{
+			if (Posts.FirstOrDefault(p => p.Id == edited.Id) is PlayerPostDTO current)
+			{
+				Posts.Find(current).ValueRef = current with
+				{
+					Title = edited.Title,
+					Content = edited.Content,
+					Flairs = edited.Flairs,
+					UpdatedAt = edited.UpdatedAt
+				};
+
+				StateHasChanged();
+			}
+		});
+
+		hubConnection.On<Guid>("DeletedPost", (deletedId) =>
+		{
+			if (Posts.FirstOrDefault(p => p.Id == deletedId) is PlayerPostDTO current)
+			{
+				Posts.Remove(current);
+				StateHasChanged();
+			}
+		});
 	}
 }

@@ -1,0 +1,76 @@
+﻿<div class="mx-3 my-3">
+	@if (DisplayType is PostDisplayType.Neutral)
+	{
+		<p class="text-body">
+			<NavLink href=@($"/player/{PlayerPost.AuthorId},{PlayerPost.AuthorUsername}")>@PlayerPost.AuthorUsername</NavLink>
+			>
+			<NavLink href=@($"/player/{PlayerPost.PlayerId},{PlayerPost.PlayerUsername}")>@PlayerPost.PlayerUsername</NavLink>
+		</p>
+	}
+
+	<div class="card border-@GetPostBorderColor(PlayerPost.Flairs)" style="width: 20rem; max-width: calc(100vw - 2rem);">
+		<h5 class="card-header">@PlayerPost.Title</h5>
+
+		<div class="card-body">
+			<p class="card-text" style="white-space: pre-wrap;">@PlayerPost.Content</p>
+		</div>
+
+		<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
+			@{ PostFlairsParsed parsed = PlayerPost.Flairs.ParseFlairsEnum(); }
+
+			@GetFlairMarkup("Performance", parsed.Performance)
+			@GetFlairMarkup("Teamplay", parsed.Teamplay)
+			@GetFlairMarkup("Courtesy", parsed.Courtesy)
+		</div>
+
+		<div class="card-footer">
+			<p class="blockquote-footer mb-0">
+				@if (DisplayType is PostDisplayType.Received)
+				{
+					<span>From<NavLink href=@($"/player/{PlayerPost.AuthorId},{PlayerPost.AuthorUsername}")>@PlayerPost-.AuthorUsername</NavLink>,</span>
+				}
+				else if (DisplayType is PostDisplayType.Sent)
+				{
+					<span>To<NavLink href=@($"/player/{PlayerPost.PlayerId},{PlayerPost.PlayerUsername}")>@PlayerPost.PlayerUsername</NavLink>,</span>
+				}
+
+				@PlayerPost.PostedAt.Value.ToString("dd/MM/yyyy @ HH:mm")
+			</p>
+
+			<AuthorizeView>
+				<Authorized>
+					@if (PlayerPost.AuthorId == CurrentUserId)
+					{
+						<p class="mt-1 mb-0">
+							<button class="btn btn-warning btn-sm" @onclick=OnEditClick>Edit</button>
+							<button class="btn btn-danger btn-sm" @onclick=OnDeleteClick>Delete</button>
+						</p>
+					}
+				</Authorized>
+			</AuthorizeView>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter] public PlayerPostDTO PlayerPost { get; init; }
+	[Parameter] public PostDisplayType DisplayType { get; init; }
+
+	[Parameter] public bool Editable { get; init; }
+	[Parameter] public uint CurrentUserId { get; init; }
+	[Parameter] public EventCallback OnEditClick { get; init; }
+	[Parameter] public EventCallback OnDeleteClick { get; init; }
+
+
+	private MarkupString GetFlairMarkup(string name, bool? value) => value is bool x
+		? new($"<small class=\"my-0 text-{(x ? "success" : "danger")}\">{(x ? "+" : "-")} {name}</small> <br />")
+		: new(string.Empty);
+
+
+	public enum PostDisplayType
+	{
+		Neutral,
+		Received,
+		Sent
+	}
+}

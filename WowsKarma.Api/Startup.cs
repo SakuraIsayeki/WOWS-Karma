@@ -42,7 +42,8 @@ namespace WowsKarma.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			services.AddSignalR();
+			services.AddSignalR()
+				.AddMessagePackProtocol();
 
 			services.AddSwaggerGen(c =>
 			{

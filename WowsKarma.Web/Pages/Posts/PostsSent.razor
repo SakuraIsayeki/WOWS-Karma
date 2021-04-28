@@ -67,15 +67,6 @@ else
 		Loaded = true;
 	}
 
-	private void CreatePost()
-	{
-		currentEditorPost = new();
-		currentEditorPost.PlayerId = AccountId;
-		currentEditorPost.AuthorId = authorId;
-
-		showEditorModal = true;
-	}
-
 	private void EditPost(PlayerPostDTO post)
 	{
 		currentEditorPost = post;

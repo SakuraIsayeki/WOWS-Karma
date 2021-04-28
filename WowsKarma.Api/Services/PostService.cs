@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
@@ -38,6 +37,10 @@ namespace WowsKarma.Api.Services
 			this.hubContext = hubContext;
 		}
 
+		public Post GetPost(Guid id) => context.Posts
+			.Include(p => p.Author)
+			.Include(p => p.Player)
+			.FirstOrDefault(p => p.Id == id);
 
 		public IEnumerable<Post> GetReceivedPosts(uint playerId, int lastResults)
 		{

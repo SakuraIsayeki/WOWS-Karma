@@ -1,0 +1,79 @@
+﻿@page "/posts/view/{Id:guid}"
+
+@inject PostService PostService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+@if (!Loaded)
+{
+	<h3 class="text-info">Loading...</h3>
+}
+else if (post is null)
+{
+	<h3 class="text-warning">Post not found.</h3>
+}
+else
+{
+	<h1>View Post</h1>
+	<p class="lead">Post ID : <span class="ml-3 text-monospace">@Id</span></p>
+
+
+	<div class="my-5">
+		<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=currentUserId
+			  OnEditClick=EditorModalInit
+			  OnDeleteClick=DeleteModalInit />
+	</div>
+
+	@if (showEditorModal)
+	{
+		<EditorModal PostModel=post OnPostSubmited=EditorModalSubmit OnCancel=EditorModalCancel />
+	}
+	else if (showDeleteModal)
+	{
+		<DeleteConfirm OnConfirm=DeleteModalSubmitAsync OnCancel=DeleteModalCancel />
+	}
+}
+
+
+@code {
+	[Parameter] public Guid Id { get; set; }
+
+	public bool Loaded { get; private set; }
+
+	private PlayerPostDTO post;
+	private uint currentUserId;
+
+	private bool showEditorModal = false;
+	private bool showDeleteModal = false;
+
+	protected override async Task OnParametersSetAsync()
+	{
+		Loaded = false;
+
+		post = await PostService.FetchPostAsync(Id);
+
+		if ((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl)
+		{
+			currentUserId = GetAccountInfoFromOidcUrl(accountUrl).Id;
+		}
+
+		Loaded = true;
+	}
+
+	private void EditorModalInit() => showEditorModal = true;
+	private void EditorModalCancel() => showEditorModal = false;
+	private void EditorModalSubmit()
+	{
+		showEditorModal = false;
+		StateHasChanged();
+	}
+
+	private void DeleteModalInit() => showDeleteModal = true;
+	private void DeleteModalCancel() => showDeleteModal = false;
+	private async Task DeleteModalSubmitAsync()
+	{
+		showDeleteModal = false;
+		await PostService.DeletePostAsync(Id);
+		NavigationManager.NavigateTo("/");
+	}
+}

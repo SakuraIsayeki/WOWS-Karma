@@ -24,10 +24,15 @@ namespace WowsKarma.Api.Controllers
 		}
 
 
+		[HttpGet("{id}")]
+		public IActionResult GetPost(Guid id) => (PlayerPostDTO)postService.GetPost(id) is PlayerPostDTO post
+			? StatusCode(200, post)
+			: StatusCode(404);
+
+
 		[HttpGet("{id}/received")]
 		public async Task<IActionResult> GetReceivedPosts(uint id, [FromQuery] int? lastResults)
 		{
-
 			if (await playerService.GetPlayerAsync(id) is null)
 			{
 				return StatusCode(404, $"Account {id} not found");

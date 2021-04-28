@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Reflection;
 using WowsKarma.Common;
 using WowsKarma.Web.Middlewares;
 using WowsKarma.Web.Services;
@@ -16,16 +19,20 @@ using static WowsKarma.Web.Utilities;
 namespace WowsKarma.Web
 {
 	public class Startup
-	{
+	{		
+		public IConfiguration Configuration { get; }
+		public static string DisplayVersion { get; private set; }
+
 		public const string WgAuthScheme = "Wargaming";
 		public const string CookieAuthScheme = "Cookie";
 
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
+			DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
 		}
 
-		public IConfiguration Configuration { get; }
+
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
@@ -72,6 +79,12 @@ namespace WowsKarma.Web
 
 			services.AddAuthorizationCore();
 			services.AddHttpContextAccessor();
+
+			services.AddResponseCompression(opts =>
+			{
+				opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+					new[] { "application/octet-stream" });
+			});
 		}
 
 
@@ -79,6 +92,8 @@ namespace WowsKarma.Web
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
+			app.UseResponseCompression();
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();

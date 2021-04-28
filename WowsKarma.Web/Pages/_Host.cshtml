@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @namespace WowsKarma.Web.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
@@ -10,10 +10,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>WOWS Karma</title>
 	<base href="~/" />
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta property="og:title" content="WOWS Karma" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://wows-karma.com/" />
+	<meta property="og:image" content="http://wows-karma.com/assets/media/logo.webp" />
+	<meta property="og:description" content="WOWS Karma - The persistent and comprehensive Karma system for World of Warships" />
+	<meta name="theme-color" content="#FF0000">
 
 	<link rel="stylesheet" href="lib/bootstrap/dist/css/bootswatch-darkly.min.css" id="dark-theme" />
 	<link rel="stylesheet" href="lib/bootstrap/dist/css/bootswatch-flatly.min.css" id="light-theme" disabled />
@@ -21,23 +28,23 @@
 	<link href="css/site.css" rel="stylesheet" />
 </head>
 
-	<body>
-		<component type="typeof(App)" render-mode="ServerPrerendered" />
+<body>
+	<component type="typeof(App)" render-mode="ServerPrerendered" />
 
-		<div id="blazor-error-ui">
-			<environment include="Staging,Production">
-				An error has occurred. This application may no longer respond until reloaded.
-			</environment>
+	<div id="blazor-error-ui">
+		<environment include="Staging,Production">
+			An error has occurred. This application may no longer respond until reloaded.
+		</environment>
 
-			<environment include="Development">
-				An unhandled exception has occurred. See browser dev tools for details.
-			</environment>
+		<environment include="Development">
+			An unhandled exception has occurred. See browser dev tools for details.
+		</environment>
 
-			<a href="" class="reload">Reload</a>
-			<a class="dismiss">🗙</a>
-		</div>
+		<a href="" class="reload">Reload</a>
+		<a class="dismiss">🗙</a>
+	</div>
 
-		<script src="_framework/blazor.server.js"></script>
-		<script src="~/js/site.js"></script>
-	</body>
+	<script src="_framework/blazor.server.js"></script>
+	<script src="~/js/site.js"></script>
+</body>
 </html>

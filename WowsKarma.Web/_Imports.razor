@@ -1,4 +1,6 @@
 ﻿@using System
+@using System.Linq
+@using System.Collections.Generic
 @using System.Net.Http
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
@@ -10,11 +12,13 @@
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.JSInterop
 
 @using WowsKarma.Web
 @using WowsKarma.Web.Models
 @using WowsKarma.Web.Shared
+@using WowsKarma.Web.Shared.Components
 @using WowsKarma.Web.Shared.Modals
 @using WowsKarma.Web.Services
 @using static WowsKarma.Web.Utilities

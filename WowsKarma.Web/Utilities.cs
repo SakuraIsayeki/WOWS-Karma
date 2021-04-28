@@ -64,7 +64,7 @@ namespace WowsKarma.Web
 
 		internal static string GetPostBorderColor(PostFlairs postFlairs)
 		{
-			return ((int)PostFlairsUtils.CountBalance(postFlairs.ParseFlairsEnum())) switch
+			return PostFlairsUtils.CountBalance(postFlairs.ParseFlairsEnum()) switch
 			{
 				> 0 => "success",
 				< 0 => "danger",

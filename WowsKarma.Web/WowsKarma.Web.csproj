@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <Version>0.10.0</Version>
+    <Authors>Sakura Akeno Isayeki</Authors>
+    <Company>Nodsoft Systems</Company>
+    <Product>WOWS Karma (Web)</Product>
+    <PackageProjectUrl>https://wows-karma.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SakuraIsayeki/WoWS-Karma</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <UserSecretsId>1fea9309-429b-4eb3-a15f-eb3c2253b8f6</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
@@ -35,17 +43,18 @@
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.17.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web.Extensions" Version="5.0.0-preview9.20513.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="5.0.0" />
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.2.4">
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.0-preview.3.21201.13" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0-preview.3.21201.4" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.3.0-beta">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.10" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0-preview.3.21209.2" />
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.113" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.2-dev-10284" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>

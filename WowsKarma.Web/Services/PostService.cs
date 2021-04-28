@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -33,6 +34,20 @@ namespace WowsKarma.Web.Services
 			client.Dispose();
 		}
 
+
+		public async Task<PlayerPostDTO> FetchPostAsync(Guid id)
+		{
+			using HttpResponseMessage response = await client.GetAsync($"{EndpointCategory}/{id}");
+
+			if (response.StatusCode is HttpStatusCode.OK)
+			{
+				return await response.Content.ReadFromJsonAsync<PlayerPostDTO>(serializerOptions);
+			}
+			else
+			{
+				return null;
+			}
+		}
 
 		public async Task<IEnumerable<PlayerPostDTO>> FetchReceivedPostsAsync(uint id, uint fetchLast)
 		{

@@ -1,5 +1,7 @@
 ﻿@page "/posts"
 @inject PostService PostService
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration 
+@implements IAsyncDisposable
 
 <div class="row justify-content-between mb-5">
 	<div class="col-auto">
@@ -7,6 +9,19 @@
 	</div>
 
 	<div class="col-auto">
+		<div>
+			<h3>Updates :</h3>
+
+			@if (IsConnected)
+			{
+				<p class="lead text-success">Real-Time</p>
+			}
+			else
+			{
+				<p class="lead text-info">Press F5 to update</p>
+			}
+		</div>
+
 		<div class="btn-group mr-2" role="group" aria-label="Select count">
 			<button @onclick=@(() => RefreshListAsync(10)) type="button" class="btn btn-secondary">10</button>
 			<button @onclick=@(() => RefreshListAsync(25)) type="button" class="btn btn-secondary">25</button>
@@ -17,9 +32,13 @@
 </div>
 
 <div>
-	@if (Loaded)
+	@if (Posts is null)
 	{
-		@if (Posts is null || Posts.Count() is 0)
+		<h3 class="text-info">Loading Posts...</h3>
+	}
+	else
+	{
+		@if (Posts.Count() is 0)
 		{
 			<h4 class="text-warning mb-5">No Posts found.</h4>
 		}
@@ -28,74 +47,90 @@
 			<div class="row">
 				@foreach (PlayerPostDTO post in Posts)
 				{
-					<div class="mx-3 my-3">
-						<p class="text-body">
-							<NavLink href=@($"/player/{post.AuthorId},{post.AuthorUsername}")>@post.AuthorUsername</NavLink>
-							>
-							<NavLink href=@($"/player/{post.PlayerId},{post.PlayerUsername}")>@post.PlayerUsername</NavLink>
-						</p>
-
-						<div class="card border-@GetPostBorderColor(post.Flairs)" style="width: 20rem; max-width: calc(100vw - 2rem);">
-							<h5 class="card-header">@post.Title</h5>
-
-							<div class="card-body">
-								<p class="card-text" style="white-space: pre-wrap;">@post.Content</p>
-							</div>
-
-							<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
-								@{ PostFlairsParsed parsed = post.Flairs.ParseFlairsEnum(); }
-								@if (parsed?.Performance is not null)
-								{
-									<small class="my-0 text-@(parsed.Performance.Value ? "success" : "danger")">@(parsed.Performance.Value ? "+" : "-") Performance</small><br />
-								}
-								@if (parsed?.Teamplay is not null)
-								{
-									<small class="my-0 text-@(parsed.Teamplay.Value ? "success" : "danger")">@(parsed.Teamplay.Value ? "+" : "-") Teamplay</small><br />
-								}
-								@if (parsed?.Courtesy is not null)
-								{
-									<small class="my-0 text-@(parsed.Courtesy.Value ? "success" : "danger")">@(parsed.Courtesy.Value ? "+" : "-") Courtesy</small>
-								}
-							</div>
-
-							<div class="card-footer">
-								<p class="blockquote-footer mb-0">
-									@post.PostedAt.Value.ToString("dd/MM/yyyy @ HH:mm").
-								</p>
-							</div>
-						</div>
-					</div>
+					<Post PlayerPost=post DisplayType=Post.PostDisplayType.Neutral />
 				}
 			</div>
 		}
-	}
-	else
-	{
-		<h3 class="text-info">Loading Posts...</h3>
 	}
 </div>
 
 
 
 @code {
-	public IEnumerable<PlayerPostDTO> Posts { get; set; }
+	public LinkedList<PlayerPostDTO> Posts { get; set; }
 
 	public bool Loaded { get; private set; }
 
-	private string countValue;
+	private HubConnection hubConnection;
 
-	protected async override Task OnParametersSetAsync()
+	protected override async Task OnInitializedAsync()
 	{
 		Loaded = false;
-		Posts = await PostService.FetchLatestPostsAsync(10);
-		await base.OnParametersSetAsync();
+
+		hubConnection = new HubConnectionBuilder()
+			.WithAutomaticReconnect()
+			.WithUrl(Configuration[$"Api:{CurrentRegion}:PostHub"])
+			.Build();
+
+		SetupEvents();
+		await hubConnection.StartAsync();
+
+		await hubConnection.SendAsync("GetLatestPosts", 10);
+
 		Loaded = true;
 	}
 
 	public async Task RefreshListAsync(int count)
 	{
 		Loaded = false;
-		Posts = await PostService.FetchLatestPostsAsync(count);
+		await hubConnection.SendAsync("GetLatestPosts", count);
 		Loaded = true;
+	}
+
+	public bool IsConnected => hubConnection.State is HubConnectionState.Connected;
+
+	public async ValueTask DisposeAsync()
+	{
+		await hubConnection.DisposeAsync();
+	}
+
+	public void SetupEvents()
+	{
+		hubConnection.On<IEnumerable<PlayerPostDTO>>("GetLatestPosts", (posts) =>
+		{
+			Posts = new(posts);
+			StateHasChanged();
+		});
+
+		hubConnection.On<PlayerPostDTO>("NewPost", (post) =>
+		{
+			Posts.AddFirst(post);
+			StateHasChanged();
+		});
+
+		hubConnection.On<PlayerPostDTO>("EditedPost", (edited) =>
+		{
+			if (Posts.FirstOrDefault(p => p.Id == edited.Id) is PlayerPostDTO current)
+			{
+				Posts.Find(current).ValueRef = current with
+				{
+					Title = edited.Title,
+					Content = edited.Content,
+					Flairs = edited.Flairs,
+					UpdatedAt = edited.UpdatedAt
+				};
+
+				StateHasChanged();
+			}
+		});
+
+		hubConnection.On<Guid>("DeletedPost", (deletedId) =>
+		{
+			if (Posts.FirstOrDefault(p => p.Id == deletedId) is PlayerPostDTO current)
+			{
+				Posts.Remove(current);
+				StateHasChanged();
+			}
+		});
 	}
 }

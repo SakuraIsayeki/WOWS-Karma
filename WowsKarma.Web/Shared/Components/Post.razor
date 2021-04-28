@@ -9,18 +9,29 @@
 	}
 
 	<div class="card border-@GetPostBorderColor(PlayerPost.Flairs)" style="width: 20rem; max-width: calc(100vw - 2rem);">
-		<h5 class="card-header">@PlayerPost.Title</h5>
-
+		
+		<div class="card-header">
+			<h5>@PlayerPost.Title</h5>
+		</div>
+		
 		<div class="card-body">
 			<p class="card-text" style="white-space: pre-wrap;">@PlayerPost.Content</p>
 		</div>
 
 		<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
-			@{ PostFlairsParsed parsed = PlayerPost.Flairs.ParseFlairsEnum(); }
+			<div class="row justify-content-between align-items-end flex-grow-0">
+				<div class="col-auto">
+					@{ PostFlairsParsed parsed = PlayerPost.Flairs.ParseFlairsEnum(); }
 
-			@GetFlairMarkup("Performance", parsed.Performance)
-			@GetFlairMarkup("Teamplay", parsed.Teamplay)
-			@GetFlairMarkup("Courtesy", parsed.Courtesy)
+					@GetFlairMarkup("Performance", parsed.Performance)
+					@GetFlairMarkup("Teamplay", parsed.Teamplay)
+					@GetFlairMarkup("Courtesy", parsed.Courtesy)
+				</div>
+
+				<div class="col-auto px-1">
+					<NavLink class="text-body" href=@($"/posts/view/{PlayerPost.Id}")><i class="bi bi-link-45deg lead"></i></NavLink>
+				</div>
+			</div>
 		</div>
 
 		<div class="card-footer">

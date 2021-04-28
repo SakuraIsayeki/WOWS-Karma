@@ -21,7 +21,7 @@
 		<div class="card-body py-0 my-1 flex-grow-0" style="line-height:normal">
 			<div class="row justify-content-between align-items-end flex-grow-0">
 				<div class="col-auto">
-					@{ PostFlairsParsed parsed = PlayerPost.Flairs.ParseFlairsEnum(); }
+					@{ PostFlairsParsed parsed = PlayerPost.Flairs.ParseFlairsEnum() ?? new(); }
 
 					@GetFlairMarkup("Performance", parsed.Performance)
 					@GetFlairMarkup("Teamplay", parsed.Teamplay)

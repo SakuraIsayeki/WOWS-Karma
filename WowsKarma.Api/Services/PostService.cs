@@ -76,7 +76,7 @@ namespace WowsKarma.Api.Services
 			.OrderByDescending(p => p.CreatedAt)
 			.Take(count);
 
-		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassCooldown)
+		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
 		{
 			try
 			{
@@ -90,9 +90,17 @@ namespace WowsKarma.Api.Services
 			Player author = await playerService.GetPlayerAsync(postDTO.AuthorId) ?? throw new ArgumentException($"Author Account {postDTO.AuthorId} not found", nameof(postDTO));
 			Player player = await playerService.GetPlayerAsync(postDTO.PlayerId) ?? throw new ArgumentException($"Player Account {postDTO.PlayerId} not found", nameof(postDTO));
 
-			if (!bypassCooldown && CheckCooldown(postDTO))
+			if (!bypassChecks)
 			{
-				throw new ArgumentException("Author is on cooldown for this player.");
+				if (player.OptedOut)
+				{
+					throw new ArgumentException("Player has opted-out of this platform.");
+				}
+
+				if (CheckCooldown(postDTO))
+				{
+					throw new ArgumentException("Author is on cooldown for this player.");
+				}
 			}
 
 

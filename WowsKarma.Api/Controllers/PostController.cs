@@ -92,22 +92,35 @@ namespace WowsKarma.Api.Controllers
 
 
 		[HttpPost("{id}"), AccessKey]
-		public async Task<IActionResult> CreatePost(uint id, [FromBody] PlayerPostDTO post, [FromQuery] bool ignoreCooldown = false)
+		public async Task<IActionResult> CreatePost(uint id, [FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{
-			if (await playerService.GetPlayerAsync(id) is null)
+			if (await playerService.GetPlayerAsync(id) is Player player)
 			{
-				return StatusCode(404, $"Account {id} not found");
+				if (!ignoreChecks)
+				{
+					if (player.PostsBanned)
+					{
+						return StatusCode(403, "Post Author was banned from posting on this platform.");
+					}
+
+					if (player.OptedOut)
+					{
+						return StatusCode(403, "Post Author opted-out from using this platform.");
+					}
+				}
+
+				try
+				{
+					await postService.CreatePostAsync(post, ignoreChecks);
+					return StatusCode(201);
+				}
+				catch (ArgumentException e)
+				{
+					return StatusCode(400, e.ToString());
+				}
 			}
 
-			try
-			{
-				await postService.CreatePostAsync(post, ignoreCooldown);
-				return StatusCode(201);
-			}
-			catch (ArgumentException e)
-			{
-				return StatusCode(400, e.ToString());
-			}
+			return StatusCode(404, $"Account {id} not found");
 		}
 
 		[HttpPut("{id}"), AccessKey]

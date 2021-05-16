@@ -6,7 +6,7 @@ using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Data.Models
 {
-	public record Post : IDataModel<Guid>, ITimestamped
+	public record Post : ITimestamped
 	{
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public Guid Id { get; init; }

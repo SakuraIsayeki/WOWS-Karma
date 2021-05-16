@@ -25,7 +25,14 @@
 
 		<div class="col-4 m-4">
 			<h4>Site :</h4>
-			<h2 class="text-@GetKarmaColor(Player.SiteKarma)">@Player.SiteKarma</h2>
+			@if (Player.OptedOut)
+			{
+				<h2 class="text-danger">N/A</h2>
+			}
+			else
+			{
+				<h2 class="text-@GetKarmaColor(Player.SiteKarma)">@Player.SiteKarma</h2>
+			}
 		</div>
 	</div>
 
@@ -55,22 +62,29 @@
 		</div>
 
 		<div class="col-md-6 mb-3">
-			<h2 class="text-center mb-5">Ratings</h2>
+			@if (Player.OptedOut)
+			{
+				<h3 class="text-danger">Player has opted out.</h3>
+			}
+			else
+			{
+				<h2 class="text-center mb-5">Ratings</h2>
 
-			<div class="row justify-content-around text-center">
-				<div class="col-4">
-					<h3 class="text-@GetKarmaColor(Player.RatingPerformance)">@Player.RatingPerformance</h3>
-					<h5>Performance</h5>
+				<div class="row justify-content-around text-center">
+					<div class="col-4">
+						<h3 class="text-@GetKarmaColor(Player.RatingPerformance)">@Player.RatingPerformance</h3>
+						<h5>Performance</h5>
+					</div>
+					<div class="col-4">
+						<h3 class="text-@GetKarmaColor(Player.RatingTeamplay)">@Player.RatingTeamplay</h3>
+						<h5>Teamplay</h5>
+					</div>
+					<div class="col-4">
+						<h3 class="text-@GetKarmaColor(Player.RatingCourtesy)">@Player.RatingCourtesy</h3>
+						<h5>Courtesy</h5>
+					</div>
 				</div>
-				<div class="col-4">
-					<h3 class="text-@GetKarmaColor(Player.RatingTeamplay)">@Player.RatingTeamplay</h3>
-					<h5>Teamplay</h5>
-				</div>
-				<div class="col-4">
-					<h3 class="text-@GetKarmaColor(Player.RatingCourtesy)">@Player.RatingCourtesy</h3>
-					<h5>Courtesy</h5>
-				</div>
-			</div>
+			}
 		</div>
 	</div>
 
@@ -83,7 +97,10 @@
 
 		<div class="col">
 			<nav class="nav nav-pills nav-justified">
-				<a class="nav-item nav-link @(ReceivedOrSent ? "" : "active")" @onclick=@(() => ReceivedOrSent = false)>Received</a>
+				@if (!Player.OptedOut)
+				{
+					<a class="nav-item nav-link @(ReceivedOrSent ? "" : "active")" @onclick=@(() => ReceivedOrSent = false)>Received</a>
+				}
 				<a class="nav-item nav-link @(ReceivedOrSent ? "active" : "")" @onclick=@(() => ReceivedOrSent = true)>Sent</a>
 			</nav>
 		</div>
@@ -91,7 +108,7 @@
 
 	@if (!ReceivedOrSent)
 	{
-		<PostsReceived AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync PostsDisable=CurrentUserBannedfromPosting />
+		<PostsReceived AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync PostsDisable=CurrentUserProfileFlags.PostsBanned />
 	}
 	else
 	{
@@ -116,7 +133,7 @@ else
 
 	public PlayerProfileDTO Player { get; set; }
 
-	public bool CurrentUserBannedfromPosting { get; set; }
+	public UserProfileFlagsDTO CurrentUserProfileFlags { get; set; }
 
 
 	public bool Loaded { get; private set; }
@@ -124,10 +141,10 @@ else
 
 	protected override async Task OnParametersSetAsync()
 	{
-		ReceivedOrSent = false;
 		uint id = GetIdFromRouteParameter(IdNamePair);
 		Player = id is 0 ? null : await PlayerService.FetchPlayerProfileAsync(id);
 		await base.OnParametersSetAsync();
+		ReceivedOrSent = Player.OptedOut; // Lock on "Sent" if player has opted out
 		await CheckBannedUser();
 		Loaded = true;
 	}
@@ -140,7 +157,7 @@ else
 
 		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl and not null)
 		{
-			CurrentUserBannedfromPosting = await PlayerService.CheckBannedPlayerAsync(GetAccountInfoFromOidcUrl(accountUrl).Id);
+			CurrentUserProfileFlags = await PlayerService.GetUserProfileFlagsAsync(GetAccountInfoFromOidcUrl(accountUrl).Id);
 		}
 	}
 }

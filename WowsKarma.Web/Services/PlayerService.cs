@@ -9,7 +9,8 @@ namespace WowsKarma.Web.Services
 	public class PlayerService
 	{
 		private readonly HttpClient client;
-		public const string endpointCategory = "Player";
+		public const string playerEndpointCategory = "player";
+		public const string profileEndpointCategory = "profile";
 
 		public PlayerService(IHttpClientFactory httpClientFactory)
 		{
@@ -23,7 +24,7 @@ namespace WowsKarma.Web.Services
 
 		public async Task<IEnumerable<AccountListingDTO>> SearchPlayersAsync(string search)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{endpointCategory}/Search/{search}");
+			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/Search/{search}");
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
@@ -36,7 +37,7 @@ namespace WowsKarma.Web.Services
 
 		public async Task<PlayerProfileDTO> FetchPlayerProfileAsync(uint id)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{endpointCategory}/{id}");
+			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}");
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
@@ -48,13 +49,13 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
-		public async Task<bool> CheckBannedPlayerAsync(uint id)
+		public async Task<UserProfileFlagsDTO> GetUserProfileFlagsAsync(uint id)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{endpointCategory}/{id}/banned");
+			using HttpRequestMessage request = new(HttpMethod.Get, $"{profileEndpointCategory}/{id}");
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			response.EnsureSuccessStatusCode();
-			return await Utilities.DeserializeFromHttpResponseAsync<bool>(response);
+			return await Utilities.DeserializeFromHttpResponseAsync<UserProfileFlagsDTO>(response);
 		}
 	}
 }

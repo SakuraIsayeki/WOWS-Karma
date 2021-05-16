@@ -1,6 +1,6 @@
 ﻿namespace WowsKarma.Common.Models.DTOs
 {
-	public record UserMetaFlagsDTO
+	public record UserProfileFlagsDTO
 	{
 		public uint Id { get; init; }
 

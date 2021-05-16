@@ -102,6 +102,15 @@ namespace WowsKarma.Api.Services
 			return player;
 		}
 
+		public async Task UpdateProfileFlagsAsync(UserProfileFlagsDTO flags)
+		{
+			Player player = await GetPlayerAsync(flags.Id) ?? throw new ArgumentException("Player not found.");
+
+			player.OptedOut = flags.OptedOut;
+
+			await context.SaveChangesAsync();
+		}
+
 		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;
 	}
 }

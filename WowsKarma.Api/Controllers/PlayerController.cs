@@ -53,19 +53,6 @@ namespace WowsKarma.Api.Controllers
 				: StatusCode(200, playerProfile);
 		}
 
-		[HttpGet("{id}/metaflags")]
-		public async Task<IActionResult> GetMetaFlagsAsync(uint id)
-		{
-			if (id is 0)
-			{
-				return StatusCode(400, new ArgumentException(null, nameof(id)));
-			}
-
-			return await service.GetPlayerAsync(id) is Player player
-				? StatusCode(200, new { player.Id, player.PostsBanned, player.OptedOut })
-				: StatusCode(404, new ArgumentException(null, nameof(id)));
-		}
-
 		[HttpPost("Karmas")]
 		public IActionResult FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary(service.GetPlayersKarma(ids)));
 

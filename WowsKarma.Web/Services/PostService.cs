@@ -18,12 +18,6 @@ namespace WowsKarma.Web.Services
 		private readonly HttpClient client;
 		public const string EndpointCategory = "Post";
 
-		private static readonly JsonSerializerOptions serializerOptions = new() 
-		{ 
-			PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
-		};
-
-
 		public PostService(IHttpClientFactory clientfactory)
 		{
 			client = clientfactory.CreateClient();
@@ -41,7 +35,7 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return await response.Content.ReadFromJsonAsync<PlayerPostDTO>(serializerOptions);
+				return await response.Content.ReadFromJsonAsync<PlayerPostDTO>(Utilities.JsonSerializerOptions);
 			}
 			else
 			{
@@ -96,7 +90,7 @@ namespace WowsKarma.Web.Services
 		public async Task SubmitNewPostAsync(uint authorId, PlayerPostDTO post)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}/{authorId}");
-			string json = JsonSerializer.Serialize(post, serializerOptions);
+			string json = JsonSerializer.Serialize(post, Utilities.JsonSerializerOptions);
 			request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
 			using HttpResponseMessage response = await client.SendAsync(request);
@@ -106,7 +100,7 @@ namespace WowsKarma.Web.Services
 		public async Task EditPostAsync(uint authorId, PlayerPostDTO post)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Put, $"{EndpointCategory}/{authorId}");
-			string json = JsonSerializer.Serialize(post, serializerOptions);
+			string json = JsonSerializer.Serialize(post, Utilities.JsonSerializerOptions);
 			request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
 			using HttpResponseMessage response = await client.SendAsync(request);

@@ -1,0 +1,114 @@
+﻿@page "/settings"
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject PlayerService PlayerService
+
+<h1 class="mb-5">Settings</h1>
+
+<AuthorizeView Context="AuthContext">
+	<Authorized>
+		@if (Loaded)
+		{
+			@if (Saved)
+			{
+				<div class="alert alert-success alert-dismissible fade show" role="alert">
+					Your changes have been saved.
+
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+			}
+
+			<EditForm Model=model Context="EditContext" OnValidSubmit=SaveUserSettingsAsync>
+				<h1 class="mb-5 text-danger">Danger Zone</h1>
+				
+				<div class="row align-content-between">
+					<div class="col-md my-3">
+						<h3 class="mb-3">Opt Out</h3>
+
+						<p>
+							Opting out of WOWS Karma publicly hides your on-site Metrics and Received posts. <br />
+							In counterpart, you will no longer be able to Post on other profiles, but your existing posts will still remain.
+						</p>
+
+						<p>Please note that a WOWS Karma opt-out is independent of your Wargaming account's visibility settings.</p>
+
+						<div class="form-check form-control-lg">
+							<InputCheckbox class="form-check-input" @bind-Value=model.OptedOut />
+							<label class="form-check-label lead text-danger">Opt Out of WOWS Karma</label>
+						</div>
+					</div>
+				</div>
+
+				<button type="submit" class="btn btn-primary px-3 mt-5">Save</button>
+			</EditForm>
+		}
+		else
+		{
+			<h3 class="text-info">Loading...</h3>
+		}
+	</Authorized>
+
+	<NotAuthorized>
+		@{ string redirectUri = NavigationManager.ToBaseRelativePath(NavigationManager.Uri); }
+		<h3>Please first <NavLink href=@($"/login?redirectUri={redirectUri}")>Login</NavLink> to update your user settings.</h3>
+	</NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+	public uint CurrentUserId { get; private set; }
+	public bool Loaded { get; private set; }
+	public bool Saved { get; private set; }
+
+
+	private ProfileSettingsViewModel model;
+
+
+	protected override async Task OnParametersSetAsync()
+	{
+		Loaded = false;
+		await AssignAuthorIdAsync();
+		await LoadUserSettingsAsync();
+
+		await base.OnParametersSetAsync();
+		Loaded = true;
+	}
+
+	private async Task AssignAuthorIdAsync()
+	{
+		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl)
+		{
+			CurrentUserId = GetAccountInfoFromOidcUrl(accountUrl).Id;
+		}
+	}
+
+	private async Task LoadUserSettingsAsync()
+	{
+		UserProfileFlagsDTO current = await PlayerService.GetUserProfileFlagsAsync(CurrentUserId);
+
+		model = new ProfileSettingsViewModel
+		{
+			Id = CurrentUserId,
+			OptedOut = current.OptedOut
+		};
+	}
+
+	private async Task SaveUserSettingsAsync()
+	{
+		Saved = false;
+
+		UserProfileFlagsDTO updated = new()
+		{
+			Id = CurrentUserId,
+			OptedOut = model.OptedOut
+		};
+
+		await PlayerService.SetUserProfileFlagsAsync(updated);
+		Saved = true;
+	}
+}

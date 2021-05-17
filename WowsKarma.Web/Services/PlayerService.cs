@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using WowsKarma.Common.Models.DTOs;
 
@@ -56,6 +59,18 @@ namespace WowsKarma.Web.Services
 
 			response.EnsureSuccessStatusCode();
 			return await Utilities.DeserializeFromHttpResponseAsync<UserProfileFlagsDTO>(response);
+		}
+
+		public async Task SetUserProfileFlagsAsync(UserProfileFlagsDTO flags)
+		{
+			using HttpRequestMessage request = new(HttpMethod.Put, profileEndpointCategory)
+			{
+				Content = JsonContent.Create(flags, new("application/json"), Utilities.JsonSerializerOptions)
+			};
+
+			using HttpResponseMessage response = await client.SendAsync(request);
+
+			response.EnsureSuccessStatusCode();
 		}
 	}
 }

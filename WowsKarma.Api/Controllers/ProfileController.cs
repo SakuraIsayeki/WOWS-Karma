@@ -28,7 +28,7 @@ namespace WowsKarma.Api.Controllers
 			})
 			: StatusCode(404);
 
-		[HttpPost, AccessKey]
+		[HttpPut, AccessKey]
 		public async Task<IActionResult> UpdateProfileFlagsAsync([FromBody] UserProfileFlagsDTO flags)
 		{
 			try

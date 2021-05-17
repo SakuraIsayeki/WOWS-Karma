@@ -108,7 +108,7 @@
 
 	@if (!ReceivedOrSent)
 	{
-		<PostsReceived AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync PostsDisable=CurrentUserProfileFlags.PostsBanned />
+		<PostsReceived AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync AuthorProfileFlags=CurrentUserProfileFlags />
 	}
 	else
 	{

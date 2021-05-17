@@ -12,9 +12,13 @@
 		<div class="col-auto mb-3">
 			<AuthorizeView>
 				<Authorized>
-					@if (PostsDisable)
+					@if (AuthorProfileFlags.PostsBanned)
 					{
 						<h5 class="text-danger">You were banned from posting.</h5>
+					}
+					else if (AuthorProfileFlags.OptedOut)
+					{
+						<h5 class="text-danger">You have opted out of WOWS Karma.</h5>
 					}
 					else if (AccountId == authorId)
 					{
@@ -78,7 +82,7 @@ else
 	public uint AccountId { get; set; }
 
 	[Parameter]
-	public bool PostsDisable { get; set; }
+	public UserProfileFlagsDTO AuthorProfileFlags { get; set; }
 
 	[Parameter]
 	public EventCallback OnPostsUpdate { get; set; }

@@ -1,3 +1,15 @@
 ﻿@page "/"
+@inject PageContentLoader Loader
 
-@HtmlContentFileLoader.LoadHtmlContent("indexcontent.html")
+@markup
+
+@code {
+	static string ContentFilePath = System.IO.Path.Join(PageContentLoader.WebRootPageContentsPath, "indexcontent.html");
+	private MarkupString markup;
+
+	protected override async Task OnInitializedAsync()
+	{
+		markup = await Loader.LoadMarkupAsync(ContentFilePath);
+		await base.OnInitializedAsync();
+	}
+}

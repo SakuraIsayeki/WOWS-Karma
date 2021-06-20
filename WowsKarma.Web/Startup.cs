@@ -49,9 +49,6 @@ namespace WowsKarma.Web
 				config.DefaultRequestHeaders.Add("Access-Key", Configuration[$"Api:{CurrentRegion.ToRegionString()}:AccessKey"]);
 			});
 
-			services.AddScoped<PlayerService>();
-			services.AddScoped<PostService>();
-
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
@@ -85,6 +82,12 @@ namespace WowsKarma.Web
 				opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
 					new[] { "application/octet-stream" });
 			});
+
+			services.AddHostedService<PageContentLoader>();
+
+			services.AddSingleton<PageContentLoader>();
+			services.AddSingleton<PlayerService>();
+			services.AddSingleton<PostService>();
 		}
 
 

@@ -53,20 +53,6 @@ namespace WowsKarma.Api.Controllers
 				: StatusCode(200, playerProfile);
 		}
 
-		[HttpGet("{id}/banned")]
-		public async Task<IActionResult> GetBannedStatusAsync(uint id)
-		{
-			if (id is 0)
-			{
-				return StatusCode(400, new ArgumentException(null, nameof(id)));
-			}
-
-			return await service.GetPlayerAsync(id) is Player player and not null
-				? StatusCode(200, player.PostsBanned)
-				: StatusCode(404, new ArgumentException(null, nameof(id)));
-
-		}
-
 		[HttpPost("Karmas")]
 		public IActionResult FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary(service.GetPlayersKarma(ids)));
 

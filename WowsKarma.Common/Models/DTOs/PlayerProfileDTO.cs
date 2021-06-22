@@ -14,6 +14,7 @@ namespace WowsKarma.Common.Models.DTOs
 		public int SiteKarma { get; init; }
 
 		public bool Hidden { get; init; }
+		public bool OptedOut { get; init; }
 
 		public int RatingPerformance { get; init; }
 		public int RatingTeamplay { get; init; }

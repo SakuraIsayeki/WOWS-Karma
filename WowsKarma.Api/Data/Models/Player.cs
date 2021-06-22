@@ -8,7 +8,7 @@ using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Data.Models
 {
-	public record Player : IDataModel<uint>, ITimestamped
+	public record Player : ITimestamped
 	{
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public uint Id { get; init; }
@@ -36,6 +36,7 @@ namespace WowsKarma.Api.Data.Models
 
 		public bool NegativeKarmaAble => (SiteKarma + GameKarma) > -20;
 		public bool PostsBanned { get; set; }
+		public bool OptedOut { get; set; }
 
 
 
@@ -49,6 +50,7 @@ namespace WowsKarma.Api.Data.Models
 			Username = value.Username,
 			WgAccountCreatedAt = value.WgAccountCreatedAt,
 			Hidden = value.WgHidden,
+			OptedOut = value.OptedOut,
 			GameKarma = value.GameKarma,
 			SiteKarma = value.SiteKarma,
 			RatingPerformance = value.PerformanceRating,

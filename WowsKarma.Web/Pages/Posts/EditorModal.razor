@@ -27,51 +27,60 @@
 
 					<hr class="m-4" />
 
-					<h4 class="mb-3">Flairs</h4>
+					<div class="form-group">
+						<h4 class="mb-3">Flairs</h4>
 
-					<table class="table table-borderless table-sm">
-						<tbody>
-							<tr>
-								<td>
-									<div class="btn-group" role="group">
-										<button type="button" class="btn btn-danger @(PostFlairs.Performance is false ? "active" : "")" @onclick="() => { PostFlairs.Performance = false; }">Negative</button>
-										<button type="button" class="btn btn-warning @(PostFlairs.Performance is null ? "active" : "")" @onclick="() => { PostFlairs.Performance = null; }">Neutral</button>
-										<button type="button" class="btn btn-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
-									</div>
-								</td>
-								<td class="align-middle"><h5 class="m-0">Performance</h5></td>
-							</tr>
-							<tr>
-								<td>
-									<div class="btn-group" role="group">
-										<button type="button" class="btn btn-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
-										<button type="button" class="btn btn-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
-										<button type="button" class="btn btn-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
-										
-									</div>
-								</td>
-								<td class="align-middle"><h5 class="m-0">Teamplay</h5></td>
-							</tr>
+						<table class="table table-borderless table-sm">
+							<tbody>
+								<tr>
+									<td>
+										<div class="btn-group" role="group">
+											<button type="button" class="btn btn-danger @(PostFlairs.Performance is false ? "active" : "")" @onclick="() => { PostFlairs.Performance = false; }">Negative</button>
+											<button type="button" class="btn btn-warning @(PostFlairs.Performance is null ? "active" : "")" @onclick="() => { PostFlairs.Performance = null; }">Neutral</button>
+											<button type="button" class="btn btn-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
+										</div>
+									</td>
+									<td class="align-middle"><h5 class="m-0">Performance</h5></td>
+								</tr>
+								<tr>
+									<td>
+										<div class="btn-group" role="group">
+											<button type="button" class="btn btn-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
+											<button type="button" class="btn btn-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
+											<button type="button" class="btn btn-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
 
-							<tr>
-								<td>
-									<div class="btn-group" role="group">
-										<button type="button" class="btn btn-danger @(PostFlairs.Courtesy is false ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = false; }">Negative</button>
-										<button type="button" class="btn btn-warning @(PostFlairs.Courtesy is null ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = null; }">Neutral</button>
-										<button type="button" class="btn btn-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
-									</div>
-								</td>
-								<td class="align-middle"><h5 class="m-0">Courtesy</h5></td>
-							</tr>
-						</tbody>
-					</table>
+										</div>
+									</td>
+									<td class="align-middle"><h5 class="m-0">Teamplay</h5></td>
+								</tr>
 
+								<tr>
+									<td>
+										<div class="btn-group" role="group">
+											<button type="button" class="btn btn-danger @(PostFlairs.Courtesy is false ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = false; }">Negative</button>
+											<button type="button" class="btn btn-warning @(PostFlairs.Courtesy is null ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = null; }">Neutral</button>
+											<button type="button" class="btn btn-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
+										</div>
+									</td>
+									<td class="align-middle"><h5 class="m-0">Courtesy</h5></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" checked=@approvedGuidelines @onclick=OnApprovedGuidelinesToggle>
+
+						<label class="form-check-label" for="flexCheckDefault">
+							I hereby affirm to have read and followed the <a href="guidelines" target="_blank">Posting Guidelines</a>.
+						</label>
+					</div>
 				</div>
 
 				<!-- Modal footer -->
 				<div class="modal-footer">
 					<button type="button" class="btn btn-danger" @onclick=OnCancel>Cancel</button>
-					<button type="submit" class="btn btn-success" value="Create">Create</button>
+					<button type="submit" class="btn btn-success" value="Create" disabled=@(!approvedGuidelines)>Create</button>
 				</div>
 			</EditForm>
 		</div>
@@ -93,6 +102,9 @@
 	[Parameter]
 	public EventCallback OnCancel { get; set; }
 
+	private bool approvedGuidelines;
+
+
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -101,7 +113,7 @@
 		await base.OnInitializedAsync();
 	}
 
-	async Task ModalSubmitAsync()
+	private async Task ModalSubmitAsync()
 	{
 		PostModel.Flairs = PostFlairs.ToEnum();
 
@@ -116,4 +128,6 @@
 
 		await OnPostSubmited.InvokeAsync(null);
 	}
+
+	private void OnApprovedGuidelinesToggle() => approvedGuidelines = !approvedGuidelines;
 }

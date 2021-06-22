@@ -43,14 +43,13 @@ namespace WowsKarma.Web
 			services.AddRazorPages();
 			services.AddHttpContextAccessor();
 
+			services.AddDistributedMemoryCache();
+
 			services.AddHttpClient(Options.DefaultName, config =>
 			{
 				config.BaseAddress = new(Configuration[$"Api:{CurrentRegion.ToRegionString()}:Host"]);
 				config.DefaultRequestHeaders.Add("Access-Key", Configuration[$"Api:{CurrentRegion.ToRegionString()}:AccessKey"]);
 			});
-
-			services.AddScoped<PlayerService>();
-			services.AddScoped<PostService>();
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{
@@ -85,6 +84,10 @@ namespace WowsKarma.Web
 				opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
 					new[] { "application/octet-stream" });
 			});
+
+			services.AddSingleton<PageContentLoader>();
+			services.AddSingleton<PlayerService>();
+			services.AddSingleton<PostService>();
 		}
 
 

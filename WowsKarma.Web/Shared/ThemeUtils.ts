@@ -1,24 +1,12 @@
-﻿window.addEventListener('DOMContentLoaded', () => setThemeDisplay);
-
-
-function setThemeDisplay(theme: string = localStorage['theme']): void {
+﻿function setThemeDisplay(theme: string = localStorage['theme']): void {
 	if (theme === 'light') {
 		document.querySelector("#light-theme").removeAttribute('disabled');
 		document.querySelector("#dark-theme").setAttribute('disabled', '');
 	}
 	else {
-		document.querySelector("#light-theme").setAttribute('disabled', '');
 		document.querySelector("#dark-theme").removeAttribute('disabled');
+		document.querySelector("#light-theme").setAttribute('disabled', '');
 	}
-}
-
-function setTheme(theme: string = localStorage['theme']): void {
-	//Invert theme
-	theme = theme == 'light' ? 'dark' : 'light';
-
-	localStorage['theme'] = theme;
-	document.querySelector("#icon-theme-selector").setAttribute('class', getThemeSelectorIcon(theme));
-	setThemeDisplay();
 }
 
 function getThemeSelectorIcon(theme: string): string {
@@ -29,3 +17,14 @@ function getThemeSelectorIcon(theme: string): string {
 		return 'bi bi-sun';
 	}
 }
+
+function setTheme(theme: string = localStorage['theme']): void {
+	//Invert theme
+	theme = theme === 'light' ? 'dark' : 'light';
+
+	localStorage['theme'] = theme;
+	document.querySelector("#icon-theme-selector").setAttribute('class', getThemeSelectorIcon(theme));
+	setThemeDisplay();
+}
+
+window.addEventListener('DOMContentLoaded', () => setThemeDisplay);

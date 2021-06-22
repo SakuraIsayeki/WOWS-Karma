@@ -17,9 +17,9 @@ namespace WowsKarma.Web.Models
 
 		public PostFlairs Flairs { get; set; }
 
-		[Required, StringLength(maximumLength: 60, MinimumLength = 5)]
+		[Required, StringLength(60, MinimumLength = 5)]
 		public string Title { get; set; }
-		[Required, StringLength(maximumLength: 2000, MinimumLength = 10)]
+		[Required, StringLength(2000, MinimumLength = 50)]
 		public string Content { get; set; }
 
 

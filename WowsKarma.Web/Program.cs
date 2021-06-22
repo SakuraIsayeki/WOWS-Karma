@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using WowsKarma.Common;
@@ -25,9 +26,9 @@ namespace WowsKarma.Web
 				.MinimumLevel.Debug()
 #else
 				.MinimumLevel.Information()
+#endif
 				.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
 				.MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
-#endif
 				.Enrich.FromLogContext()
 				.Enrich.WithProperty("_Source", typeof(Program).Assembly.GetName())
 				.Enrich.WithProperty("_Environment", configuration["environment"])

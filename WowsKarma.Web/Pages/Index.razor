@@ -4,12 +4,12 @@
 @markup
 
 @code {
-	static string ContentFilePath = System.IO.Path.Join(PageContentLoader.WebRootPageContentsPath, "indexcontent.html");
+	static string ContentFilePath = Path.Join(PageContentLoader.WebRootPageAssetsPath, "indexcontent.html");
 	private MarkupString markup;
 
 	protected override async Task OnInitializedAsync()
 	{
-		markup = await Loader.LoadMarkupAsync(ContentFilePath);
+		markup = (MarkupString)await Loader.LoadContent(ContentFilePath, CancellationToken.None);
 		await base.OnInitializedAsync();
 	}
 }

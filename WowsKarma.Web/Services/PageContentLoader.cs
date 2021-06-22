@@ -1,129 +1,97 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 
 namespace WowsKarma.Web.Services
 {
-	public class PageContentLoader : IHostedService, IDisposable
+	public class PageContentLoader
 	{
-		public static string WebRootPageContentsPath { get; } = Path.Join("assets");
+		public const string WebRootPageAssetsPath = "assets";
 
 		private readonly ILogger<PageContentLoader> logger;
-		private readonly IWebHostEnvironment env;
 		private readonly IDistributedCache cache;
-		private readonly FileSystemWatcher watcher;
-		private bool disposedValue;
+		private readonly IFileProvider fileProvider;
+
+		private readonly Dictionary<string, IChangeToken> tokens = new();
 
 		public PageContentLoader(ILogger<PageContentLoader> logger, IWebHostEnvironment env, IDistributedCache cache)
 		{
 			this.logger = logger;
-			this.env = env;
 			this.cache = cache;
-
-			watcher = new(env.WebRootPath, "*.html")
-			{
-				EnableRaisingEvents = true,
-				IncludeSubdirectories = true
-			};
+			fileProvider = env.WebRootFileProvider;
 		}
 
-		public void Dispose()
+		public async Task<string> LoadContent(string fileName, CancellationToken cancellationToken)
 		{
-			// Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+			string filePath = fileProvider.GetFileInfo(fileName).PhysicalPath;
+			string fileContent;
 
-		public async Task<MarkupString> LoadMarkupAsync(string path)
-		{
-			string content = await cache.GetStringAsync(path);
-
-			if (string.IsNullOrEmpty(content))
+			// Try to obtain the file contents from the cache.
+			if ((fileContent = await cache.GetStringAsync(filePath, cancellationToken)) is not null)
 			{
-				using StreamReader streamReader = new(env.WebRootFileProvider.GetFileInfo(path).CreateReadStream(), Encoding.UTF8);
-				content = await streamReader.ReadToEndAsync();
-				await cache.SetStringAsync(path, content);
-
-				logger.LogDebug("Fetched content for {path} from file.", path);
-			}
-			else
-			{
-				logger.LogDebug("Fetched content for {path} from cache.", path);
+				logger.LogDebug("Fetched content for {path} from cache.", filePath);
+				return fileContent;
 			}
 
-			return (MarkupString)content;
+			// The cache doesn't have the entry, so obtain the file 
+			// contents from the file itself.
+			if ((fileContent = await GetContentFromFileAsync(filePath)) is not null)
+			{
+				// Obtain a change token from the file provider whose
+				// callback is triggered when the file is modified.
+				IChangeToken changeToken = fileProvider.Watch(fileName);
+				changeToken.RegisterChangeCallback(async (state) => await TriggerCacheEvictionAsync(state), filePath);
+
+				// Put the file contents into the cache.
+				await cache.SetStringAsync(filePath, fileContent, cancellationToken);
+				tokens.Add(filePath, changeToken);
+
+				logger.LogDebug("Fetched content for {path} from file.", filePath);
+				return fileContent;
+			}
+
+			return string.Empty;
 		}
 
-		public async Task PopulatePageCacheAsync(string path, CancellationToken cancellationToken)
+		private static async Task<string> GetContentFromFileAsync(string filePath)
 		{
-			foreach (string item in Directory.GetFiles(path, "*.html", SearchOption.AllDirectories))
+			for (int runCount = 1; runCount < 4; runCount++)
 			{
-				if (cancellationToken.IsCancellationRequested)
+				try
 				{
-					return;
+					using StreamReader fileStreamReader = File.OpenText(filePath);
+					return await fileStreamReader.ReadToEndAsync();
 				}
-
-				using FileStream fileStream = File.OpenRead(item);
-				using StreamReader streamReader = new(fileStream);
-
-				await cache.SetStringAsync(item[env.WebRootPath.Length..], await streamReader.ReadToEndAsync(), cancellationToken);
-			}
-
-			logger.LogInformation("Populated cache.");
-		}
-
-		private async void OnFileUpdated(object _, FileSystemEventArgs e)
-		{
-			logger.LogInformation("File change detected ({type}) : {file}", e.ChangeType.ToString(), e.FullPath);
-
-			string path = e.FullPath[(env.WebRootPath.Length + 1)..];
-
-			await cache.SetStringAsync(path, string.Empty, CancellationToken.None);
-			logger.LogDebug("Cleared cache entry: {path}", path);
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposedValue)
-			{
-				if (disposing)
+				catch (IOException ex)
 				{
-					watcher.Dispose();
+					if (runCount is 4 || ex.HResult is not -2147024864)
+					{
+						throw;
+					}
+					else
+					{
+						await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, runCount)));
+					}
 				}
-
-				disposedValue = true;
 			}
+
+			return null;
 		}
 
-		public async Task StartAsync(CancellationToken cancellationToken)
+		private async Task TriggerCacheEvictionAsync(object state)
 		{
-			logger.LogInformation("Starting PageContentLoader background service. \nContents Path : {path}", env.WebRootPath);
+			string filePath = state as string;
 
-			watcher.Changed += OnFileUpdated;
-			watcher.Created += OnFileUpdated;
-			watcher.Deleted += OnFileUpdated;
-			watcher.Renamed += OnFileUpdated;
-
-			await PopulatePageCacheAsync(Path.Combine(env.WebRootPath, WebRootPageContentsPath), cancellationToken);
-		}
-
-		public Task StopAsync(CancellationToken cancellationToken)
-		{
-			logger.LogInformation("Stopped PageContentLoader background service.", env.WebRootPath);
-
-			watcher.Changed -= OnFileUpdated;
-			watcher.Created -= OnFileUpdated;
-			watcher.Deleted -= OnFileUpdated;
-			watcher.Renamed -= OnFileUpdated;
-
-			return Task.CompletedTask;
+			tokens.Remove(filePath);
+			await cache.RemoveAsync(filePath);
+			logger.LogInformation("Evicted file {file} from cache.", filePath);
 		}
 	}
 }

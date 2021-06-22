@@ -43,6 +43,8 @@ namespace WowsKarma.Web
 			services.AddRazorPages();
 			services.AddHttpContextAccessor();
 
+			services.AddDistributedMemoryCache();
+
 			services.AddHttpClient(Options.DefaultName, config =>
 			{
 				config.BaseAddress = new(Configuration[$"Api:{CurrentRegion.ToRegionString()}:Host"]);
@@ -82,8 +84,6 @@ namespace WowsKarma.Web
 				opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
 					new[] { "application/octet-stream" });
 			});
-
-			services.AddHostedService<PageContentLoader>();
 
 			services.AddSingleton<PageContentLoader>();
 			services.AddSingleton<PlayerService>();

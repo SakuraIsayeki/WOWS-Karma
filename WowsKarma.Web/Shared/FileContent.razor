@@ -1,0 +1,17 @@
+﻿@inject PageContentLoader Loader
+
+@markup
+
+@code {
+
+
+	[Parameter] public string ContentFilePath { get; set; }
+
+	private MarkupString markup;
+
+	protected override async Task OnInitializedAsync()
+	{
+		markup = (MarkupString)await Loader.LoadContent(ContentFilePath, CancellationToken.None);
+		await base.OnInitializedAsync();
+	}
+}

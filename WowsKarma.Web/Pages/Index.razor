@@ -1,15 +1,3 @@
 ﻿@page "/"
-@inject PageContentLoader Loader
 
-@markup
-
-@code {
-	static string ContentFilePath = Path.Join(PageContentLoader.WebRootPageAssetsPath, "indexcontent.html");
-	private MarkupString markup;
-
-	protected override async Task OnInitializedAsync()
-	{
-		markup = (MarkupString)await Loader.LoadContent(ContentFilePath, CancellationToken.None);
-		await base.OnInitializedAsync();
-	}
-}
+<FileContent ContentFilePath="assets/indexcontent.html" />

@@ -1,4 +1,5 @@
 using AspNet.Security.OpenId;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,7 @@ using System.Reflection;
 using WowsKarma.Common;
 using WowsKarma.Web.Middlewares;
 using WowsKarma.Web.Services;
+using WowsKarma.Web.Services.Authentication;
 using static WowsKarma.Common.Utilities;
 using static WowsKarma.Web.Utilities;
 
@@ -64,17 +66,9 @@ namespace WowsKarma.Web
 			});
 #endif
 
-			services.AddAuthentication(options =>
-			{
-				options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				options.DefaultChallengeScheme = WgAuthScheme;
-			})
-			.AddCookie()
-			.AddOpenId(WgAuthScheme, "Wargaming.net", options =>
-			{
-				options.Authority = new(GetOidcEndpoint());
-				options.CallbackPath = OpenIdAuthenticationDefaults.CallbackPath;
-			});
+			//TODO : Add custom Auth Handler
+			services.AddAuthentication(ApiCookieAuthenticationHandler.AuthenticationScheme)
+				.AddScheme<AuthenticationSchemeOptions, ApiCookieAuthenticationHandler>(ApiCookieAuthenticationHandler.AuthenticationScheme, "API Cookie", options => { });
 
 			services.AddAuthorizationCore();
 			services.AddHttpContextAccessor();

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using static WowsKarma.Common.Utilities;
 
 namespace WowsKarma.Api.Controllers
 {
@@ -19,11 +20,6 @@ namespace WowsKarma.Api.Controllers
 		private readonly IConfiguration config;
 		private readonly WargamingAuthService wargamingAuthService;
 		private readonly JwtAuthService jwtService;
-
-		private static readonly JsonSerializerOptions cookieSerializerOptions = new()
-		{
-			PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-		};
 
 		public AuthController(IConfiguration config, WargamingAuthService wargamingAuthService, JwtAuthService jwtService)
 		{
@@ -49,7 +45,7 @@ namespace WowsKarma.Api.Controllers
 
 			Response.Cookies.Append(
 				config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieName"],
-				JsonSerializer.Serialize(claims, cookieSerializerOptions),
+				JsonSerializer.Serialize(claims, CookieSerializerOptions),
 				new()
 				{
 					Domain = config[$"Api:{Startup.ApiRegion.ToRegionString()}:DomainName"],

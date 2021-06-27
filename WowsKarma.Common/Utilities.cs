@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using Wargaming.WebAPI.Models;
 
 namespace WowsKarma.Common
 {
 	public static class Utilities
 	{
+		public static JsonSerializerOptions CookieSerializerOptions { get; } = new()
+		{
+			PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+		};
+
 		public static Region GetRegionConfigString(string configString) => configString switch
 		{
 			"EU" => Region.EU,

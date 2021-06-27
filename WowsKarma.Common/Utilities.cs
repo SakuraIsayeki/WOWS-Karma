@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Wargaming.WebAPI.Models;
 
 namespace WowsKarma.Common
@@ -27,6 +25,24 @@ namespace WowsKarma.Common
 			_ => throw new ArgumentOutOfRangeException(nameof(region))
 		};
 
+		public static string ToWargamingSubdomain(this Region region) => region switch
+		{
+			Region.EU => "eu",
+			Region.NA => "na",
+			Region.CIS => "ru",
+			Region.ASIA => "asia",
+			_ => throw new ArgumentOutOfRangeException(nameof(region))
+		};
+
+		public static Region FromWargamingSubdomain(this string subdomain) => subdomain switch
+		{
+			"eu" => Region.EU,
+			"na" => Region.NA,
+			"ru" => Region.CIS,
+			"asia" => Region.ASIA,
+			_ => throw new ArgumentOutOfRangeException(nameof(subdomain))
+		};
+
 		public static string GetRegionWebDomain(this Region region) => region switch
 		{
 			Region.EU => "https://wows-karma.com/",
@@ -44,5 +60,35 @@ namespace WowsKarma.Common
 			Region.ASIA => "https://api.asia.wows-karma.com/",
 			_ => throw new ArgumentOutOfRangeException(nameof(region))
 		};
+
+		public static string BuildQuery(params (string parameter, string value)[] arguments)
+		{
+			StringBuilder path = new();
+
+			if (arguments is not null)
+			{
+				for (int i = 0; i < arguments.Length; i++)
+				{
+					path.AppendFormat("{0}{1}={2}", i is 0 ? '?' : '&', arguments[i].parameter, arguments[i].value);
+				}
+			}
+
+			return path.ToString();
+		}
+
+		public static string BuildQuery(this IDictionary<string, string> arguments)
+		{
+			using IEnumerator<KeyValuePair<string, string>> enumerator = arguments.GetEnumerator();
+			StringBuilder path = new();
+
+			for (int i = 0; i < arguments.Count; i++)
+			{
+				KeyValuePair<string, string> current = enumerator.Current;
+				path.AppendFormat("{0}{1}={2}", i is 0 ? '?' : '&', current.Key, current.Value);
+				enumerator.MoveNext();
+			}
+
+			return path.ToString();
+		}
 	}
 }

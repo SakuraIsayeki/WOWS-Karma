@@ -9,6 +9,7 @@ services:
       dockerfile: WowsKarma.Api/Dockerfile
     ports:
     - 5010:80
+    - 5011:443
 
   wowskarma.web:
     hostname: web

@@ -1,16 +1,20 @@
 using Discord.Webhook;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Wargaming.WebAPI;
 using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
@@ -19,6 +23,8 @@ using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
+using WowsKarma.Api.Services.Authentication.Jwt;
+using WowsKarma.Api.Services.Authentication.Wargaming;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api
@@ -45,6 +51,23 @@ namespace WowsKarma.Api
 			services.AddSignalR()
 				.AddMessagePackProtocol();
 
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
+			// Adding Jwt Bearer  
+			.AddJwtBearer(options =>
+			{
+				options.SaveToken = true;
+				options.RequireHttpsMetadata = false;
+				options.TokenValidationParameters = new()
+				{
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidAudience = Configuration["JWT:ValidAudience"],
+					ValidIssuer = Configuration["JWT:ValidIssuer"],
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+				};
+			});
+
 			services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc(DisplayVersion, new OpenApiInfo
@@ -67,8 +90,6 @@ namespace WowsKarma.Api
 				c.OperationFilter<AccessKeySwaggerFilter>();
 			});
 
-
-
 			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
 			services.AddPooledDbContextFactory<ApiDbContext>(
@@ -77,6 +98,11 @@ namespace WowsKarma.Api
 
 			services.AddHttpClient<WorldOfWarshipsHandler>(client => client.BaseAddress = new(ApiProperties.GetApiHost(ApiProperties.Game.WOWS, ApiRegion)));
 			services.AddHttpClient<VortexApiHandler>(client => client.BaseAddress = new(VortexApiHandler.GetApiHost(ApiRegion)));
+
+			services.AddSingleton<WargamingAuthService>();
+			services.AddSingleton<JwtAuthService>();
+
+
 
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration[$"Api:{ApiRegion.ToRegionString()}:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();

@@ -8,7 +8,9 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 {
 	public class WargamingIdentity : ClaimsIdentity
 	{
-		public WargamingIdentity(IEnumerable<Claim> claims) : base(claims, "wargaming") { }
+		
+
+		public WargamingIdentity(IEnumerable<Claim> claims) : base(claims, "Wargaming") { }
 
 		public static WargamingIdentity FromUri(Uri identityUri)
 		{

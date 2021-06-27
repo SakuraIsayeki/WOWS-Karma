@@ -21,21 +21,22 @@ namespace WowsKarma.Web.Services.Authentication
 	{
 		public const string AuthenticationScheme = "ApiCookie";
 
-		private static string cookieName;
+		public static string CookieName { get; private set; }
+
 		private static string loginPath;
 		private static string websitePath;
 
 		public ApiCookieAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, 
 			UrlEncoder encoder, ISystemClock clock, IConfiguration configuration) : base(options, logger, encoder, clock)
 		{
-			cookieName ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieName"];
+			CookieName ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieName"];
 			loginPath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:Login"];
 			websitePath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:WebDomain"];
 		}
 	
 		protected override Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
-			if (Request.Cookies[cookieName] is string cookie)
+			if (Request.Cookies[CookieName] is string cookie)
 			{
 				IEnumerable<UserClaimDTO> claims = JsonSerializer.Deserialize<IEnumerable<UserClaimDTO>>(cookie, CookieSerializerOptions);
 
@@ -53,7 +54,7 @@ namespace WowsKarma.Web.Services.Authentication
 
 		protected override Task HandleChallengeAsync(AuthenticationProperties properties)
 		{
-			properties.RedirectUri = $"{loginPath}?redirectUri={websitePath}{properties.RedirectUri}";
+			properties.RedirectUri = $"{loginPath}?redirectUri={websitePath}/{properties.RedirectUri}";
 			Response.Redirect(properties.RedirectUri);
 
 			return Task.CompletedTask;

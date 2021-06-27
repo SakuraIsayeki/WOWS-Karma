@@ -1,6 +1,10 @@
 ﻿using AngleSharp.Text;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -55,6 +59,9 @@ namespace WowsKarma.Web
 			Match result = new Regex("([0-9]+)-(\\w+)").Match(url);
 			return new(result.Groups[1].Value.ToInteger(uint.MinValue), result.Groups[2].Value);
 		}
+
+		public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal) 
+			=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier)), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
 
 		public static uint GetIdFromRouteParameter(string routeParameter)
 		{

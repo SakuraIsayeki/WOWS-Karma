@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
+using AngleSharp;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using WowsKarma.Web.Services.Authentication;
 
 namespace WowsKarma.Web.Pages
 {
@@ -9,7 +11,7 @@ namespace WowsKarma.Web.Pages
 	{
 		public async Task<IActionResult> OnGet()
 		{
-			await HttpContext.SignOutAsync();
+			Response.Cookies.Delete(ApiCookieAuthenticationHandler.CookieName);
 			return Redirect("/");
 		}
 	}

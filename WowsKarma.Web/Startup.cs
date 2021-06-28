@@ -80,8 +80,9 @@ namespace WowsKarma.Web
 			});
 
 			services.AddSingleton<PageContentLoader>();
-			services.AddSingleton<PlayerService>();
-			services.AddSingleton<PostService>();
+
+			services.AddScoped<PlayerService>();
+			services.AddScoped<PostService>();
 		}
 
 

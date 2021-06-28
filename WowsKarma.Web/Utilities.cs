@@ -1,9 +1,11 @@
 ﻿using AngleSharp.Text;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -92,5 +94,9 @@ namespace WowsKarma.Web
 
 			return "warning";
 		}
+
+		internal static string GetTokenFromCookie(this HttpContext httpContext) => httpContext.User.FindFirstValue("token");
+
+		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(HttpContext context) => new("Bearer", context.GetTokenFromCookie());
 	}
 }

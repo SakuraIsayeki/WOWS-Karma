@@ -1,23 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using WowsKarma.Common.Models.DTOs;
+using static WowsKarma.Web.Utilities;
 
 namespace WowsKarma.Web.Services
 {
 	public class PlayerService
 	{
 		private readonly HttpClient client;
+		private readonly IHttpContextAccessor contextAccessor;
 		public const string playerEndpointCategory = "player";
 		public const string profileEndpointCategory = "profile";
 
-		public PlayerService(IHttpClientFactory httpClientFactory)
+
+
+		public PlayerService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor)
 		{
 			client = httpClientFactory.CreateClient();
+			this.contextAccessor = contextAccessor;
 		}
 
 		~PlayerService()
@@ -32,7 +36,7 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return await Utilities.DeserializeFromHttpResponseAsync<IEnumerable<AccountListingDTO>>(response);
+				return await DeserializeFromHttpResponseAsync<IEnumerable<AccountListingDTO>>(response);
 			}
 			
 			return null;
@@ -45,7 +49,7 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				PlayerProfileDTO player = await Utilities.DeserializeFromHttpResponseAsync<PlayerProfileDTO>(response);
+				PlayerProfileDTO player = await DeserializeFromHttpResponseAsync<PlayerProfileDTO>(response);
 				return player with { Id = id };
 			}
 
@@ -58,18 +62,16 @@ namespace WowsKarma.Web.Services
 			using HttpResponseMessage response = await client.SendAsync(request);
 
 			response.EnsureSuccessStatusCode();
-			return await Utilities.DeserializeFromHttpResponseAsync<UserProfileFlagsDTO>(response);
+			return await DeserializeFromHttpResponseAsync<UserProfileFlagsDTO>(response);
 		}
 
 		public async Task SetUserProfileFlagsAsync(UserProfileFlagsDTO flags)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Put, profileEndpointCategory)
-			{
-				Content = JsonContent.Create(flags, new("application/json"), Utilities.JsonSerializerOptions)
-			};
+			using HttpRequestMessage request = new(HttpMethod.Put, profileEndpointCategory);
+			request.Content = JsonContent.Create(flags, new("application/json"), JsonSerializerOptions);
+			request.Headers.Authorization = GenerateAuthenticationHeader(contextAccessor.HttpContext);
 
 			using HttpResponseMessage response = await client.SendAsync(request);
-
 			response.EnsureSuccessStatusCode();
 		}
 	}

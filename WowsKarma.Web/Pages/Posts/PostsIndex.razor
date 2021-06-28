@@ -1,4 +1,6 @@
-﻿@page "/posts"
+﻿@inherits ComponentBaseAuth
+
+@page "/posts"
 @inject PostService PostService
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration 
 @implements IAsyncDisposable

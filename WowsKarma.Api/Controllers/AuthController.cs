@@ -11,6 +11,7 @@ using System.Text.Json;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using static WowsKarma.Common.Utilities;
+using System.Threading.Tasks;
 
 namespace WowsKarma.Api.Controllers
 {
@@ -35,9 +36,22 @@ namespace WowsKarma.Api.Controllers
 		public IActionResult Login() => wargamingAuthService.RedirectToLogin(Startup.ApiRegion, Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault()));
 
 		[HttpGet("wg-callback")]
-		public IActionResult WgAuthCallback()
+		public async Task<IActionResult> WgAuthCallback()
 		{
-			WargamingIdentity identity = WargamingIdentity.FromUri(new(Request.Query["openid.identity"].FirstOrDefault()));
+			/* 
+			 * HACK: Callback cannot yet rely completely on remote server validation.
+			 * MITM attacks are rare, but we must totaly eliminate the risk.
+			 * 
+			 * FIX THIS ASAP.
+			 */
+			Uri identityUri = new(Request.Query["openid.identity"].FirstOrDefault());
+
+			if (!identityUri.ToString().Contains(WargamingAuthService.OpenIdDomain.Host))
+			{
+				return StatusCode(403);
+			}
+
+			WargamingIdentity identity = WargamingIdentity.FromUri(identityUri);
 			JwtSecurityToken token = JwtAuthService.GenerateToken(identity.Claims.ToArray());
 
 			List<UserClaimDTO> claims = identity.Claims.Select(c => new UserClaimDTO(c.Type, c.Value)).ToList();

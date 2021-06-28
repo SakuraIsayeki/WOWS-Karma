@@ -1,16 +1,11 @@
 ﻿@namespace WowsKarma.Web.Shared
-@inherits ComponentBase
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inherits ComponentBaseAuth
 @inject NavigationManager NavigationManager
-
-@using System.Security.Claims;
 
 <AuthorizeView>
 	<Authorized>
-		@{AccountListingDTO account = GetAccountInfoFromOidcUrl(context.User.FindFirst(ClaimTypes.NameIdentifier).Value);}
-
-		<li class="navbar-text text-light">Welcome, @account.Username.&emsp;</li>
-		<li class="nav-item"><NavLink class="nav-link text-white" href="@($"player/{account.Id},{account.Username}")">Profile</NavLink></li>
+		<li class="navbar-text text-light">Welcome, @CurrentUser.Username.&emsp;</li>
+		<li class="nav-item"><NavLink class="nav-link text-white" href="@($"player/{CurrentUser.Id},{CurrentUser.Username}")">Profile</NavLink></li>
 		<li class="nav-item"><NavLink class="nav-link text-white" href="settings">Settings</NavLink></li>
 		<li class="nav-item"><NavLink class="nav-link text-white" href="logout">Logout</NavLink></li>
 	</Authorized>

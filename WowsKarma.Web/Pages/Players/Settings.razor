@@ -1,4 +1,6 @@
-﻿@page "/settings"
+﻿@inherits ComponentBaseAuth
+
+@page "/settings"
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 @inject PlayerService PlayerService
@@ -59,7 +61,6 @@
 
 
 @code {
-	public uint CurrentUserId { get; private set; }
 	public bool Loaded { get; private set; }
 	public bool Saved { get; private set; }
 
@@ -70,30 +71,19 @@
 	protected override async Task OnParametersSetAsync()
 	{
 		Loaded = false;
-		await AssignAuthorIdAsync();
-		await LoadUserSettingsAsync();
-
 		await base.OnParametersSetAsync();
+
+		await LoadUserSettingsAsync();
 		Loaded = true;
-	}
-
-	private async Task AssignAuthorIdAsync()
-	{
-		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl)
-		{
-			CurrentUserId = GetAccountInfoFromOidcUrl(accountUrl).Id;
-		}
 	}
 
 	private async Task LoadUserSettingsAsync()
 	{
-		UserProfileFlagsDTO current = await PlayerService.GetUserProfileFlagsAsync(CurrentUserId);
+		UserProfileFlagsDTO current = await PlayerService.GetUserProfileFlagsAsync(CurrentUser.Id);
 
 		model = new ProfileSettingsViewModel
 		{
-			Id = CurrentUserId,
+			Id = CurrentUser.Id,
 			OptedOut = current.OptedOut
 		};
 	}
@@ -104,7 +94,7 @@
 
 		UserProfileFlagsDTO updated = new()
 		{
-			Id = CurrentUserId,
+			Id = CurrentUser.Id,
 			OptedOut = model.OptedOut
 		};
 

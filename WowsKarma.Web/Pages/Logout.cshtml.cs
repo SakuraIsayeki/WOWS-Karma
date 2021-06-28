@@ -9,7 +9,7 @@ namespace WowsKarma.Web.Pages
 {
 	public class LogoutModel : PageModel
 	{
-		public async Task<IActionResult> OnGet()
+		public IActionResult OnGet()
 		{
 			Response.Cookies.Delete(ApiCookieAuthenticationHandler.CookieName);
 			return Redirect("/");

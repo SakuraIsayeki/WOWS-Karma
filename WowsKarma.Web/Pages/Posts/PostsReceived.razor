@@ -1,4 +1,6 @@
-﻿@using WowsKarma.Common.Models
+﻿@inherits ComponentBaseAuth
+
+@using WowsKarma.Common.Models
 @using static WowsKarma.Common.Models.PostFlairsUtils
 
 @inject PostService PostService
@@ -20,7 +22,7 @@
 					{
 						<h5 class="text-danger">You have opted out of WOWS Karma.</h5>
 					}
-					else if (AccountId == authorId)
+					else if (AccountId == CurrentUser.Id)
 					{
 						<h5 class="text-info">You cannot self-post.</h5>
 					}
@@ -50,7 +52,7 @@
 		<div class="row">
 			@foreach (PlayerPostDTO post in PlayerPosts)
 			{
-				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Received CurrentUserId=authorId 
+				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Received CurrentUserId=CurrentUser.Id 
 					OnEditClick="() => EditPost(post)"
 					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />
 			}
@@ -95,19 +97,15 @@ else
 	private PlayerPostViewModel currentEditorPost;
 	private Guid currentDeleteId;
 
-	private uint authorId;
-
 	public record PostCooldownDTO(bool OnCooldown, DateTime EndsAt);
 	private PostCooldownDTO postCooldown;
 
 
 	protected override async Task OnParametersSetAsync()
 	{
-		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
-
-		await AssignAuthorIdAsync();
-
 		await base.OnParametersSetAsync();
+
+		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
 
 		Loaded = true;
 	}
@@ -116,7 +114,7 @@ else
 	{
 		currentEditorPost = new();
 		currentEditorPost.PlayerId = AccountId;
-		currentEditorPost.AuthorId = authorId;
+		currentEditorPost.AuthorId = CurrentUser.Id;
 		showEditorModal = true;
 	}
 
@@ -154,19 +152,9 @@ else
 		await UpdatePostsAsync();
 	}
 
-	private async Task AssignAuthorIdAsync()
-	{
-		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl)
-		{
-			authorId = GetAccountInfoFromOidcUrl(accountUrl).Id;
-		}
-	}
-
 	private PostCooldownDTO CheckCooldown()
 	{
-		PlayerPostDTO lastAuthoredPost = (from p in PlayerPosts where p.AuthorId == authorId orderby p.PostedAt select p).LastOrDefault();
+		PlayerPostDTO lastAuthoredPost = (from p in PlayerPosts where p.AuthorId == CurrentUser.Id orderby p.PostedAt select p).LastOrDefault();
 
 		if (lastAuthoredPost is not null)
 		{

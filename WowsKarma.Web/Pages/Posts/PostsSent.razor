@@ -1,8 +1,9 @@
-﻿@using WowsKarma.Common.Models
+﻿@inherits ComponentBaseAuth
+
+@using WowsKarma.Common.Models
 @using static WowsKarma.Common.Models.PostFlairsUtils
 
 @inject PostService PostService
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 
 
@@ -17,7 +18,7 @@
 		<div class="row">
 			@foreach (PlayerPostDTO post in PlayerPosts)
 			{
-				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=authorId 
+				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=CurrentUser.Id 
 					OnEditClick="() => EditPost(post)"
 					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />
 			}
@@ -55,13 +56,10 @@ else
 	private PlayerPostViewModel currentEditorPost;
 	private Guid currentDeleteId;
 
-	private uint authorId;
-
 
 	protected override async Task OnParametersSetAsync()
 	{
 		await UpdatePostsAsync();
-		await AssignAuthorIdAsync();
 		await base.OnParametersSetAsync();
 
 		Loaded = true;
@@ -99,15 +97,5 @@ else
 		showDeleteModal = false;
 		await PostService.DeletePostAsync(currentDeleteId);
 		await UpdatePostsAsync();
-	}
-
-	private async Task AssignAuthorIdAsync()
-	{
-		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl)
-		{
-			authorId = GetAccountInfoFromOidcUrl(accountUrl).Id;
-		}
 	}
 }

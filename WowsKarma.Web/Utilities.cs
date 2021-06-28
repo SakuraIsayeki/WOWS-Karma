@@ -61,7 +61,7 @@ namespace WowsKarma.Web
 		}
 
 		public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal) 
-			=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier)), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
+			=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
 
 		public static uint GetIdFromRouteParameter(string routeParameter)
 		{

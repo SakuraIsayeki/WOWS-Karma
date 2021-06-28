@@ -30,7 +30,7 @@ namespace WowsKarma.Api.Controllers
 		}
 
 		[HttpGet("test-auth")]
-		public IActionResult TestAuth() => StatusCode(200, HttpContext.User);
+		public IActionResult TestAuth() => StatusCode(200, HttpContext.User.Claims.ToDictionary(kv => kv.Type, kv => kv.Value.FirstOrDefault()));
 
 		[HttpGet("login")]
 		public IActionResult Login() => wargamingAuthService.RedirectToLogin(Startup.ApiRegion, Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault()));

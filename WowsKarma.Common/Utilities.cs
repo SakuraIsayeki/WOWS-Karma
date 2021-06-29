@@ -89,9 +89,9 @@ namespace WowsKarma.Common
 
 			for (int i = 0; i < arguments.Count; i++)
 			{
-				KeyValuePair<string, string> current = enumerator.Current;
-				path.AppendFormat("{0}{1}={2}", i is 0 ? '?' : '&', current.Key, current.Value);
 				enumerator.MoveNext();
+				KeyValuePair<string, string> current = enumerator.Current;
+				path.AppendFormat("{0}{1}={2}", i is 0 ? '?' : '&', current.Key, Uri.EscapeDataString(current.Value));
 			}
 
 			return path.ToString();

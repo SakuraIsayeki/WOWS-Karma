@@ -28,12 +28,12 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 
 		private static string callbackUrl;
 
-		private readonly HttpClient httpClient;
+		private readonly WargamingAuthClientFactory authClientFactory;
 
-		public WargamingAuthService(IConfiguration configuration, ILogger<WargamingAuthService> logger, IHttpClientFactory httpClientFactory)
+		public WargamingAuthService(IConfiguration configuration, ILogger<WargamingAuthService> logger, WargamingAuthClientFactory authClientFactory)
 		{
 			callbackUrl ??= configuration[$"Api:{Startup.ApiRegion.ToRegionString()}:WgAuthCallback"];
-			httpClient = httpClientFactory.CreateClient();
+			this.authClientFactory = authClientFactory;
 		}
 
 		public IActionResult RedirectToLogin(Region region, IDictionary<string, string> extraRedirectParams = null) => new RedirectResult(GetAuthUri(region, extraRedirectParams).ToString());
@@ -64,19 +64,26 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 			return builder.Uri;
 		}
 
-		
-		/*
-		 * FIXME
-		 */
-		public async Task<bool> IsValid(Dictionary<string, string> paramDict)
+
+		public async Task<bool> VerifyIdentity(HttpRequest context)
 		{
-			paramDict.Remove("redirectUri");
+			// https://eu.wargaming.net/id/503276471-cpt_stewie/
+
+			Dictionary<string, string> paramDict = context.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault());
+			bool isValid = await IsValid(paramDict);
+
+			return isValid;
+		}
+
+		private async Task<bool> IsValid(Dictionary<string, string> paramDict)
+		{
 			paramDict["openid.mode"] = "check_authentication";
 
 
-			using HttpResponseMessage response = await httpClient.PostAsync(paramDict.BuildQuery(), null);
-			string content = await response.Content.ReadAsStringAsync();
-			return (content).Contains("is_valid:true");
+			using HttpClient httpClient = authClientFactory.GetClient(Startup.ApiRegion);
+			HttpResponseMessage response = await httpClient.PostAsync("id/openid" + paramDict.BuildQuery(), null);
+			string stringResponse = await response.Content.ReadAsStringAsync();
+			return stringResponse.Contains("is_valid:true");
 		}
 	}
 }

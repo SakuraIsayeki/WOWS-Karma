@@ -47,7 +47,7 @@ namespace WowsKarma.Api
 
 			services.AddSwaggerGen(c =>
 			{
-				c.SwaggerDoc(DisplayVersion, new OpenApiInfo
+				options.SwaggerDoc(DisplayVersion, new OpenApiInfo
 				{
 					Version = DisplayVersion,
 					Title = $"WOWS Karma API ({ApiRegion.ToRegionString()})",
@@ -64,8 +64,21 @@ namespace WowsKarma.Api
 					}
 				});
 
-				c.OperationFilter<AccessKeySwaggerFilter>();
-			});
+				// Set the comments path for the Swagger JSON and UI.
+				string xmlFile = $"{typeof(Startup).Assembly.GetName().Name}.xml";
+				string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+				options.IncludeXmlComments(xmlPath);
+
+				// Bearer token authentication
+				options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+				{
+					Name = "bearer",
+					BearerFormat = "JWT",
+					Scheme = "bearer",
+					Description = "Specify the authorization token.",
+					In = ParameterLocation.Header,
+					Type = SecuritySchemeType.Http,
+				});
 
 
 

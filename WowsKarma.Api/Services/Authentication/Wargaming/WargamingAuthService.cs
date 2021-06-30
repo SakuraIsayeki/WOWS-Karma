@@ -81,7 +81,7 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 
 
 			using HttpClient httpClient = authClientFactory.GetClient(Startup.ApiRegion);
-			HttpResponseMessage response = await httpClient.PostAsync("id/openid" + paramDict.BuildQuery(), null);
+			using HttpResponseMessage response = await httpClient.PostAsync("id/openid" + paramDict.BuildQuery(), null);
 			string stringResponse = await response.Content.ReadAsStringAsync();
 			return stringResponse.Contains("is_valid:true");
 		}

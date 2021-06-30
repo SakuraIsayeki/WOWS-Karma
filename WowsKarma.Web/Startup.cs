@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using WowsKarma.Common;
@@ -67,8 +68,8 @@ namespace WowsKarma.Web
 #endif
 
 			//TODO : Add custom Auth Handler
-			services.AddAuthentication(ApiCookieAuthenticationHandler.AuthenticationScheme)
-				.AddScheme<AuthenticationSchemeOptions, ApiCookieAuthenticationHandler>(ApiCookieAuthenticationHandler.AuthenticationScheme, "API Cookie", options => { });
+			services.AddAuthentication(ApiTokenAuthenticationHandler.AuthenticationScheme)
+				.AddScheme<AuthenticationSchemeOptions, ApiTokenAuthenticationHandler>(ApiTokenAuthenticationHandler.AuthenticationScheme, "API Token", options => { });
 
 			services.AddAuthorizationCore();
 			services.AddHttpContextAccessor();
@@ -79,6 +80,7 @@ namespace WowsKarma.Web
 					new[] { "application/octet-stream" });
 			});
 
+			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton<PageContentLoader>();
 
 			services.AddScoped<PlayerService>();

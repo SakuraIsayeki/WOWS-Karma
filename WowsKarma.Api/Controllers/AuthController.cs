@@ -21,12 +21,14 @@ namespace WowsKarma.Api.Controllers
 		private readonly IConfiguration config;
 		private readonly WargamingAuthService wargamingAuthService;
 		private readonly JwtAuthService jwtService;
+		private readonly JwtSecurityTokenHandler tokenHandler;
 
-		public AuthController(IConfiguration config, WargamingAuthService wargamingAuthService, JwtAuthService jwtService)
+		public AuthController(IConfiguration config, WargamingAuthService wargamingAuthService, JwtAuthService jwtService, JwtSecurityTokenHandler tokenHandler)
 		{
 			this.config = config;
 			this.wargamingAuthService = wargamingAuthService;
 			this.jwtService = jwtService;
+			this.tokenHandler = tokenHandler;
 		}
 
 		[HttpGet("test-auth")]
@@ -48,11 +50,10 @@ namespace WowsKarma.Api.Controllers
 			WargamingIdentity identity = WargamingIdentity.FromUri(new Uri(Request.Query["openid.identity"].FirstOrDefault()));
 			JwtSecurityToken token = JwtAuthService.GenerateToken(identity.Claims.ToArray());
 			List<UserClaimDTO> claims = identity.Claims.Select(c => new UserClaimDTO(c.Type, c.Value)).ToList();
-			claims.Add(new("token", new JwtSecurityTokenHandler().WriteToken(token)));
 
 			Response.Cookies.Append(
 				config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieName"],
-				JsonSerializer.Serialize(claims, CookieSerializerOptions),
+				tokenHandler.WriteToken(token),
 				new()
 				{
 					Domain = config[$"Api:{Startup.ApiRegion.ToRegionString()}:DomainName"],

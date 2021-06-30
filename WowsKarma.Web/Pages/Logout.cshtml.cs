@@ -11,7 +11,7 @@ namespace WowsKarma.Web.Pages
 	{
 		public IActionResult OnGet()
 		{
-			Response.Cookies.Delete(ApiCookieAuthenticationHandler.CookieName);
+			Response.Cookies.Delete(ApiTokenAuthenticationHandler.CookieName);
 			return Redirect("/");
 		}
 	}

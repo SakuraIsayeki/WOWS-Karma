@@ -13,6 +13,12 @@ namespace WowsKarma.Api.Data
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.HasDefaultSchema("auth");
+
+			modelBuilder.Entity<Role>()
+				.HasData(
+					new Role { Id = 1, InternalName = "admin", DisplayName = "Administrator" },
+					new Role { Id = 2, InternalName = "mod", DisplayName = "Community Manager" }
+				);
 		}
 	}
 }

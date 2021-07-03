@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
@@ -9,9 +10,10 @@ using WowsKarma.Api.Data;
 namespace WowsKarma.Api.Migrations.AuthDb
 {
     [DbContext(typeof(AuthDbContext))]
-    partial class AuthDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210703015345_FixUserRoleJoins")]
+    partial class FixUserRoleJoins
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,35 +40,17 @@ namespace WowsKarma.Api.Migrations.AuthDb
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Auth.Role", b =>
                 {
                     b.Property<byte>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("smallint");
 
                     b.Property<string>("DisplayName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("InternalName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = (byte)1,
-                            DisplayName = "Administrator",
-                            InternalName = "admin"
-                        },
-                        new
-                        {
-                            Id = (byte)2,
-                            DisplayName = "Community Manager",
-                            InternalName = "mod"
-                        });
                 });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Auth.User", b =>

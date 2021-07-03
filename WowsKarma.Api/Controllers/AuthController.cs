@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using WowsKarma.Api.Services.Authentication.Wargaming;
-using WowsKarma.Api.Services.Authentication.Jwt;
 using Microsoft.Extensions.Configuration;
-using WowsKarma.Common;
-using WowsKarma.Common.Models.DTOs;
-using System.Collections.Generic;
-using System.Text.Json;
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using static WowsKarma.Common.Utilities;
+using System.Linq;
 using System.Threading.Tasks;
+using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Authentication.Jwt;
+using WowsKarma.Api.Services.Authentication.Wargaming;
+using WowsKarma.Common;
+using static WowsKarma.Common.Utilities;
+
+
 
 namespace WowsKarma.Api.Controllers
 {
@@ -19,13 +19,16 @@ namespace WowsKarma.Api.Controllers
 	public class AuthController : ControllerBase
 	{
 		private readonly IConfiguration config;
+		private readonly UserService userService;
 		private readonly WargamingAuthService wargamingAuthService;
 		private readonly JwtAuthService jwtService;
 		private readonly JwtSecurityTokenHandler tokenHandler;
 
-		public AuthController(IConfiguration config, WargamingAuthService wargamingAuthService, JwtAuthService jwtService, JwtSecurityTokenHandler tokenHandler)
+		public AuthController(IConfiguration config, UserService userService, WargamingAuthService wargamingAuthService, 
+			JwtAuthService jwtService, JwtSecurityTokenHandler tokenHandler)
 		{
 			this.config = config;
+			this.userService = userService;
 			this.wargamingAuthService = wargamingAuthService;
 			this.jwtService = jwtService;
 			this.tokenHandler = tokenHandler;
@@ -48,8 +51,9 @@ namespace WowsKarma.Api.Controllers
 			}
 
 			WargamingIdentity identity = WargamingIdentity.FromUri(new Uri(Request.Query["openid.identity"].FirstOrDefault()));
+			identity.AddClaims(await userService.GetUserClaimsAsync(identity.GetAccountIdentification().Id));
+			
 			JwtSecurityToken token = JwtAuthService.GenerateToken(identity.Claims.ToArray());
-			List<UserClaimDTO> claims = identity.Claims.Select(c => new UserClaimDTO(c.Type, c.Value)).ToList();
 
 			Response.Cookies.Append(
 				config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieName"],

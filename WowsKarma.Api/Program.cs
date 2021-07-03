@@ -19,10 +19,7 @@ namespace WowsKarma.Api
 			using IHost host = CreateHostBuilder(args).Build();
 			using IServiceScope scope = host.Services.CreateScope();
 
-			ApiDbContext db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApiDbContext>>().CreateDbContext();
 			IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-
-			await db.Database.MigrateAsync();
 
 			Log.Logger = new LoggerConfiguration()
 #if DEBUG
@@ -43,6 +40,18 @@ namespace WowsKarma.Api
 				.CreateLogger();
 
 			Log.Information("Region selected : {Region}", Startup.ApiRegion);
+
+
+			using (ApiDbContext db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApiDbContext>>().CreateDbContext())
+			{
+				await db.Database.MigrateAsync();
+			}
+
+			using (AuthDbContext db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AuthDbContext>>().CreateDbContext())
+			{
+				await db.Database.MigrateAsync();
+			}
+
 
 			await host.RunAsync();
 		}

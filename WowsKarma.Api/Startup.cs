@@ -90,6 +90,7 @@ namespace WowsKarma.Api
 				c.OperationFilter<AccessKeySwaggerFilter>();
 			});
 
+			string dbConnectionString = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
 			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
 			services.AddPooledDbContextFactory<ApiDbContext>(

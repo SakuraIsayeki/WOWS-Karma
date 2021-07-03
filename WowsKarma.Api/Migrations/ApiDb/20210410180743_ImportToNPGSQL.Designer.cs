@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
 
-namespace WowsKarma.Api.Migrations
+namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
     [Migration("20210410180743_ImportToNPGSQL")]

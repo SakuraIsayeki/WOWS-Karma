@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models.Auth;
 
 namespace WowsKarma.Api.Data
@@ -16,7 +12,7 @@ namespace WowsKarma.Api.Data
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.HasDefaultSchema("Auth");
+			modelBuilder.HasDefaultSchema("auth");
 		}
 	}
 }

@@ -23,6 +23,7 @@ using WowsKarma.Api.Data;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Common;
 

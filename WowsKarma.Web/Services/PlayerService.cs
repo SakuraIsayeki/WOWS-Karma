@@ -12,7 +12,6 @@ namespace WowsKarma.Web.Services
 	public class PlayerService
 	{
 		private readonly HttpClient client;
-		private readonly IHttpContextAccessor contextAccessor;
 		public const string playerEndpointCategory = "player";
 		public const string profileEndpointCategory = "profile";
 
@@ -21,7 +20,6 @@ namespace WowsKarma.Web.Services
 		public PlayerService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor)
 		{
 			client = httpClientFactory.CreateClient();
-			this.contextAccessor = contextAccessor;
 		}
 
 		~PlayerService()
@@ -54,25 +52,6 @@ namespace WowsKarma.Web.Services
 			}
 
 			return null;
-		}
-
-		public async Task<UserProfileFlagsDTO> GetUserProfileFlagsAsync(uint id)
-		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{profileEndpointCategory}/{id}");
-			using HttpResponseMessage response = await client.SendAsync(request);
-
-			response.EnsureSuccessStatusCode();
-			return await DeserializeFromHttpResponseAsync<UserProfileFlagsDTO>(response);
-		}
-
-		public async Task SetUserProfileFlagsAsync(UserProfileFlagsDTO flags)
-		{
-			using HttpRequestMessage request = new(HttpMethod.Put, profileEndpointCategory);
-			request.Content = JsonContent.Create(flags, new("application/json"), JsonSerializerOptions);
-			request.Headers.Authorization = GenerateAuthenticationHeader(contextAccessor.HttpContext);
-
-			using HttpResponseMessage response = await client.SendAsync(request);
-			response.EnsureSuccessStatusCode();
 		}
 	}
 }

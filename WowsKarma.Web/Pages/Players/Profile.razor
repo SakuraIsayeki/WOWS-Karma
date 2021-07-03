@@ -4,6 +4,7 @@
 @using WowsKarma.Web.Pages.Posts
 
 @inject PlayerService PlayerService
+@inject UserService UserService 
 
 @if (Player is not null)
 {
@@ -151,6 +152,6 @@ else
 	private async Task UpdatePlayerAsync() => Player = await PlayerService.FetchPlayerProfileAsync(Player.Id);
 
 	private async Task CheckBannedUser() => CurrentUserProfileFlags = CurrentUser.Id is not 0
-		? await PlayerService.GetUserProfileFlagsAsync(CurrentUser.Id)
+		? await UserService.GetUserProfileFlagsAsync(CurrentUser.Id)
 		: null;
 }

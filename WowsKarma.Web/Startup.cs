@@ -1,6 +1,4 @@
-using AspNet.Security.OpenId;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -82,8 +80,9 @@ namespace WowsKarma.Web
 
 			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton<PageContentLoader>();
+			services.AddSingleton<PlayerService>();
 
-			services.AddScoped<PlayerService>();
+			services.AddScoped<UserService>();
 			services.AddScoped<PostService>();
 		}
 

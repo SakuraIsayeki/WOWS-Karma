@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
 using WowsKarma.Common;
@@ -73,5 +73,12 @@ namespace WowsKarma.Api.Controllers
 
 		[HttpGet("validate"), Authorize]
 		public IActionResult ValidateAuth() => StatusCode(200);
+
+		[HttpPost("renew-seed"), Authorize]
+		public async Task<IActionResult> RenewSeed() 
+		{
+			await userService.RenewSeedTokenAsync(uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+			return StatusCode(200);
+		}
 	}
 }

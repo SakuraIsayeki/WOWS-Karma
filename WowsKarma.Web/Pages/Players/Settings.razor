@@ -1,8 +1,13 @@
 ﻿@inherits ComponentBaseAuth
 
 @page "/settings"
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
-@inject PlayerService PlayerService
+@inject UserService UserService
+
+@using System.IdentityModel.Tokens.Jwt
+
+
 
 <h1 class="mb-5">Settings</h1>
 
@@ -21,29 +26,78 @@
 				</div>
 			}
 
-			<EditForm Model=model Context="EditContext" OnValidSubmit=SaveUserSettingsAsync>
-				<h1 class="mb-5 text-danger">Danger Zone</h1>
-				
-				<div class="row align-content-between">
-					<div class="col-md my-3">
-						<h3 class="mb-3">Opt Out</h3>
+	<EditForm Model=model Context="EditContext" OnValidSubmit=SaveUserSettingsAsync>
+		<h1 class="mb-5 text-danger">Danger Zone</h1>
 
-						<p>
-							Opting out of WOWS Karma publicly hides your on-site Metrics and Received posts. <br />
-							In counterpart, you will no longer be able to Post on other profiles, but your existing posts will still remain.
-						</p>
+		<div class="row align-content-between">
+			<div class="col-md my-3">
+				<h3 class="mb-3">Opt Out</h3>
 
-						<p>Please note that a WOWS Karma opt-out is independent of your Wargaming account's visibility settings.</p>
+				<p>
+					Opting out of WOWS Karma publicly hides your on-site Metrics and Received posts. <br />
+					In counterpart, you will no longer be able to Post on other profiles, but your existing posts will still remain.
+				</p>
 
-						<div class="form-check form-control-lg">
-							<InputCheckbox class="form-check-input" @bind-Value=model.OptedOut />
-							<label class="form-check-label lead text-danger">Opt Out of WOWS Karma</label>
-						</div>
-					</div>
+				<p>Please note that a WOWS Karma opt-out is independent of your Wargaming account's visibility settings.</p>
+
+				<div class="form-check form-control-lg">
+					<InputCheckbox class="form-check-input" @bind-Value=model.OptedOut />
+					<label class="form-check-label lead text-danger">Opt Out of WOWS Karma</label>
+				</div>
+			</div>
+		</div>
+
+
+		<h3 class="my-5">Authentication</h3>
+
+		<div class="row align-content-between">
+			<div class="col-md my-4">
+				<h4 class="my-3">Personal Token</h4>
+
+				<p>
+					This token is the base of access to WOWS Karma's API system.
+					You can use it in conjunction with your apps to use certain authenticated HTTP methods.
+				</p>
+
+				<p>
+					A token expires after a certain period of time, currently set to <b>7 days (1 week)</b>. <br />
+					Your current token will expire on: <b>@parsedToken.ValidTo.ToLongTimeString()</b>.
+				</p>
+
+				<div>
+					<button type="button" class="btn btn-primary my-3" @onclick=CopyTokenToClipboard>Copy Token</button>
+
+					@if (copiedToken)
+					{
+						<p class="text-success font-italic">Token copied to clipboard!</p>
+					}
 				</div>
 
-				<button type="submit" class="btn btn-primary px-3 mt-5">Save</button>
-			</EditForm>
+				<p class="text-warning">
+					Be extra careful manipulating authentication settings, as your token is the key to your account on WOWS Karma.
+					Please make sure to not reveal your token.
+				</p>
+			</div>
+
+			<div class="col-md my-4">
+				<h4 class="my-3">Reset Seed</h4>
+
+				<p>
+					Resetting your seed has the effect of invalidating all issued tokens, and resetting all logged-in devices.
+					You can use this in case you suspect your token has been compromised, allowing you to start on a new seed.
+				</p>
+
+				<button type="button" class="btn btn-danger my-3" @onclick="() => showSeedModal = true">Reset Token</button>
+			</div>
+		</div>
+
+		<button type="submit" class="btn btn-primary px-3 mt-5">Save</button>
+	</EditForm>
+
+			@if (showSeedModal)
+			{
+				<SeedTokenConfirm OnConfirm=RenewSeedToken OnCancel="() => showSeedModal = false" />
+			}
 		}
 		else
 		{
@@ -63,22 +117,30 @@
 	public bool Loaded { get; private set; }
 	public bool Saved { get; private set; }
 
+	private JwtSecurityToken parsedToken;
+	private bool copiedToken;
+
+	private bool showSeedModal;
 
 	private ProfileSettingsViewModel model;
-
 
 	protected override async Task OnParametersSetAsync()
 	{
 		Loaded = false;
 		await base.OnParametersSetAsync();
 
-		await LoadUserSettingsAsync();
+		if (CurrentUser is not null)
+		{
+			await LoadUserSettingsAsync();
+			parsedToken = ParseToken(CurrentToken);
+		}
+
 		Loaded = true;
 	}
 
 	private async Task LoadUserSettingsAsync()
 	{
-		UserProfileFlagsDTO current = await PlayerService.GetUserProfileFlagsAsync(CurrentUser.Id);
+		UserProfileFlagsDTO current = await UserService.GetUserProfileFlagsAsync(CurrentUser.Id);
 
 		model = new ProfileSettingsViewModel
 		{
@@ -97,7 +159,19 @@
 			OptedOut = model.OptedOut
 		};
 
-		await PlayerService.SetUserProfileFlagsAsync(updated);
+		await UserService.SetUserProfileFlagsAsync(updated);
 		Saved = true;
+	}
+
+	private async Task CopyTokenToClipboard()
+	{
+		await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", CurrentToken);
+		copiedToken = true;
+	}
+
+	private async Task RenewSeedToken()
+	{
+		await UserService.RefreshSeedTokenAsync();
+		NavigationManager.NavigateTo("/logout", true);
 	}
 }

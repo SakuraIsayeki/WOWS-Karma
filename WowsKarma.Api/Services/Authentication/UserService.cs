@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Auth;
 
-namespace WowsKarma.Api.Services
+namespace WowsKarma.Api.Services.Authentication
 {
 	public class UserService
 	{
@@ -44,5 +44,15 @@ namespace WowsKarma.Api.Services
 		}
 
 		public async Task<bool> ValidateUserSeedTokenAsync(uint id, Guid seedToken) => await GetUserAsync(id) is User user && user.SeedToken == seedToken;
+
+		public async Task RenewSeedTokenAsync(uint id)
+		{
+			if (await GetUserAsync(id) is User user)
+			{
+				user.SeedToken = Guid.NewGuid();
+			}
+
+			await context.SaveChangesAsync();
+		}
 	}
 }

@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -29,35 +31,52 @@ namespace WowsKarma.Web.Services.Authentication
 		private static string websitePath;
 
 		private readonly JwtSecurityTokenHandler tokenHandler;
+		private readonly HttpClient httpClient;
 
 		public ApiTokenAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder,
-			ISystemClock clock, IConfiguration configuration, JwtSecurityTokenHandler tokenHandler) : base(options, logger, encoder, clock)
+			ISystemClock clock, IConfiguration configuration, JwtSecurityTokenHandler tokenHandler, IHttpClientFactory httpClientFactory) 
+			: base(options, logger, encoder, clock)
 		{
 			CookieName ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieName"];
 			loginPath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:Login"];
 			websitePath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:WebDomain"];
 			this.tokenHandler = tokenHandler;
+			httpClient = httpClientFactory.CreateClient();
 		}
 	
-		protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+		protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
 			try
 			{
 				if (tokenHandler.ReadJwtToken(Request.Cookies[CookieName]) is JwtSecurityToken token)
 				{
+					using HttpRequestMessage request = new(HttpMethod.Get, "auth/validate");
+					request.Headers.Authorization = new("Bearer", Request.Cookies[CookieName]);
+					using HttpResponseMessage response = await httpClient.SendAsync(request);
+
+					if (!response.IsSuccessStatusCode)
+					{
+						Logger.LogInformation("API denied authentication token for Host {host}.", Request.Host.Host);
+						return AuthenticateResult.NoResult();
+					}
+
 					ClaimsPrincipal principal = new(new ClaimsIdentity(token.Payload.Claims, AuthenticationScheme));
 
 					Logger.LogInformation("Authenticated user {userId} from Host {host}.", principal.Identity.Name, Request.Host.Host);
-					return Task.FromResult(AuthenticateResult.Success(new(principal, AuthenticationScheme)));
+					return AuthenticateResult.Success(new(principal, AuthenticationScheme));
 				}
 			}
 			catch (ArgumentException)
 			{
 				Logger.LogInformation("Invalid token read from Host {host} while attempting to authenticate.", Request.Host.Host);
-				return Task.FromResult(AuthenticateResult.NoResult());
+				return AuthenticateResult.NoResult();
+			}
+			catch (Exception e)
+			{
+				return AuthenticateResult.Fail(e.Message);
 			}
 
-			return Task.FromResult(AuthenticateResult.NoResult());
+			return AuthenticateResult.NoResult();
 		}
 
 		protected override Task HandleChallengeAsync(AuthenticationProperties properties)

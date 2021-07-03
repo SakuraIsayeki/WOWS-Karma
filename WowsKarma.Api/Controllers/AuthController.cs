@@ -1,14 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
 using WowsKarma.Common;
+using WowsKarma.Common.Models.DTOs;
 using static WowsKarma.Common.Utilities;
 
 
@@ -21,21 +24,15 @@ namespace WowsKarma.Api.Controllers
 		private readonly IConfiguration config;
 		private readonly UserService userService;
 		private readonly WargamingAuthService wargamingAuthService;
-		private readonly JwtAuthService jwtService;
-		private readonly JwtSecurityTokenHandler tokenHandler;
+		private readonly JwtService jwtService;
 
-		public AuthController(IConfiguration config, UserService userService, WargamingAuthService wargamingAuthService, 
-			JwtAuthService jwtService, JwtSecurityTokenHandler tokenHandler)
+		public AuthController(IConfiguration config, UserService userService, WargamingAuthService wargamingAuthService, JwtService jwtService)
 		{
 			this.config = config;
 			this.userService = userService;
 			this.wargamingAuthService = wargamingAuthService;
 			this.jwtService = jwtService;
-			this.tokenHandler = tokenHandler;
 		}
-
-		[HttpGet("test-auth")]
-		public IActionResult TestAuth() => StatusCode(200, HttpContext.User.Claims.ToDictionary(kv => kv.Type, kv => kv.Value.FirstOrDefault()));
 
 		[HttpGet("login")]
 		public IActionResult Login() => wargamingAuthService.RedirectToLogin(Startup.ApiRegion, Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault()));
@@ -51,13 +48,16 @@ namespace WowsKarma.Api.Controllers
 			}
 
 			WargamingIdentity identity = WargamingIdentity.FromUri(new Uri(Request.Query["openid.identity"].FirstOrDefault()));
-			identity.AddClaims(await userService.GetUserClaimsAsync(identity.GetAccountIdentification().Id));
-			
-			JwtSecurityToken token = JwtAuthService.GenerateToken(identity.Claims.ToArray());
+			AccountListingDTO accountListing = identity.GetAccountListing();
+
+			identity.AddClaims(await userService.GetUserClaimsAsync(accountListing.Id));
+			identity.AddClaim(new("seed", (await userService.GetUserSeedTokenAsync(accountListing.Id)).ToString()));
+
+			JwtSecurityToken token = JwtService.GenerateToken(identity.Claims.ToArray());
 
 			Response.Cookies.Append(
 				config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieName"],
-				tokenHandler.WriteToken(token),
+				jwtService.TokenHandler.WriteToken(token),
 				new()
 				{
 					Domain = config[$"Api:{Startup.ApiRegion.ToRegionString()}:DomainName"],
@@ -70,5 +70,8 @@ namespace WowsKarma.Api.Controllers
 				? Redirect(redirectUri)
 				: StatusCode(200);
 		}
+
+		[HttpGet("validate"), Authorize]
+		public IActionResult ValidateAuth() => StatusCode(200);
 	}
 }

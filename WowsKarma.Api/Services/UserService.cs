@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,5 +24,25 @@ namespace WowsKarma.Api.Services
 		public async Task<IEnumerable<Claim>> GetUserClaimsAsync(uint id) => await GetUserAsync(id) is User user
 			? (from role in user.Roles select new Claim(ClaimTypes.Role, role.InternalName))
 			: Enumerable.Empty<Claim>();
+
+		public async Task<Guid> GetUserSeedTokenAsync(uint id)
+		{
+			if (await GetUserAsync(id) is not User user)
+			{
+				user = new()
+				{
+					Id = id,
+					SeedToken = Guid.NewGuid()
+				};
+
+				await context.Users.AddAsync(user);
+			}
+
+			user.LastTokenRequested = DateTime.UtcNow;
+			await context.SaveChangesAsync();
+			return user.SeedToken;
+		}
+
+		public async Task<bool> ValidateUserSeedTokenAsync(uint id, Guid seedToken) => await GetUserAsync(id) is User user && user.SeedToken == seedToken;
 	}
 }

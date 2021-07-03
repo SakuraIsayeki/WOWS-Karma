@@ -12,14 +12,18 @@ using System.Threading.Tasks;
 
 namespace WowsKarma.Api.Services.Authentication.Jwt
 {
-	public class JwtAuthService
+	public class JwtService
 	{
+		internal JwtSecurityTokenHandler TokenHandler { get; private init; }
+
 		private static IConfiguration configuration;
 		private static SymmetricSecurityKey authSigningKey;
 
-		public JwtAuthService(IConfiguration configuration)
+		public JwtService(IConfiguration configuration, JwtSecurityTokenHandler handler)
 		{
-			JwtAuthService.configuration ??= configuration;
+			JwtService.configuration ??= configuration;
+			TokenHandler = handler;
+
 			authSigningKey = new(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
 		}
 
@@ -29,5 +33,29 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 				expires: DateTime.Now.AddDays(7),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
+
+		public ClaimsPrincipal ValidateToken(string token)
+		{
+			TokenValidationParameters validationParameters = new()
+			{
+				
+				IssuerSigningKey = authSigningKey,
+				ValidAudience = configuration["JWT:ValidAudience"],
+				ValidIssuer = configuration["JWT:ValidIssuer"],
+				ValidateLifetime = true,
+				ValidateAudience = true,
+				ValidateIssuer = true,
+				ValidateIssuerSigningKey = true
+			};
+
+			try
+			{
+				return TokenHandler.ValidateToken(token, validationParameters, out _);
+			}
+			catch (SecurityTokenException)
+			{
+				return null;
+			}
+		}
 	}
 }

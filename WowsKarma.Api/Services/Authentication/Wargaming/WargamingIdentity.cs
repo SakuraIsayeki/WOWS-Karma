@@ -33,7 +33,7 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 			return new WargamingIdentity(claims);
 		}
 
-		public AccountListingDTO GetAccountIdentification()
+		public AccountListingDTO GetAccountListing()
 		{
 			if (uint.TryParse(Claims.FirstOrDefault(c => c.Type is ClaimTypes.NameIdentifier)?.Value, out uint id))
 			{

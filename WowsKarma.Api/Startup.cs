@@ -52,20 +52,21 @@ namespace WowsKarma.Api
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
-			// Adding Jwt Bearer  
-			.AddJwtBearer(options =>
-			{
-				options.SaveToken = true;
-				options.RequireHttpsMetadata = false;
-				options.TokenValidationParameters = new()
-				{
-					ValidateIssuer = true,
-					ValidateAudience = true,
-					ValidAudience = Configuration["JWT:ValidAudience"],
-					ValidIssuer = Configuration["JWT:ValidIssuer"],
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
-				};
-			});
+				// Adding Jwt Bearer  
+				.AddScheme<JwtBearerOptions, JwtAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme, 
+					options =>
+					{
+						options.SaveToken = true;
+						options.RequireHttpsMetadata = false;
+						options.TokenValidationParameters = new()
+						{
+							ValidateIssuer = true,
+							ValidateAudience = true,
+							ValidAudience = Configuration["JWT:ValidAudience"],
+							ValidIssuer = Configuration["JWT:ValidIssuer"],
+							IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+						};
+					});
 
 			services.AddSwaggerGen(options =>
 			{
@@ -134,7 +135,8 @@ namespace WowsKarma.Api
 
 			services.AddWargamingAuth();
 
-			services.AddSingleton<JwtAuthService>();
+			services.AddSingleton<JwtService>();
+			services.AddSingleton<JwtAuthenticationHandler>();
 			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration[$"Api:{ApiRegion.ToRegionString()}:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();

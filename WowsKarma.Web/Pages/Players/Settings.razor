@@ -29,7 +29,7 @@
 	<EditForm Model=model Context="EditContext" OnValidSubmit=SaveUserSettingsAsync>
 		<h1 class="mb-5 text-danger">Danger Zone</h1>
 
-		<div class="row align-content-between">
+		<div class="row align-content-between mb-5">
 			<div class="col-md my-3">
 				<h3 class="mb-3">Opt Out</h3>
 
@@ -48,7 +48,7 @@
 		</div>
 
 
-		<h3 class="my-5">Authentication</h3>
+		<h3>Authentication</h3>
 
 		<div class="row align-content-between">
 			<div class="col-md my-4">
@@ -65,7 +65,7 @@
 				</p>
 
 				<div>
-					<button type="button" class="btn btn-primary my-3" @onclick=CopyTokenToClipboard>Copy Token</button>
+					<button type="button" class="btn btn-primary my-3" @onclick=CopyTokenToClipboard><i class="bi bi-clipboard mr-2"></i>Copy Token</button>
 
 					@if (copiedToken)
 					{
@@ -87,7 +87,7 @@
 					You can use this in case you suspect your token has been compromised, allowing you to start on a new seed.
 				</p>
 
-				<button type="button" class="btn btn-danger my-3" @onclick="() => showSeedModal = true">Reset Token</button>
+				<button type="button" class="btn btn-danger my-3" @onclick="() => showSeedModal = true"><i class="bi bi-arrow-repeat mr-2"></i>Reset Seed</button>
 			</div>
 		</div>
 

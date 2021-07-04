@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -11,7 +10,6 @@ using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
 using WowsKarma.Common;
-using WowsKarma.Common.Models.DTOs;
 using static WowsKarma.Common.Utilities;
 
 
@@ -34,6 +32,9 @@ namespace WowsKarma.Api.Controllers
 			this.jwtService = jwtService;
 		}
 
+		[HttpHead, Authorize]
+		public IActionResult ValidateAuth() => StatusCode(200);
+
 		[HttpGet("login")]
 		public IActionResult Login() => wargamingAuthService.RedirectToLogin(Startup.ApiRegion, Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault()));
 
@@ -47,13 +48,7 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(403);
 			}
 
-			WargamingIdentity identity = WargamingIdentity.FromUri(new Uri(Request.Query["openid.identity"].FirstOrDefault()));
-			AccountListingDTO accountListing = identity.GetAccountListing();
-
-			identity.AddClaims(await userService.GetUserClaimsAsync(accountListing.Id));
-			identity.AddClaim(new("seed", (await userService.GetUserSeedTokenAsync(accountListing.Id)).ToString()));
-
-			JwtSecurityToken token = JwtService.GenerateToken(identity.Claims.ToArray());
+			JwtSecurityToken token = await userService.CreateTokenAsync(WargamingIdentity.FromUri(new Uri(Request.Query["openid.identity"].FirstOrDefault())));
 
 			Response.Cookies.Append(
 				config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieName"],
@@ -71,14 +66,18 @@ namespace WowsKarma.Api.Controllers
 				: StatusCode(200);
 		}
 
-		[HttpGet("validate"), Authorize]
-		public IActionResult ValidateAuth() => StatusCode(200);
-
 		[HttpPost("renew-seed"), Authorize]
 		public async Task<IActionResult> RenewSeed() 
 		{
 			await userService.RenewSeedTokenAsync(uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
 			return StatusCode(200);
+		}
+
+		[HttpGet("refresh-token"), Authorize]
+		public async Task<IActionResult> RefreshToken()
+		{
+			JwtSecurityToken token = await userService.CreateTokenAsync(new(User.Claims));
+			return StatusCode(200, jwtService.TokenHandler.WriteToken(token));
 		}
 	}
 }

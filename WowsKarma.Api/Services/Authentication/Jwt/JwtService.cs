@@ -1,14 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+
+
 
 namespace WowsKarma.Api.Services.Authentication.Jwt
 {
@@ -27,10 +25,10 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 			authSigningKey = new(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
 		}
 
-		public static JwtSecurityToken GenerateToken(Claim[] authClaims) => new(
+		public static JwtSecurityToken GenerateToken(IEnumerable<Claim> authClaims) => new(
 				issuer: configuration["JWT:ValidIssuer"],
 				audience: configuration["JWT:ValidAudience"],
-				expires: DateTime.Now.AddDays(7),
+				expires: DateTime.Now.AddDays(8),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 

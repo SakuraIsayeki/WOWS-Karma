@@ -10,7 +10,9 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 {
 	public class WargamingIdentity : ClaimsIdentity
 	{
-		public WargamingIdentity(IEnumerable<Claim> claims) : base(claims, "Wargaming") { }
+		public new const string AuthenticationType = "Wargaming";
+
+		public WargamingIdentity(IEnumerable<Claim> claims) : base(claims, AuthenticationType) { }
 
 		public static WargamingIdentity FromUri(Uri identityUri)
 		{

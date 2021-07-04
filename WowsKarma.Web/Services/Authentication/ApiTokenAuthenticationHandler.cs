@@ -1,23 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Encodings.Web;
-using System.Text.Json;
 using System.Threading.Tasks;
 using WowsKarma.Common;
-using WowsKarma.Common.Models.DTOs;
 using static WowsKarma.Common.Utilities;
+
 
 namespace WowsKarma.Web.Services.Authentication
 {
@@ -50,7 +43,7 @@ namespace WowsKarma.Web.Services.Authentication
 			{
 				if (tokenHandler.ReadJwtToken(Request.Cookies[CookieName]) is JwtSecurityToken token)
 				{
-					using HttpRequestMessage request = new(HttpMethod.Get, "auth/validate");
+					using HttpRequestMessage request = new(HttpMethod.Head, "auth");
 					request.Headers.Authorization = new("Bearer", Request.Cookies[CookieName]);
 					using HttpResponseMessage response = await httpClient.SendAsync(request);
 

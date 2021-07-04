@@ -17,7 +17,6 @@ namespace WowsKarma.Api.Data.Models.Auth
 		[Required]
 		public Guid SeedToken { get; set; }
 
-
 		public DateTime LastTokenRequested { get; set; }
 	}
 }

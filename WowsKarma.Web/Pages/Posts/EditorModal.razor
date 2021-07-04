@@ -119,11 +119,11 @@
 
 		if (PostModel.Id is null)
 		{
-			await PostService.SubmitNewPostAsync(PostModel.AuthorId, PlayerPostViewModel.ToDTO(PostModel));
+			await PostService.SubmitNewPostAsync(PlayerPostViewModel.ToDTO(PostModel));
 		}
 		else
 		{
-			await PostService.EditPostAsync(PostModel.AuthorId, PlayerPostViewModel.ToDTO(PostModel));
+			await PostService.EditPostAsync(PlayerPostViewModel.ToDTO(PostModel));
 		}
 
 		await OnPostSubmited.InvokeAsync(null);

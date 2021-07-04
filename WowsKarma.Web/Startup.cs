@@ -1,5 +1,4 @@
-using AspNet.Security.OpenId;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -8,11 +7,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using WowsKarma.Common;
 using WowsKarma.Web.Middlewares;
 using WowsKarma.Web.Services;
+using WowsKarma.Web.Services.Authentication;
 using static WowsKarma.Common.Utilities;
 using static WowsKarma.Web.Utilities;
 
@@ -64,17 +65,9 @@ namespace WowsKarma.Web
 			});
 #endif
 
-			services.AddAuthentication(options =>
-			{
-				options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				options.DefaultChallengeScheme = WgAuthScheme;
-			})
-			.AddCookie()
-			.AddOpenId(WgAuthScheme, "Wargaming.net", options =>
-			{
-				options.Authority = new(GetOidcEndpoint());
-				options.CallbackPath = OpenIdAuthenticationDefaults.CallbackPath;
-			});
+			//TODO : Add custom Auth Handler
+			services.AddAuthentication(ApiTokenAuthenticationHandler.AuthenticationScheme)
+				.AddScheme<AuthenticationSchemeOptions, ApiTokenAuthenticationHandler>(ApiTokenAuthenticationHandler.AuthenticationScheme, "API Token", options => { });
 
 			services.AddAuthorizationCore();
 			services.AddHttpContextAccessor();
@@ -85,9 +78,12 @@ namespace WowsKarma.Web
 					new[] { "application/octet-stream" });
 			});
 
+			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton<PageContentLoader>();
 			services.AddSingleton<PlayerService>();
-			services.AddSingleton<PostService>();
+
+			services.AddScoped<UserService>();
+			services.AddScoped<PostService>();
 		}
 
 

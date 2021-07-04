@@ -1,7 +1,7 @@
 ﻿@page "/posts/view/{Id:guid}"
+@inherits ComponentBaseAuth
 
 @inject PostService PostService
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 
 @if (!Loaded)
@@ -19,9 +19,11 @@ else
 
 
 	<div class="my-5">
-		<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=currentUserId
+		<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=CurrentUser.Id
 			  OnEditClick=EditorModalInit
-			  OnDeleteClick=DeleteModalInit />
+			  OnDeleteClick=DeleteModalInit 
+		/>
+
 	</div>
 
 	@if (showEditorModal)
@@ -41,7 +43,6 @@ else
 	public bool Loaded { get; private set; }
 
 	private PlayerPostDTO post;
-	private uint currentUserId;
 
 	private bool showEditorModal = false;
 	private bool showDeleteModal = false;
@@ -50,12 +51,8 @@ else
 	{
 		Loaded = false;
 
+		await base.OnParametersSetAsync();
 		post = await PostService.FetchPostAsync(Id);
-
-		if ((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl)
-		{
-			currentUserId = GetAccountInfoFromOidcUrl(accountUrl).Id;
-		}
 
 		Loaded = true;
 	}

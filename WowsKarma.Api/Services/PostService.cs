@@ -132,7 +132,7 @@ namespace WowsKarma.Api.Services
 		{
 			ValidatePostContents(editedPostDTO);
 
-			Post post = await context.Posts.FindAsync(id) ?? throw new ArgumentException($"No post with ID {id} found.", nameof(id));
+			Post post = await context.Posts.FindAsync(id);
 			PostFlairsParsed previousFlairs = post.ParsedFlairs;
 
 			post.Title = editedPostDTO.Title;
@@ -153,7 +153,7 @@ namespace WowsKarma.Api.Services
 
 		public async Task DeletePostAsync(Guid id)
 		{
-			Post post = await context.Posts.FindAsync(id) ?? throw new ArgumentException($"No post with ID {id} found.", nameof(id));
+			Post post = await context.Posts.FindAsync(id);
 			context.Posts.Remove(post);
 
 			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, null, post.ParsedFlairs, post.NegativeKarmaAble);

@@ -4,9 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
 
-namespace WowsKarma.Api.Migrations
+namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
     partial class ApiDbContextModelSnapshot : ModelSnapshot

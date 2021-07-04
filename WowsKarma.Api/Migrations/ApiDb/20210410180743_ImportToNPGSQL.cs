@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace WowsKarma.Api.Migrations
+namespace WowsKarma.Api.Migrations.ApiDb
 {
     public partial class ImportToNPGSQL : Migration
     {

@@ -1,6 +1,12 @@
 ﻿using AngleSharp.Text;
+using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -56,6 +62,9 @@ namespace WowsKarma.Web
 			return new(result.Groups[1].Value.ToInteger(uint.MinValue), result.Groups[2].Value);
 		}
 
+		public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal) 
+			=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
+
 		public static uint GetIdFromRouteParameter(string routeParameter)
 		{
 			Match result = new Regex("([0-9]+),(\\w+)").Match(routeParameter);
@@ -85,5 +94,9 @@ namespace WowsKarma.Web
 
 			return "warning";
 		}
+
+		internal static string GetTokenFromCookie(this HttpContext httpContext) => httpContext.User.FindFirstValue("token");
+
+		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(HttpContext context) => new("Bearer", context.GetTokenFromCookie());
 	}
 }

@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
+using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Controllers
@@ -24,21 +29,21 @@ namespace WowsKarma.Api.Controllers
 		}
 
 
-		[HttpGet("{id}")]
-		public IActionResult GetPost(Guid id) => (PlayerPostDTO)postService.GetPost(id) is PlayerPostDTO post
+		[HttpGet("{postId}")]
+		public IActionResult GetPost(Guid postId) => (PlayerPostDTO)postService.GetPost(postId) is PlayerPostDTO post
 			? StatusCode(200, post)
 			: StatusCode(404);
 
 
-		[HttpGet("{id}/received")]
-		public async Task<IActionResult> GetReceivedPosts(uint id, [FromQuery] int? lastResults)
+		[HttpGet("{userId}/received")]
+		public async Task<IActionResult> GetReceivedPosts(uint userId, [FromQuery] int? lastResults)
 		{
-			if (await playerService.GetPlayerAsync(id) is null)
+			if (await playerService.GetPlayerAsync(userId) is null)
 			{
-				return StatusCode(404, $"Account {id} not found");
+				return StatusCode(404, $"Account {userId} not found");
 			}
 
-			IEnumerable<Post> posts = postService.GetReceivedPosts(id, lastResults ?? 0);
+			IEnumerable<Post> posts = postService.GetReceivedPosts(userId, lastResults ?? 0);
 
 			if (posts?.Count() is null or 0)
 			{
@@ -54,15 +59,15 @@ namespace WowsKarma.Api.Controllers
 			return StatusCode(200, postsDTOs);
 		}
 
-		[HttpGet("{id}/sent")]
-		public async Task<IActionResult> GetSentPosts(uint id, [FromQuery] int? lastResults)
+		[HttpGet("{userId}/sent")]
+		public async Task<IActionResult> GetSentPosts(uint userId, [FromQuery] int? lastResults)
 		{
-			if (await playerService.GetPlayerAsync(id) is null)
+			if (await playerService.GetPlayerAsync(userId) is null)
 			{
-				return StatusCode(404, $"Account {id} not found");
+				return StatusCode(404, $"Account {userId} not found");
 			}
 
-			IEnumerable<Post> posts = postService.GetSentPosts(id, lastResults ?? 0);
+			IEnumerable<Post> posts = postService.GetSentPosts(userId, lastResults ?? 0);
 
 			if (posts?.Count() is null or 0)
 			{
@@ -91,44 +96,74 @@ namespace WowsKarma.Api.Controllers
 		}
 
 
-		[HttpPost("{id}"), AccessKey]
-		public async Task<IActionResult> CreatePost(uint id, [FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
+		[HttpPost, Authorize]
+		public async Task<IActionResult> CreatePost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{
-			if (await playerService.GetPlayerAsync(id) is Player player)
+			if (await playerService.GetPlayerAsync(post.AuthorId) is not Player author)
 			{
-				if (!ignoreChecks)
-				{
-					if (player.PostsBanned)
-					{
-						return StatusCode(403, "Post Author was banned from posting on this platform.");
-					}
-
-					if (player.OptedOut)
-					{
-						return StatusCode(403, "Post Author opted-out from using this platform.");
-					}
-				}
-
-				try
-				{
-					await postService.CreatePostAsync(post, ignoreChecks);
-					return StatusCode(201);
-				}
-				catch (ArgumentException e)
-				{
-					return StatusCode(400, e.ToString());
-				}
+				return StatusCode(404, $"Account {post.AuthorId} not found.");
 			}
 
-			return StatusCode(404, $"Account {id} not found");
+			if (await playerService.GetPlayerAsync(post.PlayerId) is not Player player)
+			{
+				return StatusCode(404, $"Account {post.PlayerId} not found.");
+			}
+
+			if (!ignoreChecks)
+			{
+				if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+				{
+					return StatusCode(403, "Author is not authorized to post on behalf of other users.");
+				}
+
+				if (author.PostsBanned)
+				{
+					return StatusCode(403, "Post Author was banned from posting on this platform.");
+				}
+				if (author.OptedOut)
+				{
+					return StatusCode(403, "Post Author has opted-out from using this platform.");
+				}
+
+				if (player.OptedOut)
+				{
+					return StatusCode(403, "Targeted player has opted-out from using this platform.");
+				}
+			}
+			else if (User.IsInRole(ApiRole.Moderator) || User.IsInRole(ApiRole.Admin))
+			{
+				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
+			}
+
+			try
+			{
+				await postService.CreatePostAsync(post, ignoreChecks);
+				return StatusCode(201);
+			}
+			catch (ArgumentException e)
+			{
+				return StatusCode(400, e.ToString());
+			}
 		}
 
-		[HttpPut("{id}"), AccessKey]
-		public async Task<IActionResult> EditPost(uint id, [FromBody] PlayerPostDTO post)
+		[HttpPut, Authorize]
+		public async Task<IActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{
-			if (await playerService.GetPlayerAsync(id) is null)
+			if (postService.GetPost(post.Id ?? default) is not Post current)
 			{
-				return StatusCode(404, $"Account {id} not found");
+				return StatusCode(404, $"No post with ID {post.Id} found.");
+			}
+		
+			if (!ignoreChecks)
+			{
+				if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+				{
+					return StatusCode(403, "Author is not authorized to edit posts on behalf of other users.");
+				}
+			}
+			else if (User.IsInRole(ApiRole.Moderator) || User.IsInRole(ApiRole.Admin))
+			{
+				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
 			}
 
 			try
@@ -142,12 +177,29 @@ namespace WowsKarma.Api.Controllers
 			}
 		}
 
-		[HttpDelete("{id}"), AccessKey]
-		public async Task<IActionResult> DeletePost(Guid id)
+		[HttpDelete("{postId}"), Authorize]
+		public async Task<IActionResult> DeletePost(Guid postId, [FromQuery] bool ignoreChecks = false)
 		{
+			if (postService.GetPost(postId) is not Post post)
+			{
+				return StatusCode(404, $"No post with ID {postId} found.");
+			}
+
+			if (!ignoreChecks)
+			{
+				if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+				{
+					return StatusCode(403, "Author is not authorized to delete posts on behalf of other users.");
+				}
+			}
+			else if (User.IsInRole(ApiRole.Moderator) || User.IsInRole(ApiRole.Admin))
+			{
+				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
+			}
+
 			try
 			{
-				await postService.DeletePostAsync(id);
+				await postService.DeletePostAsync(postId);
 				return StatusCode(205);
 			}
 			catch (ArgumentException e)

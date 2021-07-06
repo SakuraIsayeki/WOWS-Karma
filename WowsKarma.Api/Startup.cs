@@ -135,9 +135,9 @@ namespace WowsKarma.Api
 			services.AddHttpClient<VortexApiHandler>(client => client.BaseAddress = new(VortexApiHandler.GetApiHost(ApiRegion)));
 
 			services.AddWargamingAuth();
+			services.AddScoped<JwtAuthenticationHandler>();
 
 			services.AddSingleton<JwtService>();
-			services.AddSingleton<JwtAuthenticationHandler>();
 			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration[$"Api:{ApiRegion.ToRegionString()}:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();

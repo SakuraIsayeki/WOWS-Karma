@@ -154,7 +154,7 @@ else
 
 	private PostCooldownDTO CheckCooldown()
 	{
-		PlayerPostDTO lastAuthoredPost = (from p in PlayerPosts where p.AuthorId == CurrentUser.Id orderby p.PostedAt select p).LastOrDefault();
+		PlayerPostDTO lastAuthoredPost = (from p in PlayerPosts where p.AuthorId == CurrentUser.Id orderby p.PostedAt select p)?.LastOrDefault();
 
 		if (lastAuthoredPost is not null)
 		{

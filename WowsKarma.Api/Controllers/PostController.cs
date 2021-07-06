@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
-using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Common.Models.DTOs;
 
@@ -51,6 +48,7 @@ namespace WowsKarma.Api.Controllers
 			}
 
 			List<PlayerPostDTO> postsDTOs = new();
+
 			foreach (Post post in posts)
 			{
 				postsDTOs.Add(post);
@@ -75,6 +73,7 @@ namespace WowsKarma.Api.Controllers
 			}
 
 			List<PlayerPostDTO> postsDTOs = new();
+
 			foreach (Post post in posts)
 			{
 				postsDTOs.Add(post);

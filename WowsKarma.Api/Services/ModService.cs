@@ -27,8 +27,9 @@ namespace WowsKarma.Api.Services
 		public Task<PostModAction> GetModActionAsync(Guid id) => context.PostModActions.FirstOrDefaultAsync(ma => ma.Id == id);
 
 		public IQueryable<PostModAction> GetPostModActions(Guid postId) => context.PostModActions.Where(ma => ma.PostId == postId);
+		public IQueryable<PostModAction> GetPostModActions(uint playerId) => context.PostModActions.Include(ma => ma.Post).Where(ma => ma.Post.AuthorId == playerId);
 
-		public async Task SubmitModAction(PostModActionDTO modAction)
+		public async Task SubmitModActionAsync(PostModActionDTO modAction)
 		{
 			await context.PostModActions.AddAsync(modAction.Adapt<PostModAction>());
 
@@ -48,6 +49,18 @@ namespace WowsKarma.Api.Services
 					});
 					break;
 			}
+
+			await context.SaveChangesAsync();
+		}
+
+		public Task RevertModActionAsync(Guid modActionId)
+		{
+			PostModAction stub = new() { Id = modActionId };
+
+			context.PostModActions.Attach(stub);
+			context.PostModActions.Remove(stub);
+
+			return context.SaveChangesAsync();
 		}
 	}
 }

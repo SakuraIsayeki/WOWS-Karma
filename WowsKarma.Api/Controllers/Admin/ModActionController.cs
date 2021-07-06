@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
+using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Controllers.Admin
 {
@@ -48,6 +51,21 @@ namespace WowsKarma.Api.Controllers.Admin
 			return modActions?.Count() is null or 0
 				? StatusCode(204)
 				: StatusCode(200, modActions);
+		}
+
+		[HttpPost, Authorize(Roles = ApiRoles.CM)]
+		public async Task<IActionResult> Submit([FromBody] PostModActionDTO modAction)
+		{
+			uint modId = uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+			await service.SubmitModActionAsync(modAction with { ModId = modId });
+			return StatusCode(202);
+		}
+
+		[HttpDelete("{id}"), Authorize(Roles = ApiRoles.CM)]
+		public async Task<IActionResult> Revert(Guid id)
+		{
+			await service.RevertModActionAsync(id);
+			return StatusCode(205);
 		}
 	}
 }

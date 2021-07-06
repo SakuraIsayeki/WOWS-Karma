@@ -150,6 +150,7 @@ namespace WowsKarma.Api
 			services.AddScoped<PlayerService>();
 			services.AddScoped<PostService>();
 			services.AddScoped<KarmaService>();
+			services.AddScoped<ModService>();
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{

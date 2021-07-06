@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WowsKarma.Api.Data.Models.Auth;
+using WowsKarma.Common;
 
 namespace WowsKarma.Api.Data
 {
@@ -16,8 +17,8 @@ namespace WowsKarma.Api.Data
 
 			modelBuilder.Entity<Role>()
 				.HasData(
-					new Role { Id = 1, InternalName = "admin", DisplayName = "Administrator" },
-					new Role { Id = 2, InternalName = "mod", DisplayName = "Community Manager" }
+					new Role { Id = 1, InternalName = ApiRoles.Administrator, DisplayName = "Administrator" },
+					new Role { Id = 2, InternalName = ApiRoles.CM, DisplayName = "Community Manager" }
 				);
 		}
 	}

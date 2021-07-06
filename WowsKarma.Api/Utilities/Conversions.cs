@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mapster;
+using System;
 using Wargaming.WebAPI.Models.WorldOfWarships.Responses;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Common.Models;
@@ -8,6 +9,19 @@ namespace WowsKarma.Api.Utilities
 {
 	public static class Conversions
 	{
+		public static void ConfigureMapping()
+		{
+			TypeAdapterConfig<PostModAction, PostModActionDTO>
+				.NewConfig()
+				.Ignore(dest => dest.UpdatedPost)
+				.Map(dest => dest.ModUsername, src => src.Mod.Username);
+
+			TypeAdapterConfig<PostModActionDTO, PostModAction>
+				.NewConfig()
+				.Ignore(dest => dest.Post)
+				.Ignore(dest => dest.Mod);
+		}
+
 		public static AccountListingDTO ToDTO(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);
 
 		public static Player ToDbModel(this AccountInfo accountInfo)

@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WowsKarma.Common.Models;
 
 namespace WowsKarma.Api.Data.Models
-{
+{	
+	/// Conversion Mapping done in <see cref="Utilities.Conversions"/>.
+	
 	public record PostModAction
 	{
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]

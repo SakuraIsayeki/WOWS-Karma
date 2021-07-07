@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Wargaming.WebAPI.Models;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
+using WowsKarma.Web.Services.Authentication;
 
 namespace WowsKarma.Web
 {
@@ -97,6 +98,6 @@ namespace WowsKarma.Web
 
 		internal static string GetTokenFromCookie(this HttpContext httpContext) => httpContext.User.FindFirstValue("token");
 
-		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(HttpContext context) => new("Bearer", context.GetTokenFromCookie());
+		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(HttpContext context) => new("Bearer", context.Request.Cookies[ApiTokenAuthenticationHandler.CookieName]);
 	}
 }

@@ -63,9 +63,6 @@ namespace WowsKarma.Web
 			return new(result.Groups[1].Value.ToInteger(uint.MinValue), result.Groups[2].Value);
 		}
 
-		public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal) 
-			=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
-
 		public static uint GetIdFromRouteParameter(string routeParameter)
 		{
 			Match result = new Regex("([0-9]+),(\\w+)").Match(routeParameter);

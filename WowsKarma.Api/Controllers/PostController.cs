@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication.Jwt;
+using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Controllers
@@ -48,6 +49,9 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(204);
 			}
 
+			AccountListingDTO currentUser = User.ToAccountListing();
+			posts = posts.Where(p => !p.ModLocked && p.AuthorId != currentUser.Id);
+
 			return base.StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
 		}
 
@@ -66,12 +70,20 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(204);
 			}
 
+			if (User.ToAccountListing()?.Id != userId)
+			{
+				posts = posts.Where(p => !p.ModLocked);
+			}
+
 			return StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
 		}
 
 		[HttpGet("latest")]
-		public IActionResult GetLatestPosts([FromQuery] int count = 10) => StatusCode(200, postService.GetLatestPosts(count).Adapt<List<PlayerPostDTO>>());
-
+		public IActionResult GetLatestPosts([FromQuery] int count = 10)
+		{
+			AccountListingDTO currentUser = User.ToAccountListing();
+			return StatusCode(200, postService.GetLatestPosts(count).Where(p => !p.ModLocked && p.AuthorId != currentUser.Id).Adapt<List<PlayerPostDTO>>());
+		}
 
 		[HttpPost, Authorize]
 		public async Task<IActionResult> CreatePost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)

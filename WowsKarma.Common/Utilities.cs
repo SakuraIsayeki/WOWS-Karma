@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Wargaming.WebAPI.Models;
+using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Common
 {
@@ -96,5 +98,8 @@ namespace WowsKarma.Common
 
 			return path.ToString();
 		}
+
+		public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal)
+			=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
 	}
 }

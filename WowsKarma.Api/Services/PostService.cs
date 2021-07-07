@@ -62,18 +62,22 @@ namespace WowsKarma.Api.Services
 				.Include(p => p.PostsSent).ThenInclude(p => p.Player)
 				.FirstOrDefault(p => p.Id == authorId);
 
-			return author?.PostsSent is not null
-				? lastResults > 0 && lastResults < author.PostsSent.Count
+			return author?.PostsSent is null
+				? null
+				: lastResults > 0 && lastResults < author.PostsSent.Count
 					? author.PostsSent.OrderBy(p => p.CreatedAt).TakeLast(lastResults)
-					: author.PostsSent.OrderBy(p => p.CreatedAt)
-				: null;
+					: author.PostsSent.OrderBy(p => p.CreatedAt);
 		}
 
-		public IEnumerable<Post> GetLatestPosts(int count) => context.Posts
-			.Include(p => p.Author)
-			.Include(p => p.Player)
-			.OrderByDescending(p => p.CreatedAt)
-			.Take(count);
+		public IQueryable<Post> GetLatestPosts(int? count)
+		{
+			IQueryable<Post> posts = context.Posts
+				.Include(p => p.Author)
+				.Include(p => p.Player)
+				.OrderByDescending(p => p.CreatedAt);
+
+			return count is null ? posts : posts.Take((int)count);
+		}
 
 		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
 		{
@@ -142,10 +146,18 @@ namespace WowsKarma.Api.Services
 			});
 		}
 
-		public async Task DeletePostAsync(Guid id)
+		public async Task DeletePostAsync(Guid id, bool modLock = false)
 		{
 			Post post = await context.Posts.FindAsync(id);
-			context.Posts.Remove(post);
+
+			if (modLock)
+			{
+				post.ModLocked = true;
+			}
+			else
+			{ 
+				context.Posts.Remove(post);
+			}
 
 			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, null, post.ParsedFlairs, post.NegativeKarmaAble);
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, null, post.ParsedFlairs);

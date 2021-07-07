@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs;
 using WowsKarma.Web.Services.Authentication;
 

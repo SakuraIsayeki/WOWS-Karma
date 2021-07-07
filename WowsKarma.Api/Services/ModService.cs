@@ -36,7 +36,7 @@ namespace WowsKarma.Api.Services
 			switch (modAction.ActionType)
 			{
 				case ModActionType.Deletion:
-					await postService.DeletePostAsync(modAction.PostId);
+					await postService.DeletePostAsync(modAction.PostId, true);
 					break;
 
 				case ModActionType.Update:

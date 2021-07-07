@@ -52,7 +52,7 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return new List<PlayerPostDTO>(await DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response)).OrderByDescending(p => p.PostedAt);
+				return new List<PlayerPostDTO>(await DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response)).OrderByDescending(p => p.CreatedAt);
 			}
 			else if (response.StatusCode is HttpStatusCode.NoContent)
 			{
@@ -79,7 +79,7 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return new List<PlayerPostDTO>(await DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response)).OrderByDescending(p => p.PostedAt);
+				return new List<PlayerPostDTO>(await DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response)).OrderByDescending(p => p.CreatedAt);
 			}
 			else if (response.StatusCode is HttpStatusCode.NoContent)
 			{

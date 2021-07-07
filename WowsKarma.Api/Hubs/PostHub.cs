@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Mapster;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,12 +21,7 @@ namespace WowsKarma.Api.Hubs
 
 		public async Task GetLatestPosts(int count)
 		{
-			List<PlayerPostDTO> postsDTOs = new();
-			foreach (Post post in postService.GetLatestPosts(count))
-			{
-				postsDTOs.Add(post);
-			}
-
+			List<PlayerPostDTO> postsDTOs = new(postService.GetLatestPosts(count).Adapt<IEnumerable<PlayerPostDTO>>());
 			await Clients.Caller.SendAsync("GetLatestPosts", postsDTOs);
 		}
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace WowsKarma.Api.Controllers
 
 
 		[HttpGet("{postId}")]
-		public IActionResult GetPost(Guid postId) => (PlayerPostDTO)postService.GetPost(postId) is PlayerPostDTO post
+		public IActionResult GetPost(Guid postId) => postService.GetPost(postId).Adapt<PlayerPostDTO>() is PlayerPostDTO post
 			? StatusCode(200, post)
 			: StatusCode(404);
 
@@ -47,14 +48,7 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(204);
 			}
 
-			List<PlayerPostDTO> postsDTOs = new();
-
-			foreach (Post post in posts)
-			{
-				postsDTOs.Add(post);
-			}
-
-			return StatusCode(200, postsDTOs);
+			return base.StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
 		}
 
 		[HttpGet("{userId}/sent")]
@@ -72,27 +66,11 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(204);
 			}
 
-			List<PlayerPostDTO> postsDTOs = new();
-
-			foreach (Post post in posts)
-			{
-				postsDTOs.Add(post);
-			}
-
-			return StatusCode(200, postsDTOs);
+			return StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
 		}
 
 		[HttpGet("latest")]
-		public IActionResult GetLatestPosts([FromQuery] int count = 10)
-		{
-			List<PlayerPostDTO> postsDTOs = new();
-			foreach (Post post in postService.GetLatestPosts(count))
-			{
-				postsDTOs.Add(post);
-			}
-
-			return StatusCode(200, postsDTOs);
-		}
+		public IActionResult GetLatestPosts([FromQuery] int count = 10) => StatusCode(200, postService.GetLatestPosts(count).Adapt<List<PlayerPostDTO>>());
 
 
 		[HttpPost, Authorize]

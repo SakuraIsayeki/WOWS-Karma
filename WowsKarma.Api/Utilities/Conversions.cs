@@ -11,6 +11,16 @@ namespace WowsKarma.Api.Utilities
 	{
 		public static void ConfigureMapping()
 		{
+			TypeAdapterConfig<Post, PlayerPostDTO>
+				.NewConfig()
+				.Map(dest => dest.AuthorUsername, src => src.Author.Username)
+				.Map(dest => dest.PlayerUsername, src => src.Player.Username);
+
+			TypeAdapterConfig<PlayerPostDTO, Post>
+				.NewConfig()
+				.Ignore(dest => dest.Author)
+				.Ignore(dest => dest.Player);
+
 			TypeAdapterConfig<PostModAction, PostModActionDTO>
 				.NewConfig()
 				.Ignore(dest => dest.UpdatedPost)

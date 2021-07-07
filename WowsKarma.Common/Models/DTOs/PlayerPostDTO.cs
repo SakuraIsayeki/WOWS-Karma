@@ -19,7 +19,7 @@ namespace WowsKarma.Common.Models.DTOs
 		public string Content { get; init; }
 
 		// Computed by DB Engine (hopefully)
-		public DateTime? PostedAt { get; init; }
+		public DateTime? CreatedAt { get; init; }
 		public DateTime? UpdatedAt { get; init; }
 	}
 }

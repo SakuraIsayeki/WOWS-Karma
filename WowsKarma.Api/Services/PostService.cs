@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Webhook;
+using Mapster;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -102,15 +103,7 @@ namespace WowsKarma.Api.Services
 			}
 
 
-			Post post = new()
-			{
-				AuthorId = postDTO.AuthorId,
-				PlayerId = postDTO.PlayerId,
-				Title = postDTO.Title,
-				Content = postDTO.Content,
-				Flairs = postDTO.Flairs,
-				NegativeKarmaAble = author.NegativeKarmaAble,
-			};
+			Post post = postDTO.Adapt<Post>();
 
 			context.Posts.Add(post);
 			await context.SaveChangesAsync();
@@ -119,7 +112,7 @@ namespace WowsKarma.Api.Services
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, null);
 
 			await SendDiscordWebhookMessage(post, author, player);
-			await hubContext.Clients.All.SendAsync("NewPost", (PlayerPostDTO)post with 
+			await hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with 
 			{ 
 				AuthorUsername = author.Username,
 				PlayerUsername = player.Username
@@ -142,7 +135,7 @@ namespace WowsKarma.Api.Services
 			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, previousFlairs);
 
-			await hubContext.Clients.All.SendAsync("EditedPost", (PlayerPostDTO)post with
+			await hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
 			{
 				AuthorUsername = post.Author?.Username,
 				PlayerUsername = post.Player?.Username
@@ -183,11 +176,11 @@ namespace WowsKarma.Api.Services
 
 			if (filteredPosts.Any())
 			{
-				PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault();
+				PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault().Adapt<PlayerPostDTO>();
 
 				if (lastAuthoredPost is not null)
 				{
-					DateTime endsAt = lastAuthoredPost.PostedAt.Value.Add(CooldownPeriod);
+					DateTime endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
 					return endsAt > DateTime.UtcNow;
 
 				}

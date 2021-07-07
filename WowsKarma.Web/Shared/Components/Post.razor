@@ -45,7 +45,7 @@
 					<span>To <NavLink href=@($"/player/{PlayerPost.PlayerId},{PlayerPost.PlayerUsername}")>@PlayerPost.PlayerUsername</NavLink>,</span>
 				}
 
-				@PlayerPost.PostedAt.Value.ToString("dd/MM/yyyy @ HH:mm UTC")
+				@PlayerPost.CreatedAt.Value.ToString("dd/MM/yyyy @ HH:mm UTC")
 			</p>
 
 			<AuthorizeView>

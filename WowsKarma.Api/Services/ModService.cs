@@ -40,13 +40,14 @@ namespace WowsKarma.Api.Services
 					break;
 
 				case ModActionType.Update:
-					PlayerPostDTO current = postService.GetPost(modAction.PostId);
+					PlayerPostDTO current = postService.GetPost(modAction.PostId).Adapt<PlayerPostDTO>();
 
 					await postService.EditPostAsync(modAction.PostId, current with
 					{
 						Content = modAction.UpdatedPost.Content ?? current.Content,
 						Flairs = modAction.UpdatedPost.Flairs
 					});
+
 					break;
 			}
 

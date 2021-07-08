@@ -50,7 +50,7 @@ namespace WowsKarma.Api.Controllers
 			}
 
 			AccountListingDTO currentUser = User.ToAccountListing();
-			posts = posts.Where(p => !p.ModLocked && p.AuthorId != currentUser.Id);
+			posts = posts.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id);
 
 			return base.StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
 		}
@@ -82,7 +82,7 @@ namespace WowsKarma.Api.Controllers
 		public IActionResult GetLatestPosts([FromQuery] int count = 10)
 		{
 			AccountListingDTO currentUser = User.ToAccountListing();
-			return StatusCode(200, postService.GetLatestPosts(count).Where(p => !p.ModLocked && p.AuthorId != currentUser.Id).Adapt<List<PlayerPostDTO>>());
+			return StatusCode(200, postService.GetLatestPosts(count).Where(p => !p.ModLocked || p.AuthorId == currentUser.Id).Adapt<List<PlayerPostDTO>>());
 		}
 
 		[HttpPost, Authorize]
@@ -149,6 +149,10 @@ namespace WowsKarma.Api.Controllers
 				{
 					return StatusCode(403, "Author is not authorized to edit posts on behalf of other users.");
 				}
+				if (current.ModLocked)
+				{
+					return StatusCode(403, "Post has been locked by Community Managers. No modification is possible.");
+				}
 			}
 			else if (User.IsInRole(ApiRole.Moderator) || User.IsInRole(ApiRole.Admin))
 			{
@@ -179,6 +183,10 @@ namespace WowsKarma.Api.Controllers
 				if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
 				{
 					return StatusCode(403, "Author is not authorized to delete posts on behalf of other users.");
+				}
+				if (post.ModLocked)
+				{
+					return StatusCode(403, "Post has been locked by Community Managers. No deletion is possible.");
 				}
 			}
 			else if (User.IsInRole(ApiRole.Moderator) || User.IsInRole(ApiRole.Admin))

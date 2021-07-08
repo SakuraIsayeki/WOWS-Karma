@@ -95,6 +95,7 @@ namespace WowsKarma.Web
 
 		internal static string GetTokenFromCookie(this HttpContext httpContext) => httpContext.User.FindFirstValue("token");
 
-		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(HttpContext context) => new("Bearer", context.Request.Cookies[ApiTokenAuthenticationHandler.CookieName]);
+		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(this HttpContext context) 
+			=> new("Bearer", context.Request.Cookies[ApiTokenAuthenticationHandler.CookieName]);
 	}
 }

@@ -13,31 +13,19 @@ using static WowsKarma.Web.Utilities;
 
 namespace WowsKarma.Web.Services
 {
-	public class PostService
+	public class PostService : HttpServiceBase
 	{
-		private readonly HttpClient client;
-		private readonly IHttpContextAccessor contextAccessor;
 		public const string EndpointCategory = "post";
 
-		public PostService(IHttpClientFactory clientfactory, IHttpContextAccessor contextAccessor)
-		{
-			client = clientfactory.CreateClient();
-			this.contextAccessor = contextAccessor;
-		}
-
-		~PostService()
-		{
-			client.Dispose();
-		}
-
+		public PostService(IHttpClientFactory clientfactory, IHttpContextAccessor contextAccessor) : base(clientfactory, null, contextAccessor)	{ }
 
 		public async Task<PlayerPostDTO> FetchPostAsync(Guid id)
 		{
-			using HttpResponseMessage response = await client.GetAsync($"{EndpointCategory}/{id}");
+			using HttpResponseMessage response = await Client.GetAsync($"{EndpointCategory}/{id}");
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return await response.Content.ReadFromJsonAsync<PlayerPostDTO>(Utilities.JsonSerializerOptions);
+				return await response.Content.ReadFromJsonAsync<PlayerPostDTO>(JsonSerializerOptions);
 			}
 			else
 			{
@@ -48,7 +36,7 @@ namespace WowsKarma.Web.Services
 		public async Task<IEnumerable<PlayerPostDTO>> FetchReceivedPostsAsync(uint id, uint fetchLast)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{EndpointCategory}/{id}/received");
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
@@ -65,7 +53,7 @@ namespace WowsKarma.Web.Services
 		public async Task<IEnumerable<PlayerPostDTO>> FetchLatestPostsAsync(int count)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{EndpointCategory}/latest?count={count}");
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			response.EnsureSuccessStatusCode();
 			return await DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response);
@@ -75,7 +63,7 @@ namespace WowsKarma.Web.Services
 		public async Task<IEnumerable<PlayerPostDTO>> FetchSentPostsAsync(uint id, uint fetchLast)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{EndpointCategory}/{id}/sent");
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
@@ -93,9 +81,8 @@ namespace WowsKarma.Web.Services
 		{
 			using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}");
 			request.Content = JsonContent.Create(post, new("application/json"), JsonSerializerOptions);
-			request.Headers.Authorization = GenerateAuthenticationHeader(contextAccessor.HttpContext);
 
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}
 
@@ -103,18 +90,16 @@ namespace WowsKarma.Web.Services
 		{
 			using HttpRequestMessage request = new(HttpMethod.Put, $"{EndpointCategory}");
 			request.Content = JsonContent.Create(post, new("application/json"), JsonSerializerOptions);
-			request.Headers.Authorization = GenerateAuthenticationHeader(contextAccessor.HttpContext);
 
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}
 
 		public async Task DeletePostAsync(Guid postId)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Delete, $"{EndpointCategory}/{postId}");
-			request.Headers.Authorization = GenerateAuthenticationHeader(contextAccessor.HttpContext);
 
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}
 	}

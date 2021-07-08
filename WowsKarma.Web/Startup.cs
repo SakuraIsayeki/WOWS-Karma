@@ -49,7 +49,6 @@ namespace WowsKarma.Web
 			services.AddHttpClient(Options.DefaultName, config =>
 			{
 				config.BaseAddress = new(Configuration[$"Api:{CurrentRegion.ToRegionString()}:Host"]);
-				config.DefaultRequestHeaders.Add("Access-Key", Configuration[$"Api:{CurrentRegion.ToRegionString()}:AccessKey"]);
 			});
 
 			services.AddApplicationInsightsTelemetry(options =>

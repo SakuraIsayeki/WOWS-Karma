@@ -7,25 +7,17 @@ using static WowsKarma.Web.Utilities;
 
 namespace WowsKarma.Web.Services
 {
-	public class UserService
+	public class UserService : HttpServiceBase
 	{
-		private readonly HttpClient client;
-		private readonly IHttpContextAccessor contextAccessor;
 		public const string authEndpointCategory = "auth";
 		public const string profileEndpointCategory = "profile";
 
-
-
-		public UserService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor)
-		{
-			client = httpClientFactory.CreateClient();
-			this.contextAccessor = contextAccessor;
-		}
+		public UserService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor) : base(httpClientFactory, null, contextAccessor) { }
 
 		public async Task<UserProfileFlagsDTO> GetUserProfileFlagsAsync(uint id)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{profileEndpointCategory}/{id}");
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			response.EnsureSuccessStatusCode();
 			return await DeserializeFromHttpResponseAsync<UserProfileFlagsDTO>(response);
@@ -35,18 +27,16 @@ namespace WowsKarma.Web.Services
 		{
 			using HttpRequestMessage request = new(HttpMethod.Put, profileEndpointCategory);
 			request.Content = JsonContent.Create(flags, new("application/json"), JsonSerializerOptions);
-			request.Headers.Authorization = GenerateAuthenticationHeader(contextAccessor.HttpContext);
 
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}
 
 		public async Task RefreshSeedTokenAsync()
 		{
 			using HttpRequestMessage request = new(HttpMethod.Post, $"{authEndpointCategory}/renew-seed");
-			request.Headers.Authorization = GenerateAuthenticationHeader(contextAccessor.HttpContext);
 
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 		}
 	}

@@ -8,28 +8,19 @@ using static WowsKarma.Web.Utilities;
 
 namespace WowsKarma.Web.Services
 {
-	public class PlayerService
+	public class PlayerService : HttpServiceBase
 	{
-		private readonly HttpClient client;
 		public const string playerEndpointCategory = "player";
 		public const string profileEndpointCategory = "profile";
 
 
 
-		public PlayerService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor)
-		{
-			client = httpClientFactory.CreateClient();
-		}
-
-		~PlayerService()
-		{
-			client.Dispose();
-		}
+		public PlayerService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor) : base(httpClientFactory, null, contextAccessor) { }
 
 		public async Task<IEnumerable<AccountListingDTO>> SearchPlayersAsync(string search)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/Search/{search}");
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
@@ -42,7 +33,7 @@ namespace WowsKarma.Web.Services
 		public async Task<PlayerProfileDTO> FetchPlayerProfileAsync(uint id)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}");
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{

@@ -41,7 +41,7 @@ namespace WowsKarma.Web.Services.Authentication
 		{
 			try
 			{
-				if (tokenHandler.ReadJwtToken(Request.Cookies[CookieName]) is JwtSecurityToken token)
+				if (Request.Cookies[CookieName] is string jwt && tokenHandler.ReadJwtToken(jwt) is JwtSecurityToken token)
 				{
 					using HttpRequestMessage request = new(HttpMethod.Head, "auth");
 					request.Headers.Authorization = new("Bearer", Request.Cookies[CookieName]);

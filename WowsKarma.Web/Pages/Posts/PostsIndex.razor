@@ -1,9 +1,11 @@
 ﻿@inherits ComponentBaseAuth
+@implements IAsyncDisposable
 
 @page "/posts"
+
 @inject PostService PostService
-@inject Microsoft.Extensions.Configuration.IConfiguration Configuration 
-@implements IAsyncDisposable
+@inject IConfiguration Configuration
+
 
 <div class="row justify-content-between mb-5">
 	<div class="col-auto">
@@ -65,13 +67,17 @@
 
 	private HubConnection hubConnection;
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnParametersSetAsync()
 	{
 		Loaded = false;
+		await base.OnParametersSetAsync();
 
 		hubConnection = new HubConnectionBuilder()
 			.WithAutomaticReconnect()
-			.WithUrl(Configuration[$"Api:{CurrentRegion}:PostHub"])
+			.WithUrl(Configuration[$"Api:{CurrentRegion}:PostHub"], options =>
+			{
+				options.AccessTokenProvider = () => Task.FromResult(CurrentToken);
+			})
 			.Build();
 
 		SetupEvents();

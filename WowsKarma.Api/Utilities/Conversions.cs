@@ -23,7 +23,7 @@ namespace WowsKarma.Api.Utilities
 
 			TypeAdapterConfig<PostModAction, PostModActionDTO>
 				.NewConfig()
-				.Ignore(dest => dest.UpdatedPost)
+				.IgnoreNullValues(true)
 				.Map(dest => dest.ModUsername, src => src.Mod.Username);
 
 			TypeAdapterConfig<PostModActionDTO, PostModAction>

@@ -83,6 +83,7 @@ namespace WowsKarma.Web
 
 			services.AddScoped<UserService>();
 			services.AddScoped<PostService>();
+			services.AddScoped<ModService>();
 		}
 
 

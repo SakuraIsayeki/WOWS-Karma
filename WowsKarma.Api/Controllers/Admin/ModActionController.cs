@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,13 @@ namespace WowsKarma.Api.Controllers.Admin
 		[HttpGet("list"), AllowAnonymous]
 		public IActionResult List([FromQuery] Guid postId = default, [FromQuery] uint userId = default)
 		{
+			/*
+			 * FIXME
+			 * 
+			 * Including Mod in PostModAction entities causes unknown Arithmetic Overflow.
+			 * Possible bug with Mapster, will omit for now until fix can be found.
+			 */
+
 			IEnumerable<PostModAction> modActions;
 
 			if (postId != default)
@@ -44,8 +52,8 @@ namespace WowsKarma.Api.Controllers.Admin
 			}
 
 			return modActions?.Count() is null or 0
-				? StatusCode(204)
-				: StatusCode(200, modActions);
+				? base.StatusCode(204)
+				: base.StatusCode(200, modActions.Adapt<IEnumerable<PostModActionDTO>>());
 		}
 
 		[HttpPost, Authorize(Roles = ApiRoles.CM)]

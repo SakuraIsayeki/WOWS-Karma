@@ -18,6 +18,8 @@ namespace WowsKarma.Common.Models.DTOs
 		public string Title { get; init; }
 		public string Content { get; init; }
 
+		public bool ModLocked { get; init; }
+
 		// Computed by DB Engine (hopefully)
 		public DateTime? CreatedAt { get; init; }
 		public DateTime? UpdatedAt { get; init; }

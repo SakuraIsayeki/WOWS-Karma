@@ -31,6 +31,11 @@
 				</div>
 
 				<div class="col-auto px-1">
+					@if (PlayerPost.ModLocked)
+					{
+						<i class="bi bi-x-circle text-danger lead mr-1"></i>
+					}
+
 					<NavLink class="text-body" href=@($"/posts/view/{PlayerPost.Id}")><i class="bi bi-link-45deg lead"></i></NavLink>
 				</div>
 			</div>
@@ -66,9 +71,11 @@
 						@if (!PlayerPost.ModLocked)
 						{
 							<button class="btn btn-outline-danger btn-sm" @onclick=ModDeleteClicked>Mod Delete</button>
+
 							<ModDeleteModal @ref=ModDeleteModal 
 								OnSubmit=OnModDeleteSubmit
-								OnCancel="() => ModDeleteModal.Show = false" />
+								OnCancel="() => ModDeleteModal.Show = false" 
+							/>
 						}
 					</Authorized>
 				</AuthorizeView>

@@ -1,8 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace WowsKarma.Api.Services.Authentication.Jwt
 {
@@ -13,10 +9,5 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 		{
 			Id = name;
 		}
-
-
-		public const string Moderator = "moderator";
-		public const string Wargaming = "wargaming";
-		public const string Admin = "admin";
 	}
 }

@@ -8,13 +8,11 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
-using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Controllers
 {
-
 	[ApiController, Route("api/[controller]")]
 	public class PostController : ControllerBase
 	{
@@ -29,10 +27,12 @@ namespace WowsKarma.Api.Controllers
 
 
 		[HttpGet("{postId}")]
-		public IActionResult GetPost(Guid postId) => postService.GetPost(postId).Adapt<PlayerPostDTO>() is PlayerPostDTO post
-			? StatusCode(200, post)
-			: StatusCode(404);
-
+		public IActionResult GetPost(Guid postId) 
+			=> postService.GetPost(postId).Adapt<PlayerPostDTO>() is PlayerPostDTO post
+				? !post.ModLocked || post.AuthorId == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
+					? StatusCode(200, post)
+					: StatusCode(410)
+				: StatusCode(404);
 
 		[HttpGet("{userId}/received")]
 		public async Task<IActionResult> GetReceivedPosts(uint userId, [FromQuery] int? lastResults)
@@ -50,7 +50,7 @@ namespace WowsKarma.Api.Controllers
 			}
 
 			AccountListingDTO currentUser = User.ToAccountListing();
-			posts = posts.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id);
+			posts = posts.Where(p => !p.ModLocked || User.IsInRole(ApiRoles.CM) || p.AuthorId == currentUser.Id);
 
 			return base.StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
 		}
@@ -72,7 +72,7 @@ namespace WowsKarma.Api.Controllers
 
 			if (User.ToAccountListing()?.Id != userId)
 			{
-				posts = posts.Where(p => !p.ModLocked);
+				posts = posts.Where(p => !p.ModLocked || User.IsInRole(ApiRoles.CM));
 			}
 
 			return StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
@@ -119,7 +119,7 @@ namespace WowsKarma.Api.Controllers
 					return StatusCode(403, "Targeted player has opted-out from using this platform.");
 				}
 			}
-			else if (User.IsInRole(ApiRole.Moderator) || User.IsInRole(ApiRole.Admin))
+			else if (User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator))
 			{
 				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
 			}
@@ -154,7 +154,7 @@ namespace WowsKarma.Api.Controllers
 					return StatusCode(403, "Post has been locked by Community Managers. No modification is possible.");
 				}
 			}
-			else if (User.IsInRole(ApiRole.Moderator) || User.IsInRole(ApiRole.Admin))
+			else if (User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator))
 			{
 				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
 			}
@@ -189,7 +189,7 @@ namespace WowsKarma.Api.Controllers
 					return StatusCode(403, "Post has been locked by Community Managers. No deletion is possible.");
 				}
 			}
-			else if (User.IsInRole(ApiRole.Moderator) || User.IsInRole(ApiRole.Admin))
+			else if (User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator))
 			{
 				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
 			}

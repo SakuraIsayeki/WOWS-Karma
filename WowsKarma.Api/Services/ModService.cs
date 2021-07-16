@@ -26,7 +26,8 @@ namespace WowsKarma.Api.Services
 
 		public Task<PostModAction> GetModActionAsync(Guid id) => context.PostModActions.FirstOrDefaultAsync(ma => ma.Id == id);
 
-		public IQueryable<PostModAction> GetPostModActions(Guid postId) => context.PostModActions.Where(ma => ma.PostId == postId);
+		public IQueryable<PostModAction> GetPostModActions(Guid postId) 
+			=> context.PostModActions.Include(ma => ma.Post).Include(ma => ma.Mod).Where(ma => ma.PostId == postId);
 		public IQueryable<PostModAction> GetPostModActions(uint playerId) 
 			=> context.PostModActions.Include(ma => ma.Post).Include(ma => ma.Mod).Where(ma => ma.Post.AuthorId == playerId);
 

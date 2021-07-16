@@ -37,7 +37,7 @@ else
 					<thead />
 
 					<tbody>
-						<tr><th>Removed by</th><td>@lastModAction.ModId</td></tr>
+						<tr><th>Removed by</th><td>@lastModAction.ModUsername</td></tr>
 						<tr><th>Reason</th><td>@lastModAction.Reason</td></tr>
 					</tbody>
 				</table>
@@ -74,7 +74,7 @@ else
 		await base.OnParametersSetAsync();
 		post = await PostService.FetchPostAsync(Id);
 
-		if (post.ModLocked && post.AuthorId == CurrentUser.Id)
+		if (post is not null && post.ModLocked && post.AuthorId == CurrentUser.Id)
 		{
 			lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id)).Last();
 		}

@@ -29,22 +29,15 @@ namespace WowsKarma.Api.Controllers.Admin
 		[HttpGet("list"), AllowAnonymous]
 		public IActionResult List([FromQuery] Guid postId = default, [FromQuery] uint userId = default)
 		{
-			/*
-			 * FIXME
-			 * 
-			 * Including Mod in PostModAction entities causes unknown Arithmetic Overflow.
-			 * Possible bug with Mapster, will omit for now until fix can be found.
-			 */
-
 			IEnumerable<PostModAction> modActions;
 
 			if (postId != default)
 			{
-				modActions = service.GetPostModActions(postId);
+				modActions = service.GetPostModActions(postId).ToArray();
 			}
 			else if (userId is not 0)
 			{
-				modActions = service.GetPostModActions(userId);
+				modActions = service.GetPostModActions(userId).ToArray();
 			}
 			else
 			{

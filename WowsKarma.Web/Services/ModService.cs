@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 using static WowsKarma.Common.Utilities;
 
@@ -21,6 +22,21 @@ namespace WowsKarma.Web.Services
 			HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
 			return await response.Content.ReadFromJsonAsync<PostModActionDTO[]>(Utilities.JsonSerializerOptions);
+		}
+
+		public async Task DeletePostAsync(Guid postId, string reason)
+		{
+
+			HttpRequestMessage request = new(HttpMethod.Post, RequestUri);
+			request.Content = JsonContent.Create(new PostModActionDTO()
+				{
+					ActionType = ModActionType.Deletion,
+					PostId = postId,
+					Reason = reason
+				}, null, Utilities.JsonSerializerOptions);
+
+			HttpResponseMessage response = await Client.SendAsync(request);
+			response.EnsureSuccessStatusCode();
 		}
 	}
 }

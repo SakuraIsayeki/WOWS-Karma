@@ -55,7 +55,7 @@ namespace WowsKarma.Api.Controllers
 				jwtService.TokenHandler.WriteToken(token),
 				new()
 				{
-					Domain = config[$"Api:{Startup.ApiRegion.ToRegionString()}:DomainName"],
+					Domain = config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieDomain"],
 					HttpOnly = true,
 					IsEssential = true,
 					Expires = DateTimeOffset.UtcNow.AddDays(7)

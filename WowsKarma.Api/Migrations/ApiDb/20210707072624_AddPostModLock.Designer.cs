@@ -2,23 +2,25 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
+using WowsKarma.Common.Models;
 
-namespace WowsKarma.Api.Migrations
+namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    [Migration("20210516121833_AddPlayerOptOut")]
-    partial class AddPlayerOptOut
+    [Migration("20210707072624_AddPostModLock")]
+    partial class AddPostModLock
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasPostgresEnum(null, "mod_action_type", new[] { "deletion", "update" })
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "6.0.0-preview.3.21201.2")
+                .HasAnnotation("ProductVersion", "6.0.0-preview.5.21301.9")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Player", b =>
@@ -82,6 +84,7 @@ namespace WowsKarma.Api.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -92,6 +95,9 @@ namespace WowsKarma.Api.Migrations
                     b.Property<int>("Flairs")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("ModLocked")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("NegativeKarmaAble")
                         .HasColumnType("boolean");
 
@@ -99,6 +105,7 @@ namespace WowsKarma.Api.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -111,6 +118,33 @@ namespace WowsKarma.Api.Migrations
                     b.HasIndex("PlayerId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.PostModAction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<ModActionType>("ActionType")
+                        .HasColumnType("mod_action_type");
+
+                    b.Property<long>("ModId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostModActions");
                 });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Post", b =>
@@ -128,6 +162,25 @@ namespace WowsKarma.Api.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.PostModAction", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.Player", "Mod")
+                        .WithMany()
+                        .HasForeignKey("ModId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WowsKarma.Api.Data.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mod");
+
+                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Player", b =>

@@ -3,20 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
 
-namespace WowsKarma.Api.Migrations
+namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210410180743_ImportToNPGSQL")]
+    partial class ImportToNPGSQL
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "6.0.0-preview.3.21201.2")
+                .HasAnnotation("ProductVersion", "5.0.5")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Player", b =>
@@ -37,9 +40,6 @@ namespace WowsKarma.Api.Migrations
 
                     b.Property<DateTime>("LastBattleTime")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("OptedOut")
-                        .HasColumnType("boolean");
 
                     b.Property<int>("PerformanceRating")
                         .HasColumnType("integer");

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
@@ -28,7 +29,7 @@ namespace WowsKarma.Api.Controllers
 			})
 			: StatusCode(404);
 
-		[HttpPut, AccessKey]
+		[HttpPut, Authorize]
 		public async Task<IActionResult> UpdateProfileFlagsAsync([FromBody] UserProfileFlagsDTO flags)
 		{
 			try

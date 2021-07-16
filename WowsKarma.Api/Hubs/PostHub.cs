@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Mapster;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
+using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Hubs
@@ -20,12 +21,8 @@ namespace WowsKarma.Api.Hubs
 
 		public async Task GetLatestPosts(int count)
 		{
-			List<PlayerPostDTO> postsDTOs = new();
-			foreach (Post post in postService.GetLatestPosts(count))
-			{
-				postsDTOs.Add(post);
-			}
-
+			AccountListingDTO currentUser = Context.User.ToAccountListing();
+			List<PlayerPostDTO> postsDTOs = new(postService.GetLatestPosts(count).Where(p => !p.ModLocked || p.AuthorId == currentUser.Id).Adapt<IEnumerable<PlayerPostDTO>>());
 			await Clients.Caller.SendAsync("GetLatestPosts", postsDTOs);
 		}
 

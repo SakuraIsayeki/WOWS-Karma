@@ -1,38 +1,30 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using WowsKarma.Common.Models.DTOs;
+using static WowsKarma.Web.Utilities;
 
 namespace WowsKarma.Web.Services
 {
-	public class PlayerService
+	public class PlayerService : HttpServiceBase
 	{
-		private readonly HttpClient client;
 		public const string playerEndpointCategory = "player";
 		public const string profileEndpointCategory = "profile";
 
-		public PlayerService(IHttpClientFactory httpClientFactory)
-		{
-			client = httpClientFactory.CreateClient();
-		}
 
-		~PlayerService()
-		{
-			client.Dispose();
-		}
+
+		public PlayerService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor) : base(httpClientFactory, null, contextAccessor) { }
 
 		public async Task<IEnumerable<AccountListingDTO>> SearchPlayersAsync(string search)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/Search/{search}");
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return await Utilities.DeserializeFromHttpResponseAsync<IEnumerable<AccountListingDTO>>(response);
+				return await DeserializeFromHttpResponseAsync<IEnumerable<AccountListingDTO>>(response);
 			}
 			
 			return null;
@@ -41,36 +33,15 @@ namespace WowsKarma.Web.Services
 		public async Task<PlayerProfileDTO> FetchPlayerProfileAsync(uint id)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}");
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				PlayerProfileDTO player = await Utilities.DeserializeFromHttpResponseAsync<PlayerProfileDTO>(response);
+				PlayerProfileDTO player = await DeserializeFromHttpResponseAsync<PlayerProfileDTO>(response);
 				return player with { Id = id };
 			}
 
 			return null;
-		}
-
-		public async Task<UserProfileFlagsDTO> GetUserProfileFlagsAsync(uint id)
-		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{profileEndpointCategory}/{id}");
-			using HttpResponseMessage response = await client.SendAsync(request);
-
-			response.EnsureSuccessStatusCode();
-			return await Utilities.DeserializeFromHttpResponseAsync<UserProfileFlagsDTO>(response);
-		}
-
-		public async Task SetUserProfileFlagsAsync(UserProfileFlagsDTO flags)
-		{
-			using HttpRequestMessage request = new(HttpMethod.Put, profileEndpointCategory)
-			{
-				Content = JsonContent.Create(flags, new("application/json"), Utilities.JsonSerializerOptions)
-			};
-
-			using HttpResponseMessage response = await client.SendAsync(request);
-
-			response.EnsureSuccessStatusCode();
 		}
 	}
 }

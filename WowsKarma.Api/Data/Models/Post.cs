@@ -22,31 +22,18 @@ namespace WowsKarma.Api.Data.Models
 
 		public PostFlairs Flairs { get; set; }
 		public PostFlairsParsed ParsedFlairs => Flairs.ParseFlairsEnum();
-	
-		public bool NegativeKarmaAble { get; init; }
 
+		[Required]
 		public string Title { get; set; }
+		[Required]
 		public string Content { get; set; }
 
 		// Computed by DB Engine (hopefully)
 		public DateTime CreatedAt { get; init; }
 		public DateTime UpdatedAt { get; set; }
 
+		public bool NegativeKarmaAble { get; init; }
 
-		public static implicit operator PlayerPostDTO(Post value) => new()
-		{
-			Id = value.Id,
-			PlayerId = value.PlayerId,
-			PlayerUsername = value.Player?.Username,
-			AuthorId = value.AuthorId,
-			AuthorUsername = value.Author?.Username,
-			Title = value.Title,
-			Content = value.Content,
-			Flairs = value.Flairs,
-			PostedAt = value.CreatedAt,
-			UpdatedAt = value.UpdatedAt
-		};
+		public bool ModLocked { get; set; }
 	}
-
-
 }

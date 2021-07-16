@@ -1,7 +1,8 @@
 ﻿@page "/posts/view/{Id:guid}"
+@inherits ComponentBaseAuth
 
 @inject PostService PostService
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ModService ModService
 @inject NavigationManager NavigationManager
 
 @if (!Loaded)
@@ -19,10 +20,30 @@ else
 
 
 	<div class="my-5">
-		<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=currentUserId
+		<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=CurrentUser.Id
 			  OnEditClick=EditorModalInit
-			  OnDeleteClick=DeleteModalInit />
+			  OnDeleteClick=DeleteModalInit 
+		/>
 	</div>
+
+	@if (post.ModLocked)
+	{
+		<div class="mb-5">			
+			<h4>Mod Action</h4>
+			<p class="text-warning lead">This post was Locked by our Community Managers, and publicly removed from the platform.</p>
+
+			<div class="col-auto">
+				<table class="table table-borderless">
+					<thead />
+
+					<tbody>
+						<tr><th>Removed by</th><td>@lastModAction.ModUsername</td></tr>
+						<tr><th>Reason</th><td>@lastModAction.Reason</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	}
 
 	@if (showEditorModal)
 	{
@@ -41,7 +62,7 @@ else
 	public bool Loaded { get; private set; }
 
 	private PlayerPostDTO post;
-	private uint currentUserId;
+	private PostModActionDTO lastModAction;
 
 	private bool showEditorModal = false;
 	private bool showDeleteModal = false;
@@ -50,11 +71,12 @@ else
 	{
 		Loaded = false;
 
+		await base.OnParametersSetAsync();
 		post = await PostService.FetchPostAsync(Id);
 
-		if ((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl)
+		if (post is not null && post.ModLocked && post.AuthorId == CurrentUser.Id)
 		{
-			currentUserId = GetAccountInfoFromOidcUrl(accountUrl).Id;
+			lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id)).Last();
 		}
 
 		Loaded = true;

@@ -1,8 +1,10 @@
-﻿@page "/player/{idnamepair}/"
+﻿@inherits ComponentBaseAuth
+
+@page "/player/{idnamepair}/"
 @using WowsKarma.Web.Pages.Posts
 
 @inject PlayerService PlayerService
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserService UserService 
 
 @if (Player is not null)
 {
@@ -130,9 +132,7 @@ else
 	public string IdNamePair { get; set; }
 
 	public int TotalKarma => Player.GameKarma + Player.SiteKarma;
-
 	public PlayerProfileDTO Player { get; set; }
-
 	public UserProfileFlagsDTO CurrentUserProfileFlags { get; set; }
 
 
@@ -151,13 +151,7 @@ else
 
 	private async Task UpdatePlayerAsync() => Player = await PlayerService.FetchPlayerProfileAsync(Player.Id);
 
-	private async Task CheckBannedUser()
-	{
-		AuthenticationState authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-		if (authState.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is string accountUrl and not null)
-		{
-			CurrentUserProfileFlags = await PlayerService.GetUserProfileFlagsAsync(GetAccountInfoFromOidcUrl(accountUrl).Id);
-		}
-	}
+	private async Task CheckBannedUser() => CurrentUserProfileFlags = CurrentUser.Id is not 0
+		? await UserService.GetUserProfileFlagsAsync(CurrentUser.Id)
+		: null;
 }

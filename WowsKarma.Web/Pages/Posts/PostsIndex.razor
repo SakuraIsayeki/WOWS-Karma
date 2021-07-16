@@ -1,7 +1,11 @@
-﻿@page "/posts"
-@inject PostService PostService
-@inject Microsoft.Extensions.Configuration.IConfiguration Configuration 
+﻿@inherits ComponentBaseAuth
 @implements IAsyncDisposable
+
+@page "/posts"
+
+@inject PostService PostService
+@inject IConfiguration Configuration
+
 
 <div class="row justify-content-between mb-5">
 	<div class="col-auto">
@@ -45,10 +49,9 @@
 		else
 		{
 			<div class="row">
-				@foreach (PlayerPostDTO post in Posts)
-				{
+				<Virtualize Items=Posts Context=post>
 					<Post PlayerPost=post DisplayType=Post.PostDisplayType.Neutral />
-				}
+				</Virtualize>
 			</div>
 		}
 	}
@@ -63,13 +66,17 @@
 
 	private HubConnection hubConnection;
 
-	protected override async Task OnInitializedAsync()
+	protected override async Task OnParametersSetAsync()
 	{
 		Loaded = false;
+		await base.OnParametersSetAsync();
 
 		hubConnection = new HubConnectionBuilder()
 			.WithAutomaticReconnect()
-			.WithUrl(Configuration[$"Api:{CurrentRegion}:PostHub"])
+			.WithUrl(Configuration[$"Api:{CurrentRegion}:PostHub"], options =>
+			{
+				options.AccessTokenProvider = () => Task.FromResult(CurrentToken);
+			})
 			.Build();
 
 		SetupEvents();

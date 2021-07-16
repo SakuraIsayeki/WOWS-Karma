@@ -1,6 +1,12 @@
 ﻿using AngleSharp.Text;
+using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -8,6 +14,7 @@ using System.Threading.Tasks;
 using Wargaming.WebAPI.Models;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
+using WowsKarma.Web.Services.Authentication;
 
 namespace WowsKarma.Web
 {
@@ -85,5 +92,10 @@ namespace WowsKarma.Web
 
 			return "warning";
 		}
+
+		internal static string GetTokenFromCookie(this HttpContext httpContext) => httpContext.User.FindFirstValue("token");
+
+		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(this HttpContext context) 
+			=> new("Bearer", context.Request.Cookies[ApiTokenAuthenticationHandler.CookieName]);
 	}
 }

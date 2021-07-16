@@ -19,6 +19,7 @@ namespace WowsKarma.Web.Services.Authentication
 		public const string AuthenticationScheme = "ApiToken";
 
 		public static string CookieName { get; private set; }
+		public static string CookieDomain { get; private set; }
 
 		private static string loginPath;
 		private static string websitePath;
@@ -31,6 +32,8 @@ namespace WowsKarma.Web.Services.Authentication
 			: base(options, logger, encoder, clock)
 		{
 			CookieName ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieName"];
+			CookieDomain ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieDomain"];
+
 			loginPath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:Login"];
 			websitePath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:WebDomain"];
 			this.tokenHandler = tokenHandler;

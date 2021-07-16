@@ -1,6 +1,3 @@
-using System.Threading.Tasks;
-using AngleSharp;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WowsKarma.Web.Services.Authentication;
@@ -11,7 +8,7 @@ namespace WowsKarma.Web.Pages
 	{
 		public IActionResult OnGet()
 		{
-			Response.Cookies.Delete(ApiTokenAuthenticationHandler.CookieName);
+			Response.Cookies.Delete(ApiTokenAuthenticationHandler.CookieName, new() { Domain = ApiTokenAuthenticationHandler.CookieDomain });
 			return Redirect("/");
 		}
 	}

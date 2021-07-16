@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Webhook;
+using Mapster;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -45,7 +46,6 @@ namespace WowsKarma.Api.Services
 		public IEnumerable<Post> GetReceivedPosts(uint playerId, int lastResults)
 		{
 			Player player = context.Players
-				.Include(p => p.PostsReceived).ThenInclude(p => p.Player)
 				.Include(p => p.PostsReceived).ThenInclude(p => p.Author)
 				.FirstOrDefault(p => p.Id == playerId);
 
@@ -60,21 +60,24 @@ namespace WowsKarma.Api.Services
 		{
 			Player author = context.Players
 				.Include(p => p.PostsSent).ThenInclude(p => p.Player)
-				.Include(p => p.PostsSent).ThenInclude(p => p.Author)
 				.FirstOrDefault(p => p.Id == authorId);
 
-			return author?.PostsSent is not null
-				? lastResults > 0 && lastResults < author.PostsSent.Count
+			return author?.PostsSent is null
+				? null
+				: lastResults > 0 && lastResults < author.PostsSent.Count
 					? author.PostsSent.OrderBy(p => p.CreatedAt).TakeLast(lastResults)
-					: author.PostsSent.OrderBy(p => p.CreatedAt)
-				: null;
+					: author.PostsSent.OrderBy(p => p.CreatedAt);
 		}
 
-		public IEnumerable<Post> GetLatestPosts(int count) => context.Posts
-			.Include(p => p.Author)
-			.Include(p => p.Player)
-			.OrderByDescending(p => p.CreatedAt)
-			.Take(count);
+		public IQueryable<Post> GetLatestPosts(int? count)
+		{
+			IQueryable<Post> posts = context.Posts
+				.Include(p => p.Author)
+				.Include(p => p.Player)
+				.OrderByDescending(p => p.CreatedAt);
+
+			return count is null ? posts : posts.Take((int)count);
+		}
 
 		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
 		{
@@ -104,15 +107,7 @@ namespace WowsKarma.Api.Services
 			}
 
 
-			Post post = new()
-			{
-				AuthorId = postDTO.AuthorId,
-				PlayerId = postDTO.PlayerId,
-				Title = postDTO.Title,
-				Content = postDTO.Content,
-				Flairs = postDTO.Flairs,
-				NegativeKarmaAble = author.NegativeKarmaAble,
-			};
+			Post post = postDTO.Adapt<Post>();
 
 			context.Posts.Add(post);
 			await context.SaveChangesAsync();
@@ -121,7 +116,7 @@ namespace WowsKarma.Api.Services
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, null);
 
 			await SendDiscordWebhookMessage(post, author, player);
-			await hubContext.Clients.All.SendAsync("NewPost", (PlayerPostDTO)post with 
+			await hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with 
 			{ 
 				AuthorUsername = author.Username,
 				PlayerUsername = player.Username
@@ -144,17 +139,25 @@ namespace WowsKarma.Api.Services
 			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, previousFlairs);
 
-			await hubContext.Clients.All.SendAsync("EditedPost", (PlayerPostDTO)post with
+			await hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
 			{
 				AuthorUsername = post.Author?.Username,
 				PlayerUsername = post.Player?.Username
 			});
 		}
 
-		public async Task DeletePostAsync(Guid id)
+		public async Task DeletePostAsync(Guid id, bool modLock = false)
 		{
 			Post post = await context.Posts.FindAsync(id);
-			context.Posts.Remove(post);
+
+			if (modLock)
+			{
+				post.ModLocked = true;
+			}
+			else
+			{ 
+				context.Posts.Remove(post);
+			}
 
 			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, null, post.ParsedFlairs, post.NegativeKarmaAble);
 			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, null, post.ParsedFlairs);
@@ -185,11 +188,11 @@ namespace WowsKarma.Api.Services
 
 			if (filteredPosts.Any())
 			{
-				PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault();
+				PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault().Adapt<PlayerPostDTO>();
 
 				if (lastAuthoredPost is not null)
 				{
-					DateTime endsAt = lastAuthoredPost.PostedAt.Value.Add(CooldownPeriod);
+					DateTime endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
 					return endsAt > DateTime.UtcNow;
 
 				}

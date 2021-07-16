@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Wargaming.WebAPI.Models;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
+using WowsKarma.Web.Services.Authentication;
 
 namespace WowsKarma.Web
 {
@@ -62,9 +63,6 @@ namespace WowsKarma.Web
 			return new(result.Groups[1].Value.ToInteger(uint.MinValue), result.Groups[2].Value);
 		}
 
-		public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal) 
-			=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
-
 		public static uint GetIdFromRouteParameter(string routeParameter)
 		{
 			Match result = new Regex("([0-9]+),(\\w+)").Match(routeParameter);
@@ -97,6 +95,7 @@ namespace WowsKarma.Web
 
 		internal static string GetTokenFromCookie(this HttpContext httpContext) => httpContext.User.FindFirstValue("token");
 
-		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(HttpContext context) => new("Bearer", context.GetTokenFromCookie());
+		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(this HttpContext context) 
+			=> new("Bearer", context.Request.Cookies[ApiTokenAuthenticationHandler.CookieName]);
 	}
 }

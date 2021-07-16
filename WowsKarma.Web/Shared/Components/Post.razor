@@ -1,4 +1,6 @@
-﻿<div class="mx-3 my-3" id=@PlayerPost.Id>
+﻿@inject ModService ModService
+
+<div class="mx-3 my-3" id=@PlayerPost.Id>
 	@if (DisplayType is PostDisplayType.Neutral)
 	{
 		<p class="text-body">
@@ -29,6 +31,11 @@
 				</div>
 
 				<div class="col-auto px-1">
+					@if (PlayerPost.ModLocked)
+					{
+						<i class="bi bi-x-circle text-danger lead mr-1"></i>
+					}
+
 					<NavLink class="text-body" href=@($"/posts/view/{PlayerPost.Id}")><i class="bi bi-link-45deg lead"></i></NavLink>
 				</div>
 			</div>
@@ -45,20 +52,34 @@
 					<span>To <NavLink href=@($"/player/{PlayerPost.PlayerId},{PlayerPost.PlayerUsername}")>@PlayerPost.PlayerUsername</NavLink>,</span>
 				}
 
-				@PlayerPost.PostedAt.Value.ToString("dd/MM/yyyy @ HH:mm UTC")
+				@PlayerPost.CreatedAt.Value.ToString("dd/MM/yyyy @ HH:mm UTC")
 			</p>
 
-			<AuthorizeView>
-				<Authorized>
-					@if (PlayerPost.AuthorId == CurrentUserId)
-					{
-						<p class="mt-1 mb-0">
+			<p class="mt-1 mb-0">
+				<AuthorizeView>
+					<Authorized>
+						@if (PlayerPost.AuthorId == CurrentUserId && !PlayerPost.ModLocked)
+						{
 							<button class="btn btn-warning btn-sm" @onclick=EditClicked>Edit</button>
 							<button class="btn btn-danger btn-sm" @onclick=DeleteClicked>Delete</button>
-						</p>
-					}
-				</Authorized>
-			</AuthorizeView>
+						}
+					</Authorized>
+				</AuthorizeView>
+
+				<AuthorizeView Roles=@ApiRoles.CM>
+					<Authorized>
+						@if (!PlayerPost.ModLocked)
+						{
+							<button class="btn btn-outline-danger btn-sm" @onclick=ModDeleteClicked>Mod Delete</button>
+
+							<ModDeleteModal @ref=ModDeleteModal 
+								OnSubmit=OnModDeleteSubmit
+								OnCancel="() => ModDeleteModal.Show = false" 
+							/>
+						}
+					</Authorized>
+				</AuthorizeView>
+			</p>
 		</div>
 	</div>
 </div>
@@ -72,6 +93,8 @@
 	[Parameter] public EventCallback<PlayerPostDTO> OnEditClick { get; init; }
 	[Parameter] public EventCallback<Guid> OnDeleteClick { get; init; }
 
+	private ModDeleteModal ModDeleteModal = new();
+	private ModDeleteModal.ParametersModel ModDeleteParameters = new();
 
 	private MarkupString GetFlairMarkup(string name, bool? value) => value is bool x
 		? new($"<small class=\"my-0 text-{(x ? "success" : "danger")}\">{(x ? "+" : "-")} {name}</small> <br />")
@@ -79,7 +102,13 @@
 
 	private Task EditClicked() => OnEditClick.InvokeAsync(PlayerPost);
 	private Task DeleteClicked() => OnDeleteClick.InvokeAsync(PlayerPost.Id.Value);
+	private void ModDeleteClicked() => ModDeleteModal.Show = true;
 
+	private async Task OnModDeleteSubmit(ModDeleteModal.ParametersModel parametersModel)
+	{
+		await ModService.DeletePostAsync((Guid)PlayerPost.Id, parametersModel.Reason);
+		ModDeleteModal.Show = false;
+	}
 
 	public enum PostDisplayType
 	{

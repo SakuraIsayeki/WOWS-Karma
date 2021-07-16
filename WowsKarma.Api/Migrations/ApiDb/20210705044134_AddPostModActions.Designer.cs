@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
@@ -10,9 +11,10 @@ using WowsKarma.Common.Models;
 namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210705044134_AddPostModActions")]
+    partial class AddPostModActions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,7 +84,6 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .HasColumnType("bigint");
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -93,9 +94,6 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<int>("Flairs")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("ModLocked")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("NegativeKarmaAble")
                         .HasColumnType("boolean");
 
@@ -103,7 +101,6 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .HasColumnType("bigint");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")

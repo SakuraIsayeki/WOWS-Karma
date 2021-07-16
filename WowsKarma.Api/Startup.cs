@@ -2,12 +2,14 @@ using Discord.Webhook;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
@@ -16,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using Wargaming.WebAPI;
 using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
@@ -66,6 +69,25 @@ namespace WowsKarma.Api
 							ValidAudience = Configuration["JWT:ValidAudience"],
 							ValidIssuer = Configuration["JWT:ValidIssuer"],
 							IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+						};
+
+						options.Events = new JwtBearerEvents
+						{
+							OnMessageReceived = context =>
+							{
+								StringValues accessToken = context.Request.Query["access_token"];
+
+								// If the request is for our hub...
+								PathString path = context.Request.Path;
+
+								if (accessToken != StringValues.Empty && path.StartsWithSegments("/api/hubs"))
+								{
+									// Read the token out of the query string
+									context.Token = accessToken;
+								}
+
+								return Task.CompletedTask;
+							}
 						};
 					});
 
@@ -135,9 +157,9 @@ namespace WowsKarma.Api
 			services.AddHttpClient<VortexApiHandler>(client => client.BaseAddress = new(VortexApiHandler.GetApiHost(ApiRegion)));
 
 			services.AddWargamingAuth();
+			services.AddScoped<JwtAuthenticationHandler>();
 
 			services.AddSingleton<JwtService>();
-			services.AddSingleton<JwtAuthenticationHandler>();
 			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration[$"Api:{ApiRegion.ToRegionString()}:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();
@@ -150,6 +172,7 @@ namespace WowsKarma.Api
 			services.AddScoped<PlayerService>();
 			services.AddScoped<PostService>();
 			services.AddScoped<KarmaService>();
+			services.AddScoped<ModService>();
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{

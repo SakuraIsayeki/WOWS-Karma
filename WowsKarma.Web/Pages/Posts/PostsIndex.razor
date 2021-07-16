@@ -49,10 +49,9 @@
 		else
 		{
 			<div class="row">
-				@foreach (PlayerPostDTO post in Posts)
-				{
+				<Virtualize Items=Posts Context=post>
 					<Post PlayerPost=post DisplayType=Post.PostDisplayType.Neutral />
-				}
+				</Virtualize>
 			</div>
 		}
 	}

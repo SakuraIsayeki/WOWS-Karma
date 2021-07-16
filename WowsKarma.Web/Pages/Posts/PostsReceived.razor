@@ -50,12 +50,12 @@
 	else
 	{
 		<div class="row">
-			@foreach (PlayerPostDTO post in PlayerPosts)
-			{
-				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Received CurrentUserId=CurrentUser.Id 
-					OnEditClick="() => EditPost(post)"
-					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />
-			}
+			<Virtualize Items=PlayerPosts Context=post>
+				<Post Editable @key=post.Id PlayerPost=post DisplayType=Post.PostDisplayType.Received CurrentUserId=CurrentUser.Id
+					  OnEditClick="() => EditPost(post)"
+					  OnDeleteClick="() => InitDeleteModal(post.Id.Value)" 
+				/>
+			</Virtualize>
 		</div>
 	}
 
@@ -89,7 +89,7 @@ else
 	[Parameter]
 	public EventCallback OnPostsUpdate { get; set; }
 
-	public IEnumerable<PlayerPostDTO> PlayerPosts { get; set; }
+	public ICollection<PlayerPostDTO> PlayerPosts { get; set; }
 
 	public bool Loaded { get; private set; }
 	private bool showEditorModal, showDeleteModal;
@@ -105,7 +105,7 @@ else
 	{
 		await base.OnParametersSetAsync();
 
-		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
+		PlayerPosts = (await PostService.FetchReceivedPostsAsync(AccountId, 0)).ToArray();
 
 		Loaded = true;
 	}
@@ -126,7 +126,7 @@ else
 
 	public async Task UpdatePostsAsync()
 	{
-		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
+		PlayerPosts = (await PostService.FetchReceivedPostsAsync(AccountId, 0)).ToArray();
 		await OnPostsUpdate.InvokeAsync();
 	}
 

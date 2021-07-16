@@ -16,13 +16,14 @@
 	else
 	{
 		<div class="row">
-			@foreach (PlayerPostDTO post in PlayerPosts)
-			{
-				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=CurrentUser.Id 
-					OnEditClick="() => EditPost(post)"
-					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />
-			}
+			<Virtualize Items=PlayerPosts Context=post>
+				<Post Editable @key=post.Id PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=CurrentUser.Id
+					  OnEditClick="() => EditPost(post)"
+					  OnDeleteClick="() => InitDeleteModal(post.Id.Value)" 
+				/>
+			</Virtualize>
 		</div>
+
 		@if (showEditorModal)
 		{
 			<EditorModal PostModel=currentEditorPost OnPostSubmited=EditorModalSubmitAsync OnCancel=EditorModalCancel />
@@ -46,7 +47,7 @@ else
 	[Parameter]
 	public uint AccountId { get; set; }
 
-	public IEnumerable<PlayerPostDTO> PlayerPosts { get; set; }
+	public ICollection<PlayerPostDTO> PlayerPosts { get; set; }
 
 	public bool Loaded { get; private set; }
 
@@ -74,7 +75,7 @@ else
 
 	public async Task UpdatePostsAsync()
 	{
-		PlayerPosts = await PostService.FetchSentPostsAsync(AccountId, 0);
+		PlayerPosts = (await PostService.FetchSentPostsAsync(AccountId, 0)).ToArray();
 	}
 
 	private void EditorModalCancel() => showEditorModal = false;

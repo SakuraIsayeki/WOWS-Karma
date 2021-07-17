@@ -94,7 +94,6 @@
 	[Parameter] public EventCallback<Guid> OnDeleteClick { get; init; }
 
 	private ModDeleteModal ModDeleteModal = new();
-	private ModDeleteModal.ParametersModel ModDeleteParameters = new();
 
 	private MarkupString GetFlairMarkup(string name, bool? value) => value is bool x
 		? new($"<small class=\"my-0 text-{(x ? "success" : "danger")}\">{(x ? "+" : "-")} {name}</small> <br />")
@@ -106,8 +105,13 @@
 
 	private async Task OnModDeleteSubmit(ModDeleteModal.ParametersModel parametersModel)
 	{
-		await ModService.DeletePostAsync((Guid)PlayerPost.Id, parametersModel.Reason);
-		ModDeleteModal.Show = false;
+		if (!ModDeleteModal.Sent)
+		{
+			ModDeleteModal.Show = false;
+			ModDeleteModal.Sent = true;
+			await ModService.DeletePostAsync((Guid)PlayerPost.Id, parametersModel.Reason);
+
+		}
 	}
 
 	public enum PostDisplayType

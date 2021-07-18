@@ -27,11 +27,14 @@ namespace WowsKarma.Api.Services
 			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
 			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));
 		}
-		~PlayerService()
-		{
-			context.Dispose();
-		}
 
+
+		/*
+		 * FIXME: (#38)
+		 * 
+		 * Method no longer returns any tracked entity, resulting in dropped changes for EF Core
+		 * Do not use unless readonly.
+		 */
 		public async Task<Player> GetPlayerAsync(uint accountId)
 		{
 			if (accountId is 0)

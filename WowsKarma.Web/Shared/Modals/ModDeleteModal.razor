@@ -34,6 +34,7 @@
 	[Parameter] public ParametersModel EditModel { get; set; } = new();
 
 	public bool Show { get; set; }
+	public bool Sent { get; set; }
 
 
 	public Task SubmitAsync() => OnSubmit.InvokeAsync(EditModel);

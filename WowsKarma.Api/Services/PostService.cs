@@ -25,15 +25,13 @@ namespace WowsKarma.Api.Services
 
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
-		private readonly KarmaService karmaService;
 		private readonly DiscordWebhookClient webhookClient;
 		private readonly IHubContext<PostHub> hubContext;
 
-		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, KarmaService karmaService, DiscordWebhookClient webhookClient, IHubContext<PostHub> hubContext)
+		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, DiscordWebhookClient webhookClient, IHubContext<PostHub> hubContext)
 		{
 			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
 			this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-			this.karmaService = karmaService ?? throw new ArgumentNullException(nameof(karmaService));
 			this.webhookClient = webhookClient;
 			this.hubContext = hubContext;
 		}
@@ -91,7 +89,7 @@ namespace WowsKarma.Api.Services
 			}
 
 			Player author = await playerService.GetPlayerAsync(postDTO.AuthorId) ?? throw new ArgumentException($"Author Account {postDTO.AuthorId} not found", nameof(postDTO));
-			Player player = await playerService.GetPlayerAsync(postDTO.PlayerId) ?? throw new ArgumentException($"Player Account {postDTO.PlayerId} not found", nameof(postDTO));
+			Player player = await context.Players.FindAsync(postDTO.PlayerId) ?? throw new ArgumentException($"Player Account {postDTO.PlayerId} not found", nameof(postDTO));
 
 			if (!bypassChecks)
 			{
@@ -106,16 +104,15 @@ namespace WowsKarma.Api.Services
 				}
 			}
 
-
 			Post post = postDTO.Adapt<Post>();
-
 			context.Posts.Add(post);
+			KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, null, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, null);
+			
 			await context.SaveChangesAsync();
 
-			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, post.ParsedFlairs, null, post.NegativeKarmaAble);
-			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, null);
-
 			await SendDiscordWebhookMessage(post, author, player);
+
 			await hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with 
 			{ 
 				AuthorUsername = author.Username,
@@ -129,15 +126,17 @@ namespace WowsKarma.Api.Services
 
 			Post post = await context.Posts.FindAsync(id);
 			PostFlairsParsed previousFlairs = post.ParsedFlairs;
+			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {editedPostDTO.PlayerId} not found", nameof(editedPostDTO));
 
 			post.Title = editedPostDTO.Title;
 			post.Content = editedPostDTO.Content;
 			post.Flairs = editedPostDTO.Flairs;
 			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
-			await context.SaveChangesAsync();
 
-			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
-			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, post.ParsedFlairs, previousFlairs);
+			KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, previousFlairs);
+			
+			await context.SaveChangesAsync();
 
 			await hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
 			{
@@ -149,6 +148,7 @@ namespace WowsKarma.Api.Services
 		public async Task DeletePostAsync(Guid id, bool modLock = false)
 		{
 			Post post = await context.Posts.FindAsync(id);
+			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {post.PlayerId} not found", nameof(post));
 
 			if (modLock)
 			{
@@ -159,8 +159,9 @@ namespace WowsKarma.Api.Services
 				context.Posts.Remove(post);
 			}
 
-			await karmaService.UpdatePlayerKarmaAsync(post.PlayerId, null, post.ParsedFlairs, post.NegativeKarmaAble);
-			await karmaService.UpdatePlayerRatingsAsync(post.PlayerId, null, post.ParsedFlairs);
+			KarmaService.UpdatePlayerKarma(ref player, null, post.ParsedFlairs, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(ref player, null, post.ParsedFlairs);
+			
 			await context.SaveChangesAsync();
 
 			await hubContext.Clients.All.SendAsync("DeletedPost", id);

@@ -37,8 +37,8 @@ else
 					<thead />
 
 					<tbody>
-						<tr><th>Removed by</th><td>@lastModAction.ModUsername</td></tr>
-						<tr><th>Reason</th><td>@lastModAction.Reason</td></tr>
+						<tr><th>Removed by</th><td>@lastModAction?.ModUsername</td></tr>
+						<tr><th>Reason</th><td>@lastModAction?.Reason</td></tr>
 					</tbody>
 				</table>
 			</div>
@@ -84,14 +84,15 @@ else
 
 	private void EditorModalInit() => showEditorModal = true;
 	private void EditorModalCancel() => showEditorModal = false;
-	private void EditorModalSubmit()
+	private async Task EditorModalSubmit()
 	{
 		showEditorModal = false;
-		StateHasChanged();
+		lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id)).Last();
 	}
 
 	private void DeleteModalInit() => showDeleteModal = true;
 	private void DeleteModalCancel() => showDeleteModal = false;
+
 	private async Task DeleteModalSubmitAsync()
 	{
 		showDeleteModal = false;

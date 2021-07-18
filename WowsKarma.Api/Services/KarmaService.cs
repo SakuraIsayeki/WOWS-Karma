@@ -11,17 +11,10 @@ namespace WowsKarma.Api.Services
 {
 	public class KarmaService
 	{
-		private readonly ApiDbContext context;
+		public KarmaService() { }
 
-		public KarmaService(IDbContextFactory<ApiDbContext> contextFactory)
+		public static void UpdatePlayerKarma(ref Player player, PostFlairsParsed newFlairs, PostFlairsParsed oldFlairs, bool allowNegative)
 		{
-			context = contextFactory.CreateDbContext();
-		}
-
-		public async Task UpdatePlayerKarmaAsync(uint playerId, PostFlairsParsed newFlairs, PostFlairsParsed oldFlairs, bool allowNegative)
-		{
-			Player player = await context.Players.FindAsync(playerId);
-
 			sbyte? newKarmaBalance = newFlairs is null ? null : PostFlairsUtils.CountBalance(newFlairs);
 			sbyte? oldKarmaBalance = oldFlairs is null ? null : PostFlairsUtils.CountBalance(oldFlairs);
 
@@ -50,19 +43,13 @@ namespace WowsKarma.Api.Services
 					player.SiteKarma--;
 				}
 			}
-
-			await context.SaveChangesAsync();
 		}
 
-		public async Task UpdatePlayerRatingsAsync(uint playerId, PostFlairsParsed postFlairs, PostFlairsParsed oldFlairs)
+		public static void UpdatePlayerRatings(ref Player player, PostFlairsParsed postFlairs, PostFlairsParsed oldFlairs)
 		{
-			Player player = await context.Players.FindAsync(playerId);
-
 			player.PerformanceRating = UpdateRating(player.PerformanceRating, postFlairs?.Performance, oldFlairs?.Performance);
 			player.TeamplayRating = UpdateRating(player.TeamplayRating, postFlairs?.Teamplay, oldFlairs?.Teamplay);
 			player.CourtesyRating = UpdateRating(player.CourtesyRating, postFlairs?.Courtesy, oldFlairs?.Courtesy);
-
-			await context.SaveChangesAsync();
 		}
 
 		private static int UpdateRating(int rating, bool? newFlair, bool? oldFlair)

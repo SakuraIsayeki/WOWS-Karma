@@ -1,4 +1,3 @@
-using Discord.Webhook;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,6 +27,7 @@ using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
+using WowsKarma.Api.Services.Discord;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api
@@ -164,7 +164,7 @@ namespace WowsKarma.Api
 			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration[$"Api:{ApiRegion.ToRegionString()}:AppId"]));
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
-			services.AddSingleton(new DiscordWebhookClient(Configuration[$"Webhooks:Discord:{ApiRegion.ToRegionString()}"]));
+			services.AddSingleton<PostWebhookService>();
 
 			services.AddTransient<PostHub>();
 

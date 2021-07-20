@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Wargaming.WebAPI.Models.WorldOfWarships.Responses;
 using Wargaming.WebAPI.Requests;
@@ -114,6 +115,45 @@ namespace WowsKarma.Api.Services
 			await context.SaveChangesAsync();
 		}
 
+		public async Task RecalculatePlayerMetrics(uint playerId, CancellationToken cancellationToken)
+		{
+			Player player = await context.Players.Include(p => p.PostsReceived).FirstOrDefaultAsync(p => p.Id == playerId, cancellationToken);
+
+			int oldSiteKarma = player.SiteKarma,
+				oldPerformanceRating = player.PerformanceRating,
+				oldTeamplayRating = player.TeamplayRating,
+				oldCourtesyRating = player.CourtesyRating;
+
+			try
+			{
+				SetPlayerMetrics(player, 0, 0, 0, 0);
+
+				if (player.PostsReceived.Count is not 0)
+				{
+					foreach (Post post in player.PostsReceived)
+					{
+						KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, null, post.NegativeKarmaAble);
+						KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, null);
+					}
+				}
+
+				await context.SaveChangesAsync(cancellationToken);
+			}
+			catch (OperationCanceledException)
+			{
+				SetPlayerMetrics(player, oldSiteKarma, oldPerformanceRating, oldTeamplayRating, oldCourtesyRating);
+				return;
+			}
+		}
+
 		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;
+
+		private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
+		{
+			player.SiteKarma = site;
+			player.PerformanceRating = performance;
+			player.TeamplayRating = teamplay;
+			player.CourtesyRating = courtesy;
+		}
 	}
 }

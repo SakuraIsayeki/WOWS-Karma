@@ -1,7 +1,5 @@
 ﻿using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using System.Numerics;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Utilities;
@@ -40,7 +38,7 @@ namespace WowsKarma.Api.Services.Discord
 		private static DiscordEmbedBuilder AddModActionContent(DiscordEmbedBuilder embed, PostModAction modAction)
 		{
 			embed.AddField("Moderated by", $"[{modAction.Mod.Username}]({modAction.Mod.GetPlayerProfileLink()})", true);
-			embed.AddField("Post Author", $"[{modAction.Mod.Username}]({modAction.Mod.GetPlayerProfileLink()})", true);
+			embed.AddField("Post Author", $"[{modAction.Post.Author.Username}]({modAction.Mod.GetPlayerProfileLink()})", true);
 			embed.AddField("Reason", modAction.Reason, false);
 
 			return embed;

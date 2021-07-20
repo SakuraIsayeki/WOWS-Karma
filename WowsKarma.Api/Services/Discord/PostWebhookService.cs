@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
-using WowsKarma.Common.Models;
 
 namespace WowsKarma.Api.Services.Discord
 {
@@ -19,7 +18,8 @@ namespace WowsKarma.Api.Services.Discord
 			}
 		}
 
-		public async Task SendNewPostWebhook(Post post, Player author, Player player)
+
+		public async Task SendNewPostWebhookAsync(Post post, Player author, Player player)
 		{
 			DiscordEmbedBuilder embed = new()
 			{
@@ -31,6 +31,38 @@ namespace WowsKarma.Api.Services.Discord
 			};
 
 			AddPostContent(embed, post);
+
+			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder().AddEmbed(embed));
+		}
+
+		public async Task SendEditedPostWebhookAsync(Post post, Player author, Player player)
+		{
+			DiscordEmbedBuilder embed = new()
+			{
+				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
+				Title = $"**Edited Post on {player.Username} :** \"{post.Title}\".",
+				Url = new(post.GetPostProfileLink()),
+				Footer = GetDefaultFooter(),
+				Color = new(0xffc400) // Dark Yellow
+			};
+
+			AddPostContent(embed, post);
+
+			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder().AddEmbed(embed));
+		}
+
+		public async Task SendDeletedPostWebhookAsync(Post post, Player author, Player player)
+		{
+			DiscordEmbedBuilder embed = new()
+			{
+				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
+				Title = $"**Deleted Post on {player.Username} :** \"{post.Title}\".",
+				Url = new(post.GetPostProfileLink()),
+				Footer = GetDefaultFooter(),
+				Color = DiscordColor.Red
+			};
+
+			embed.AddField("Post ID", post.Id.ToString());
 
 			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder().AddEmbed(embed));
 		}

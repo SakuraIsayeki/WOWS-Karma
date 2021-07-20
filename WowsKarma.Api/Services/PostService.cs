@@ -108,9 +108,9 @@ namespace WowsKarma.Api.Services
 			
 			await context.SaveChangesAsync();
 
-			await webhookService.SendNewPostWebhook(post, author, player);
+			_ = webhookService.SendNewPostWebhookAsync(post, author, player);
 
-			await hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with 
+			_ = hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with 
 			{ 
 				AuthorUsername = author.Username,
 				PlayerUsername = player.Username
@@ -135,7 +135,9 @@ namespace WowsKarma.Api.Services
 			
 			await context.SaveChangesAsync();
 
-			await hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
+			_ = webhookService.SendEditedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
+
+			_ = hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
 			{
 				AuthorUsername = post.Author?.Username,
 				PlayerUsername = post.Player?.Username
@@ -161,7 +163,8 @@ namespace WowsKarma.Api.Services
 			
 			await context.SaveChangesAsync();
 
-			await hubContext.Clients.All.SendAsync("DeletedPost", id);
+			_ = webhookService.SendDeletedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
+			_ = hubContext.Clients.All.SendAsync("DeletedPost", id);
 		}
 
 		internal static void ValidatePostContents(PlayerPostDTO post)

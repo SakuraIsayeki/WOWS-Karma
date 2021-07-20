@@ -1,5 +1,3 @@
-using Discord;
-using Discord.Webhook;
 using Mapster;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -10,8 +8,7 @@ using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Hubs;
-using WowsKarma.Api.Utilities;
-using WowsKarma.Common;
+using WowsKarma.Api.Services.Discord;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
@@ -25,14 +22,14 @@ namespace WowsKarma.Api.Services
 
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
-		private readonly DiscordWebhookClient webhookClient;
+		private readonly PostWebhookService webhookService;
 		private readonly IHubContext<PostHub> hubContext;
 
-		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, DiscordWebhookClient webhookClient, IHubContext<PostHub> hubContext)
+		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub> hubContext)
 		{
 			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
 			this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-			this.webhookClient = webhookClient;
+			this.webhookService = webhookService;
 			this.hubContext = hubContext;
 		}
 
@@ -113,9 +110,9 @@ namespace WowsKarma.Api.Services
 			
 			await context.SaveChangesAsync();
 
-			await SendDiscordWebhookMessage(post, author, player);
+			_ = webhookService.SendNewPostWebhookAsync(post, author, player);
 
-			await hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with 
+			_ = hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with 
 			{ 
 				AuthorUsername = author.Username,
 				PlayerUsername = player.Username
@@ -140,7 +137,9 @@ namespace WowsKarma.Api.Services
 			
 			await context.SaveChangesAsync();
 
-			await hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
+			_ = webhookService.SendEditedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
+
+			_ = hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
 			{
 				AuthorUsername = post.Author?.Username,
 				PlayerUsername = post.Player?.Username
@@ -150,7 +149,7 @@ namespace WowsKarma.Api.Services
 		public async Task DeletePostAsync(Guid id, bool modLock = false)
 		{
 			Post post = await context.Posts.FindAsync(id);
-			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {post.PlayerId} not found", nameof(post));
+			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {post.PlayerId} not found");
 
 			if (modLock)
 			{
@@ -166,7 +165,12 @@ namespace WowsKarma.Api.Services
 			
 			await context.SaveChangesAsync();
 
-			await hubContext.Clients.All.SendAsync("DeletedPost", id);
+			if (!modLock)
+			{
+				_ = webhookService.SendDeletedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
+			}
+
+			_ = hubContext.Clients.All.SendAsync("DeletedPost", id);
 		}
 
 		internal static void ValidatePostContents(PlayerPostDTO post)
@@ -202,40 +206,5 @@ namespace WowsKarma.Api.Services
 			}
 			return false;
 		}
-
-		private async Task SendDiscordWebhookMessage(Post post, Player author, Player player)
-		{
-			EmbedBuilder embed = new()
-			{
-				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
-				Title = $"**New Post on {player.Username} :** \"{post.Title}\".",
-				Url = new(player.GetPlayerProfileLink()),
-				Description = post.Content,
-				Footer = new() { Text = $"WOWS Karma ({Startup.ApiRegion.ToRegionString()}) - Powered by Nodsoft Systems" },
-
-				Color = PostFlairsUtils.CountBalance(post.Flairs.ParseFlairsEnum()) switch
-				{
-					> 0 => Color.Green,
-					< 0 => Color.Red,
-					_ => Color.LighterGrey
-				},
-
-				Fields = new List<EmbedFieldBuilder>
-				{
-					new EmbedFieldBuilder { Name = "Performance", Value = GetFlairValueString(post.ParsedFlairs.Performance), IsInline = true },
-					new EmbedFieldBuilder { Name = "Teamplay", Value = GetFlairValueString(post.ParsedFlairs.Teamplay), IsInline = true },
-					new EmbedFieldBuilder { Name = "Courtesy", Value = GetFlairValueString(post.ParsedFlairs.Courtesy), IsInline = true }
-				}
-			};
-
-			await webhookClient.SendMessageAsync(embeds: new Embed[] { embed.Build() });
-		}
-
-		private static string GetFlairValueString(bool? value) => value switch
-		{
-			true => "Positive",
-			false => "Negative",
-			null or _ => "Neutral"
-		};
 	}
 }

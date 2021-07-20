@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
+using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs;
 
 
@@ -58,5 +61,12 @@ namespace WowsKarma.Api.Controllers
 
 		[HttpPost("KarmasFull")]
 		public IActionResult FetchFullKarmas([FromBody] uint[] ids) => StatusCode(200, service.GetPlayersFullKarma(ids));
+
+		[HttpPost("Recalculate"), Authorize(Roles = ApiRoles.Administrator)]
+		public async Task<IActionResult> RecalculateMetrics([FromQuery] uint playerId, CancellationToken cancellationToken)
+		{
+			await service.RecalculatePlayerMetrics(playerId, cancellationToken);
+			return StatusCode(205);
+		}
 	}
 }

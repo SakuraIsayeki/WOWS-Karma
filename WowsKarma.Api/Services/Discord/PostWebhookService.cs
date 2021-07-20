@@ -1,7 +1,5 @@
-﻿using DSharpPlus;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Utilities;
@@ -10,17 +8,13 @@ using WowsKarma.Common.Models;
 
 namespace WowsKarma.Api.Services.Discord
 {
-	public class PostWebhookService
+	public class PostWebhookService : WebhookService
 	{
-		private readonly DiscordWebhookClient client;
-
-		public PostWebhookService(IConfiguration configuration)
+		public PostWebhookService(IConfiguration configuration) : base(configuration)
 		{
-			client = new();
-
-			foreach (string webhookLink in configuration.GetSection($"Webhooks:Discord:{Startup.ApiRegion.ToRegionString()}:Posts").Get<string[]>())
+			foreach (string webhookLink in configuration.GetSection($"Discord:Webhooks:{Startup.ApiRegion.ToRegionString()}:Posts").Get<string[]>())
 			{
-				client.AddWebhookAsync(new(webhookLink)).GetAwaiter().GetResult();
+				Client.AddWebhookAsync(new(webhookLink)).GetAwaiter().GetResult();
 			}
 		}
 
@@ -34,7 +28,7 @@ namespace WowsKarma.Api.Services.Discord
 				Description = post.Content,
 				Footer = new() { Text = $"WOWS Karma ({Startup.ApiRegion.ToRegionString()}) - Powered by Nodsoft Systems" },
 
-				Color = PostFlairsUtils.CountBalance(post.Flairs.ParseFlairsEnum()) switch
+				Color = PostFlairsUtils.CountBalance(post.ParsedFlairs) switch
 				{
 					> 0 => DiscordColor.Green,
 					< 0 => DiscordColor.Red,
@@ -42,11 +36,11 @@ namespace WowsKarma.Api.Services.Discord
 				}
 			};
 
-			embed.AddField("Performance", GetFlairValueString(post.ParsedFlairs.Performance), true);
-			embed.AddField("Teamplay", GetFlairValueString(post.ParsedFlairs.Teamplay), true);
-			embed.AddField("Courtesy", GetFlairValueString(post.ParsedFlairs.Courtesy), true);
+			embed.AddField("Performance", GetFlairValueString(post.ParsedFlairs?.Performance), true);
+			embed.AddField("Teamplay", GetFlairValueString(post.ParsedFlairs?.Teamplay), true);
+			embed.AddField("Courtesy", GetFlairValueString(post.ParsedFlairs?.Courtesy), true);
 
-			await client.BroadcastMessageAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder().AddEmbed(embed));
 		}
 
 		private static string GetFlairValueString(bool? value) => value switch

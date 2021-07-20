@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using Microsoft.Extensions.Configuration;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Utilities;
@@ -24,21 +25,12 @@ namespace WowsKarma.Api.Services.Discord
 			{
 				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
 				Title = $"**New Post on {player.Username} :** \"{post.Title}\".",
-				Url = new(player.GetPlayerProfileLink()),
-				Description = post.Content,
-				Footer = new() { Text = $"WOWS Karma ({Startup.ApiRegion.ToRegionString()}) - Powered by Nodsoft Systems" },
-
-				Color = PostFlairsUtils.CountBalance(post.ParsedFlairs) switch
-				{
-					> 0 => DiscordColor.Green,
-					< 0 => DiscordColor.Red,
-					_ => DiscordColor.LightGray
-				}
+				Url = new(post.GetPostProfileLink()),
+				Footer = GetDefaultFooter(),
+				Color = DiscordColor.Green
 			};
 
-			embed.AddField("Performance", GetFlairValueString(post.ParsedFlairs?.Performance), true);
-			embed.AddField("Teamplay", GetFlairValueString(post.ParsedFlairs?.Teamplay), true);
-			embed.AddField("Courtesy", GetFlairValueString(post.ParsedFlairs?.Courtesy), true);
+			AddPostContent(embed, post);
 
 			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder().AddEmbed(embed));
 		}
@@ -49,5 +41,15 @@ namespace WowsKarma.Api.Services.Discord
 			false => "Negative",
 			null or _ => "Neutral"
 		};
+
+		private static DiscordEmbedBuilder AddPostContent(DiscordEmbedBuilder embed, Post post)
+		{
+			embed.Description = post.Content;
+			embed.AddField("Performance", GetFlairValueString(post.ParsedFlairs?.Performance), true);
+			embed.AddField("Teamplay", GetFlairValueString(post.ParsedFlairs?.Teamplay), true);
+			embed.AddField("Courtesy", GetFlairValueString(post.ParsedFlairs?.Courtesy), true);
+
+			return embed;
+		}
 	}
 }

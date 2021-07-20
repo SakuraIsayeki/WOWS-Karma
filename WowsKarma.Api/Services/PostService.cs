@@ -163,7 +163,11 @@ namespace WowsKarma.Api.Services
 			
 			await context.SaveChangesAsync();
 
-			_ = webhookService.SendDeletedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
+			if (!modLock)
+			{
+				_ = webhookService.SendDeletedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
+			}
+
 			_ = hubContext.Clients.All.SendAsync("DeletedPost", id);
 		}
 

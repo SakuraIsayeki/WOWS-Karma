@@ -165,6 +165,7 @@ namespace WowsKarma.Api
 			services.AddSingleton<WorldOfWarshipsHandler>();
 			services.AddSingleton<VortexApiHandler>();
 			services.AddSingleton<PostWebhookService>();
+			services.AddSingleton<ModActionWebhookService>();
 
 			services.AddTransient<PostHub>();
 

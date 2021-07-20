@@ -1,11 +1,13 @@
 ﻿using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Services.Discord;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
@@ -14,13 +16,15 @@ namespace WowsKarma.Api.Services
 	public class ModService
 	{
 		private readonly ILogger<ModService> logger;
+		private readonly ModActionWebhookService webhookService;
 		private readonly PostService postService;
 		private readonly ApiDbContext context;
 
-		public ModService(ILogger<ModService> logger, IDbContextFactory<ApiDbContext> dbContextFactory, PostService postService)
+		public ModService(ILogger<ModService> logger, IDbContextFactory<ApiDbContext> dbContextFactory, ModActionWebhookService webhookService, PostService postService)
 		{
 			context = dbContextFactory.CreateDbContext();
 			this.logger = logger;
+			this.webhookService = webhookService;
 			this.postService = postService;
 		}
 
@@ -33,7 +37,7 @@ namespace WowsKarma.Api.Services
 
 		public async Task SubmitModActionAsync(PostModActionDTO modAction)
 		{
-			await context.PostModActions.AddAsync(modAction.Adapt<PostModAction>());
+			EntityEntry<PostModAction> entityEntry = await context.PostModActions.AddAsync(modAction.Adapt<PostModAction>());
 
 			switch (modAction.ActionType)
 			{
@@ -54,6 +58,11 @@ namespace WowsKarma.Api.Services
 			}
 
 			await context.SaveChangesAsync();
+
+			await entityEntry.Reference(pma => pma.Mod).LoadAsync();
+			await entityEntry.Reference(pma => pma.Post).LoadAsync();
+
+			_ = webhookService.SendModActionWebhookAsync(entityEntry.Entity);
 		}
 
 		public Task RevertModActionAsync(Guid modActionId)

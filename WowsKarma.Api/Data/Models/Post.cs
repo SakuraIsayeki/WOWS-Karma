@@ -32,7 +32,7 @@ namespace WowsKarma.Api.Data.Models
 		public DateTime CreatedAt { get; init; }
 		public DateTime UpdatedAt { get; set; }
 
-		public bool NegativeKarmaAble { get; init; }
+		public bool NegativeKarmaAble { get; internal set; }
 
 		public bool ModLocked { get; set; }
 	}

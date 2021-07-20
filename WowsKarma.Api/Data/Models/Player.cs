@@ -10,6 +10,9 @@ namespace WowsKarma.Api.Data.Models
 {
 	public record Player : ITimestamped
 	{
+		internal const int NegativeKarmaAbilityThreshold = -20;
+
+
 		[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 		public uint Id { get; init; }
 
@@ -33,8 +36,8 @@ namespace WowsKarma.Api.Data.Models
 		public List<Post> PostsReceived { get; init; }
 		public List<Post> PostsSent { get; init; }
 
-
-		public bool NegativeKarmaAble => (SiteKarma + GameKarma) > -20;
+		
+		public bool NegativeKarmaAble => (SiteKarma + GameKarma) > NegativeKarmaAbilityThreshold;
 		public bool PostsBanned { get; set; }
 		public bool OptedOut { get; set; }
 

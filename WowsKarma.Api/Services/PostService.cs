@@ -1,4 +1,4 @@
-﻿using Mapster;
+using Mapster;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -102,6 +102,8 @@ namespace WowsKarma.Api.Services
 			}
 
 			Post post = postDTO.Adapt<Post>();
+			post.NegativeKarmaAble = author.NegativeKarmaAble;
+
 			context.Posts.Add(post);
 			KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, null, post.NegativeKarmaAble);
 			KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, null);

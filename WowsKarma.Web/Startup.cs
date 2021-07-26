@@ -79,8 +79,8 @@ namespace WowsKarma.Web
 
 			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton<PageContentLoader>();
-			services.AddSingleton<PlayerService>();
 
+			services.AddScoped<PlayerService>();
 			services.AddScoped<UserService>();
 			services.AddScoped<PostService>();
 			services.AddScoped<ModService>();

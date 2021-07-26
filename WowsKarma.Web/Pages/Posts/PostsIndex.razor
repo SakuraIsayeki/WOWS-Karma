@@ -70,6 +70,8 @@
 	{
 		Loaded = false;
 		await base.OnParametersSetAsync();
+		Posts = new(await PostService.FetchLatestPostsAsync(10));
+		Loaded = true;
 
 		hubConnection = new HubConnectionBuilder()
 			.WithAutomaticReconnect()
@@ -81,20 +83,16 @@
 
 		SetupEvents();
 		await hubConnection.StartAsync();
-
-		await hubConnection.SendAsync("GetLatestPosts", 10);
-
-		Loaded = true;
 	}
 
 	public async Task RefreshListAsync(int count)
 	{
 		Loaded = false;
-		await hubConnection.SendAsync("GetLatestPosts", count);
+		Posts = new(await PostService.FetchLatestPostsAsync(10));
 		Loaded = true;
 	}
 
-	public bool IsConnected => hubConnection.State is HubConnectionState.Connected;
+	public bool IsConnected => hubConnection?.State is HubConnectionState.Connected;
 
 	public async ValueTask DisposeAsync()
 	{

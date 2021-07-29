@@ -82,7 +82,11 @@ namespace WowsKarma.Api.Controllers
 		public IActionResult GetLatestPosts([FromQuery] int count = 10)
 		{
 			AccountListingDTO currentUser = User.ToAccountListing();
-			return StatusCode(200, postService.GetLatestPosts(count).Where(p => !p.ModLocked || p.AuthorId == currentUser.Id).Adapt<List<PlayerPostDTO>>());
+			return StatusCode(200, 
+				postService.GetLatestPosts(count)
+					.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id)
+					.Take(count)
+					.Adapt<List<PlayerPostDTO>>());
 		}
 
 		[HttpPost, Authorize]

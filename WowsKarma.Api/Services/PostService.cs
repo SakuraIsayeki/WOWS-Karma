@@ -64,15 +64,10 @@ namespace WowsKarma.Api.Services
 					: author.PostsSent.OrderBy(p => p.CreatedAt);
 		}
 
-		public IQueryable<Post> GetLatestPosts(int? count)
-		{
-			IQueryable<Post> posts = context.Posts
-				.Include(p => p.Author)
-				.Include(p => p.Player)
-				.OrderByDescending(p => p.CreatedAt);
-
-			return count is null ? posts : posts.Take((int)count);
-		}
+		public IQueryable<Post> GetLatestPosts(int? count) => context.Posts
+			.Include(p => p.Author)
+			.Include(p => p.Player)
+			.OrderByDescending(p => p.CreatedAt);
 
 		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
 		{

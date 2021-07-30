@@ -24,7 +24,7 @@ namespace WowsKarma.Api.Services.Discord
 			{
 				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
 				Title = $"**New Post on {player.Username} :** \"{post.Title}\".",
-				Url = new(post.GetPostProfileLink()),
+				Url = new(post.GetPostLink()),
 				Footer = GetDefaultFooter(),
 				Color = DiscordColor.Green
 			};
@@ -40,7 +40,7 @@ namespace WowsKarma.Api.Services.Discord
 			{
 				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
 				Title = $"**Edited Post on {player.Username} :** \"{post.Title}\".",
-				Url = new(post.GetPostProfileLink()),
+				Url = new(post.GetPostLink()),
 				Footer = GetDefaultFooter(),
 				Color = new(0xffc400) // Dark Yellow
 			};
@@ -56,7 +56,7 @@ namespace WowsKarma.Api.Services.Discord
 			{
 				Author = new() { Name = author.Username, Url = author.GetPlayerProfileLink() },
 				Title = $"**Deleted Post on {player.Username} :** \"{post.Title}\".",
-				Url = new(post.GetPostProfileLink()),
+				Url = new(post.GetPostLink()),
 				Footer = GetDefaultFooter(),
 				Color = DiscordColor.Red
 			};

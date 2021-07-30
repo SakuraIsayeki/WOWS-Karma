@@ -22,7 +22,7 @@ namespace WowsKarma.Api.Services.Discord
 			DiscordEmbedBuilder embed = new()
 			{
 				Title = $"**Post Locked by Mod-Action**",
-				Url = new(modAction.Post.GetPostProfileLink()),
+				Url = new(modAction.Post.GetPostLink()),
 				Footer = GetDefaultFooter(),
 				Color = DiscordColor.Red
 			};
@@ -37,8 +37,8 @@ namespace WowsKarma.Api.Services.Discord
 
 		private static DiscordEmbedBuilder AddModActionContent(DiscordEmbedBuilder embed, PostModAction modAction)
 		{
-			embed.AddField("Moderated by", $"[{modAction.Mod.Username}]({modAction.Mod.GetPlayerProfileLink()})", true);
-			embed.AddField("Post Author", $"[{modAction.Post.Author.Username}]({modAction.Mod.GetPlayerProfileLink()})", true);
+			embed.AddField("Moderated by", $"[{modAction.Mod?.Username ?? "Unknown"}]({modAction.Mod.GetPlayerProfileLink()})", true);
+			embed.AddField("Post Author", $"[{modAction.Post.Author?.Username ?? "Unknown"}]({modAction.Post.Author?.GetPlayerProfileLink()})", true);
 			embed.AddField("Reason", modAction.Reason, false);
 
 			return embed;

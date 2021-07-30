@@ -60,7 +60,7 @@ namespace WowsKarma.Api.Services
 			await context.SaveChangesAsync();
 
 			await entityEntry.Reference(pma => pma.Mod).LoadAsync();
-			await entityEntry.Reference(pma => pma.Post).LoadAsync();
+			await entityEntry.Reference(pma => pma.Post).Query().Include(p => p.Author).LoadAsync();
 
 			_ = webhookService.SendModActionWebhookAsync(entityEntry.Entity);
 		}

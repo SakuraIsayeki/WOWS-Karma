@@ -38,30 +38,22 @@ namespace WowsKarma.Api.Services
 			.Include(p => p.Player)
 			.FirstOrDefault(p => p.Id == id);
 
-		public IEnumerable<Post> GetReceivedPosts(uint playerId, int lastResults)
+		public IEnumerable<Post> GetReceivedPosts(uint playerId)
 		{
 			Player player = context.Players
 				.Include(p => p.PostsReceived).ThenInclude(p => p.Author)
 				.FirstOrDefault(p => p.Id == playerId);
 
-			return player.PostsReceived is not null
-				? lastResults > 0 && lastResults < player.PostsReceived.Count
-					? player.PostsReceived.OrderBy(p => p.CreatedAt).TakeLast(lastResults)
-					: player.PostsReceived.OrderBy(p => p.CreatedAt)
-				: null;
+			return player.PostsReceived?.OrderBy(p => p.CreatedAt);
 		}
 
-		public IEnumerable<Post> GetSentPosts(uint authorId, int lastResults)
+		public IEnumerable<Post> GetSentPosts(uint authorId)
 		{
 			Player author = context.Players
 				.Include(p => p.PostsSent).ThenInclude(p => p.Player)
 				.FirstOrDefault(p => p.Id == authorId);
 
-			return author?.PostsSent is null
-				? null
-				: lastResults > 0 && lastResults < author.PostsSent.Count
-					? author.PostsSent.OrderBy(p => p.CreatedAt).TakeLast(lastResults)
-					: author.PostsSent.OrderBy(p => p.CreatedAt);
+			return author?.PostsSent?.OrderBy(p => p.CreatedAt);
 		}
 
 		public IQueryable<Post> GetLatestPosts(int? count) => context.Posts

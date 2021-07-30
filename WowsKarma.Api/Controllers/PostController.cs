@@ -42,7 +42,7 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(404, $"Account {userId} not found");
 			}
 
-			IEnumerable<Post> posts = postService.GetReceivedPosts(userId, lastResults ?? 0);
+			IEnumerable<Post> posts = postService.GetReceivedPosts(userId);
 
 			if (posts?.Count() is null or 0)
 			{
@@ -50,7 +50,11 @@ namespace WowsKarma.Api.Controllers
 			}
 
 			AccountListingDTO currentUser = User.ToAccountListing();
-			posts = posts.Where(p => !p.ModLocked || User.IsInRole(ApiRoles.CM) || p.AuthorId == currentUser.Id);
+
+			if (!User.IsInRole(ApiRoles.CM))
+			{
+				posts = posts.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id);
+			}
 
 			return base.StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
 		}
@@ -63,16 +67,16 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(404, $"Account {userId} not found");
 			}
 
-			IEnumerable<Post> posts = postService.GetSentPosts(userId, lastResults ?? 0);
+			IEnumerable<Post> posts = postService.GetSentPosts(userId);
 
 			if (posts?.Count() is null or 0)
 			{
 				return StatusCode(204);
 			}
 
-			if (User.ToAccountListing()?.Id != userId)
+			if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 			{
-				posts = posts.Where(p => !p.ModLocked || User.IsInRole(ApiRoles.CM));
+				posts = posts.Where(p => !p.ModLocked);
 			}
 
 			return StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
@@ -82,11 +86,10 @@ namespace WowsKarma.Api.Controllers
 		public IActionResult GetLatestPosts([FromQuery] int count = 10)
 		{
 			AccountListingDTO currentUser = User.ToAccountListing();
-			bool userIsCM = User.IsInRole(ApiRoles.CM);
 
 			IQueryable<Post> posts = postService.GetLatestPosts(count);
 
-			if (!userIsCM)
+			if (!User.IsInRole(ApiRoles.CM))
 			{
 				posts = posts.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id);
 			}

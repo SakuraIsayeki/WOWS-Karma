@@ -74,7 +74,7 @@ else
 		await base.OnParametersSetAsync();
 		post = await PostService.FetchPostAsync(Id);
 
-		if (post is not null && post.ModLocked && post.AuthorId == CurrentUser.Id)
+		if (post is not null && post.ModLocked)
 		{
 			lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id)).Last();
 		}

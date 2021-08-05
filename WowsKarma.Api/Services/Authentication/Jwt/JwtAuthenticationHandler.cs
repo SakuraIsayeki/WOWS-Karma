@@ -34,20 +34,32 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 			using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
 			UserService userService = scope.ServiceProvider.GetRequiredService<UserService>();
 
+			bool isValid = false;
+			Exception failure = default;
+
 			try
 			{
 				if (new Guid(baseResult.Principal.FindFirstValue("seed")) is Guid seed 
 					&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
 				{
-					return baseResult;
+					isValid = true;
 				}
 			}
 			catch (Exception e)
 			{
-				return AuthenticateResult.Fail(e.Message);
+				isValid = false;
+				failure = e;
+			}
+			finally
+			{
+				await scope.DisposeAsync();
 			}
 
-			return AuthenticateResult.NoResult();
+			return isValid 
+				? baseResult 
+				: failure == default
+					? AuthenticateResult.NoResult()
+					: AuthenticateResult.Fail(failure.Message);
 		}
 	}
 }

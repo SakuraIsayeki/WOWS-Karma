@@ -4,8 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -31,32 +29,30 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 				return baseResult;
 			}
 
-			using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
-			UserService userService = scope.ServiceProvider.GetRequiredService<UserService>();
-
 			bool isValid = false;
 			Exception failure = default;
 
-			try
+			using (IServiceScope scope = scopeFactory.CreateScope())
 			{
-				if (new Guid(baseResult.Principal.FindFirstValue("seed")) is Guid seed 
-					&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
+				UserService userService = scope.ServiceProvider.GetRequiredService<UserService>();
+
+				try
 				{
-					isValid = true;
+					if (new Guid(baseResult.Principal.FindFirstValue("seed")) is Guid seed
+						&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
+					{
+						isValid = true;
+					}
+				}
+				catch (Exception e)
+				{
+					isValid = false;
+					failure = e;
 				}
 			}
-			catch (Exception e)
-			{
-				isValid = false;
-				failure = e;
-			}
-			finally
-			{
-				await scope.DisposeAsync();
-			}
 
-			return isValid 
-				? baseResult 
+			return isValid
+				? baseResult
 				: failure == default
 					? AuthenticateResult.NoResult()
 					: AuthenticateResult.Fail(failure.Message);

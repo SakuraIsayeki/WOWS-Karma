@@ -40,6 +40,7 @@ namespace WowsKarma.Api.Data.Models
 		public bool NegativeKarmaAble => (SiteKarma + GameKarma) > NegativeKarmaAbilityThreshold;
 		public bool PostsBanned { get; set; }
 		public bool OptedOut { get; set; }
+		public DateTime OptOutChanged { get; set; }
 
 
 
@@ -54,6 +55,7 @@ namespace WowsKarma.Api.Data.Models
 			WgAccountCreatedAt = value.WgAccountCreatedAt,
 			Hidden = value.WgHidden,
 			OptedOut = value.OptedOut,
+			OptOutChanged = value.OptOutChanged,
 			GameKarma = value.GameKarma,
 			SiteKarma = value.SiteKarma,
 			RatingPerformance = value.PerformanceRating,

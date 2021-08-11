@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Common.Models.DTOs;
@@ -36,6 +37,10 @@ namespace WowsKarma.Api.Controllers
 			{
 				await playerService.UpdateProfileFlagsAsync(flags);
 				return StatusCode(200);
+			}
+			catch (CooldownException e)
+			{
+				return StatusCode(423, e);
 			}
 			catch (ArgumentException)
 			{

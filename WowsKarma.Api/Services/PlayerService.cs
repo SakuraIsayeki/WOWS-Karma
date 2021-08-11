@@ -8,6 +8,7 @@ using Wargaming.WebAPI.Models.WorldOfWarships.Responses;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common.Models.DTOs;
 
@@ -16,6 +17,7 @@ namespace WowsKarma.Api.Services
 	public class PlayerService
 	{
 		public static TimeSpan DataUpdateSpan => new(1, 0, 0);	// 1 hour
+		public static TimeSpan OptOutCooldownSpan => new(7, 0, 0, 0);	// 7 days
 
 		private readonly ApiDbContext context;
 		private readonly WorldOfWarshipsHandler wgApi;
@@ -110,7 +112,18 @@ namespace WowsKarma.Api.Services
 		{
 			Player player = await GetPlayerAsync(flags.Id) ?? throw new ArgumentException("Player not found.");
 
-			player.OptedOut = flags.OptedOut;
+			if (player.OptedOut != flags.OptedOut)
+			{
+				if (!IsOptOutOnCooldown(player.OptOutChanged))
+				{
+					player.OptedOut = flags.OptedOut;
+					player.OptOutChanged = DateTime.UtcNow;
+				}
+				else
+				{
+					throw new CooldownException(nameof(OptOutCooldownSpan), player.OptOutChanged, DateTime.UtcNow);
+				}
+			}
 
 			await context.SaveChangesAsync();
 		}
@@ -147,6 +160,7 @@ namespace WowsKarma.Api.Services
 		}
 
 		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;
+		internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange.Add(OptOutCooldownSpan) > DateTime.Now;
 
 		private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
 		{

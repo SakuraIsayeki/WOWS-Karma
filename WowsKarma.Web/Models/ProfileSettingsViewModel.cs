@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+
 
 namespace WowsKarma.Web.Models
 {
@@ -10,5 +9,7 @@ namespace WowsKarma.Web.Models
 		public uint Id { get; init; }
 
 		public bool OptedOut { get; set; }
+
+		public DateTime OptOutChanged { get; init; }
 	}
 }

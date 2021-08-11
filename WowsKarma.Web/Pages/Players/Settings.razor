@@ -40,8 +40,13 @@
 
 				<p>Please note that a WOWS Karma opt-out is independent of your Wargaming account's visibility settings.</p>
 
+				@if (optOutOnCooldown)
+				{
+					<p class="text-muted font-italic">Opt-Out change is currently on Cooldown. <br />You may update this again, past @($"{OptOutCooldownClearedOn}").</p>
+				}
+
 				<div class="form-check form-control-lg">
-					<InputCheckbox class="form-check-input" @bind-Value=model.OptedOut />
+					<InputCheckbox class="form-check-input" disabled=@optOutOnCooldown @bind-Value=model.OptedOut />
 					<label class="form-check-label lead text-danger">Opt Out of WOWS Karma</label>
 				</div>
 			</div>
@@ -122,6 +127,9 @@
 
 	private bool showSeedModal;
 
+	private bool optOutOnCooldown;
+	private DateTime OptOutCooldownClearedOn => model.OptOutChanged.AddDays(7); 
+
 	private ProfileSettingsViewModel model;
 
 	protected override async Task OnParametersSetAsync()
@@ -141,12 +149,8 @@
 	private async Task LoadUserSettingsAsync()
 	{
 		UserProfileFlagsDTO current = await UserService.GetUserProfileFlagsAsync(CurrentUser.Id);
-
-		model = new ProfileSettingsViewModel
-		{
-			Id = CurrentUser.Id,
-			OptedOut = current.OptedOut
-		};
+		model = current.Adapt<ProfileSettingsViewModel>();
+		optOutOnCooldown = OptOutCooldownClearedOn > DateTime.Now;
 	}
 
 	private async Task SaveUserSettingsAsync()

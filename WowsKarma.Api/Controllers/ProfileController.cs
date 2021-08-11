@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
-using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Controllers
@@ -22,12 +22,7 @@ namespace WowsKarma.Api.Controllers
 
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetProfileFlagsAsync(uint id) => (await playerService.GetPlayerAsync(id)) is Player player
-			? StatusCode(200, new UserProfileFlagsDTO
-			{
-				Id = player.Id,
-				PostsBanned = player.PostsBanned,
-				OptedOut = player.OptedOut
-			})
+			? StatusCode(200, player.Adapt<UserProfileFlagsDTO>())
 			: StatusCode(404);
 
 		[HttpPut, Authorize]

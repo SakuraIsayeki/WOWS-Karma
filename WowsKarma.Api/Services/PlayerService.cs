@@ -34,7 +34,7 @@ namespace WowsKarma.Api.Services
 
 		/*
 		 * FIXME: (#38)
-		 * 
+		 *
 		 * Method no longer returns any tracked entity, resulting in dropped changes for EF Core
 		 * Do not use unless readonly.
 		 */
@@ -44,7 +44,7 @@ namespace WowsKarma.Api.Services
 			{
 				return null;
 			}
-			
+
 			Player player = await context.Players.FindAsync(accountId);
 
 			try
@@ -85,8 +85,8 @@ namespace WowsKarma.Api.Services
 		{
 			IEnumerable<AccountListing> result = await wgApi.ListPlayersAsync(search);
 
-			return result.Count() is not 0 
-				? result.Select(listing => listing.ToDTO()) 
+			return result?.Count() is not null or 0
+				? result.Select(listing => listing.ToDTO())
 				: null;
 		}
 

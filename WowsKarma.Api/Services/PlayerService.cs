@@ -159,8 +159,8 @@ namespace WowsKarma.Api.Services
 			}
 		}
 
-		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;
-		internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange.Add(OptOutCooldownSpan) > DateTime.Now;
+		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.UtcNow;
+		internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange.Add(OptOutCooldownSpan) > DateTime.UtcNow;
 
 		private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
 		{

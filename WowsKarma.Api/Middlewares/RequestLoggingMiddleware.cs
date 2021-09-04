@@ -40,8 +40,8 @@ namespace WowsKarma.Api.Middlewares
 				int? statusCode = context.Response?.StatusCode;
 				LogEventLevel level = statusCode > 499 ? LogEventLevel.Error : LogEventLevel.Information;
 
-				ILogger log = level is LogEventLevel.Error 
-					? LogForErrorContext(context) 
+				ILogger log = level is LogEventLevel.Error
+					? LogForErrorContext(context)
 					: logger.ForContext("RequestUser", GetRemoteUser(context));
 
 				log.Write(level, MessageTemplate, context.Request.Protocol, context.Request.Method, GetPath(context), GetRemoteUser(context), statusCode, elapsedMs);

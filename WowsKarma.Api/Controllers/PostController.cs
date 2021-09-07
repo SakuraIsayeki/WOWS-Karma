@@ -27,7 +27,7 @@ namespace WowsKarma.Api.Controllers
 
 
 		[HttpGet("{postId}")]
-		public IActionResult GetPost(Guid postId) 
+		public IActionResult GetPost(Guid postId)
 			=> postService.GetPost(postId).Adapt<PlayerPostDTO>() is PlayerPostDTO post
 				? !post.ModLocked || post.AuthorId == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
 					? StatusCode(200, post)
@@ -49,11 +49,9 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(204);
 			}
 
-			AccountListingDTO currentUser = User.ToAccountListing();
-
 			if (!User.IsInRole(ApiRoles.CM))
 			{
-				posts = posts.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id);
+				posts = posts.Where(p => !p.ModLocked || p.AuthorId == User.ToAccountListing().Id);
 			}
 
 			return base.StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
@@ -154,7 +152,7 @@ namespace WowsKarma.Api.Controllers
 			{
 				return StatusCode(404, $"No post with ID {post.Id} found.");
 			}
-		
+
 			if (!ignoreChecks)
 			{
 				if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))

@@ -70,13 +70,13 @@ namespace WowsKarma.Api.Services
 
 		public IQueryable<AccountFullKarmaDTO> GetPlayersFullKarma(IEnumerable<uint> accountIds)
 		{
-			return from p in context.Players
+			return from p in context.Players.AsNoTracking()
 				   where accountIds.Contains(p.Id)
 				   select new AccountFullKarmaDTO(p.Id, p.SiteKarma, p.PerformanceRating, p.TeamplayRating, p.CourtesyRating);
 		}
 		public IQueryable<AccountKarmaDTO> GetPlayersKarma(IEnumerable<uint> accountIds)
 		{
-			return from p in context.Players
+			return from p in context.Players.AsNoTracking()
 				   where accountIds.Contains(p.Id)
 				   select new AccountKarmaDTO(p.Id, p.SiteKarma);
 		}

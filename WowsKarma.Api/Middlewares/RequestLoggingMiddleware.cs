@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Microsoft.AspNetCore.Http.Features;
 using Serilog;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using ILogger = Serilog.ILogger;
 
 namespace WowsKarma.Api.Middlewares
 {

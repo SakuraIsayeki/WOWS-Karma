@@ -17,6 +17,7 @@
 	{
 		<div class="row">
 			@foreach (PlayerPostDTO post in PlayerPosts)
+			{
 				<Post Editable @key=post.Id PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=CurrentUser.Id
 					OnEditClick="() => EditPost(post)"
 					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />

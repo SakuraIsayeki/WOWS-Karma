@@ -132,6 +132,11 @@ namespace WowsKarma.Api.Services
 		{
 			Player player = await context.Players.Include(p => p.PostsReceived).FirstOrDefaultAsync(p => p.Id == playerId, cancellationToken);
 
+			if (cancellationToken.IsCancellationRequested || player is null)
+			{
+				return;
+			}
+
 			int oldSiteKarma = player.SiteKarma,
 				oldPerformanceRating = player.PerformanceRating,
 				oldTeamplayRating = player.TeamplayRating,
@@ -141,13 +146,10 @@ namespace WowsKarma.Api.Services
 			{
 				SetPlayerMetrics(player, 0, 0, 0, 0);
 
-				if (player.PostsReceived.Count is not 0)
+				foreach (Post post in player.PostsReceived)
 				{
-					foreach (Post post in player.PostsReceived)
-					{
-						KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, null, post.NegativeKarmaAble);
-						KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, null);
-					}
+					KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
+					KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
 				}
 
 				await context.SaveChangesAsync(cancellationToken);

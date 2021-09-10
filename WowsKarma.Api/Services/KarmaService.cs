@@ -13,7 +13,7 @@ namespace WowsKarma.Api.Services
 	{
 		public KarmaService() { }
 
-		public static void UpdatePlayerKarma(ref Player player, PostFlairsParsed newFlairs, PostFlairsParsed oldFlairs, bool allowNegative)
+		public static void UpdatePlayerKarma(Player player, PostFlairsParsed newFlairs, PostFlairsParsed oldFlairs, bool allowNegative)
 		{
 			sbyte? newKarmaBalance = newFlairs is null ? null : PostFlairsUtils.CountBalance(newFlairs);
 			sbyte? oldKarmaBalance = oldFlairs is null ? null : PostFlairsUtils.CountBalance(oldFlairs);
@@ -45,7 +45,7 @@ namespace WowsKarma.Api.Services
 			}
 		}
 
-		public static void UpdatePlayerRatings(ref Player player, PostFlairsParsed postFlairs, PostFlairsParsed oldFlairs)
+		public static void UpdatePlayerRatings(Player player, PostFlairsParsed postFlairs, PostFlairsParsed oldFlairs)
 		{
 			player.PerformanceRating = UpdateRating(player.PerformanceRating, postFlairs?.Performance, oldFlairs?.Performance);
 			player.TeamplayRating = UpdateRating(player.TeamplayRating, postFlairs?.Teamplay, oldFlairs?.Teamplay);

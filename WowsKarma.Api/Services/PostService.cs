@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Hubs;
+using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
@@ -78,7 +79,7 @@ namespace WowsKarma.Api.Services
 
 				if (CheckCooldown(postDTO))
 				{
-					throw new ArgumentException("Author is on cooldown for this player.");
+					throw new CooldownException("Author is on cooldown for this player.");
 				}
 			}
 
@@ -86,8 +87,8 @@ namespace WowsKarma.Api.Services
 			post.NegativeKarmaAble = author.NegativeKarmaAble;
 
 			context.Posts.Add(post);
-			KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, null, post.NegativeKarmaAble);
-			KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, null);
+			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
 
 			await context.SaveChangesAsync();
 
@@ -113,8 +114,8 @@ namespace WowsKarma.Api.Services
 			post.Flairs = editedPostDTO.Flairs;
 			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 
-			KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
-			KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, previousFlairs);
+			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, previousFlairs);
 
 			await context.SaveChangesAsync();
 
@@ -141,8 +142,8 @@ namespace WowsKarma.Api.Services
 				context.Posts.Remove(post);
 			}
 
-			KarmaService.UpdatePlayerKarma(ref player, null, post.ParsedFlairs, post.NegativeKarmaAble);
-			KarmaService.UpdatePlayerRatings(ref player, null, post.ParsedFlairs);
+			KarmaService.UpdatePlayerKarma(player, null, post.ParsedFlairs, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(player, null, post.ParsedFlairs);
 
 			await context.SaveChangesAsync();
 

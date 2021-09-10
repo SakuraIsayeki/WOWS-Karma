@@ -9,7 +9,7 @@ namespace WowsKarma.Api.Data
 		public DbSet<User> Users { get; init; }
 		public DbSet<Role> Roles { get; init; }
 
-		public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) {	}
+		public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{

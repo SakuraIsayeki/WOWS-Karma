@@ -151,7 +151,7 @@ namespace WowsKarma.Api
 				options => options.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 					providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 64 : dbPoolSize);
 
-			services.AddPooledDbContextFactory<AuthDbContext>(
+			services.AddDbContextPool<AuthDbContext>(
 				options => options.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 					providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 64 : dbPoolSize);
 

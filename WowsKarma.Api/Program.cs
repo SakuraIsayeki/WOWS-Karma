@@ -47,7 +47,7 @@ namespace WowsKarma.Api
 				await db.Database.MigrateAsync();
 			}
 
-			using (AuthDbContext db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AuthDbContext>>().CreateDbContext())
+			using (AuthDbContext db = scope.ServiceProvider.GetRequiredService<AuthDbContext>())
 			{
 				await db.Database.MigrateAsync();
 			}

@@ -1,4 +1,4 @@
-﻿@inherits ComponentBaseAuth
+@inherits ComponentBaseAuth
 
 @using WowsKarma.Common.Models
 @using static WowsKarma.Common.Models.PostFlairsUtils
@@ -50,12 +50,11 @@
 	else
 	{
 		<div class="row">
-			<Virtualize Items=PlayerPosts Context=post>
+			@foreach (PlayerPostDTO post in PlayerPosts)
 				<Post Editable @key=post.Id PlayerPost=post DisplayType=Post.PostDisplayType.Received CurrentUserId=CurrentUser.Id
-					  OnEditClick="() => EditPost(post)"
-					  OnDeleteClick="() => InitDeleteModal(post.Id.Value)" 
-				/>
-			</Virtualize>
+					OnEditClick="() => EditPost(post)"
+					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />
+			}
 		</div>
 	}
 
@@ -89,7 +88,7 @@ else
 	[Parameter]
 	public EventCallback OnPostsUpdate { get; set; }
 
-	public ICollection<PlayerPostDTO> PlayerPosts { get; set; }
+	public IEnumerable<PlayerPostDTO> PlayerPosts { get; set; }
 
 	public bool Loaded { get; private set; }
 	private bool showEditorModal, showDeleteModal;
@@ -105,7 +104,7 @@ else
 	{
 		await base.OnParametersSetAsync();
 
-		PlayerPosts = (await PostService.FetchReceivedPostsAsync(AccountId, 0)).ToArray();
+		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
 
 		Loaded = true;
 	}
@@ -126,7 +125,7 @@ else
 
 	public async Task UpdatePostsAsync()
 	{
-		PlayerPosts = (await PostService.FetchReceivedPostsAsync(AccountId, 0)).ToArray();
+		PlayerPosts = await PostService.FetchReceivedPostsAsync(AccountId, 0);
 		await OnPostsUpdate.InvokeAsync();
 	}
 

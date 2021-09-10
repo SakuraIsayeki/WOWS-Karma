@@ -1,4 +1,4 @@
-﻿@inherits ComponentBaseAuth
+@inherits ComponentBaseAuth
 
 @using WowsKarma.Common.Models
 @using static WowsKarma.Common.Models.PostFlairsUtils
@@ -16,14 +16,12 @@
 	else
 	{
 		<div class="row">
-			<Virtualize Items=PlayerPosts Context=post>
+			@foreach (PlayerPostDTO post in PlayerPosts)
 				<Post Editable @key=post.Id PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=CurrentUser.Id
-					  OnEditClick="() => EditPost(post)"
-					  OnDeleteClick="() => InitDeleteModal(post.Id.Value)" 
-				/>
-			</Virtualize>
+					OnEditClick="() => EditPost(post)"
+					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />
+			}
 		</div>
-
 		@if (showEditorModal)
 		{
 			<EditorModal PostModel=currentEditorPost OnPostSubmited=EditorModalSubmitAsync OnCancel=EditorModalCancel />
@@ -47,7 +45,7 @@ else
 	[Parameter]
 	public uint AccountId { get; set; }
 
-	public ICollection<PlayerPostDTO> PlayerPosts { get; set; }
+	public IEnumerable<PlayerPostDTO> PlayerPosts { get; set; }
 
 	public bool Loaded { get; private set; }
 
@@ -75,7 +73,7 @@ else
 
 	public async Task UpdatePostsAsync()
 	{
-		PlayerPosts = (await PostService.FetchSentPostsAsync(AccountId, 0)).ToArray();
+		PlayerPosts = await PostService.FetchSentPostsAsync(AccountId, 0);
 	}
 
 	private void EditorModalCancel() => showEditorModal = false;

@@ -25,7 +25,7 @@ namespace WowsKarma.Api.Services
 				{
 					player.SiteKarma--;
 				}
-				else 
+				else
 				{
 					player.SiteKarma++;
 				}

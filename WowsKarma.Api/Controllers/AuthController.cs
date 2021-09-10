@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
@@ -32,13 +28,28 @@ namespace WowsKarma.Api.Controllers
 			this.jwtService = jwtService;
 		}
 
-		[HttpHead, Authorize]
+		/// <summary>
+		/// Verifies current request's Authentication to API.
+		/// </summary>
+		/// <response code="200">Authentication successful.</response>
+		/// <response code="401">Authentication failed.</response>
+		[HttpHead, Authorize, ProducesResponseType(200), ProducesResponseType(401)]
 		public IActionResult ValidateAuth() => StatusCode(200);
 
-		[HttpGet("login")]
+		/// <summary>
+		/// Provides redirection to Wargaming OpenID Authentication.
+		/// </summary>
+		/// <response code="302">Redirection to Wargaming Auth</response>
+		[HttpGet("login"), ProducesResponseType(302)]
 		public IActionResult Login() => wargamingAuthService.RedirectToLogin(Startup.ApiRegion, Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault()));
 
-		[HttpGet("wg-callback")]
+		/// <summary>
+		/// Provides a callback endpoint for Wargaming OpenID results, and stores all authentication information to relevant cookies.
+		/// </summary>
+		/// <response code="302">Redirection after successful authentication (if redirectUri is set).</response>
+		/// <response code="200">Authentication successful.</response>
+		/// <response code="403">Invalid callback request.</response>
+		[HttpGet("wg-callback"), ProducesResponseType(302), ProducesResponseType(200), ProducesResponseType(403)]
 		public async Task<IActionResult> WgAuthCallback()
 		{
 			bool valid = await wargamingAuthService.VerifyIdentity(Request);
@@ -61,19 +72,29 @@ namespace WowsKarma.Api.Controllers
 					Expires = DateTimeOffset.UtcNow.AddDays(7)
 				});
 
-			return Request.Query["redirectUri"].FirstOrDefault() is string redirectUri 
+			return Request.Query["redirectUri"].FirstOrDefault() is string redirectUri
 				? Redirect(redirectUri)
 				: StatusCode(200);
 		}
 
-		[HttpPost("renew-seed"), Authorize]
-		public async Task<IActionResult> RenewSeed() 
+		/// <summary>
+		/// Renews Seed-Token, invalidating all previously issued JWTs.
+		/// </summary>
+		/// <response code="200">Seed Token successfully reset.</response>
+		/// <response code="401">Authentication failed.</response>
+		[HttpPost("renew-seed"), Authorize, ProducesResponseType(200), ProducesResponseType(401)]
+		public async Task<IActionResult> RenewSeed()
 		{
 			await userService.RenewSeedTokenAsync(uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
 			return StatusCode(200);
 		}
 
-		[HttpGet("refresh-token"), Authorize]
+		/// <summary>
+		/// Issues a new JWT with information mirrored to current token.
+		/// </summary>
+		/// <response code="200">Token successfully refreshed.</response>
+		/// <response code="401">Authentication failed.</response>
+		[HttpGet("refresh-token"), Authorize, ProducesResponseType(typeof(string), 200), ProducesResponseType(401)]
 		public async Task<IActionResult> RefreshToken()
 		{
 			JwtSecurityToken token = await userService.CreateTokenAsync(new(User.Claims));

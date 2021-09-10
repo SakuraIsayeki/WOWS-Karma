@@ -16,8 +16,8 @@ namespace WowsKarma.Api.Services
 {
 	public class PlayerService
 	{
-		public static TimeSpan DataUpdateSpan => new(1, 0, 0);	// 1 hour
-		public static TimeSpan OptOutCooldownSpan => new(7, 0, 0, 0);	// 7 days
+		public static TimeSpan DataUpdateSpan { get; } = TimeSpan.FromHours(1);
+		public static TimeSpan OptOutCooldownSpan { get; } = TimeSpan.FromDays(7);
 
 		private readonly ApiDbContext context;
 		private readonly WorldOfWarshipsHandler wgApi;
@@ -27,8 +27,8 @@ namespace WowsKarma.Api.Services
 		public PlayerService(ApiDbContext context, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
 		{
 			this.context = context;
-			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
-			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));
+			this.wgApi = wgApi;
+			this.vortex = vortex;
 		}
 
 

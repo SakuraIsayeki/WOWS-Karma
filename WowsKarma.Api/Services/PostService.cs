@@ -16,9 +16,9 @@ namespace WowsKarma.Api.Services
 {
 	public class PostService
 	{
-		private const ushort PostTitleMaxSize = 60;
-		private const ushort PostContentMaxSize = 2000;
-		private static readonly TimeSpan CooldownPeriod = TimeSpan.FromDays(1);
+		public const ushort PostTitleMaxSize = 60;
+		public const ushort PostContentMaxSize = 2000;
+		public static TimeSpan CooldownPeriod { get; } = TimeSpan.FromDays(1);
 
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;

@@ -22,7 +22,7 @@ namespace WowsKarma.Api.Services.Discord
 			DiscordEmbedBuilder embed = new()
 			{
 				Title = $"**Post Locked by Mod-Action**",
-				Url = new(modAction.Post.GetPostLink()),
+				Url = modAction.Post.GetPostLink(),
 				Footer = GetDefaultFooter(),
 				Color = DiscordColor.Red
 			};

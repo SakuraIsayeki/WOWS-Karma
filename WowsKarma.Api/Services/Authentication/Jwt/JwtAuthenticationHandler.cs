@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,12 +11,12 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 {
 	public class JwtAuthenticationHandler : JwtBearerHandler
 	{
-		private readonly IServiceScopeFactory scopeFactory;
+		private readonly UserService userService;
 
-		public JwtAuthenticationHandler(IOptionsMonitor<JwtBearerOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IServiceScopeFactory scopeFactory) 
+		public JwtAuthenticationHandler(IOptionsMonitor<JwtBearerOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, UserService userService)
 			: base(options, logger, encoder, clock)
 		{
-			this.scopeFactory = scopeFactory;
+			this.userService = userService;
 		}
 
 		protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -32,23 +31,18 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 			bool isValid = false;
 			Exception failure = default;
 
-			using (IServiceScope scope = scopeFactory.CreateScope())
+			try
 			{
-				UserService userService = scope.ServiceProvider.GetRequiredService<UserService>();
-
-				try
+				if (new Guid(baseResult.Principal.FindFirstValue("seed")) is Guid seed
+					&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
 				{
-					if (new Guid(baseResult.Principal.FindFirstValue("seed")) is Guid seed
-						&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
-					{
-						isValid = true;
-					}
+					isValid = true;
 				}
-				catch (Exception e)
-				{
-					isValid = false;
-					failure = e;
-				}
+			}
+			catch (Exception e)
+			{
+				isValid = false;
+				failure = e;
 			}
 
 			return isValid

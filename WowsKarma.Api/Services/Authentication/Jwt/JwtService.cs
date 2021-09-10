@@ -36,7 +36,6 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 		{
 			TokenValidationParameters validationParameters = new()
 			{
-				
 				IssuerSigningKey = authSigningKey,
 				ValidAudience = configuration["JWT:ValidAudience"],
 				ValidIssuer = configuration["JWT:ValidIssuer"],

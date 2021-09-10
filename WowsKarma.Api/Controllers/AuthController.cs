@@ -12,6 +12,9 @@ using static WowsKarma.Common.Utilities;
 
 namespace WowsKarma.Api.Controllers
 {
+	/// <summary>
+	/// Provides API Authentication endpoints.
+	/// </summary>
 	[ApiController, Route("api/[controller]")]
 	public class AuthController : ControllerBase
 	{

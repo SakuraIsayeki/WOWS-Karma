@@ -20,9 +20,9 @@ namespace WowsKarma.Api.Services
 		private readonly PostService postService;
 		private readonly ApiDbContext context;
 
-		public ModService(ILogger<ModService> logger, IDbContextFactory<ApiDbContext> dbContextFactory, ModActionWebhookService webhookService, PostService postService)
+		public ModService(ILogger<ModService> logger, ApiDbContext context, ModActionWebhookService webhookService, PostService postService)
 		{
-			context = dbContextFactory.CreateDbContext();
+			this.context = context;
 			this.logger = logger;
 			this.webhookService = webhookService;
 			this.postService = postService;

@@ -147,7 +147,7 @@ namespace WowsKarma.Api
 			string dbConnectionString = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
 			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
-			services.AddPooledDbContextFactory<ApiDbContext>(
+			services.AddDbContextPool<ApiDbContext>(
 				options => options.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 					providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 64 : dbPoolSize);
 

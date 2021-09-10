@@ -25,10 +25,10 @@ namespace WowsKarma.Api.Services
 		private readonly PostWebhookService webhookService;
 		private readonly IHubContext<PostHub> hubContext;
 
-		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub> hubContext)
+		public PostService(ApiDbContext context, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub> hubContext)
 		{
-			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
-			this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+			this.context = context;
+			this.playerService = playerService;
 			this.webhookService = webhookService;
 			this.hubContext = hubContext;
 		}
@@ -50,7 +50,7 @@ namespace WowsKarma.Api.Services
 			.FirstOrDefault(p => p.Id == authorId)?
 			.PostsSent?.OrderBy(p => p.CreatedAt);
 
-		public IQueryable<Post> GetLatestPosts(int? count) => context.Posts.AsNoTracking()
+		public IQueryable<Post> GetLatestPosts() => context.Posts.AsNoTracking()
 			.Include(p => p.Author)
 			.Include(p => p.Player)
 			.OrderByDescending(p => p.CreatedAt);

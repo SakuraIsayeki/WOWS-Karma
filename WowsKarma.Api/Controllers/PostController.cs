@@ -1,4 +1,4 @@
-﻿using Mapster;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -85,7 +85,7 @@ namespace WowsKarma.Api.Controllers
 		{
 			AccountListingDTO currentUser = User.ToAccountListing();
 
-			IQueryable<Post> posts = postService.GetLatestPosts(count);
+			IQueryable<Post> posts = postService.GetLatestPosts();
 
 			if (!User.IsInRole(ApiRoles.CM))
 			{

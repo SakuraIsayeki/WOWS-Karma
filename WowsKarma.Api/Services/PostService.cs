@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Hubs;
+using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
@@ -16,19 +17,19 @@ namespace WowsKarma.Api.Services
 {
 	public class PostService
 	{
-		private const ushort PostTitleMaxSize = 60;
-		private const ushort PostContentMaxSize = 2000;
-		private static readonly TimeSpan CooldownPeriod = TimeSpan.FromDays(1);
+		public const ushort PostTitleMaxSize = 60;
+		public const ushort PostContentMaxSize = 2000;
+		public static TimeSpan CooldownPeriod { get; } = TimeSpan.FromDays(1);
 
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
 		private readonly PostWebhookService webhookService;
 		private readonly IHubContext<PostHub> hubContext;
 
-		public PostService(IDbContextFactory<ApiDbContext> contextFactory, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub> hubContext)
+		public PostService(ApiDbContext context, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub> hubContext)
 		{
-			context = contextFactory.CreateDbContext() ?? throw new ArgumentNullException(nameof(contextFactory));
-			this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+			this.context = context;
+			this.playerService = playerService;
 			this.webhookService = webhookService;
 			this.hubContext = hubContext;
 		}
@@ -38,25 +39,19 @@ namespace WowsKarma.Api.Services
 			.Include(p => p.Player)
 			.FirstOrDefault(p => p.Id == id);
 
-		public IEnumerable<Post> GetReceivedPosts(uint playerId)
-		{
-			Player player = context.Players
-				.Include(p => p.PostsReceived).ThenInclude(p => p.Author)
-				.FirstOrDefault(p => p.Id == playerId);
+		public IEnumerable<Post> GetReceivedPosts(uint playerId) => context.Players.AsNoTracking()
+			.Include(p => p.PostsReceived)
+				.ThenInclude(p => p.Author)
+			.FirstOrDefault(p => p.Id == playerId)?
+			.PostsReceived?.OrderBy(p => p.CreatedAt);
 
-			return player.PostsReceived?.OrderBy(p => p.CreatedAt);
-		}
+		public IEnumerable<Post> GetSentPosts(uint authorId) => context.Players.AsNoTracking()
+			.Include(p => p.PostsSent)
+				.ThenInclude(p => p.Player)
+			.FirstOrDefault(p => p.Id == authorId)?
+			.PostsSent?.OrderBy(p => p.CreatedAt);
 
-		public IEnumerable<Post> GetSentPosts(uint authorId)
-		{
-			Player author = context.Players
-				.Include(p => p.PostsSent).ThenInclude(p => p.Player)
-				.FirstOrDefault(p => p.Id == authorId);
-
-			return author?.PostsSent?.OrderBy(p => p.CreatedAt);
-		}
-
-		public IQueryable<Post> GetLatestPosts(int? count) => context.Posts
+		public IQueryable<Post> GetLatestPosts() => context.Posts.AsNoTracking()
 			.Include(p => p.Author)
 			.Include(p => p.Player)
 			.OrderByDescending(p => p.CreatedAt);
@@ -84,7 +79,7 @@ namespace WowsKarma.Api.Services
 
 				if (CheckCooldown(postDTO))
 				{
-					throw new ArgumentException("Author is on cooldown for this player.");
+					throw new CooldownException("Author is on cooldown for this player.");
 				}
 			}
 
@@ -92,15 +87,15 @@ namespace WowsKarma.Api.Services
 			post.NegativeKarmaAble = author.NegativeKarmaAble;
 
 			context.Posts.Add(post);
-			KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, null, post.NegativeKarmaAble);
-			KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, null);
-			
+			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
+
 			await context.SaveChangesAsync();
 
 			_ = webhookService.SendNewPostWebhookAsync(post, author, player);
 
-			_ = hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with 
-			{ 
+			_ = hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with
+			{
 				AuthorUsername = author.Username,
 				PlayerUsername = player.Username
 			});
@@ -119,9 +114,9 @@ namespace WowsKarma.Api.Services
 			post.Flairs = editedPostDTO.Flairs;
 			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 
-			KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
-			KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, previousFlairs);
-			
+			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, previousFlairs);
+
 			await context.SaveChangesAsync();
 
 			_ = webhookService.SendEditedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
@@ -143,13 +138,13 @@ namespace WowsKarma.Api.Services
 				post.ModLocked = true;
 			}
 			else
-			{ 
+			{
 				context.Posts.Remove(post);
 			}
 
-			KarmaService.UpdatePlayerKarma(ref player, null, post.ParsedFlairs, post.NegativeKarmaAble);
-			KarmaService.UpdatePlayerRatings(ref player, null, post.ParsedFlairs);
-			
+			KarmaService.UpdatePlayerKarma(player, null, post.ParsedFlairs, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(player, null, post.ParsedFlairs);
+
 			await context.SaveChangesAsync();
 
 			if (!modLock)

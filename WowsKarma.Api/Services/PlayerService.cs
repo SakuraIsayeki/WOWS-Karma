@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,25 +16,25 @@ namespace WowsKarma.Api.Services
 {
 	public class PlayerService
 	{
-		public static TimeSpan DataUpdateSpan => new(1, 0, 0);	// 1 hour
-		public static TimeSpan OptOutCooldownSpan => new(7, 0, 0, 0);	// 7 days
+		public static TimeSpan DataUpdateSpan { get; } = TimeSpan.FromHours(1);
+		public static TimeSpan OptOutCooldownSpan { get; } = TimeSpan.FromDays(7);
 
 		private readonly ApiDbContext context;
 		private readonly WorldOfWarshipsHandler wgApi;
 		private readonly VortexApiHandler vortex;
 
 
-		public PlayerService(IDbContextFactory<ApiDbContext> contextFactory, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
+		public PlayerService(ApiDbContext context, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
 		{
-			context = contextFactory.CreateDbContext();
-			this.wgApi = wgApi ?? throw new ArgumentNullException(nameof(wgApi));
-			this.vortex = vortex ?? throw new ArgumentNullException(nameof(vortex));
+			this.context = context;
+			this.wgApi = wgApi;
+			this.vortex = vortex;
 		}
 
 
 		/*
 		 * FIXME: (#38)
-		 * 
+		 *
 		 * Method no longer returns any tracked entity, resulting in dropped changes for EF Core
 		 * Do not use unless readonly.
 		 */
@@ -44,7 +44,7 @@ namespace WowsKarma.Api.Services
 			{
 				return null;
 			}
-			
+
 			Player player = await context.Players.FindAsync(accountId);
 
 			try
@@ -70,13 +70,13 @@ namespace WowsKarma.Api.Services
 
 		public IQueryable<AccountFullKarmaDTO> GetPlayersFullKarma(IEnumerable<uint> accountIds)
 		{
-			return from p in context.Players
+			return from p in context.Players.AsNoTracking()
 				   where accountIds.Contains(p.Id)
 				   select new AccountFullKarmaDTO(p.Id, p.SiteKarma, p.PerformanceRating, p.TeamplayRating, p.CourtesyRating);
 		}
 		public IQueryable<AccountKarmaDTO> GetPlayersKarma(IEnumerable<uint> accountIds)
 		{
-			return from p in context.Players
+			return from p in context.Players.AsNoTracking()
 				   where accountIds.Contains(p.Id)
 				   select new AccountKarmaDTO(p.Id, p.SiteKarma);
 		}
@@ -85,8 +85,8 @@ namespace WowsKarma.Api.Services
 		{
 			IEnumerable<AccountListing> result = await wgApi.ListPlayersAsync(search);
 
-			return result.Count() is not 0 
-				? result.Select(listing => listing.ToDTO()) 
+			return result?.Count() is not null or 0
+				? result.Select(listing => listing.ToDTO())
 				: null;
 		}
 
@@ -132,6 +132,11 @@ namespace WowsKarma.Api.Services
 		{
 			Player player = await context.Players.Include(p => p.PostsReceived).FirstOrDefaultAsync(p => p.Id == playerId, cancellationToken);
 
+			if (cancellationToken.IsCancellationRequested || player is null)
+			{
+				return;
+			}
+
 			int oldSiteKarma = player.SiteKarma,
 				oldPerformanceRating = player.PerformanceRating,
 				oldTeamplayRating = player.TeamplayRating,
@@ -141,13 +146,10 @@ namespace WowsKarma.Api.Services
 			{
 				SetPlayerMetrics(player, 0, 0, 0, 0);
 
-				if (player.PostsReceived.Count is not 0)
+				foreach (Post post in player.PostsReceived)
 				{
-					foreach (Post post in player.PostsReceived)
-					{
-						KarmaService.UpdatePlayerKarma(ref player, post.ParsedFlairs, null, post.NegativeKarmaAble);
-						KarmaService.UpdatePlayerRatings(ref player, post.ParsedFlairs, null);
-					}
+					KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
+					KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
 				}
 
 				await context.SaveChangesAsync(cancellationToken);
@@ -159,8 +161,8 @@ namespace WowsKarma.Api.Services
 			}
 		}
 
-		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.Now;
-		internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange.Add(OptOutCooldownSpan) > DateTime.Now;
+		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.UtcNow;
+		internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange.Add(OptOutCooldownSpan) > DateTime.UtcNow;
 
 		private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
 		{

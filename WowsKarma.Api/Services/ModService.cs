@@ -20,20 +20,25 @@ namespace WowsKarma.Api.Services
 		private readonly PostService postService;
 		private readonly ApiDbContext context;
 
-		public ModService(ILogger<ModService> logger, IDbContextFactory<ApiDbContext> dbContextFactory, ModActionWebhookService webhookService, PostService postService)
+		public ModService(ILogger<ModService> logger, ApiDbContext context, ModActionWebhookService webhookService, PostService postService)
 		{
-			context = dbContextFactory.CreateDbContext();
+			this.context = context;
 			this.logger = logger;
 			this.webhookService = webhookService;
 			this.postService = postService;
 		}
 
-		public Task<PostModAction> GetModActionAsync(Guid id) => context.PostModActions.FirstOrDefaultAsync(ma => ma.Id == id);
+		public Task<PostModAction> GetModActionAsync(Guid id) => context.PostModActions.AsNoTracking().FirstOrDefaultAsync(ma => ma.Id == id);
 
-		public IQueryable<PostModAction> GetPostModActions(Guid postId) 
-			=> context.PostModActions.Include(ma => ma.Post).Include(ma => ma.Mod).Where(ma => ma.PostId == postId);
-		public IQueryable<PostModAction> GetPostModActions(uint playerId) 
-			=> context.PostModActions.Include(ma => ma.Post).Include(ma => ma.Mod).Where(ma => ma.Post.AuthorId == playerId);
+		public IQueryable<PostModAction> GetPostModActions(Guid postId)	=> context.PostModActions.AsNoTracking()
+			.Include(ma => ma.Post)
+			.Include(ma => ma.Mod)
+			.Where(ma => ma.PostId == postId);
+
+		public IQueryable<PostModAction> GetPostModActions(uint playerId) => context.PostModActions.AsNoTracking()
+			.Include(ma => ma.Post)
+			.Include(ma => ma.Mod)
+			.Where(ma => ma.Post.AuthorId == playerId);
 
 		public async Task SubmitModActionAsync(PostModActionDTO modAction)
 		{

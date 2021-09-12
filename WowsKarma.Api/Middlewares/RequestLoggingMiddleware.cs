@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Microsoft.AspNetCore.Http.Features;
 using Serilog;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
+using ILogger = Serilog.ILogger;
 
 namespace WowsKarma.Api.Middlewares
 {
@@ -40,8 +36,8 @@ namespace WowsKarma.Api.Middlewares
 				int? statusCode = context.Response?.StatusCode;
 				LogEventLevel level = statusCode > 499 ? LogEventLevel.Error : LogEventLevel.Information;
 
-				ILogger log = level is LogEventLevel.Error 
-					? LogForErrorContext(context) 
+				ILogger log = level is LogEventLevel.Error
+					? LogForErrorContext(context)
 					: logger.ForContext("RequestUser", GetRemoteUser(context));
 
 				log.Write(level, MessageTemplate, context.Request.Protocol, context.Request.Method, GetPath(context), GetRemoteUser(context), statusCode, elapsedMs);

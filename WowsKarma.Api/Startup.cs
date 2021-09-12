@@ -12,9 +12,11 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,8 +58,8 @@ namespace WowsKarma.Api
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
-				// Adding Jwt Bearer  
-				.AddScheme<JwtBearerOptions, JwtAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme, 
+				// Adding Jwt Bearer
+				.AddScheme<JwtBearerOptions, JwtAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme,
 					options =>
 					{
 						options.SaveToken = true;
@@ -145,11 +147,11 @@ namespace WowsKarma.Api
 			string dbConnectionString = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
 			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
-			services.AddPooledDbContextFactory<ApiDbContext>(
+			services.AddDbContextPool<ApiDbContext>(
 				options => options.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 					providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 64 : dbPoolSize);
 
-			services.AddPooledDbContextFactory<AuthDbContext>(
+			services.AddDbContextPool<AuthDbContext>(
 				options => options.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 					providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 64 : dbPoolSize);
 
@@ -207,13 +209,26 @@ namespace WowsKarma.Api
 
 			app.UseRouting();
 
-			if (env.IsProduction()) // Nginx configuration step
+
+			IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(x => IPAddress.Parse(x));
+
+			// Nginx configuration step
+			ForwardedHeadersOptions forwardedHeadersOptions = new()
 			{
-				app.UseForwardedHeaders(new ForwardedHeadersOptions
+				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+			};
+
+			if (allowedProxies is not null && allowedProxies.Any())
+			{
+				forwardedHeadersOptions.KnownProxies.Clear();
+
+				foreach (IPAddress address in allowedProxies)
 				{
-					ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-				});
+					forwardedHeadersOptions.KnownProxies.Add(address);
+				}
 			}
+
+			app.UseForwardedHeaders(forwardedHeadersOptions);
 
 			app.UseAuthentication();
 			app.UseAuthorization();

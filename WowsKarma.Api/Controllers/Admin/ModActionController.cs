@@ -23,10 +23,24 @@ namespace WowsKarma.Api.Controllers.Admin
 			this.service = service;
 		}
 
+		/// <summary>
+		/// Fetches ModAction by ID.
+		/// </summary>
+		/// <param name="id">ID of ModAction to fetch.</param>
 		[HttpGet("{id}"), AllowAnonymous]
-		public Task<PostModAction> Fetch(Guid id) => service.GetModActionAsync(id);
+		public async Task<PostModActionDTO> Fetch(Guid id) => (await service.GetModActionAsync(id)).Adapt<PostModActionDTO>();
 
-		[HttpGet("list"), AllowAnonymous]
+		/// <summary>
+		/// Lists ModActions by Post or User IDs.
+		/// </summary>
+		/// <remarks>
+		/// User ID gets ignored if a Post ID is provided.
+		/// </remarks>
+		/// <param name="postId">Get ModActions for specific Post.</param>
+		/// <param name="userId">Get ModActions for specific User.</param>
+		/// <response code="200">Returns list of ModActions.</response>
+		/// <response code="204">No ModActions found.</response>
+		[HttpGet("list"), AllowAnonymous, ProducesResponseType(typeof(IEnumerable<PostModActionDTO>), 200), ProducesResponseType(204)]
 		public IActionResult List([FromQuery] Guid postId = default, [FromQuery] uint userId = default)
 		{
 			IEnumerable<PostModAction> modActions;
@@ -49,7 +63,15 @@ namespace WowsKarma.Api.Controllers.Admin
 				: base.StatusCode(200, modActions.Adapt<IEnumerable<PostModActionDTO>>());
 		}
 
-		[HttpPost, Authorize(Roles = ApiRoles.CM)]
+		/// <summary>
+		/// Submits a new ModAction.
+		/// </summary>
+		/// <remarks>
+		/// Usable only by Community Managers.
+		/// </remarks>
+		/// <param name="modAction">ModAction to submit</param>
+		/// <response code="202">ModAction was successfully submitted.</response>
+		[HttpPost, Authorize(Roles = ApiRoles.CM), ProducesResponseType(202)]
 		public async Task<IActionResult> Submit([FromBody] PostModActionDTO modAction)
 		{
 			uint modId = uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -57,7 +79,15 @@ namespace WowsKarma.Api.Controllers.Admin
 			return StatusCode(202);
 		}
 
-		[HttpDelete("{id}"), Authorize(Roles = ApiRoles.CM)]
+		/// <summary>
+		/// Deletes an existing ModAction.
+		/// </summary>
+		/// <remarks>
+		/// Usable only by Community Managers.
+		/// </remarks>
+		/// <param name="id">ID of ModAction to delete.</param>
+		/// <response code="205">ModAction was flagged for deletion.</response>
+		[HttpDelete("{id}"), Authorize(Roles = ApiRoles.CM), ProducesResponseType(205)]
 		public async Task<IActionResult> Revert(Guid id)
 		{
 			await service.RevertModActionAsync(id);

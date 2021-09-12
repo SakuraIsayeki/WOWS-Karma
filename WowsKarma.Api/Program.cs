@@ -42,12 +42,12 @@ namespace WowsKarma.Api
 			Log.Information("Region selected : {Region}", Startup.ApiRegion);
 
 
-			using (ApiDbContext db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApiDbContext>>().CreateDbContext())
+			using (ApiDbContext db = scope.ServiceProvider.GetRequiredService<ApiDbContext>())
 			{
 				await db.Database.MigrateAsync();
 			}
 
-			using (AuthDbContext db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AuthDbContext>>().CreateDbContext())
+			using (AuthDbContext db = scope.ServiceProvider.GetRequiredService<AuthDbContext>())
 			{
 				await db.Database.MigrateAsync();
 			}
@@ -67,7 +67,7 @@ namespace WowsKarma.Api
 							  .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 						config.AddEnvironmentVariables();
 						config.AddCommandLine(args);
-					}); 
+					});
 
 					webBuilder.UseStartup<Startup>();
 					webBuilder.UseSerilog();

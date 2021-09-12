@@ -20,9 +20,9 @@ namespace WowsKarma.Api.Services.Authentication
 		private const string SeedTokenClaimType = "seed";
 		private readonly AuthDbContext context;
 
-		public UserService(IDbContextFactory<AuthDbContext> dbContextFactory)
+		public UserService(AuthDbContext context)
 		{
-			context = dbContextFactory.CreateDbContext();
+			this.context = context;
 		}
 
 		public Task<User> GetUserAsync(uint id) => context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);

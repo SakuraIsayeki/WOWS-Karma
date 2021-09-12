@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,22 +27,30 @@ namespace WowsKarma.Api.Controllers
 			service = playerService;
 		}
 
-		[HttpGet("Search/{query}")]
-		public async Task<IActionResult> SearchAccount(string query)
+		/// <summary>
+		/// Lists accounts containing usernames starting with given search query.
+		/// (Max. 100 results)
+		/// </summary>
+		/// <param name="query">Username search query</param>
+		/// <response code="200">Account listings for given search query</response>
+		/// <response code="204">No results found for given search query</response>
+		[HttpGet("Search/{query}"), ProducesResponseType(typeof(IEnumerable<AccountListingDTO>), 200), ProducesResponseType(204)]
+		public async Task<IActionResult> SearchAccount([StringLength(100, MinimumLength = 3), RegularExpression(@"^[a-zA-Z0-9_]*$")] string query)
 		{
-			if (string.IsNullOrWhiteSpace(query))
-			{
-				return StatusCode(400, new ArgumentNullException(nameof(query)));
-			}
-
 			IEnumerable<AccountListingDTO> accounts = await service.ListPlayersAsync(query);
 
 			return accounts is null
-				? StatusCode(204) 
+				? StatusCode(204)
 				: StatusCode(200, accounts);
 		}
 
-		[HttpGet("{id}")]
+		/// <summary>
+		/// Fetches the player profile for a given Account ID.
+		/// </summary>
+		/// <param name="id">Player account ID</param>
+		/// <response code="200">Returns player profile</response>
+		/// <response code="204">No profile found</response>
+		[HttpGet("{id}"), ProducesResponseType(typeof(PlayerProfileDTO), 200), ProducesResponseType(204)]
 		public async Task<IActionResult> GetAccount(uint id)
 		{
 			if (id is 0)
@@ -56,13 +65,31 @@ namespace WowsKarma.Api.Controllers
 				: StatusCode(200, playerProfile);
 		}
 
-		[HttpPost("Karmas")]
+		/// <summary>
+		/// Fetches Site Karma for each provided Account ID, where available.
+		/// </summary>
+		/// <param name="ids">List of Account IDs</param>
+		/// <response code="200">Returns "Account":"SiteKarma" Dictionary of Karma metrics for available accounts (may be empty).</response>
+		[HttpPost("Karmas"), ProducesResponseType(typeof(Dictionary<uint, int>), 200)]
 		public IActionResult FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary(service.GetPlayersKarma(ids)));
 
-		[HttpPost("KarmasFull")]
+		/// <summary>
+		/// Fetches full Karma metrics (Site Karma and Flairs) for each provided Account ID, where available.
+		/// </summary>
+		/// <param name="ids">List of Account IDs</param>
+		/// <response code="200">Returns Full Karma metrics for available accounts (may be empty).</response>
+		[HttpPost("KarmasFull"), ProducesResponseType(typeof(IEnumerable<AccountFullKarmaDTO>), 200)]
 		public IActionResult FetchFullKarmas([FromBody] uint[] ids) => StatusCode(200, service.GetPlayersFullKarma(ids));
 
-		[HttpPost("Recalculate"), Authorize(Roles = ApiRoles.Administrator)]
+		/// <summary>
+		/// Triggers recalculation of Karma metrics for a given account.
+		/// </summary>
+		/// <remarks>
+		/// Can only be called by Site Administrators.
+		/// </remarks>
+		/// <param name="playerId">Account ID of player profile</param>
+		/// <response code="205">Profile Karma recalculation was processed.</response>
+		[HttpPost("Recalculate"), Authorize(Roles = ApiRoles.Administrator), ProducesResponseType(205), ProducesResponseType(401), ProducesResponseType(403)]
 		public async Task<IActionResult> RecalculateMetrics([FromQuery] uint playerId, CancellationToken cancellationToken)
 		{
 			await service.RecalculatePlayerMetrics(playerId, cancellationToken);

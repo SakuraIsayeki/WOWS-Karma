@@ -1,15 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace WowsKarma.Api.Controllers
 {
+	/// <summary>
+	/// Provides status endpoints for controlling API lifetime.
+	/// </summary>
 	[ApiController, Route("api/[controller]")]
 	public class StatusController : Controller
 	{
-		[HttpGet]
+		/// <summary>
+		/// Provides a HTTP ping endpoint.
+		/// </summary>
+		/// <response code="200">Service is healthy.</response>
+		[HttpGet, ProducesResponseType(200)]
 		public IActionResult Status() => Ok();
 	}
 }

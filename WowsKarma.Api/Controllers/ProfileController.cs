@@ -45,7 +45,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="404">User profile was not found.</response>
 		/// <response code="423">A cooldown is currently in effect for one of the values edited.</response>
 		[HttpPut, Authorize, ProducesResponseType(typeof(UserProfileFlagsDTO), 200)]
-		[ProducesResponseType(typeof(CooldownException), 423), ProducesResponseType(typeof(string), 403), ProducesResponseType(404)]
+		[ProducesResponseType(423), ProducesResponseType(typeof(string), 403), ProducesResponseType(404)]
 		public async Task<IActionResult> UpdateProfileFlagsAsync([FromBody] UserProfileFlagsDTO flags)
 		{
 			try

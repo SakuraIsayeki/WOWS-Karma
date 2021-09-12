@@ -1,4 +1,4 @@
-﻿using Mapster;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -30,6 +30,11 @@ namespace WowsKarma.Api.Controllers
 		{
 			try
 			{
+				if (flags.Id != User.ToAccountListing().Id && !User.IsInRole(ApiRoles.Administrator))
+				{
+					return StatusCode(403, "User can only update their own profile.");
+				}
+
 				await playerService.UpdateProfileFlagsAsync(flags);
 				return StatusCode(200);
 			}

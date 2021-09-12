@@ -144,7 +144,14 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(404, $"Account {post.PlayerId} not found.");
 			}
 
-			if (!ignoreChecks)
+			if (ignoreChecks)
+			{
+				if (!(User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator)))
+				{
+					return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
+				}
+			}
+			else
 			{
 				if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
 				{
@@ -164,10 +171,6 @@ namespace WowsKarma.Api.Controllers
 				{
 					return StatusCode(403, "Targeted player has opted-out from using this platform.");
 				}
-			}
-			else if (User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator))
-			{
-				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
 			}
 
 			try
@@ -198,7 +201,14 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(404, $"No post with ID {post.Id} found.");
 			}
 
-			if (!ignoreChecks)
+			if (ignoreChecks)
+			{
+				if (!(User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator)))
+				{
+					return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
+				}
+			}
+			else
 			{
 				if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
 				{
@@ -208,10 +218,6 @@ namespace WowsKarma.Api.Controllers
 				{
 					return StatusCode(403, "Post has been locked by Community Managers. No modification is possible.");
 				}
-			}
-			else if (User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator))
-			{
-				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
 			}
 
 			try
@@ -241,7 +247,14 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(404, $"No post with ID {postId} found.");
 			}
 
-			if (!ignoreChecks)
+			if (ignoreChecks)
+			{
+				if (!(User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator)))
+				{
+					return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
+				}
+			}
+			else
 			{
 				if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
 				{
@@ -251,10 +264,6 @@ namespace WowsKarma.Api.Controllers
 				{
 					return StatusCode(403, "Post has been locked by Community Managers. No deletion is possible.");
 				}
-			}
-			else if (User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator))
-			{
-				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
 			}
 
 			await postService.DeletePostAsync(postId);

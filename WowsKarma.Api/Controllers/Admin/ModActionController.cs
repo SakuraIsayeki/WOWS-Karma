@@ -28,7 +28,7 @@ namespace WowsKarma.Api.Controllers.Admin
 		/// </summary>
 		/// <param name="id">ID of ModAction to fetch.</param>
 		[HttpGet("{id}"), AllowAnonymous]
-		public Task<PostModAction> Fetch(Guid id) => service.GetModActionAsync(id);
+		public async Task<PostModActionDTO> Fetch(Guid id) => (await service.GetModActionAsync(id)).Adapt<PostModActionDTO>();
 
 		/// <summary>
 		/// Lists ModActions by Post or User IDs.

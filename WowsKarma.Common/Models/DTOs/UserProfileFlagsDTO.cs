@@ -1,5 +1,7 @@
 ﻿using System;
 
+
+
 namespace WowsKarma.Common.Models.DTOs
 {
 	public record UserProfileFlagsDTO

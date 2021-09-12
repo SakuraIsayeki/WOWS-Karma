@@ -79,7 +79,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="200">List of posts sent by player</response>
 		/// <response code="204">No posts sent by given player.</response>
 		/// <response code="404">No player found for given Account ID.</response>
-		[HttpGet("{userId}/sent"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(404)]
+		[HttpGet("{userId}/sent"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> GetSentPosts(uint userId, [FromQuery] int? lastResults)
 		{
 			if (await playerService.GetPlayerAsync(userId) is null)
@@ -131,7 +131,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="400">Post contents validation has failed.</response>
 		/// <response code="403">Restrictions are in effect for one of the targeted accounts.</response>
 		/// <response code="404">One of the targeted accounts was not found.</response>
-		[HttpPost, Authorize, ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(403), ProducesResponseType(404)]
+		[HttpPost, Authorize, ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> CreatePost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{
 			if (await playerService.GetPlayerAsync(post.AuthorId) is not Player author)
@@ -193,7 +193,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="400">Post contents validation has failed.</response>
 		/// <response code="403">Restrictions are in effect for the existing post.</response>
 		/// <response code="404">Targeted post was not found.</response>
-		[HttpPut, Authorize, ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(403), ProducesResponseType(404)]
+		[HttpPut, Authorize, ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{
 			if (postService.GetPost(post.Id ?? default) is not Post current)
@@ -239,7 +239,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="205">Post was successfuly deleted.</response>
 		/// <response code="403">Restrictions are in effect for the existing post.</response>
 		/// <response code="404">Targeted post was not found.</response>
-		[HttpDelete("{postId}"), Authorize, ProducesResponseType(205), ProducesResponseType(403), ProducesResponseType(404)]
+		[HttpDelete("{postId}"), Authorize, ProducesResponseType(205), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> DeletePost(Guid postId, [FromQuery] bool ignoreChecks = false)
 		{
 			if (postService.GetPost(postId) is not Post post)
@@ -269,13 +269,5 @@ namespace WowsKarma.Api.Controllers
 			await postService.DeletePostAsync(postId);
 			return StatusCode(205);
 		}
-
-
-		/// <summary>
-		/// Responds with a blank <see cref="PlayerPostDTO"/> object.
-		/// </summary>
-		/// <response code="200">Returns a new object.</response>
-		[HttpGet("model"), ProducesResponseType(typeof(PlayerPostDTO), 200)]
-		public IActionResult GetPostDTOModel() => StatusCode(200, new PlayerPostDTO());
 	}
 }

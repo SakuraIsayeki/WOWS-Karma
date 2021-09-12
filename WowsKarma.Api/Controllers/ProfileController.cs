@@ -1,4 +1,4 @@
-using Mapster;
+﻿using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
+using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Controllers
@@ -20,12 +21,31 @@ namespace WowsKarma.Api.Controllers
 			this.playerService = playerService;
 		}
 
-		[HttpGet("{id}")]
+		/// <summary>
+		/// Fetches a player's profile flags for given ID.
+		/// This includes Platform Bans, and Opt-out statuses.
+		/// </summary>
+		/// <param name="id">Player ID to fetch profile flags from.</param>
+		/// <response code="200">Returns player profile flags for given ID.</response>
+		/// <response code="404">No player Profile was found.</response>
+		[HttpGet("{id}"), ProducesResponseType(typeof(UserProfileFlagsDTO), 200), ProducesResponseType(404)]
 		public async Task<IActionResult> GetProfileFlagsAsync(uint id) => (await playerService.GetPlayerAsync(id)) is Player player
 			? StatusCode(200, player.Adapt<UserProfileFlagsDTO>())
 			: StatusCode(404);
 
-		[HttpPut, Authorize]
+		/// <summary>
+		/// Updates user-settable profile values.
+		/// </summary>
+		/// <param name="flags">
+		/// Updated profile values to set on profile.
+		/// Note: Platform Ban state cannot be edited through this endpoint.
+		/// </param>
+		/// <response code="200">Profile flags were successfuly updated.</response>
+		/// <response code="403">User cannot update a profile other than their own.</response>
+		/// <response code="404">User profile was not found.</response>
+		/// <response code="423">A cooldown is currently in effect for one of the values edited.</response>
+		[HttpPut, Authorize, ProducesResponseType(typeof(UserProfileFlagsDTO), 200)]
+		[ProducesResponseType(typeof(CooldownException), 423), ProducesResponseType(typeof(string), 403), ProducesResponseType(404)]
 		public async Task<IActionResult> UpdateProfileFlagsAsync([FromBody] UserProfileFlagsDTO flags)
 		{
 			try

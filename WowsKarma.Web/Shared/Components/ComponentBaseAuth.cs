@@ -23,7 +23,7 @@ namespace WowsKarma.Web.Shared.Components
 		{
 			AuthenticationState authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 			CurrentUser = authenticationState.User.ToAccountListing();
-			CurrentToken = HttpContextAccessor.HttpContext.Request.Cookies[ApiTokenAuthenticationHandler.CookieName];
+			CurrentToken = HttpContextAccessor?.HttpContext?.Request?.Cookies[ApiTokenAuthenticationHandler.CookieName];
 		}
 
 		protected static JwtSecurityToken ParseToken(string token) => new JwtSecurityTokenHandler().ReadJwtToken(token);

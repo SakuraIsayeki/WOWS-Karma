@@ -80,9 +80,7 @@ namespace WowsKarma.Api
 								StringValues accessToken = context.Request.Query["access_token"];
 
 								// If the request is for our hub...
-								PathString path = context.Request.Path;
-
-								if (accessToken != StringValues.Empty && path.StartsWithSegments("/api/hubs"))
+								if (accessToken != StringValues.Empty && context.Request.Path.StartsWithSegments("/api/hubs"))
 								{
 									// Read the token out of the query string
 									context.Token = accessToken;

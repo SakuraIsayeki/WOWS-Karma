@@ -1,6 +1,7 @@
 ﻿@inherits ComponentBaseAuth
 @implements IAsyncDisposable
 
+
 @page "/posts"
 
 @inject PostService PostService
@@ -102,19 +103,13 @@
 
 	public void SetupEvents()
 	{
-		hubConnection.On<IEnumerable<PlayerPostDTO>>("GetLatestPosts", (posts) =>
-		{
-			Posts = new(posts);
-			StateHasChanged();
-		});
-
-		hubConnection.On<PlayerPostDTO>("NewPost", (post) =>
+		hubConnection.On<PlayerPostDTO>(nameof(IPostHubPush.NewPost), (post) =>
 		{
 			Posts.AddFirst(post);
 			StateHasChanged();
 		});
 
-		hubConnection.On<PlayerPostDTO>("EditedPost", (edited) =>
+		hubConnection.On<PlayerPostDTO>(nameof(IPostHubPush.EditedPost), (edited) =>
 		{
 			if (Posts.FirstOrDefault(p => p.Id == edited.Id) is PlayerPostDTO current)
 			{
@@ -130,7 +125,7 @@
 			}
 		});
 
-		hubConnection.On<Guid>("DeletedPost", (deletedId) =>
+		hubConnection.On<Guid>(nameof(IPostHubPush.DeletedPost), (deletedId) =>
 		{
 			if (Posts.FirstOrDefault(p => p.Id == deletedId) is PlayerPostDTO current)
 			{

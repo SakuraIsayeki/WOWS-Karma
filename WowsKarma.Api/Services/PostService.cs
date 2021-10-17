@@ -10,6 +10,7 @@ using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
+using WowsKarma.Common.Hubs;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
@@ -24,9 +25,9 @@ namespace WowsKarma.Api.Services
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
 		private readonly PostWebhookService webhookService;
-		private readonly IHubContext<PostHub> hubContext;
+		private readonly IHubContext<PostHub, IPostHubPush> hubContext;
 
-		public PostService(ApiDbContext context, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub> hubContext)
+		public PostService(ApiDbContext context, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub, IPostHubPush> hubContext)
 		{
 			this.context = context;
 			this.playerService = playerService;
@@ -94,7 +95,7 @@ namespace WowsKarma.Api.Services
 
 			_ = webhookService.SendNewPostWebhookAsync(post, author, player);
 
-			_ = hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with
+			_ = hubContext.Clients.All.NewPost(post.Adapt<PlayerPostDTO>() with
 			{
 				AuthorUsername = author.Username,
 				PlayerUsername = player.Username
@@ -121,7 +122,7 @@ namespace WowsKarma.Api.Services
 
 			_ = webhookService.SendEditedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
 
-			_ = hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
+			_ = hubContext.Clients.All.EditedPost(post.Adapt<PlayerPostDTO>() with
 			{
 				AuthorUsername = post.Author?.Username,
 				PlayerUsername = post.Player?.Username
@@ -152,7 +153,7 @@ namespace WowsKarma.Api.Services
 				_ = webhookService.SendDeletedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
 			}
 
-			_ = hubContext.Clients.All.SendAsync("DeletedPost", id);
+			_ = hubContext.Clients.All.DeletedPost(id);
 		}
 
 		internal static void ValidatePostContents(PlayerPostDTO post)

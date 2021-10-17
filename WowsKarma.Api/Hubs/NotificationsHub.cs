@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Services;
 using WowsKarma.Common.Hubs;
 
@@ -21,7 +22,12 @@ public class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInv
 		_service = service;
 	}
 
-	public Task AcknowledgeNotifications(Guid[] notificationIds) => _service.AcknowledgeNotifications(notificationIds);
+	public Task AcknowledgeNotifications(Guid[] notificationIds)
+	{
+		IQueryable<NotificationBase> notifications = _service.GetNotifications(notificationIds).Where(n => n.AccountId == uint.Parse(Context.UserIdentifier));
+		_service.AcknowledgeNotifications(notifications);
+		return Task.CompletedTask;
+	}
 
 	public async IAsyncEnumerable<INotification> GetPendingNotifications([EnumeratorCancellation] CancellationToken ct)
 	{

@@ -26,15 +26,17 @@ public class NotificationService
 
 
 	public IQueryable<INotification> GetAllNotifications(uint userId) =>
-		from n in _context.Notifications
+		from n in _context.Set<NotificationBase>()
 		where n.AccountId == userId
 		select n;
 
 	public IQueryable<INotification> GetPendingNotifications(uint userId) =>
-		from n in _context.Notifications
+		from n in _context.Set<NotificationBase>()
 		where n.AccountId == userId
 		where n.AcknowledgedAt == null
 		select n;
+
+	public IQueryable<NotificationBase> GetNotifications(Guid[] ids) => _context.Set<NotificationBase>().Where(n => ids.Contains(n.Id));
 
 	public async Task SendNewNotification<TNotification>(TNotification notification) where TNotification : class, INotification
 	{
@@ -52,15 +54,21 @@ public class NotificationService
 			throw new ArgumentNullException(nameof(ids));
 		}
 
-		NotificationBase[] notifications = await _context.Set<NotificationBase>().Where(n => ids.Contains(n.Id)).ToArrayAsync();
+		AcknowledgeNotifications(await GetNotifications(ids).ToArrayAsync());
+	}
 
-		foreach (NotificationBase notification in notifications)
+	public void AcknowledgeNotifications(IEnumerable<NotificationBase> notifications)
+	{
+		if (notifications.Any())
 		{
-			notification.AcknowledgedAt = DateTime.UtcNow;
-		}
+			foreach (NotificationBase notification in notifications)
+			{
+				notification.AcknowledgedAt = DateTime.UtcNow;
+			}
 
-		_context.SaveChanges();
-		_logger.LogInformation("Acknowledged Notifications {notificationId}.", string.Join(", ", notifications.Select(n => n.Id)));
+			_context.SaveChanges();
+			_logger.LogInformation("Acknowledged Notifications {notificationId}.", string.Join(", ", notifications.Select(n => n.Id)));
+		}
 	}
 
 	public async Task DeleteNotification(Guid id)

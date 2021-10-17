@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Common.Models;
 
 namespace WowsKarma.Api.Data
@@ -11,15 +12,39 @@ namespace WowsKarma.Api.Data
 		public DbSet<Post> Posts { get; set; }
 		public DbSet<PostModAction> PostModActions { get; set; }
 
+		#region Notifications
+		public DbSet<NotificationBase> Notifications { get; set; }
+
+		public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; set; }
+		#endregion
+
+
 		static ApiDbContext()
 		{
 			NpgsqlConnection.GlobalTypeMapper.MapEnum<ModActionType>();
+			NpgsqlConnection.GlobalTypeMapper.MapEnum<NotificationType>();
 		}
 
 		public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) { }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			#region Notifications
+
+			modelBuilder.HasPostgresEnum<NotificationType>();
+
+			modelBuilder.Entity<NotificationBase>()
+				.HasDiscriminator(n => n.Type)
+					.HasValue<NotificationBase>(NotificationType.Unknown)
+					.HasValue<PostModDeletedNotification>(NotificationType.PostModDeleted)
+					.IsComplete(false);
+
+
+
+
+
+			#endregion    // Notifications
+
 			#region Players
 
 			modelBuilder.Entity<Player>()

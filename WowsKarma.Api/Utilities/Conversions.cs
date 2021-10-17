@@ -43,8 +43,8 @@ namespace WowsKarma.Api.Utilities
 				WgHidden = accountInfo.HiddenProfile
 			};
 
-			return player.WgHidden 
-				? player 
+			return player.WgHidden
+				? player
 				: player with
 				{
 					WgAccountCreatedAt = accountInfo.CreatedAtTime,

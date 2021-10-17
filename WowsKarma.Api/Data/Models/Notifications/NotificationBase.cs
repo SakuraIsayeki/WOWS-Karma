@@ -9,6 +9,6 @@ public abstract record NotificationBase : INotification
 
 	public abstract NotificationType Type { get; protected private init; }
 
-	public DateTime EmittedAt { get; init; }
+	public DateTime EmittedAt { get; protected private init; } = DateTime.UtcNow;
 	public DateTime? AcknowledgedAt { get; set; }
 }

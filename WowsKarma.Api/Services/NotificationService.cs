@@ -41,7 +41,6 @@ public class NotificationService
 		_ = notification ?? throw new ArgumentNullException(nameof(notification));
 		_context.Set<TNotification>().Add(notification);
 		_context.SaveChanges();
-
 		await _hub.Clients.User(notification.AccountId.ToString()).NewNotification(notification);
 		_logger.LogInformation("Sent notification {notificationId} to user {userId}.", notification.Id, notification.AccountId);
 	}
@@ -69,9 +68,7 @@ public class NotificationService
 		NotificationBase notification = await _context.Set<NotificationBase>().FindAsync(id) ?? throw new ArgumentException("No notification found for given ID.", nameof(id));
 		_context.Remove(notification);
 		_context.SaveChanges();
-
 		_logger.LogInformation("Removed Notification {id}.", id);
-
 		await _hub.Clients.All.DeletedNotification(id);
 	}
 }

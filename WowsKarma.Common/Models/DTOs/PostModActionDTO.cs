@@ -1,23 +1,19 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿namespace WowsKarma.Common.Models.DTOs;
 
-namespace WowsKarma.Common.Models.DTOs
+public record PostModActionDTO
 {
-	public record PostModActionDTO
-	{
-		public Guid Id { get; init; }
+	public Guid Id { get; init; }
 
-		[Required]
-		public Guid PostId { get; init; }
+	[Required]
+	public Guid PostId { get; init; }
 
-		public PlayerPostDTO UpdatedPost { get; init; }
+	public PlayerPostDTO UpdatedPost { get; init; }
 
-		public ModActionType ActionType { get; init; }
+	public ModActionType ActionType { get; init; }
 
-		public uint ModId { get; init; }
-		public string ModUsername { get; init; }
+	public uint ModId { get; init; }
+	public string ModUsername { get; init; }
 
-		[Required]
-		public string Reason { get; set; }
-	}
+	[Required]
+	public string Reason { get; set; }
 }

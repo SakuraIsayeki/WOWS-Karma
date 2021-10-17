@@ -7,7 +7,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 using WowsKarma.Common;
 using static WowsKarma.Common.Utilities;
 
@@ -28,7 +27,7 @@ namespace WowsKarma.Web.Services.Authentication
 		private readonly HttpClient httpClient;
 
 		public ApiTokenAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder,
-			ISystemClock clock, IConfiguration configuration, JwtSecurityTokenHandler tokenHandler, IHttpClientFactory httpClientFactory) 
+			ISystemClock clock, IConfiguration configuration, JwtSecurityTokenHandler tokenHandler, IHttpClientFactory httpClientFactory)
 			: base(options, logger, encoder, clock)
 		{
 			CookieName ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieName"];
@@ -39,7 +38,7 @@ namespace WowsKarma.Web.Services.Authentication
 			this.tokenHandler = tokenHandler;
 			httpClient = httpClientFactory.CreateClient();
 		}
-	
+
 		protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
 			try

@@ -1,8 +1,7 @@
-﻿namespace WowsKarma.Common.Models
+﻿namespace WowsKarma.Common.Models;
+
+public enum ModActionType
 {
-	public enum ModActionType
-	{
-		Deletion,
-		Update
-	}
+	Deletion,
+	Update
 }

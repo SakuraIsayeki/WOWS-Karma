@@ -26,13 +26,13 @@
       },
       "sqlDebugging": false,
       "dotnetRunMessages": "true",
-      "applicationUrl": "http://+:5010"
+      "applicationUrl": "http://localhost:5010"
     },
     "Docker": {
       "commandName": "Docker",
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/",
       "publishAllPorts": true,
-      "ASPNETCORE_URLS": "http://+:5000",
+      "ASPNETCORE_URLS": "http://localhost:5000",
       "useSSL": true
     },
     "WSL 2": {

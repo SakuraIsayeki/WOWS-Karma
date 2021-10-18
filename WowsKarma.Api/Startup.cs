@@ -174,6 +174,7 @@ namespace WowsKarma.Api
 			services.AddScoped<PostService>();
 			services.AddScoped<KarmaService>();
 			services.AddScoped<ModService>();
+			services.AddScoped<NotificationService>();
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{
@@ -237,6 +238,7 @@ namespace WowsKarma.Api
 			{
 				endpoints.MapDefaultControllerRoute();
 				endpoints.MapHub<PostHub>("/api/hubs/post");
+				endpoints.MapHub<NotificationsHub>("/api/hubs/notifications");
 			});
 		}
 	}

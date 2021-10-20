@@ -6,6 +6,7 @@ public record PostModDeletedNotification : NotificationBase
 {
 	public override NotificationType Type { get; protected private init; } = NotificationType.PostModDeleted;
 
+	public virtual Guid ModActionId { get; set; }
 	public virtual PostModAction ModAction { get; set; }
 
 
@@ -15,6 +16,7 @@ public record PostModDeletedNotification : NotificationBase
 		{
 			AccountId = modAction.Post.AuthorId,
 			Account = modAction.Post.Author,
+			ModActionId = modAction.Id,
 			ModAction = modAction
 		};
 }

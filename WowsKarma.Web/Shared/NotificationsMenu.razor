@@ -1,0 +1,43 @@
+﻿@inherits ComponentBaseAuth
+
+<ul class="navbar-nav">
+	<li class="nav-item">
+		<div class="dropdown">
+			<button class="btn btn-link text-light dropdown-toggle" type="button" id="notifications-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @onclick=ToggleOpened>
+				<i class="bi bi-bell@(Notifications?.Any() is true ? "-fill" : null)"></i>
+
+				@if (Notifications?.Count is int count)
+				{
+					<span class="badge bg-primary rounded-pill ml-2">@count</span>
+				}
+			</button>
+
+			<div class="dropdown-menu dropdown-menu-right @(opened ? "show" : null)" aria-labelledby="notifications-dropdown">
+				@foreach (INotification notification in Notifications)
+				{
+					<a class="dropdown-item toast show d-flex-1">
+						<div class="toast-header">
+							<strong class="me-auto">@notification.Type.ToString()</strong>
+							<small>@notification.EmittedAt.ToString()</small>
+
+							<button type="button" class="btn-close ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close">
+								<span aria-hidden="true"></span>
+							</button>
+						</div>
+
+						<div class="toast-body">
+							Notification body placeholder.
+						</div>
+					</a>
+				}
+			</div>
+		</div>
+
+	</li>
+</ul>
+
+@code {
+	private bool opened = false;
+
+	private void ToggleOpened() => opened = !opened;
+}

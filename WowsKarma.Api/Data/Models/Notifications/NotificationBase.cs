@@ -1,4 +1,6 @@
-﻿namespace WowsKarma.Api.Data.Models.Notifications;
+﻿using WowsKarma.Common.Models.DTOs.Notifications;
+
+namespace WowsKarma.Api.Data.Models.Notifications;
 
 public abstract record NotificationBase : INotification
 {
@@ -11,4 +13,13 @@ public abstract record NotificationBase : INotification
 
 	public DateTime EmittedAt { get; protected private init; } = DateTime.UtcNow;
 	public DateTime? AcknowledgedAt { get; set; }
+
+	public virtual NotificationDTO ToDTO() => new()
+	{
+		Id = Id,
+		AccountId = AccountId,
+		AcknowledgedAt = AcknowledgedAt,
+		EmittedAt = EmittedAt,
+		Type = Type
+	};
 }

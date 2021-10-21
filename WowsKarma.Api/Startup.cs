@@ -54,6 +54,10 @@ namespace WowsKarma.Api
 		{
 			services.AddControllers();
 			services.AddSignalR()
+				.AddNewtonsoftJsonProtocol(options =>
+				{
+					options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+				})
 				.AddMessagePackProtocol();
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

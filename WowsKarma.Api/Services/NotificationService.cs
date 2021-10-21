@@ -25,12 +25,12 @@ public class NotificationService
 	}
 
 
-	public IQueryable<INotification> GetAllNotifications(uint userId) =>
+	public IQueryable<NotificationBase> GetAllNotifications(uint userId) =>
 		from n in _context.Set<NotificationBase>()
 		where n.AccountId == userId
 		select n;
 
-	public IQueryable<INotification> GetPendingNotifications(uint userId) =>
+	public IQueryable<NotificationBase> GetPendingNotifications(uint userId) =>
 		from n in _context.Set<NotificationBase>()
 		where n.AccountId == userId
 		where n.AcknowledgedAt == null
@@ -41,9 +41,11 @@ public class NotificationService
 	public async Task SendNewNotification<TNotification>(TNotification notification) where TNotification : class, INotification
 	{
 		_ = notification ?? throw new ArgumentNullException(nameof(notification));
+
 		_context.Set<TNotification>().Add(notification);
 		_context.SaveChanges();
-		await _hub.Clients.User(notification.AccountId.ToString()).NewNotification(notification);
+
+		await _hub.Clients.User(notification.AccountId.ToString()).NewNotification(typeof(TNotification).FullName, notification);
 		_logger.LogInformation("Sent notification {notificationId} to user {userId}.", notification.Id, notification.AccountId);
 	}
 

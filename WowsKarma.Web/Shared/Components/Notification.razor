@@ -1,0 +1,50 @@
+﻿@using WowsKarma.Common.Models.DTOs.Notifications
+
+<a class="toast show" href="@(linkFragment ?? "#")">
+	<div class="toast-header d-flex text-nowrap">
+		<strong class="mr-5 @(IsModNotification ? "text-danger" : null)">@title</strong>
+		<small>@Model.EmittedAt.ToString()</small>
+
+		<button type="button" class="btn btn-link btn-sm text-white ml-2" data-bs-dismiss="toast" aria-label="Close">
+			<i class="bi bi-x-lg"></i>
+		</button>
+	</div>
+
+	<div class="toast-body @(IsModNotification ? "text-danger" : null)">
+		@body
+	</div>
+</a>
+
+@code {
+	[Parameter] public INotification Model { get; set; }
+
+	public bool IsModNotification => Model.Type is NotificationType.PostModEdited or NotificationType.PostModDeleted;
+
+	private string title;
+	private string linkFragment;
+	private MarkupString body;
+
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await base.OnParametersSetAsync();
+
+		(title, linkFragment, body) = GetBodyMarkupFormat();
+	}
+
+	public (string title, string link, MarkupString body) GetBodyMarkupFormat()
+	{
+		if (Model is { Type: NotificationType.PostModDeleted })
+		{
+			PostModDeletedNotificationDTO casted = (PostModDeletedNotificationDTO)Model;
+
+			return ("Post Mod-Removed",
+				$"/posts/view/{casted.ModAction.PostId}",
+				(MarkupString)"Your post was removed by our Community Managers, and is no longer visible on the platform.");
+		}
+		else
+		{
+			return (default, default, default);
+		}
+	}
+}

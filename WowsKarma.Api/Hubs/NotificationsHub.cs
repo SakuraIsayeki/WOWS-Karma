@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
@@ -29,15 +30,17 @@ public class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInv
 		return Task.CompletedTask;
 	}
 
-	public async IAsyncEnumerable<INotification> GetPendingNotifications([EnumeratorCancellation] CancellationToken ct)
+	public async IAsyncEnumerable<(string, object)> GetPendingNotifications([EnumeratorCancellation] CancellationToken ct)
 	{
-		ConfiguredCancelableAsyncEnumerable<INotification> notifications = _service.GetPendingNotifications(uint.Parse(Context.UserIdentifier))
+		ConfiguredCancelableAsyncEnumerable<NotificationBase> notifications = _service.GetPendingNotifications(uint.Parse(Context.UserIdentifier))
 			.AsAsyncEnumerable().WithCancellation(ct);
 
-		await foreach (INotification item in notifications)
+		await foreach (NotificationBase item in notifications)
 		{
 			ct.ThrowIfCancellationRequested();
-			yield return item;
+			object notificationDTO = item.ToDTO();
+
+			yield return (notificationDTO.GetType().FullName, notificationDTO);
 		}
 	}
 }

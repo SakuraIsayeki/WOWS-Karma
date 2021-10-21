@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Mapster;
+using System;
+using WowsKarma.Common.Models.DTOs.Notifications;
 
 namespace WowsKarma.Api.Data.Models.Notifications;
 
@@ -19,4 +21,15 @@ public record PostModDeletedNotification : NotificationBase
 			ModActionId = modAction.Id,
 			ModAction = modAction
 		};
+
+	public override PostModDeletedNotificationDTO ToDTO() => new()
+	{
+		Id = Id,
+		AccountId = AccountId,
+		AcknowledgedAt = AcknowledgedAt,
+		EmittedAt = EmittedAt,
+		ModAction = ModAction.Adapt<PostModActionDTO>(),
+		ModActionId = ModActionId,
+		Type = Type
+	};
 }

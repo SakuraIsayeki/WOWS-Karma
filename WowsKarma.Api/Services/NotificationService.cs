@@ -26,12 +26,12 @@ public class NotificationService
 
 
 	public IQueryable<NotificationBase> GetAllNotifications(uint userId) =>
-		from n in _context.Set<NotificationBase>()
+		from n in _context.Set<NotificationBase>().IncludeAllNotificationsChildNavs()
 		where n.AccountId == userId
 		select n;
 
 	public IQueryable<NotificationBase> GetPendingNotifications(uint userId) =>
-		from n in _context.Set<NotificationBase>()
+		from n in _context.Set<NotificationBase>().IncludeAllNotificationsChildNavs()
 		where n.AccountId == userId
 		where n.AcknowledgedAt == null
 		select n;
@@ -80,5 +80,16 @@ public class NotificationService
 		_context.SaveChanges();
 		_logger.LogInformation("Removed Notification {id}.", id);
 		await _hub.Clients.All.DeletedNotification(id);
+	}
+}
+
+public static class NotificationServiceExtensions
+{
+	public static IQueryable<NotificationBase> IncludeAllNotificationsChildNavs(this IQueryable<NotificationBase> query)
+	{
+		// PostModDeletedNotification
+		query = query.Include(n => (n as PostModDeletedNotification).ModAction);
+
+		return query;
 	}
 }

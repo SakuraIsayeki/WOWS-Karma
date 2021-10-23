@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WowsKarma.Common.Models.DTOs.Notifications
 {
-	public record NotificationDTO : INotification
+	public record NotificationBaseDTO : INotification
 	{
 		public Guid Id { get; init; }
 

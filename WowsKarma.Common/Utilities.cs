@@ -104,13 +104,18 @@ public static class Utilities
 		=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
 
 
-	public static Type GetType(string name)
+	public static Type GetType(string typeName)
 	{
-		foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().Reverse())
+		if (Type.GetType(typeName) is Type type)
 		{
-			if (assembly.GetType(name)is Type t)
+			return type;
+		}
+
+		foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+		{
+			if ((type = a.GetType(typeName)) is not null)
 			{
-				return t;
+				return type;
 			}
 		}
 

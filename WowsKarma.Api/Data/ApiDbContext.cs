@@ -15,6 +15,9 @@ namespace WowsKarma.Api.Data
 		#region Notifications
 		public DbSet<NotificationBase> Notifications { get; set; }
 
+		public DbSet<PostAddedNotification> PostAddedNotifications { get; set; }
+		public DbSet<PostEditedNotification> PostEditedNotifications { get; set; }
+		public DbSet<PostDeletedNotification> PostDeletedNotifications { get; set; }
 		public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; set; }
 		#endregion
 
@@ -36,12 +39,11 @@ namespace WowsKarma.Api.Data
 			modelBuilder.Entity<NotificationBase>()
 				.HasDiscriminator(n => n.Type)
 					.HasValue<NotificationBase>(NotificationType.Unknown)
+					.HasValue<PostAddedNotification>(NotificationType.PostAdded)
+					.HasValue<PostEditedNotification>(NotificationType.PostEdited)
+					.HasValue<PostDeletedNotification>(NotificationType.PostDeleted)
 					.HasValue<PostModDeletedNotification>(NotificationType.PostModDeleted)
 					.IsComplete(false);
-
-
-
-
 
 			#endregion    // Notifications
 

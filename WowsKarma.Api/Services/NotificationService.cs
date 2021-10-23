@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data;
+using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Common.Hubs;
@@ -87,6 +88,15 @@ public static class NotificationServiceExtensions
 {
 	public static IQueryable<NotificationBase> IncludeAllNotificationsChildNavs(this IQueryable<NotificationBase> query)
 	{
+		// PostAddedNotification
+		query = query.Include(n => (n as PostAddedNotification).Post);
+
+		//PostEditedNotification
+		query = query.Include(n => (n as PostEditedNotification).Post);
+
+		//PostDeletedNotification
+		query = query.Include(n => (n as PostDeletedNotification).Post);
+
 		// PostModDeletedNotification
 		query = query.Include(n => (n as PostModDeletedNotification).ModAction);
 

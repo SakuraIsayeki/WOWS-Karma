@@ -1,5 +1,4 @@
-﻿using Mapster;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
@@ -33,7 +32,9 @@ public class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInv
 	public async IAsyncEnumerable<(string, object)> GetPendingNotifications([EnumeratorCancellation] CancellationToken ct)
 	{
 		ConfiguredCancelableAsyncEnumerable<NotificationBase> notifications = _service.GetPendingNotifications(uint.Parse(Context.UserIdentifier))
-			.AsAsyncEnumerable().WithCancellation(ct);
+			.AsNoTracking()
+			.AsAsyncEnumerable()
+			.WithCancellation(ct);
 
 		await foreach (NotificationBase item in notifications)
 		{

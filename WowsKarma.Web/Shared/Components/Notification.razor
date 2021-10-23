@@ -34,13 +34,31 @@
 
 	public (string title, string link, MarkupString body) GetBodyMarkupFormat()
 	{
-		if (Model is { Type: NotificationType.PostModDeleted })
+		if (Model is PostNotificationBaseDTO postModel)
 		{
-			PostModDeletedNotificationDTO casted = (PostModDeletedNotificationDTO)Model;
+			string link = $"/posts/view/{postModel.PostId}";
 
-			return ("Post Mod-Removed",
-				$"/posts/view/{casted.ModAction.PostId}",
-				(MarkupString)"Your post was removed by our Community Managers, and is no longer visible on the platform.");
+			return postModel.Type switch
+			{
+				NotificationType.PostAdded => ("Post Added", link,
+					(MarkupString)$"<p>A new post was added to your profile.</p><p>Post ID : {postModel.PostId}</p>"),
+
+				NotificationType.PostEdited => ("Post Edited", link,
+					(MarkupString)$"<p>An existing post on your profile was edited by its author.</p><p>Post ID : {postModel.PostId}</p>"),
+
+				NotificationType.PostDeleted => ("Post Deleted", link,
+					(MarkupString)$"<p>A post was deleted on your profile.</p><p>Post ID : {postModel.PostId}</p>"),
+
+
+
+				_ => (default, default, default)
+			};
+		}
+
+		else if (Model is { Type: NotificationType.PostModDeleted } and PostModDeletedNotificationDTO modDeleted)
+		{
+			return ("Post Mod-Removed",	$"/posts/view/{modDeleted.ModAction.PostId}",
+				(MarkupString)$"<p>Your post was removed by our Community Managers, and is no longer visible on the platform.</p><p>Post ID : {modDeleted.ModAction.PostId}</p>");
 		}
 		else
 		{

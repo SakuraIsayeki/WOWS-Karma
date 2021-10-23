@@ -53,9 +53,9 @@ public partial class NotificationsMenu : ComponentBaseAuth, IAsyncDisposable
 		{
 			Type type = GetType(dtoType);
 
-			if (type.IsAssignableTo(typeof(NotificationDTO)))
+			if (type.IsAssignableTo(typeof(NotificationBaseDTO)))
 			{
-				Notifications.Add(notification as NotificationDTO);
+				Notifications.Add(notification as NotificationBaseDTO);
 			}
 		}
 

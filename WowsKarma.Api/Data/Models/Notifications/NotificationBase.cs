@@ -14,7 +14,7 @@ public abstract record NotificationBase : INotification
 	public DateTime EmittedAt { get; protected private init; } = DateTime.UtcNow;
 	public DateTime? AcknowledgedAt { get; set; }
 
-	public virtual NotificationDTO ToDTO() => new()
+	public virtual NotificationBaseDTO ToDTO() => new()
 	{
 		Id = Id,
 		AccountId = AccountId,

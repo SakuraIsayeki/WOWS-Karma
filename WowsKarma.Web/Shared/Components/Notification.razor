@@ -1,16 +1,21 @@
 ﻿@using WowsKarma.Common.Models.DTOs.Notifications
 
-<a class="toast show" href="@(linkFragment ?? "#")">
-	<div class="toast-header d-flex text-nowrap">
-		<strong class="mr-5 @(IsModNotification ? "text-danger" : null)">@title</strong>
-		<small>@Model.EmittedAt.ToString()</small>
+<a class="toast show text-decoration-none text-reset" href="@(linkFragment ?? "#")">
+	<div class="toast-header d-flex justify-content-between text-nowrap">
+		<div>
+			<strong class="mr-5 @(IsModNotification ? "text-danger" : "text-reset") d-flex-1">@title</strong>
+		</div>
 
-		<button type="button" class="btn btn-link btn-sm text-white ml-2" data-bs-dismiss="toast" aria-label="Close">
-			<i class="bi bi-x-lg"></i>
-		</button>
+		<div>
+			<small>@Model.EmittedAt.ToString()</small>
+
+			<button type="button" class="btn btn-link btn-sm text-white ml-2" data-bs-dismiss="toast" aria-label="Close">
+				<i class="bi bi-x-lg"></i>
+			</button>
+		</div>
 	</div>
 
-	<div class="toast-body @(IsModNotification ? "text-danger" : null)">
+	<div class="toast-body  @(IsModNotification ? "text-danger" : "text-reset")">
 		@body
 	</div>
 </a>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using WowsKarma.Common.Hubs;
 using WowsKarma.Common.Models;
@@ -68,6 +69,15 @@ public partial class NotificationsMenu : ComponentBaseAuth, IAsyncDisposable
 		_hub.On<Guid>(nameof(INotificationsHubPush.DeletedNotification), (id) => Notifications.RemoveWhere(x => x.Id == id));
 	}
 
+	protected Task AcknowledgeNotificationAsync(INotification notification) => AcknowledgeNotificationsAsync(new INotification[] { notification }, CancellationToken.None);
+	protected Task AcknowledgeNotificationAsync(INotification notification, CancellationToken ct) => AcknowledgeNotificationsAsync(new INotification[] { notification }, ct);
+
+	protected async Task AcknowledgeNotificationsAsync(IEnumerable<INotification> notifications, CancellationToken ct)
+	{
+		await _hub.SendAsync(nameof(INotificationsHubInvoke.AcknowledgeNotifications), notifications.Select(n => n.Id), ct);
+		Notifications.ExceptWith(notifications);
+	}
+
 	private static Type GetType(string typeName)
 	{
 		if (ResolvedTypes.TryGetValue(typeName, out Type type))
@@ -79,8 +89,6 @@ public partial class NotificationsMenu : ComponentBaseAuth, IAsyncDisposable
 		ResolvedTypes.TryAdd(typeName, type);
 		return type;
 	}
-
-
 
 	#region DisposeAsync
 	public async ValueTask DisposeAsync()

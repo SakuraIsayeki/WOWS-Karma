@@ -9,7 +9,7 @@
 		<div>
 			<small>@Model.EmittedAt.ToString()</small>
 
-			<button type="button" class="btn btn-link btn-sm text-white ml-2" data-bs-dismiss="toast" aria-label="Close">
+			<button type="button" class="btn btn-link btn-sm text-white ml-2" data-bs-dismiss="toast" aria-label="Close" @onclick=DismissClicked>
 				<i class="bi bi-x-lg"></i>
 			</button>
 		</div>
@@ -22,12 +22,14 @@
 
 @code {
 	[Parameter] public INotification Model { get; set; }
+	[Parameter] public EventCallback<INotification> OnDismissClicked { get; set; }
 
 	public bool IsModNotification => Model.Type is NotificationType.PostModEdited or NotificationType.PostModDeleted;
 
 	private string title;
 	private string linkFragment;
 	private MarkupString body;
+
 
 
 	protected override async Task OnParametersSetAsync()
@@ -70,4 +72,6 @@
 			return (default, default, default);
 		}
 	}
+
+	public Task DismissClicked() => OnDismissClicked.InvokeAsync(Model);
 }

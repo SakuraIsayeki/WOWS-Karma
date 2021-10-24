@@ -18,7 +18,7 @@ namespace WowsKarma.Web.Shared;
 
 public partial class NotificationsMenu : ComponentBaseAuth, IAsyncDisposable
 {
-	public SortedSet<INotification> Notifications { get; set; } = new SortedSet<INotification>(new ByNotificationsDate());
+	public SortedSet<INotification> Notifications { get; set; } = new SortedSet<INotification>(new ByMostRecentNotifications());
 
 	protected static ConcurrentDictionary<string, Type> ResolvedTypes { get; } = new();
 	[Inject] protected IConfiguration Configuration { get; set; }
@@ -69,9 +69,10 @@ public partial class NotificationsMenu : ComponentBaseAuth, IAsyncDisposable
 		_hub.On<Guid>(nameof(INotificationsHubPush.DeletedNotification), (id) => Notifications.RemoveWhere(x => x.Id == id));
 	}
 
-	protected Task AcknowledgeNotificationAsync(INotification notification) => AcknowledgeNotificationsAsync(new INotification[] { notification }, CancellationToken.None);
+	protected Task AcknowledgeNotificationAsync(INotification notification) => AcknowledgeNotificationsAsync(new INotification[] { notification }, _cts.Token);
 	protected Task AcknowledgeNotificationAsync(INotification notification, CancellationToken ct) => AcknowledgeNotificationsAsync(new INotification[] { notification }, ct);
 
+	protected Task ClearNotificationsAsync() => AcknowledgeNotificationsAsync(Notifications, _cts.Token);
 	protected async Task AcknowledgeNotificationsAsync(IEnumerable<INotification> notifications, CancellationToken ct)
 	{
 		await _hub.SendAsync(nameof(INotificationsHubInvoke.AcknowledgeNotifications), notifications.Select(n => n.Id), ct);
@@ -116,8 +117,8 @@ public partial class NotificationsMenu : ComponentBaseAuth, IAsyncDisposable
 	}
 	#endregion	// DisposeAsync
 
-	private class ByNotificationsDate : IComparer<INotification>
+	private class ByMostRecentNotifications : IComparer<INotification>
 	{
-		public int Compare(INotification x, INotification y) => x.EmittedAt.CompareTo(y.EmittedAt);
+		public int Compare(INotification x, INotification y) => -x.EmittedAt.CompareTo(y.EmittedAt);
 	}
 }

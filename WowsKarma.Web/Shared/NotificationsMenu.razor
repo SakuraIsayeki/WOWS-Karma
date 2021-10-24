@@ -13,7 +13,15 @@
 			</button>
 
 			<div class="dropdown-menu dropdown-menu-right @(opened ? "show" : null) p-2" aria-labelledby="notifications-dropdown">
-				<h5 class="mx-3 mt-2 mb-3">Notifications</h5>
+				<div class="row no-gutters mx-3 mt-2 mb-3">
+					<div class="col">
+						<h5 class="">Notifications</h5>
+					</div>
+
+					<div class="col-auto">
+						<button class="btn btn-sm btn-primary" @onclick=ClearNotificationsAsync>Clear All</button>
+					</div>
+				</div>
 
 				@if (Notifications?.Count is 0)
 				{

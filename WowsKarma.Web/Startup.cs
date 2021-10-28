@@ -20,7 +20,7 @@ using static WowsKarma.Web.Utilities;
 namespace WowsKarma.Web
 {
 	public class Startup
-	{		
+	{
 		public IConfiguration Configuration { get; }
 		public static string DisplayVersion { get; private set; }
 
@@ -54,7 +54,7 @@ namespace WowsKarma.Web
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
-				options.DeveloperMode = true; 
+				options.DeveloperMode = true;
 #endif
 			});
 #if RELEASE

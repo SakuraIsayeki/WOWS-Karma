@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
@@ -12,9 +13,10 @@ using WowsKarma.Common.Models;
 namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211017132330_AddPostModDeletedNotification")]
+    partial class AddPostModDeletedNotification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,49 +181,11 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.ToTable("PostModActions");
                 });
 
-            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostAddedNotification", b =>
-                {
-                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
-
-                    b.Property<Guid>("PostId")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("PostId");
-
-                    b.HasDiscriminator().HasValue(NotificationType.PostAdded);
-                });
-
-            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostDeletedNotification", b =>
-                {
-                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
-
-                    b.Property<Guid>("PostId")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("PostId");
-
-                    b.HasDiscriminator().HasValue(NotificationType.PostDeleted);
-                });
-
-            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostEditedNotification", b =>
-                {
-                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
-
-                    b.Property<Guid>("PostId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("PostId");
-
-                    b.HasDiscriminator().HasValue(NotificationType.PostEdited);
-                });
-
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostModDeletedNotification", b =>
                 {
                     b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
 
-                    b.Property<Guid>("ModActionId")
+                    b.Property<Guid?>("ModActionId")
                         .HasColumnType("uuid");
 
                     b.HasIndex("ModActionId");
@@ -276,46 +240,11 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostAddedNotification", b =>
-                {
-                    b.HasOne("WowsKarma.Api.Data.Models.Post", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostDeletedNotification", b =>
-                {
-                    b.HasOne("WowsKarma.Api.Data.Models.Post", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostEditedNotification", b =>
-                {
-                    b.HasOne("WowsKarma.Api.Data.Models.Post", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-                });
-
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostModDeletedNotification", b =>
                 {
                     b.HasOne("WowsKarma.Api.Data.Models.PostModAction", "ModAction")
                         .WithMany()
-                        .HasForeignKey("ModActionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ModActionId");
 
                     b.Navigation("ModAction");
                 });

@@ -19,8 +19,10 @@ namespace WowsKarma.Web.Shared.Components
 		protected ClaimsPrincipal ClaimsPrincipal { get; private set; }
 		protected string CurrentToken { get; private set; }
 
-		protected async override Task OnParametersSetAsync()
+		protected async override Task OnInitializedAsync()
 		{
+			await base.OnInitializedAsync();
+
 			AuthenticationState authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 			CurrentUser = authenticationState.User.ToAccountListing();
 			CurrentToken = HttpContextAccessor?.HttpContext?.Request?.Cookies[ApiTokenAuthenticationHandler.CookieName];

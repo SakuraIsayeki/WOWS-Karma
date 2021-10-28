@@ -3,11 +3,8 @@
 
 <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-3">
 	<div class="container-fluid">
-		<NavLink class="navbar-brand" href="" Match=NavLinkMatch.All>WOWS Karma</NavLink><span class="badge badge-pill badge-primary">WIP</span> &emsp;
-
-		<button class="navbar-toggler" @onclick=Toggle>
-			<span class="navbar-toggler-icon"></span>
-		</button>
+		<NavLink class="navbar-brand" href="" Match=NavLinkMatch.All>WOWS Karma</NavLink>
+		<span class="badge badge-pill badge-primary">WIP</span> &emsp;
 
 		<div class="navbar-collapse @(collapse ? "collapse" : null)">
 			<ul class="navbar-nav flex-grow-1">
@@ -17,16 +14,25 @@
 			</ul>
 
 			<ul class="navbar-nav">
-				<li class="nav-item">
+				<NavLogin CurrentUri=@CurrentUri />
+
+				<li class="nav-item ml-3">
 					<button class="btn btn-link text-light" onclick="setTheme()">
 						<i class="bi bi-moon" id="icon-theme-selector" onload="getThemeSelectorIcon()"></i>
 					</button>
-					&emsp;
 				</li>
-
-				<NavLogin CurrentUri=@CurrentUri />
 			</ul>
 		</div>
+
+		<AuthorizeView>
+			<Authorized>
+				<NotificationsMenu />
+			</Authorized>
+		</AuthorizeView>
+
+		<button class="navbar-toggler" @onclick=Toggle>
+			<span class="navbar-toggler-icon"></span>
+		</button>
 	</div>
 </nav>
 

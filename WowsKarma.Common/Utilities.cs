@@ -1,4 +1,6 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Wargaming.WebAPI.Models;
@@ -100,4 +102,23 @@ public static class Utilities
 
 	public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal)
 		=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
+
+
+	public static Type GetType(string typeName)
+	{
+		if (Type.GetType(typeName) is Type type)
+		{
+			return type;
+		}
+
+		foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+		{
+			if ((type = a.GetType(typeName)) is not null)
+			{
+				return type;
+			}
+		}
+
+		return null;
+	}
 }

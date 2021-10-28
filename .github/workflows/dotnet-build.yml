@@ -13,7 +13,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -26,8 +26,8 @@ jobs:
         dotnet-version: '6.0.x'
         include-prerelease: true
     - name: Restore dependencies
-      run: dotnet restore *.sln
+      run: dotnet restore WoWS-Karma.sln
     - name: Build
-      run: dotnet build --no-restore *.sln
+      run: dotnet build --no-restore WoWS-Karma.sln
     - name: Test
-      run: dotnet test --no-build --verbosity normal *.sln
+      run: dotnet test --no-build --verbosity normal WoWS-Karma.sln

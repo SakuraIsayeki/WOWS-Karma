@@ -108,7 +108,6 @@ namespace WowsKarma.Api.Services
 
 			_ = _notificationService.SendNewNotification(new PostAddedNotification
 			{
-				Id = Guid.NewGuid(),
 				Account = player,
 				AccountId = player.Id,
 				Post = post,
@@ -144,7 +143,6 @@ namespace WowsKarma.Api.Services
 
 			_ = _notificationService.SendNewNotification(new PostEditedNotification
 			{
-				Id = Guid.NewGuid(),
 				Account = player,
 				AccountId = player.Id,
 				Post = post,
@@ -180,7 +178,6 @@ namespace WowsKarma.Api.Services
 
 			_ = _notificationService.SendNewNotification(new PostDeletedNotification
 			{
-				Id = Guid.NewGuid(),
 				Account = player,
 				AccountId = player.Id,
 				PostId = post.Id,

@@ -1,7 +1,9 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography.X509Certificates;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Services.Discord;
@@ -38,6 +40,10 @@ public class ModService
 		.Include(ma => ma.Post)
 		.Include(ma => ma.Mod)
 		.Where(ma => ma.Post.AuthorId == playerId);
+
+	public Task<PlatformBan> GetPlatformBan(Guid id) => _context.PlatformBans.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
+
+	public IQueryable<PlatformBan> GetPlatformBans(uint userId) => _context.PlatformBans.AsNoTracking().Where(b => b.UserId == userId);
 
 	public async Task SubmitModActionAsync(PostModActionDTO modAction)
 	{
@@ -78,5 +84,34 @@ public class ModService
 		_context.PostModActions.Remove(stub);
 
 		return _context.SaveChangesAsync();
+	}
+
+	public async Task EmitPlatformBanAsync(PlatformBanDTO platformBan, [FromServices] AuthDbContext authContext)
+	{
+		_ = platformBan ?? throw new ArgumentNullException(nameof(platformBan));
+
+		Task<bool> userHasLoggedInBefore = authContext.Users.AnyAsync(u => u.Id == platformBan.UserId);
+
+		_context.PlatformBans.Add(new()
+		{
+			UserId = platformBan.UserId,
+			Reason = platformBan.Reason,
+			BannedUntil = platformBan.BannedUntil,
+			ModId = platformBan.ModId,
+		});
+
+		await _context.SaveChangesAsync();
+
+		const string logFormat = "Platform banned user {userId} until {until} for reason \"{reason}\".";
+
+		if (await userHasLoggedInBefore)
+		{
+			_logger.LogInformation(logFormat, platformBan.UserId, platformBan.BannedUntil as object ?? "Indefinitely", platformBan.Reason);
+		}
+		else
+		{
+			_logger.LogWarning(logFormat + " However the user has never logged onto the platform before.",
+				platformBan.Reason, platformBan.BannedUntil as object ?? "Indefinitely", platformBan.Reason);
+		}
 	}
 }

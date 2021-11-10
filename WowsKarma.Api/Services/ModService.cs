@@ -92,7 +92,7 @@ public class ModService
 
 		Task<bool> userHasLoggedInBefore = authContext.Users.AnyAsync(u => u.Id == platformBan.UserId);
 
-		_context.PlatformBans.Add(new()
+		EntityEntry<PlatformBan> entityEntry = _context.PlatformBans.Add(new()
 		{
 			UserId = platformBan.UserId,
 			Reason = platformBan.Reason,
@@ -101,6 +101,10 @@ public class ModService
 		});
 
 		await _context.SaveChangesAsync();
+
+		Task refs = Task.WhenAll(
+			entityEntry.Reference(b => b.Mod).LoadAsync(),
+			entityEntry.Reference(b => b.User).LoadAsync());
 
 		const string logFormat = "Platform banned user {userId} until {until} for reason \"{reason}\".";
 
@@ -113,5 +117,9 @@ public class ModService
 			_logger.LogWarning(logFormat + " However the user has never logged onto the platform before.",
 				platformBan.Reason, platformBan.BannedUntil as object ?? "Indefinitely", platformBan.Reason);
 		}
+
+		await refs;
+
+		await _webhookService.SendPlatformBanWebhookAsync(entityEntry.Entity);
 	}
 }

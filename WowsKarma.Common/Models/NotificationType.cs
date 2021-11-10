@@ -8,5 +8,6 @@ public enum NotificationType
 	PostEdited,
 	PostDeleted,
 	PostModEdited,
-	PostModDeleted
+	PostModDeleted,
+	PlatformBan
 }

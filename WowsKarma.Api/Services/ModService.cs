@@ -121,5 +121,10 @@ public class ModService
 		await refs;
 
 		await _webhookService.SendPlatformBanWebhookAsync(entityEntry.Entity);
+		await _notifications.SendNewNotification(new PlatformBanNotification
+		{
+			AccountId = entityEntry.Entity.UserId,
+			BanId = entityEntry.Entity.Id
+		});
 	}
 }

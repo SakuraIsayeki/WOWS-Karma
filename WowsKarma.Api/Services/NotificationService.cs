@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data;
-using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Common.Hubs;

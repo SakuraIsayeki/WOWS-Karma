@@ -41,6 +41,9 @@ public record Player : ITimestamped
 	public DateTime OptOutChanged { get; set; }
 
 
+	public bool IsBanned() => PostsBanned || PlatformBans.Where(pb => pb.BannedUntil > DateTime.UtcNow).Any();
+
+
 
 	/*
 	 * Mapping

@@ -98,10 +98,23 @@ public class ModActionController : ControllerBase
 	/// Fetches all bans emitted for a specific user.
 	/// </summary>
 	/// <param name="userId">ID of user account</param>
+	/// <param name="currentOnly">Return only currently active platform bans.</param>
 	/// <response code="200">Returns list of Platform Bans.</response>
 	/// <response code="204">No Platform Bans found for user.</response>
-	[HttpGet("bans/{userId}"), ProducesResponseType(typeof(IEnumerable<PlatformBanDTO>), 200)]
-	public IActionResult FetchBans(uint userId) => StatusCode(200, _service.GetPlatformBans(userId).ToList());
+	[HttpGet("bans/{userId}"), AllowAnonymous, ProducesResponseType(typeof(IEnumerable<PlatformBanDTO>), 200)]
+	public IActionResult FetchBans(uint userId, bool currentOnly)
+	{
+		IQueryable<PlatformBan> bans = _service.GetPlatformBans(userId);
+
+		if (currentOnly || User.ToAccountListing().Id != userId || !User.IsInRole(ApiRoles.CM))
+		{
+			bans = bans.Where(b => b.BannedUntil > DateTime.UtcNow);
+		}
+
+		return bans.Any()
+			? Ok(bans.ProjectToType<PlatformBanDTO>().ToList())
+			: NoContent();
+	}
 
 	/// <summary>
 	///	Emits a new Platform Ban.

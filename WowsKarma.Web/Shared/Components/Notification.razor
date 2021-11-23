@@ -67,10 +67,10 @@
 			return ("Post Mod-Removed",	$"/posts/view/{modDeleted.ModAction.PostId}",
 				(MarkupString)$"<p>Your post was removed by our Community Managers, and is no longer visible on the platform.</p><p>Post ID : {modDeleted.ModAction.PostId}</p>");
 		}
-		else if	(Model is { Type: NotificationType.PlatformBan } and PlatformBanDTO banned)
+		else if	(Model is { Type: NotificationType.PlatformBan } and PlatformBanNotificationDTO banned)
 		{
 			return ("Platform Ban",	default,
-				(MarkupString)$"<p>You have been banned from the platform {(banned.BannedUntil is null ? null : $"until {banned.BannedUntil}")}.</p><p>Reason : {banned.Reason}</p>");
+				(MarkupString)$"<p>You have been banned from the platform{(banned.Until is null ? null : $" until {banned.Until}")}.</p><p>Reason : {banned.Reason}</p>");
 		}
 		else
 		{

@@ -24,7 +24,7 @@
 	[Parameter] public INotification Model { get; set; }
 	[Parameter] public EventCallback<INotification> OnDismissClicked { get; set; }
 
-	public bool IsModNotification => Model.Type is NotificationType.PostModEdited or NotificationType.PostModDeleted;
+	public bool IsModNotification => Model.Type is NotificationType.PostModEdited or NotificationType.PostModDeleted or NotificationType.PlatformBan;
 
 	private string title;
 	private string linkFragment;
@@ -66,6 +66,11 @@
 		{
 			return ("Post Mod-Removed",	$"/posts/view/{modDeleted.ModAction.PostId}",
 				(MarkupString)$"<p>Your post was removed by our Community Managers, and is no longer visible on the platform.</p><p>Post ID : {modDeleted.ModAction.PostId}</p>");
+		}
+		else if	(Model is { Type: NotificationType.PlatformBan } and PlatformBanNotificationDTO banned)
+		{
+			return ("Platform Ban",	default,
+				(MarkupString)$"<p>You have been banned from the platform{(banned.Until is null ? null : $" until {banned.Until}")}.</p><p>Reason : {banned.Reason}</p>");
 		}
 		else
 		{

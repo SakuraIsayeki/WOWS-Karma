@@ -1,9 +1,12 @@
-﻿using WowsKarma.Common.Models.DTOs.Notifications;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using WowsKarma.Common.Models.DTOs.Notifications;
 
 namespace WowsKarma.Api.Data.Models.Notifications;
 
 public abstract record NotificationBase : INotification
 {
+	[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public Guid Id { get; init; }
 
 	public uint AccountId { get; init; }

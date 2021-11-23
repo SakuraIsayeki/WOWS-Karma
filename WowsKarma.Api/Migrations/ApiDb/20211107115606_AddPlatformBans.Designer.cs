@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
@@ -12,9 +13,10 @@ using WowsKarma.Common.Models;
 namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211107115606_AddPlatformBans")]
+    partial class AddPlatformBans
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +24,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "mod_action_type", new[] { "deletion", "update" });
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "notification_type", new[] { "unknown", "other", "post_added", "post_edited", "post_deleted", "post_mod_edited", "post_mod_deleted", "platform_ban" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "notification_type", new[] { "unknown", "other", "post_added", "post_edited", "post_deleted", "post_mod_edited", "post_mod_deleted" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.NotificationBase", b =>
@@ -218,18 +220,6 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.ToTable("PostModActions");
                 });
 
-            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PlatformBanNotification", b =>
-                {
-                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
-
-                    b.Property<Guid>("BanId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("BanId");
-
-                    b.HasDiscriminator().HasValue(NotificationType.PlatformBan);
-                });
-
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostAddedNotification", b =>
                 {
                     b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
@@ -343,17 +333,6 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Navigation("Mod");
 
                     b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PlatformBanNotification", b =>
-                {
-                    b.HasOne("WowsKarma.Api.Data.Models.PlatformBan", "Ban")
-                        .WithMany()
-                        .HasForeignKey("BanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ban");
                 });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostAddedNotification", b =>

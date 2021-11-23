@@ -34,6 +34,29 @@ namespace WowsKarma.Api.Services.Discord
 				.AddEmbed(embed));
 		}
 
+		public async Task SendPlatformBanWebhookAsync(PlatformBan ban)
+		{
+			DiscordEmbedBuilder embed = new()
+			{
+				Title = $"**Account Banned from Platform**",
+				Url = ban.User.GetPlayerProfileLink(),
+				Footer = GetDefaultFooter(),
+				Color = DiscordColor.Red
+			};
+
+			embed.AddField("Banned by", $"[{ban.Mod?.Username ?? "Unknown"}]({ban.Mod.GetPlayerProfileLink()})", true);
+			embed.AddField("Reason", ban.Reason, false);
+
+			if (ban.BannedUntil is not null)
+			{
+				embed.AddField("Until", $"<t:{ban.BannedUntil.Value.ToUnixTimestamp()}:F>");
+			}
+
+			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder()
+				.WithContent("**Account Platform Ban**")
+				.AddEmbed(embed));
+		}
+
 
 		private static DiscordEmbedBuilder AddModActionContent(DiscordEmbedBuilder embed, PostModAction modAction)
 		{

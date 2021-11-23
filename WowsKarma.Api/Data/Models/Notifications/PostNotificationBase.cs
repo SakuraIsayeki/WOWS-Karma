@@ -10,7 +10,7 @@ public abstract record PostNotificationBase : NotificationBase
 
 
 
-	public override NotificationBaseDTO ToDTO() => new PostAddedNotificationDTO
+	public override PostNotificationBaseDTO ToDTO() => new()
 	{
 		Id = Id,
 		Post = Post.Adapt<PlayerPostDTO>(),

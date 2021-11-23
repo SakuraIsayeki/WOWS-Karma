@@ -158,7 +158,7 @@ namespace WowsKarma.Api.Controllers
 					return StatusCode(403, "Author is not authorized to post on behalf of other users.");
 				}
 
-				if (author.PostsBanned)
+				if (author.IsBanned())
 				{
 					return StatusCode(403, "Post Author was banned from posting on this platform.");
 				}

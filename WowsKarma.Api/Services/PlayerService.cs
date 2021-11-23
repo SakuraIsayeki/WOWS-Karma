@@ -38,14 +38,21 @@ namespace WowsKarma.Api.Services
 		 * Method no longer returns any tracked entity, resulting in dropped changes for EF Core
 		 * Do not use unless readonly.
 		 */
-		public async Task<Player> GetPlayerAsync(uint accountId)
+		public async Task<Player> GetPlayerAsync(uint accountId, bool includeRelated = false)
 		{
 			if (accountId is 0)
 			{
 				return null;
 			}
 
-			Player player = await context.Players.FindAsync(accountId);
+			IQueryable<Player> dbPlayers = !includeRelated
+				? context.Players
+				: context.Players
+					.Include(p => p.PlatformBans);
+
+
+
+			Player player = await dbPlayers.FirstOrDefaultAsync(p => p.Id == accountId);
 
 			try
 			{

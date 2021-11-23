@@ -1,0 +1,82 @@
+﻿@using WowsKarma.Common.Models.DTOs.Notifications
+
+<a class="toast show text-decoration-none text-reset" href="@(linkFragment ?? "#")">
+	<div class="toast-header d-flex justify-content-between text-nowrap">
+		<div>
+			<strong class="mr-5 @(IsModNotification ? "text-danger" : "text-reset") d-flex-1">@title</strong>
+		</div>
+
+		<div>
+			<small>@Model.EmittedAt.ToString()</small>
+
+			<button type="button" class="btn btn-link btn-sm text-white ml-2" data-bs-dismiss="toast" aria-label="Close" @onclick=DismissClicked>
+				<i class="bi bi-x-lg"></i>
+			</button>
+		</div>
+	</div>
+
+	<div class="toast-body  @(IsModNotification ? "text-danger" : "text-reset")">
+		@body
+	</div>
+</a>
+
+@code {
+	[Parameter] public INotification Model { get; set; }
+	[Parameter] public EventCallback<INotification> OnDismissClicked { get; set; }
+
+	public bool IsModNotification => Model.Type is NotificationType.PostModEdited or NotificationType.PostModDeleted or NotificationType.PlatformBan;
+
+	private string title;
+	private string linkFragment;
+	private MarkupString body;
+
+
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await base.OnParametersSetAsync();
+
+		(title, linkFragment, body) = GetBodyMarkupFormat();
+	}
+
+	public (string title, string link, MarkupString body) GetBodyMarkupFormat()
+	{
+		if (Model is PostNotificationBaseDTO postModel)
+		{
+			string link = $"/posts/view/{postModel.PostId}";
+
+			return postModel.Type switch
+			{
+				NotificationType.PostAdded => ("Post Added", link,
+					(MarkupString)$"<p>A new post was added to your profile.</p><p>Post ID : {postModel.PostId}</p>"),
+
+				NotificationType.PostEdited => ("Post Edited", link,
+					(MarkupString)$"<p>An existing post on your profile was edited by its author.</p><p>Post ID : {postModel.PostId}</p>"),
+
+				NotificationType.PostDeleted => ("Post Deleted", link,
+					(MarkupString)$"<p>A post was deleted on your profile.</p><p>Post ID : {postModel.PostId}</p>"),
+
+
+
+				_ => (default, default, default)
+			};
+		}
+
+		else if (Model is { Type: NotificationType.PostModDeleted } and PostModDeletedNotificationDTO modDeleted)
+		{
+			return ("Post Mod-Removed",	$"/posts/view/{modDeleted.ModAction.PostId}",
+				(MarkupString)$"<p>Your post was removed by our Community Managers, and is no longer visible on the platform.</p><p>Post ID : {modDeleted.ModAction.PostId}</p>");
+		}
+		else if	(Model is { Type: NotificationType.PlatformBan } and PlatformBanNotificationDTO banned)
+		{
+			return ("Platform Ban",	default,
+				(MarkupString)$"<p>You have been banned from the platform{(banned.Until is null ? null : $" until {banned.Until}")}.</p><p>Reason : {banned.Reason}</p>");
+		}
+		else
+		{
+			return (default, default, default);
+		}
+	}
+
+	public Task DismissClicked() => OnDismissClicked.InvokeAsync(Model);
+}

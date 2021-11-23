@@ -1,83 +1,134 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 using WowsKarma.Api.Data;
-using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Services.Discord;
-using WowsKarma.Common.Models;
-using WowsKarma.Common.Models.DTOs;
 
-namespace WowsKarma.Api.Services
+
+
+namespace WowsKarma.Api.Services;
+
+public class ModService
 {
-	public class ModService
+	private readonly ILogger<ModService> _logger;
+	private readonly ModActionWebhookService _webhookService;
+	private readonly PostService _postService;
+	private readonly NotificationService _notifications;
+	private readonly ApiDbContext _context;
+
+	public ModService(ILogger<ModService> logger, ApiDbContext context, ModActionWebhookService webhookService, PostService postService, NotificationService notifications)
 	{
-		private readonly ILogger<ModService> logger;
-		private readonly ModActionWebhookService webhookService;
-		private readonly PostService postService;
-		private readonly ApiDbContext context;
+		_context = context;
+		_logger = logger;
+		_webhookService = webhookService;
+		_postService = postService;
+		_notifications = notifications;
+	}
 
-		public ModService(ILogger<ModService> logger, ApiDbContext context, ModActionWebhookService webhookService, PostService postService)
+	public Task<PostModAction> GetModActionAsync(Guid id) => _context.PostModActions.AsNoTracking().FirstOrDefaultAsync(ma => ma.Id == id);
+
+	public IQueryable<PostModAction> GetPostModActions(Guid postId) => _context.PostModActions.AsNoTracking()
+		.Include(ma => ma.Post)
+		.Include(ma => ma.Mod)
+		.Where(ma => ma.PostId == postId);
+
+	public IQueryable<PostModAction> GetPostModActions(uint playerId) => _context.PostModActions.AsNoTracking()
+		.Include(ma => ma.Post)
+		.Include(ma => ma.Mod)
+		.Where(ma => ma.Post.AuthorId == playerId);
+
+	public Task<PlatformBan> GetPlatformBan(Guid id) => _context.PlatformBans.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
+
+	public IQueryable<PlatformBan> GetPlatformBans(uint userId) => _context.PlatformBans.AsNoTracking().Where(b => b.UserId == userId);
+
+	public async Task SubmitModActionAsync(PostModActionDTO modAction)
+	{
+		EntityEntry<PostModAction> entityEntry = await _context.PostModActions.AddAsync(modAction.Adapt<PostModAction>());
+
+		switch (modAction.ActionType)
 		{
-			this.context = context;
-			this.logger = logger;
-			this.webhookService = webhookService;
-			this.postService = postService;
+			case ModActionType.Deletion:
+				await _postService.DeletePostAsync(modAction.PostId, true);
+				await _notifications.SendNewNotification(PostModDeletedNotification.FromModAction(entityEntry.Entity));
+				break;
+
+			case ModActionType.Update:
+				PlayerPostDTO current = _postService.GetPost(modAction.PostId).Adapt<PlayerPostDTO>();
+
+				await _postService.EditPostAsync(modAction.PostId, current with
+				{
+					Content = modAction.UpdatedPost.Content ?? current.Content,
+					Flairs = modAction.UpdatedPost.Flairs
+				});
+
+				break;
 		}
 
-		public Task<PostModAction> GetModActionAsync(Guid id) => context.PostModActions.AsNoTracking().FirstOrDefaultAsync(ma => ma.Id == id);
+		await _context.SaveChangesAsync();
 
-		public IQueryable<PostModAction> GetPostModActions(Guid postId)	=> context.PostModActions.AsNoTracking()
-			.Include(ma => ma.Post)
-			.Include(ma => ma.Mod)
-			.Where(ma => ma.PostId == postId);
+		await entityEntry.Reference(pma => pma.Mod).LoadAsync();
+		await entityEntry.Reference(pma => pma.Post).Query().Include(p => p.Author).LoadAsync();
 
-		public IQueryable<PostModAction> GetPostModActions(uint playerId) => context.PostModActions.AsNoTracking()
-			.Include(ma => ma.Post)
-			.Include(ma => ma.Mod)
-			.Where(ma => ma.Post.AuthorId == playerId);
+		_ = _webhookService.SendModActionWebhookAsync(entityEntry.Entity);
+	}
 
-		public async Task SubmitModActionAsync(PostModActionDTO modAction)
+	public Task RevertModActionAsync(Guid modActionId)
+	{
+		PostModAction stub = new() { Id = modActionId };
+
+		_context.PostModActions.Attach(stub);
+		_context.PostModActions.Remove(stub);
+
+		return _context.SaveChangesAsync();
+	}
+
+	public async Task EmitPlatformBanAsync(PlatformBanDTO platformBan, [FromServices] AuthDbContext authContext)
+	{
+		_ = platformBan ?? throw new ArgumentNullException(nameof(platformBan));
+		EntityEntry<PlatformBan> entityEntry = _context.PlatformBans.Add(new()
 		{
-			EntityEntry<PostModAction> entityEntry = await context.PostModActions.AddAsync(modAction.Adapt<PostModAction>());
+			UserId = platformBan.UserId,
+			Reason = platformBan.Reason,
+			BannedUntil = platformBan.BannedUntil,
+			ModId = platformBan.ModId,
+		});
 
-			switch (modAction.ActionType)
-			{
-				case ModActionType.Deletion:
-					await postService.DeletePostAsync(modAction.PostId, true);
-					break;
+		await _context.SaveChangesAsync();
 
-				case ModActionType.Update:
-					PlayerPostDTO current = postService.GetPost(modAction.PostId).Adapt<PlayerPostDTO>();
 
-					await postService.EditPostAsync(modAction.PostId, current with
-					{
-						Content = modAction.UpdatedPost.Content ?? current.Content,
-						Flairs = modAction.UpdatedPost.Flairs
-					});
+		const string logFormat = "Platform banned user {userId} until {until} for reason \"{reason}\".";
 
-					break;
-			}
 
-			await context.SaveChangesAsync();
-
-			await entityEntry.Reference(pma => pma.Mod).LoadAsync();
-			await entityEntry.Reference(pma => pma.Post).Query().Include(p => p.Author).LoadAsync();
-
-			_ = webhookService.SendModActionWebhookAsync(entityEntry.Entity);
+		if (await authContext.Users.AnyAsync(u => u.Id == platformBan.UserId))
+		{
+			_logger.LogInformation(logFormat, platformBan.UserId, platformBan.BannedUntil as object ?? "Indefinitely", platformBan.Reason);
+		}
+		else
+		{
+			_logger.LogWarning(logFormat + " However the user has never logged onto the platform before.",
+				platformBan.Reason, platformBan.BannedUntil as object ?? "Indefinitely", platformBan.Reason);
 		}
 
-		public Task RevertModActionAsync(Guid modActionId)
+		entityEntry.Reference(b => b.Mod).Load();
+		entityEntry.Reference(b => b.User).Load();
+
+		await _webhookService.SendPlatformBanWebhookAsync(entityEntry.Entity);
+		await _notifications.SendNewNotification(new PlatformBanNotification
 		{
-			PostModAction stub = new() { Id = modActionId };
+			AccountId = entityEntry.Entity.UserId,
+			BanId = entityEntry.Entity.Id
+		});
+	}
 
-			context.PostModActions.Attach(stub);
-			context.PostModActions.Remove(stub);
-
-			return context.SaveChangesAsync();
-		}
+	public async Task RevertPlatformBanAsync(Guid id)
+	{
+		PlatformBan ban = await _context.PlatformBans.FindAsync(id);
+		ban.Reverted = true;
+		await _context.SaveChangesAsync();
+		_logger.LogInformation("Reverted Ban {banId}.", ban.Id);
 	}
 }

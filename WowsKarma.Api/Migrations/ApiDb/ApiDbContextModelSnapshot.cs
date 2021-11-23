@@ -22,7 +22,74 @@ namespace WowsKarma.Api.Migrations.ApiDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "mod_action_type", new[] { "deletion", "update" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "notification_type", new[] { "unknown", "other", "post_added", "post_edited", "post_deleted", "post_mod_edited", "post_mod_deleted", "platform_ban" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.NotificationBase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("AccountId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("AcknowledgedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("EmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<NotificationType>("Type")
+                        .HasColumnType("notification_type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Notifications");
+
+                    b.HasDiscriminator<NotificationType>("Type").IsComplete(false).HasValue(NotificationType.Unknown);
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.PlatformBan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("BannedUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<long>("ModId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Reverted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PlatformBans");
+                });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Player", b =>
                 {
@@ -151,6 +218,97 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.ToTable("PostModActions");
                 });
 
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PlatformBanNotification", b =>
+                {
+                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
+
+                    b.Property<Guid>("BanId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("BanId");
+
+                    b.HasDiscriminator().HasValue(NotificationType.PlatformBan);
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostAddedNotification", b =>
+                {
+                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
+
+                    b.Property<Guid>("PostId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("PostId");
+
+                    b.HasDiscriminator().HasValue(NotificationType.PostAdded);
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostDeletedNotification", b =>
+                {
+                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
+
+                    b.Property<Guid>("PostId")
+                        .ValueGeneratedOnUpdateSometimes()
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("PostId");
+
+                    b.HasDiscriminator().HasValue(NotificationType.PostDeleted);
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostEditedNotification", b =>
+                {
+                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("PostId");
+
+                    b.HasDiscriminator().HasValue(NotificationType.PostEdited);
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostModDeletedNotification", b =>
+                {
+                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
+
+                    b.Property<Guid>("ModActionId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("ModActionId");
+
+                    b.HasDiscriminator().HasValue(NotificationType.PostModDeleted);
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.NotificationBase", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.Player", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.PlatformBan", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.Player", "Mod")
+                        .WithMany()
+                        .HasForeignKey("ModId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WowsKarma.Api.Data.Models.Player", "User")
+                        .WithMany("PlatformBans")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Mod");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Post", b =>
                 {
                     b.HasOne("WowsKarma.Api.Data.Models.Player", "Author")
@@ -187,8 +345,65 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PlatformBanNotification", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.PlatformBan", "Ban")
+                        .WithMany()
+                        .HasForeignKey("BanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ban");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostAddedNotification", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostDeletedNotification", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostEditedNotification", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostModDeletedNotification", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.PostModAction", "ModAction")
+                        .WithMany()
+                        .HasForeignKey("ModActionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ModAction");
+                });
+
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Player", b =>
                 {
+                    b.Navigation("PlatformBans");
+
                     b.Navigation("PostsReceived");
 
                     b.Navigation("PostsSent");

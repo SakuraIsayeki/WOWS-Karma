@@ -22,13 +22,13 @@ else
 	<div class="my-5">
 		<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=CurrentUser.Id
 			  OnEditClick=EditorModalInit
-			  OnDeleteClick=DeleteModalInit 
+			  OnDeleteClick=DeleteModalInit
 		/>
 	</div>
 
 	@if (post.ModLocked)
 	{
-		<div class="mb-5">			
+		<div class="mb-5">
 			<h4>Mod Action</h4>
 			<p class="text-warning lead">This post was Locked by our Community Managers, and publicly removed from the platform.</p>
 
@@ -37,6 +37,12 @@ else
 					<thead />
 
 					<tbody>
+						<AuthorizeView>
+							<Authorized>
+								<tr><th>Mod Action ID</th><td>@lastModAction?.Id</td></tr>
+							</Authorized>
+						</AuthorizeView>
+
 						<tr><th>Removed by</th><td>@lastModAction?.ModUsername</td></tr>
 						<tr><th>Reason</th><td>@lastModAction?.Reason</td></tr>
 					</tbody>

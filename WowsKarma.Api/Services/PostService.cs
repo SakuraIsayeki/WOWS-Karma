@@ -7,11 +7,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
+using WowsKarma.Common.Hubs;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
+using WowsKarma.Common.Models.DTOs.Notifications;
 
 namespace WowsKarma.Api.Services
 {
@@ -24,14 +27,17 @@ namespace WowsKarma.Api.Services
 		private readonly ApiDbContext context;
 		private readonly PlayerService playerService;
 		private readonly PostWebhookService webhookService;
-		private readonly IHubContext<PostHub> hubContext;
+		private readonly IHubContext<PostHub, IPostHubPush> _postsHub;
+		private readonly NotificationService _notificationService;
 
-		public PostService(ApiDbContext context, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub> hubContext)
+		public PostService(ApiDbContext context, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub, IPostHubPush> postsHub,
+			NotificationService notificationService)
 		{
 			this.context = context;
 			this.playerService = playerService;
 			this.webhookService = webhookService;
-			this.hubContext = hubContext;
+			_postsHub = postsHub;
+			_notificationService = notificationService;
 		}
 
 		public Post GetPost(Guid id) => context.Posts
@@ -94,10 +100,18 @@ namespace WowsKarma.Api.Services
 
 			_ = webhookService.SendNewPostWebhookAsync(post, author, player);
 
-			_ = hubContext.Clients.All.SendAsync("NewPost", post.Adapt<PlayerPostDTO>() with
+			_ = _postsHub.Clients.All.NewPost(post.Adapt<PlayerPostDTO>() with
 			{
 				AuthorUsername = author.Username,
 				PlayerUsername = player.Username
+			});
+
+			_ = _notificationService.SendNewNotification(new PostAddedNotification
+			{
+				Account = player,
+				AccountId = player.Id,
+				Post = post,
+				PostId = post.Id,
 			});
 		}
 
@@ -121,10 +135,18 @@ namespace WowsKarma.Api.Services
 
 			_ = webhookService.SendEditedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
 
-			_ = hubContext.Clients.All.SendAsync("EditedPost", post.Adapt<PlayerPostDTO>() with
+			_ = _postsHub.Clients.All.EditedPost(post.Adapt<PlayerPostDTO>() with
 			{
 				AuthorUsername = post.Author?.Username,
 				PlayerUsername = post.Player?.Username
+			});
+
+			_ = _notificationService.SendNewNotification(new PostEditedNotification
+			{
+				Account = player,
+				AccountId = player.Id,
+				Post = post,
+				PostId = post.Id,
 			});
 		}
 
@@ -152,7 +174,14 @@ namespace WowsKarma.Api.Services
 				_ = webhookService.SendDeletedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
 			}
 
-			_ = hubContext.Clients.All.SendAsync("DeletedPost", id);
+			_ = _postsHub.Clients.All.DeletedPost(id);
+
+			_ = _notificationService.SendNewNotification(new PostDeletedNotification
+			{
+				Account = player,
+				AccountId = player.Id,
+				PostId = post.Id,
+			});
 		}
 
 		internal static void ValidatePostContents(PlayerPostDTO post)

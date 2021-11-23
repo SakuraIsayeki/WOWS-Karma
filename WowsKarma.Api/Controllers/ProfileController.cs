@@ -30,7 +30,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="404">No player Profile was found.</response>
 		[HttpGet("{id}"), ProducesResponseType(typeof(UserProfileFlagsDTO), 200), ProducesResponseType(404)]
 		public async Task<IActionResult> GetProfileFlagsAsync(uint id) => (await playerService.GetPlayerAsync(id)) is Player player
-			? StatusCode(200, player.Adapt<UserProfileFlagsDTO>())
+			? StatusCode(200, player.Adapt<UserProfileFlagsDTO>() with { PostsBanned = player.IsBanned() })
 			: StatusCode(404);
 
 		/// <summary>

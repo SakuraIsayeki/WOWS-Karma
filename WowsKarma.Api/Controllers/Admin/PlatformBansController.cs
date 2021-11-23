@@ -25,7 +25,7 @@ public class PlatformBansController : ControllerBase
 	/// <param name="currentOnly">Return only currently active platform bans.</param>
 	/// <response code="200">Returns list of Platform Bans.</response>
 	/// <response code="204">No Platform Bans found for user.</response>
-	[HttpGet("bans/{userId}"), AllowAnonymous, ProducesResponseType(typeof(IEnumerable<PlatformBanDTO>), 200)]
+	[HttpGet("{userId}"), AllowAnonymous, ProducesResponseType(typeof(IEnumerable<PlatformBanDTO>), 200)]
 	public IActionResult FetchBans(uint userId, bool currentOnly)
 	{
 		IQueryable<PlatformBan> bans = _service.GetPlatformBans(userId);
@@ -46,7 +46,7 @@ public class PlatformBansController : ControllerBase
 	/// <param name="submitted">Platform Ban to emit</param>
 	/// <param name="days">(Helper) Sets a temporary ban, to the number of specified days starting from UTC now.</param>
 	/// <returns></returns>
-	[HttpPost("bans"), ProducesResponseType(202)]
+	[HttpPost, ProducesResponseType(202)]
 	public async Task<IActionResult> SubmitBan([FromBody] PlatformBanDTO submitted, [FromServices] AuthDbContext authDb, [FromQuery] uint days = 0)
 	{
 		await _service.EmitPlatformBanAsync(submitted with
@@ -64,7 +64,7 @@ public class PlatformBansController : ControllerBase
 	/// </summary>
 	/// <param name="id"></param>
 	/// <returns></returns>
-	[HttpDelete("bans")]
+	[HttpDelete]
 	public async Task<IActionResult> RevertBan([FromQuery] Guid id)
 	{
 		return StatusCode(501);

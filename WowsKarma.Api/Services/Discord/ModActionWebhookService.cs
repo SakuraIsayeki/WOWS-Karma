@@ -47,6 +47,11 @@ namespace WowsKarma.Api.Services.Discord
 			embed.AddField("Banned by", $"[{ban.Mod?.Username ?? "Unknown"}]({ban.Mod.GetPlayerProfileLink()})", true);
 			embed.AddField("Reason", ban.Reason, false);
 
+			if (ban.BannedUntil is not null)
+			{
+				embed.AddField("Until", $"<t:{ban.BannedUntil.Value.ToUnixTimestamp()}:F>");
+			}
+
 			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder()
 				.WithContent("**Account Platform Ban**")
 				.AddEmbed(embed));

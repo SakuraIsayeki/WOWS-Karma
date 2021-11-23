@@ -89,9 +89,6 @@ public class ModService
 	public async Task EmitPlatformBanAsync(PlatformBanDTO platformBan, [FromServices] AuthDbContext authContext)
 	{
 		_ = platformBan ?? throw new ArgumentNullException(nameof(platformBan));
-
-		Task<bool> userHasLoggedInBefore = authContext.Users.AnyAsync(u => u.Id == platformBan.UserId);
-
 		EntityEntry<PlatformBan> entityEntry = _context.PlatformBans.Add(new()
 		{
 			UserId = platformBan.UserId,
@@ -102,13 +99,11 @@ public class ModService
 
 		await _context.SaveChangesAsync();
 
-		Task refs = Task.WhenAll(
-			entityEntry.Reference(b => b.Mod).LoadAsync(),
-			entityEntry.Reference(b => b.User).LoadAsync());
 
 		const string logFormat = "Platform banned user {userId} until {until} for reason \"{reason}\".";
 
-		if (await userHasLoggedInBefore)
+
+		if (await authContext.Users.AnyAsync(u => u.Id == platformBan.UserId))
 		{
 			_logger.LogInformation(logFormat, platformBan.UserId, platformBan.BannedUntil as object ?? "Indefinitely", platformBan.Reason);
 		}
@@ -118,7 +113,8 @@ public class ModService
 				platformBan.Reason, platformBan.BannedUntil as object ?? "Indefinitely", platformBan.Reason);
 		}
 
-		await refs;
+		entityEntry.Reference(b => b.Mod).Load();
+		entityEntry.Reference(b => b.User).Load();
 
 		await _webhookService.SendPlatformBanWebhookAsync(entityEntry.Entity);
 		await _notifications.SendNewNotification(new PlatformBanNotification

@@ -7,7 +7,7 @@ using WowsKarma.Common;
 
 namespace WowsKarma.Api.Controllers.Admin;
 
-[ApiController, Route("api/mod/bans"), Authorize(Roles = ApiRoles.CM)]
+[ApiController, Route("api/mod/bans"), Authorize(Roles = $"{ApiRoles.CM},{ApiRoles.Administrator}")]
 public class PlatformBansController : ControllerBase
 {
 	private readonly ModService _service;
@@ -45,7 +45,7 @@ public class PlatformBansController : ControllerBase
 	/// </summary>
 	/// <param name="submitted">Platform Ban to emit</param>
 	/// <param name="days">(Helper) Sets a temporary ban, to the number of specified days starting from UTC now.</param>
-	/// <returns></returns>
+	/// <response code="202">Platform Ban was successfuly submitted.</response>
 	[HttpPost, ProducesResponseType(202)]
 	public async Task<IActionResult> SubmitBan([FromBody] PlatformBanDTO submitted, [FromServices] AuthDbContext authDb, [FromQuery] uint days = 0)
 	{
@@ -60,13 +60,15 @@ public class PlatformBansController : ControllerBase
 	}
 
 	/// <summary>
-	///
+	/// Reverts Platform Ban with specified ID.
 	/// </summary>
-	/// <param name="id"></param>
-	/// <returns></returns>
-	[HttpDelete]
+	/// <param name="id">ID of Platform Ban to revert.</param>
+	/// <response code="200">Platform Ban was successfully reverted.</response>
+	[HttpDelete("{id}"), ProducesResponseType(200)]
 	public async Task<IActionResult> RevertBan([FromQuery] Guid id)
 	{
-		return StatusCode(501);
+		await _service.RevertPlatformBanAsync(id);
+
+		return StatusCode(205);
 	}
 }

@@ -123,4 +123,12 @@ public class ModService
 			BanId = entityEntry.Entity.Id
 		});
 	}
+
+	public async Task RevertPlatformBanAsync(Guid id)
+	{
+		PlatformBan ban = await _context.PlatformBans.FindAsync(id);
+		ban.Reverted = true;
+		await _context.SaveChangesAsync();
+		_logger.LogInformation("Reverted Ban {banId}.", ban.Id);
+	}
 }

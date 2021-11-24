@@ -43,7 +43,7 @@ public record Player : ITimestamped
 
 	public bool IsBanned()
 		=> PostsBanned
-		|| PlatformBans?.Where(pb => !pb.Reverted && pb.BannedUntil > DateTime.UtcNow).Any() is true;
+		|| PlatformBans?.Where(pb => !pb.Reverted && (pb.BannedUntil is null || pb.BannedUntil > DateTime.UtcNow)).Any() is true;
 
 
 

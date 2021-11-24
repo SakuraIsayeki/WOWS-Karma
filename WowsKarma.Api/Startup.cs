@@ -1,3 +1,4 @@
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,6 +26,7 @@ using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Hubs;
+using WowsKarma.Api.Infrastructure.Telemetry;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
@@ -146,6 +148,13 @@ namespace WowsKarma.Api
 				});
 			});
 
+			services.AddApplicationInsightsTelemetry(options =>
+			{
+#if DEBUG
+				options.DeveloperMode = true;
+#endif
+			});
+
 			string dbConnectionString = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
 			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
@@ -170,6 +179,8 @@ namespace WowsKarma.Api
 			services.AddSingleton<VortexApiHandler>();
 			services.AddSingleton<PostWebhookService>();
 			services.AddSingleton<ModActionWebhookService>();
+			services.AddSingleton<ITelemetryInitializer, TelemetryEnrichment>()
+
 
 			services.AddTransient<PostHub>();
 
@@ -180,12 +191,7 @@ namespace WowsKarma.Api
 			services.AddScoped<ModService>();
 			services.AddScoped<NotificationService>();
 
-			services.AddApplicationInsightsTelemetry(options =>
-			{
-#if DEBUG
-				options.DeveloperMode = true;
-#endif
-			});
+			services.AddApplicationInsightsTelemetryProcessor<HubTelemetryFilter>();
 
 			services.AddResponseCompression(opts =>
 			{

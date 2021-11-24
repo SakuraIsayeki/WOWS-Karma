@@ -179,7 +179,7 @@ namespace WowsKarma.Api
 			services.AddSingleton<VortexApiHandler>();
 			services.AddSingleton<PostWebhookService>();
 			services.AddSingleton<ModActionWebhookService>();
-			services.AddSingleton<ITelemetryInitializer, TelemetryEnrichment>()
+			services.AddSingleton<ITelemetryInitializer, TelemetryEnrichment>();
 
 
 			services.AddTransient<PostHub>();

@@ -5,8 +5,7 @@ using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Common.Hubs;
-
-
+using WowsKarma.Common.Models.DTOs.Notifications;
 
 namespace WowsKarma.Api.Services;
 
@@ -38,14 +37,16 @@ public class NotificationService
 
 	public IQueryable<NotificationBase> GetNotifications(Guid[] ids) => _context.Set<NotificationBase>().Where(n => ids.Contains(n.Id));
 
-	public async Task SendNewNotification<TNotification>(TNotification notification) where TNotification : class, INotification
+	public async Task SendNewNotification<TNotification>(TNotification notification) where TNotification : NotificationBase
 	{
 		_ = notification ?? throw new ArgumentNullException(nameof(notification));
 
 		_context.Set<TNotification>().Add(notification);
 		_context.SaveChanges();
 
-		await _hub.Clients.User(notification.AccountId.ToString()).NewNotification(typeof(TNotification).FullName, notification);
+		NotificationBaseDTO dto = notification.ToDTO();
+
+		await _hub.Clients.User(notification.AccountId.ToString()).NewNotification(typeof(TNotification).FullName, dto);
 		_logger.LogInformation("Sent notification {notificationId} to user {userId}.", notification.Id, notification.AccountId);
 	}
 

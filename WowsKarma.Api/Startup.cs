@@ -32,6 +32,7 @@ using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Discord;
+using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api
@@ -148,6 +149,8 @@ namespace WowsKarma.Api
 				});
 			});
 
+
+
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
@@ -190,6 +193,7 @@ namespace WowsKarma.Api
 			services.AddScoped<KarmaService>();
 			services.AddScoped<ModService>();
 			services.AddScoped<NotificationService>();
+			services.AddScoped<ReplaysIngestService>();
 
 			services.AddApplicationInsightsTelemetryProcessor<HubTelemetryFilter>();
 

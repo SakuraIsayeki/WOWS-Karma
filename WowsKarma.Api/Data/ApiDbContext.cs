@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql;
-using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common.Models;
@@ -16,7 +16,7 @@ public class ApiDbContext : DbContext
 	public DbSet<Player> Players { get; set; }
 	public DbSet<Post> Posts { get; set; }
 	public DbSet<PostModAction> PostModActions { get; set; }
-
+	public DbSet<Replay> Replays { get; set; }
 
 
 	#region Notifications
@@ -89,6 +89,16 @@ public class ApiDbContext : DbContext
 			.OnDelete(DeleteBehavior.Restrict);
 
 		#endregion
+
+		#region Posts
+
+		modelBuilder.Entity<Post>()
+			.HasOne(p => p.Replay)
+			.WithOne(r => r.Post)
+			.HasForeignKey<Post>(p => p.ReplayId)
+			.IsRequired(false);
+
+		#endregion	// Posts
 
 		#region	PostModActions
 

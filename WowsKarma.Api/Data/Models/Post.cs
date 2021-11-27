@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
@@ -27,6 +28,9 @@ namespace WowsKarma.Api.Data.Models
 		public string Title { get; set; }
 		[Required]
 		public string Content { get; set; }
+
+		public Guid? ReplayId { get; set; }
+		public virtual Replay Replay { get; set; }
 
 		// Computed by DB Engine (hopefully)
 		public DateTime CreatedAt { get; init; }

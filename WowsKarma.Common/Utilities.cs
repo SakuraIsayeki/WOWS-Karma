@@ -127,7 +127,7 @@ public static class Utilities
 	{
 		"battle_common" => ReplayChatMessageChannel.All,
 		"battle_team" => ReplayChatMessageChannel.Team,
-//		"" => ReplayChatMessageChannel.Division,
+		"battle_prebattle" => ReplayChatMessageChannel.Division,
 		_ => ReplayChatMessageChannel.Unknown
 	};
 

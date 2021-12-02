@@ -1,7 +1,5 @@
-﻿using Mapster;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System.Threading;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Services.Replays;

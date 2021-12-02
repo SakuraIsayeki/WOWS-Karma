@@ -11,6 +11,7 @@ using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
+using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common.Hubs;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
@@ -29,25 +30,37 @@ namespace WowsKarma.Api.Services
 		private readonly PostWebhookService webhookService;
 		private readonly IHubContext<PostHub, IPostHubPush> _postsHub;
 		private readonly NotificationService _notificationService;
+		private readonly ReplaysIngestService _replayService;
 
 		public PostService(ApiDbContext context, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub, IPostHubPush> postsHub,
-			NotificationService notificationService)
+			NotificationService notificationService, ReplaysIngestService replayService)
 		{
 			this.context = context;
 			this.playerService = playerService;
 			this.webhookService = webhookService;
 			_postsHub = postsHub;
 			_notificationService = notificationService;
+			_replayService = replayService;
 		}
 
 		public Post GetPost(Guid id) => context.Posts
 			.Include(p => p.Author)
 			.Include(p => p.Player)
 			.Include(p => p.Replay)
-				.ThenInclude(p => p.ChatMessages)
-			.Include(p => p.Replay)
-				.ThenInclude(p => p.Players)
 			.FirstOrDefault(p => p.Id == id);
+
+		public async Task<PlayerPostDTO> GetPostDTOAsync(Guid id)
+		{
+			Post post = GetPost(id);
+			PlayerPostDTO postDTO = post?.Adapt<PlayerPostDTO>();
+
+			return post?.ReplayId is null
+				? postDTO
+				: postDTO with
+				{
+					Replay = await _replayService.GetReplayDTOAsync(post.ReplayId.Value)
+				};
+		}
 
 		public IEnumerable<Post> GetReceivedPosts(uint playerId) => context.Players.AsNoTracking()
 			.Include(p => p.PostsReceived)

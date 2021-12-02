@@ -1,7 +1,7 @@
 ﻿namespace WowsKarma.Api.Data.Models.Replays;
 
 
-public enum MatchGroup
+public enum MatchGroup : byte
 {
 	PVE = 0,
 	PVP = 1,

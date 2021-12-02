@@ -1,4 +1,5 @@
-﻿using Wargaming.WebAPI.Models;
+﻿using System.Text.Json.Serialization;
+using Wargaming.WebAPI.Models;
 
 namespace WowsKarma.Api.Data.Models.Replays;
 
@@ -11,10 +12,10 @@ public record ReplayArenaInfo
 	public short MapId { get; set; }
 	public int PlayerId { get; set; }
 
-	public MatchGroup MatchGroup { get; set; } = MatchGroup.PVP;
+	public object MatchGroup { get; set; }
 
 	public List<Ship> Vehicles { get; set; }
-	public DateTime DateTime { get; set; }
+	public object DateTime { get; set; }
 	public string Token { get; set; }
 	public Region Region { get; set; }
 
@@ -35,6 +36,9 @@ public record ReplayArenaInfo
 	//public int TeamsCount { get; set; }
 	//public string Logic { get; set; }
 	//public string PlayerVehicle { get; set; }
+
+	[JsonExtensionData]
+	public Dictionary<string, object> ExtendedData { get; set; }
 }
 
 public record Ship : IHasRelation

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Nodsoft.WowsReplaysUnpack.Data;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -14,8 +15,19 @@ public record Replay
 	public Guid PostId { get; init; }
 	public virtual Post Post { get; init; }
 
-	public string BlobName { get; init; }
+	public string BlobName { get; set; }
+
+
+	/*
+	 * Replay content (stored JSON)
+	 */
 
 	[Column(TypeName = "jsonb")]
-	public virtual ReplayArenaInfo ArenaInfo { get; init; }
+	public virtual ReplayArenaInfo ArenaInfo { get; set; }
+
+	[Column(TypeName = "jsonb")]
+	public virtual IEnumerable<ReplayPlayer> Players { get; set; }
+
+	[Column(TypeName = "jsonb")]
+	public virtual IEnumerable<ReplayChatMessage> ChatMessages { get; set; }
 }

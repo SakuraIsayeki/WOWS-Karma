@@ -43,6 +43,10 @@ namespace WowsKarma.Api.Services
 		public Post GetPost(Guid id) => context.Posts
 			.Include(p => p.Author)
 			.Include(p => p.Player)
+			.Include(p => p.Replay)
+				.ThenInclude(p => p.ChatMessages)
+			.Include(p => p.Replay)
+				.ThenInclude(p => p.Players)
 			.FirstOrDefault(p => p.Id == id);
 
 		public IEnumerable<Post> GetReceivedPosts(uint playerId) => context.Players.AsNoTracking()

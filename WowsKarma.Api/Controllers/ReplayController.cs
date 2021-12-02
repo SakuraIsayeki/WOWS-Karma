@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
 using System.Threading;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Services.Replays;
+using WowsKarma.Common.Models.DTOs.Replays;
 
 namespace WowsKarma.Api.Controllers;
 
@@ -20,9 +22,11 @@ public class ReplayController : ControllerBase
 		_processService = processService;
 	}
 
+	[HttpGet("{replayId}")]
+	public Task<ReplayDTO> GetAsync(Guid replayId) => _ingestService.GetReplayDTOAsync(replayId);
 
 	[HttpPost("{postId}"), RequestSizeLimit(ReplaysIngestService.MaxReplaySize)]
-	public async Task<IActionResult> UploadReplayAsync([FromRoute] Guid postId, IFormFile replay, CancellationToken ct)
+	public async Task<IActionResult> UploadReplayAsync(Guid postId, IFormFile replay, CancellationToken ct)
 	{
 		Replay ingested = await _ingestService.IngestReplayAsync(postId, replay, ct);
 		return base.Ok(await _processService.ProcessReplayAsync(ingested.Id, replay.OpenReadStream(), ct));

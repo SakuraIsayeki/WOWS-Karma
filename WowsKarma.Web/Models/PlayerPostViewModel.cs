@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.ComponentModel.DataAnnotations;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
@@ -22,6 +24,7 @@ namespace WowsKarma.Web.Models
 		[Required, StringLength(2000, MinimumLength = 50)]
 		public string Content { get; set; }
 
+		public IBrowserFile ReplayFile { get; set; }
 
 
 		public static implicit operator PlayerPostViewModel(PlayerPostDTO value) => new()

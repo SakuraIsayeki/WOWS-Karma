@@ -1,4 +1,5 @@
 ﻿@inject PostService PostService
+@inject ReplayService ReplayService
 
 <div class="modal fade show" id="post-editor-modal" tabindex="-1" style="display:block" aria-modal="true" role="dialog">
 	<div class="modal-dialog">
@@ -25,7 +26,7 @@
 						<InputTextArea DisplayName=Content @bind-Value=PostModel.Content class="form-control" style="height:10rem; min-height:100px;" />
 					</div>
 
-					<hr class="m-4" />
+					<hr class="m-3" />
 
 					<div class="form-group">
 						<h4 class="mb-3">Flairs</h4>
@@ -68,19 +69,30 @@
 						</table>
 					</div>
 
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" checked=@approvedGuidelines @onclick=OnApprovedGuidelinesToggle>
-
-						<label class="form-check-label" for="flexCheckDefault">
-							I hereby affirm to have read and followed the <a href="guidelines" target="_blank">Posting Guidelines</a>.
-						</label>
+					<div class="custom-file mb-3">
+						<InputFile OnChange=LoadFiles class="custom-file-input" accept=".wowsreplay"></InputFile>
+						<label class="custom-file-label text-truncate" for="validatedCustomFile">@(currentFile ?? "Choose Replay File...")</label>
 					</div>
 				</div>
 
 				<!-- Modal footer -->
 				<div class="modal-footer">
-					<button type="button" class="btn btn-danger" @onclick=OnCancel>Cancel</button>
-					<button type="submit" class="btn btn-success" value="Create" disabled=@(!approvedGuidelines)>Create</button>
+					<div class="row">
+						<div class="col">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" checked=@approvedGuidelines @onclick=OnApprovedGuidelinesToggle>
+
+								<label class="form-check-label" for="flexCheckDefault">
+									I hereby affirm to have read and followed the <a href="guidelines" target="_blank">Posting Guidelines</a>.
+								</label>
+							</div>
+						</div>
+
+						<div class="col-auto">
+							<button type="button" class="btn btn-danger" @onclick=OnCancel>Cancel</button>
+							<button type="submit" class="btn btn-success" value="Create" disabled=@(!approvedGuidelines)>Create</button>
+						</div>
+					</div>
 				</div>
 			</EditForm>
 		</div>
@@ -103,7 +115,7 @@
 	public EventCallback OnCancel { get; set; }
 
 	private bool approvedGuidelines;
-
+	private string currentFile;
 
 
 	protected override async Task OnInitializedAsync()
@@ -123,10 +135,17 @@
 		}
 		else
 		{
+			await ReplayService.SubmitNewReplayAsync(PostModel.Id.Value, PostModel.ReplayFile, CancellationToken.None);
 			await PostService.EditPostAsync(PlayerPostViewModel.ToDTO(PostModel));
 		}
 
 		await OnPostSubmited.InvokeAsync(null);
+	}
+
+	private void LoadFiles(InputFileChangeEventArgs e)
+	{
+		PostModel.ReplayFile = e.File;
+		currentFile = e.File.Name;
 	}
 
 	private void OnApprovedGuidelinesToggle() => approvedGuidelines = !approvedGuidelines;

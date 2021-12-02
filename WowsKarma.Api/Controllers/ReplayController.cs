@@ -27,6 +27,8 @@ public class ReplayController : ControllerBase
 	public async Task<IActionResult> UploadReplayAsync(Guid postId, IFormFile replay, CancellationToken ct)
 	{
 		Replay ingested = await _ingestService.IngestReplayAsync(postId, replay, ct);
-		return base.Ok(await _processService.ProcessReplayAsync(ingested.Id, replay.OpenReadStream(), ct));
+		await _processService.ProcessReplayAsync(ingested.Id, replay.OpenReadStream(), ct);
+
+		return Ok(_ingestService.GetReplayDTOAsync(ingested.Id));
 	}
 }

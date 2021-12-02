@@ -61,7 +61,7 @@ public class ReplaysIngestService
 		entityEntry.Entity.BlobName = $"{entityEntry.Entity.Id:N}-{replayFile.FileName}";
 
 		//HACK: Cut Azure out during development
-		//await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
+		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
 
 		await _context.SaveChangesAsync(ct);
 		return entityEntry.Entity;

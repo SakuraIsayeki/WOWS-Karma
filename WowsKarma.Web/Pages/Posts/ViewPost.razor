@@ -31,18 +31,19 @@ else
 	@if (post.Replay is not null)
 	{
 		<div class="my-5">
-			<h2>Replay</h2>
+			<h2>
+				Replay
+				<a class="btn btn-primary btn-lg ml-5" href="@post.Replay.DownloadUri">Download Replay</a>
+			</h2>
 
 			<div class="row justify-content-between my-3">
 				<div class="col-lg-5">
 					<h4 class="my-3">Chat Messages</h4>
-
 					<ReplayChat Messages=@post.Replay.ChatMessages />
 				</div>
 
 				<div class="col-lg-7">
 					<h4 class="my-3">Teams Roster</h4>
-
 					<ReplayPlayersRoster Players=@post.Replay.Players />
 				</div>
 			</div>
@@ -109,7 +110,7 @@ else
 
 		if (post is not null && post.ModLocked)
 		{
-			lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id)).Last();
+			lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id)).LastOrDefault();
 		}
 
 		Loaded = true;
@@ -117,10 +118,11 @@ else
 
 	private void EditorModalInit() => showEditorModal = true;
 	private void EditorModalCancel() => showEditorModal = false;
+
 	private async Task EditorModalSubmit()
 	{
 		showEditorModal = false;
-		lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id)).Last();
+		lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id))?.LastOrDefault();
 	}
 
 	private void DeleteModalInit() => showDeleteModal = true;

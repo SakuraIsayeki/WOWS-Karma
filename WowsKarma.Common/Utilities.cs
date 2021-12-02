@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Wargaming.WebAPI.Models;
+using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Common;
@@ -121,4 +122,20 @@ public static class Utilities
 
 		return null;
 	}
+
+	public static ReplayChatMessageChannel GetMessageChannelType(string messageGroup) => messageGroup switch
+	{
+		"battle_common" => ReplayChatMessageChannel.All,
+		"battle_team" => ReplayChatMessageChannel.Team,
+//		"" => ReplayChatMessageChannel.Division,
+		_ => ReplayChatMessageChannel.Unknown
+	};
+
+	public static string GetDisplayString(this ReplayChatMessageChannel channel) => channel switch
+	{
+		ReplayChatMessageChannel.All => "All",
+		ReplayChatMessageChannel.Team => "Team",
+		ReplayChatMessageChannel.Division => "Division",
+		_ => "Unknown"
+	};
 }

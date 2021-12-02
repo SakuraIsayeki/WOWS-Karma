@@ -1,6 +1,8 @@
 ﻿@page "/posts/view/{Id:guid}"
 @inherits ComponentBaseAuth
 
+@using WowsKarma.Web.Pages.Replays
+
 @inject PostService PostService
 @inject ModService ModService
 @inject NavigationManager NavigationManager
@@ -25,6 +27,21 @@ else
 			  OnDeleteClick=DeleteModalInit
 		/>
 	</div>
+
+	@if (post.Replay is not null)
+	{
+		<div class="my-5">
+			<h2>Replay</h2>
+
+			<div class="row justify-content-between my-3">
+				<div class="col-lg-5">
+					<h4 class="my-3">Chat Messages</h4>
+
+					<ReplayChat Messages=@post.Replay.ChatMessages />
+				</div>
+			</div>
+		</div>
+	}
 
 	@if (post.ModLocked)
 	{
@@ -51,6 +68,10 @@ else
 		</div>
 	}
 
+
+	/*
+	 * Modals
+	 */
 	@if (showEditorModal)
 	{
 		<EditorModal PostModel=post OnPostSubmited=EditorModalSubmit OnCancel=EditorModalCancel />

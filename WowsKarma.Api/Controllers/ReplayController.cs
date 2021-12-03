@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading;
 using WowsKarma.Api.Data.Models.Replays;
+using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
@@ -57,10 +58,15 @@ public class ReplayController : ControllerBase
 		}
 
 
+		try
+		{
+			Replay ingested = await _ingestService.IngestReplayAsync(postId, replay, ct);
+			return StatusCode(201, _ingestService.GetReplayDTOAsync(ingested.Id));
+		}
+		catch (InvalidReplayException e)
+		{
+			return BadRequest(e);
+		}
 
-		Replay ingested = await _ingestService.IngestReplayAsync(postId, replay, ct);
-		await _processService.ProcessReplayAsync(ingested.Id, replay.OpenReadStream(), ct);
-
-		return Ok(_ingestService.GetReplayDTOAsync(ingested.Id));
 	}
 }

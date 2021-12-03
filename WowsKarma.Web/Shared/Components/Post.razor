@@ -11,11 +11,11 @@
 	}
 
 	<div class="card border-@GetPostBorderColor(PlayerPost.Flairs)" style="width: 20rem; max-width: calc(100vw - 2rem);">
-		
+
 		<div class="card-header">
 			<h5>@PlayerPost.Title</h5>
 		</div>
-		
+
 		<div class="card-body">
 			<p class="card-text" style="white-space: pre-wrap;">@PlayerPost.Content</p>
 		</div>
@@ -33,10 +33,23 @@
 				<div class="col-auto px-1">
 					@if (PlayerPost.ModLocked)
 					{
-						<i class="bi bi-x-circle text-danger lead mr-1"></i>
+						<i class="bi bi-x-circle text-danger lead mx-1"></i>
 					}
 
-					<NavLink class="text-body" href=@($"/posts/view/{PlayerPost.Id}")><i class="bi bi-link-45deg lead"></i></NavLink>
+					@if (PlayerPost.ReplayId is not null)
+					{
+						<NavLink class="text-body" href=@($"/posts/view/{PlayerPost.Id}")>
+							<i class="bi bi-camera-video text-success lead mx-1"></i>
+						</NavLink>
+					}
+					else
+					{
+						<i class="bi bi-camera-video-off text-danger lead mx-1"></i>
+					}
+
+					<NavLink class="text-body" href=@($"/posts/view/{PlayerPost.Id}")>
+						<i class="bi bi-link-45deg lead"></i>
+					</NavLink>
 				</div>
 			</div>
 		</div>
@@ -72,9 +85,9 @@
 						{
 							<button class="btn btn-outline-danger btn-sm" @onclick=ModDeleteClicked>Mod Delete</button>
 
-							<ModDeleteModal @ref=ModDeleteModal 
+							<ModDeleteModal @ref=ModDeleteModal
 								OnSubmit=OnModDeleteSubmit
-								OnCancel="() => ModDeleteModal.Show = false" 
+								OnCancel="() => ModDeleteModal.Show = false"
 							/>
 						}
 					</Authorized>

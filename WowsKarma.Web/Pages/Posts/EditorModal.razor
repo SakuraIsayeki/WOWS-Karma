@@ -29,7 +29,7 @@
 					<hr class="m-3" />
 
 					<div class="form-group">
-						<h4 class="mb-3">Flairs</h4>
+						<h4 class="mb-2">Flairs</h4>
 
 						<table class="table table-borderless table-sm">
 							<tbody>
@@ -69,9 +69,13 @@
 						</table>
 					</div>
 
-					<div class="custom-file mb-3">
-						<InputFile OnChange=LoadFiles class="custom-file-input" accept=".wowsreplay"></InputFile>
-						<label class="custom-file-label text-truncate" for="validatedCustomFile">@(currentFile ?? "Choose Replay File...")</label>
+					<div class="form-group">
+						<h4 class="mb-2">Replay</h4>
+
+						<div class="custom-file">
+							<InputFile OnChange=LoadFiles class="custom-file-input" accept=".wowsreplay"></InputFile>
+							<label class="custom-file-label text-truncate" for="validatedCustomFile">@(currentFile ?? "Choose Replay File...")</label>
+						</div>
 					</div>
 				</div>
 
@@ -131,12 +135,16 @@
 
 		if (PostModel.Id is null)
 		{
-			await PostService.SubmitNewPostAsync(PlayerPostViewModel.ToDTO(PostModel));
+			PostModel.Id = await PostService.SubmitNewPostAsync(PlayerPostViewModel.ToDTO(PostModel));
 		}
 		else
 		{
-			await ReplayService.SubmitNewReplayAsync(PostModel.Id.Value, PostModel.ReplayFile, CancellationToken.None);
 			await PostService.EditPostAsync(PlayerPostViewModel.ToDTO(PostModel));
+		}
+
+		if (PostModel.ReplayFile is not null)
+		{
+			await ReplayService.SubmitNewReplayAsync(PostModel.Id.Value, PostModel.ReplayFile, CancellationToken.None);
 		}
 
 		await OnPostSubmited.InvokeAsync(null);

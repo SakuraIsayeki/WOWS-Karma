@@ -175,8 +175,8 @@ namespace WowsKarma.Api.Controllers
 
 			try
 			{
-				await postService.CreatePostAsync(post, ignoreChecks);
-				return StatusCode(201);
+				Post created = await postService.CreatePostAsync(post, ignoreChecks);
+				return StatusCode(201, created.Id);
 			}
 			catch (ArgumentException e)
 			{

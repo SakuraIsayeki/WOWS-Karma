@@ -18,6 +18,7 @@ public record PlayerPostDTO
 
 	public bool ModLocked { get; init; }
 
+	public Guid? ReplayId { get; init; }
 	public ReplayDTO Replay { get; init; }
 
 	// Computed by DB Engine (hopefully)

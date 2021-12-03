@@ -19,13 +19,15 @@ public class ReplaysIngestService
 	private readonly BlobServiceClient _serviceClient;
 	private readonly BlobContainerClient _containerClient;
 	private readonly ApiDbContext _context;
+	private readonly ReplaysProcessService _processService;
 
-	public ReplaysIngestService(IConfiguration configuration, ApiDbContext context)
+	public ReplaysIngestService(IConfiguration configuration, ApiDbContext context, ReplaysProcessService processService)
 	{
 		string connectionString = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:Azure:Storage:ConnectionString"];
 		_serviceClient = new(connectionString);
 		_containerClient = _serviceClient.GetBlobContainerClient(ReplayBlobContainer);
 		_context = context;
+		_processService = processService;
 	}
 
 	public Replay GetReplay(Guid id) => _context.Replays.Find(id);
@@ -52,15 +54,23 @@ public class ReplaysIngestService
 			throw new ArgumentOutOfRangeException(nameof(replayFile));
 		}
 
-		// Creating stub to generate Replay ID
-		EntityEntry<Replay> entityEntry = _context.Replays.Add(new() { PostId = postId });
+		Post post = await _context.Posts.FindAsync(new object[] { postId }, cancellationToken: ct);
 
-		// Set Post reverse nav to replay
-		(await _context.Posts.FindAsync(new object[] { postId }, cancellationToken: ct)).ReplayId = entityEntry.Entity.Id;
+		Replay replay = _processService.ProcessReplay(new(), replayFile.OpenReadStream(), ct);
 
+		// Past here, the replay is valid.
+
+		if (post.ReplayId is Guid existingReplayId)
+		{
+			await RemoveReplayAsync(GetReplay(existingReplayId));
+		}
+
+		EntityEntry<Replay> entityEntry = _context.Replays.Add(replay with { PostId = postId });
 		entityEntry.Entity.BlobName = $"{entityEntry.Entity.Id:N}-{replayFile.FileName}";
 
-		//HACK: Cut Azure out during development
+		// Set Post reverse nav to replay
+		post.ReplayId = entityEntry.Entity.Id;
+
 		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
 
 		await _context.SaveChangesAsync(ct);

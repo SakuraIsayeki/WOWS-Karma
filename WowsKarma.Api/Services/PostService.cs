@@ -1,6 +1,7 @@
 using Mapster;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,7 +80,7 @@ namespace WowsKarma.Api.Services
 			.Include(p => p.Player)
 			.OrderByDescending(p => p.CreatedAt);
 
-		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
+		public async Task<Post> CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
 		{
 			try
 			{
@@ -109,7 +110,7 @@ namespace WowsKarma.Api.Services
 			Post post = postDTO.Adapt<Post>();
 			post.NegativeKarmaAble = author.NegativeKarmaAble;
 
-			context.Posts.Add(post);
+			EntityEntry<Post> entry = context.Posts.Add(post);
 			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
 			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
 
@@ -130,6 +131,8 @@ namespace WowsKarma.Api.Services
 				Post = post,
 				PostId = post.Id,
 			});
+
+			return entry.Entity;
 		}
 
 		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO)

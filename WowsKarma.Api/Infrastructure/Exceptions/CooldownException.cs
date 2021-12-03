@@ -9,8 +9,8 @@ namespace WowsKarma.Api.Infrastructure.Exceptions
 	{
 		public CooldownException() { }
 
-		public CooldownException(string cooldownType, object threshold, object actual) 
-			: base($"Cooldown not reached for {cooldownType} : Excepcted above {threshold}, currently {actual}") 
+		public CooldownException(string cooldownType, object threshold, object actual)
+			: base($"Cooldown not reached for {cooldownType} : Excepcted above {threshold}, currently {actual}")
 		{
 			Data["type"] = cooldownType;
 			Data["threshold"] = threshold;
@@ -19,6 +19,5 @@ namespace WowsKarma.Api.Infrastructure.Exceptions
 
 		public CooldownException(string message) : base(message) { }
 		public CooldownException(string message, Exception inner) : base(message, inner) { }
-		protected CooldownException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 	}
 }

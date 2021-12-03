@@ -1,4 +1,6 @@
-﻿namespace WowsKarma.Common.Models.DTOs;
+﻿using WowsKarma.Common.Models.DTOs.Replays;
+
+namespace WowsKarma.Common.Models.DTOs;
 
 public record PlayerPostDTO
 {
@@ -15,6 +17,9 @@ public record PlayerPostDTO
 	public string Content { get; init; }
 
 	public bool ModLocked { get; init; }
+
+	public Guid? ReplayId { get; init; }
+	public ReplayDTO Replay { get; init; }
 
 	// Computed by DB Engine (hopefully)
 	public DateTime? CreatedAt { get; init; }

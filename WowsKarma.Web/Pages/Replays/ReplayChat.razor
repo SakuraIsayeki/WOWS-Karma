@@ -1,0 +1,34 @@
+﻿@using WowsKarma.Common.Models.DTOs.Replays
+@using static WowsKarma.Common.Utilities
+
+<div class="list-group">
+
+@foreach (ReplayChatMessageDTO msg in Messages)
+{
+	<a class="list-group-item list-group-item-action">
+		<div class="d-flex w-100 justify-content-between">
+			<b class="mb-1"><NavLink href="@($"/player/{msg.PlayerId},{msg.Username}")">@msg.Username</NavLink></b>
+
+			@{ ReplayChatMessageChannel channel = GetMessageChannelType(msg.MessageGroup); }
+			<small class="@GetChannelColor(channel)">@channel.GetDisplayString()</small>
+		</div>
+
+		<p class="mb-1">@msg.MessageContent</p>
+	</a>
+}
+
+</div>
+
+@code {
+
+	[Parameter]
+	public IEnumerable<ReplayChatMessageDTO> Messages { get; set; }
+
+	public string GetChannelColor(ReplayChatMessageChannel channel) => channel switch
+	{
+		ReplayChatMessageChannel.All => "text-white",
+		ReplayChatMessageChannel.Division => "text-warning",
+		ReplayChatMessageChannel.Team => "text-success",
+		_ => "text-danger"
+	};
+}

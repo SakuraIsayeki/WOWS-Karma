@@ -14,7 +14,7 @@ public class TelemetryEnrichment : TelemetryInitializerBase
 	protected override void OnInitializeTelemetry(HttpContext platformContext, RequestTelemetry requestTelemetry, ITelemetry telemetry)
 	{
 		// API Region
-		telemetry.Context.GlobalProperties["api-region"] ??= Startup.ApiRegion.ToRegionString();
+		telemetry.Context.GlobalProperties["api-region"] = Startup.ApiRegion.ToRegionString();
 
 		// User ID
 		AccountListingDTO userAccount = platformContext.User?.ToAccountListing();

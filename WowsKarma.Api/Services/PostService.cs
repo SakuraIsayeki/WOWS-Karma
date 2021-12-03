@@ -1,6 +1,7 @@
 using Mapster;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
+using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common.Hubs;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
@@ -29,21 +31,37 @@ namespace WowsKarma.Api.Services
 		private readonly PostWebhookService webhookService;
 		private readonly IHubContext<PostHub, IPostHubPush> _postsHub;
 		private readonly NotificationService _notificationService;
+		private readonly ReplaysIngestService _replayService;
 
 		public PostService(ApiDbContext context, PlayerService playerService, PostWebhookService webhookService, IHubContext<PostHub, IPostHubPush> postsHub,
-			NotificationService notificationService)
+			NotificationService notificationService, ReplaysIngestService replayService)
 		{
 			this.context = context;
 			this.playerService = playerService;
 			this.webhookService = webhookService;
 			_postsHub = postsHub;
 			_notificationService = notificationService;
+			_replayService = replayService;
 		}
 
 		public Post GetPost(Guid id) => context.Posts
 			.Include(p => p.Author)
 			.Include(p => p.Player)
+			.Include(p => p.Replay)
 			.FirstOrDefault(p => p.Id == id);
+
+		public async Task<PlayerPostDTO> GetPostDTOAsync(Guid id)
+		{
+			Post post = GetPost(id);
+			PlayerPostDTO postDTO = post?.Adapt<PlayerPostDTO>();
+
+			return post?.ReplayId is null
+				? postDTO
+				: postDTO with
+				{
+					Replay = await _replayService.GetReplayDTOAsync(post.ReplayId.Value)
+				};
+		}
 
 		public IEnumerable<Post> GetReceivedPosts(uint playerId) => context.Players.AsNoTracking()
 			.Include(p => p.PostsReceived)
@@ -62,7 +80,7 @@ namespace WowsKarma.Api.Services
 			.Include(p => p.Player)
 			.OrderByDescending(p => p.CreatedAt);
 
-		public async Task CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
+		public async Task<Post> CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
 		{
 			try
 			{
@@ -92,7 +110,7 @@ namespace WowsKarma.Api.Services
 			Post post = postDTO.Adapt<Post>();
 			post.NegativeKarmaAble = author.NegativeKarmaAble;
 
-			context.Posts.Add(post);
+			EntityEntry<Post> entry = context.Posts.Add(post);
 			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
 			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
 
@@ -113,6 +131,8 @@ namespace WowsKarma.Api.Services
 				Post = post,
 				PostId = post.Id,
 			});
+
+			return entry.Entity;
 		}
 
 		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO)

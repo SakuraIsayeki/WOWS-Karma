@@ -21,7 +21,10 @@ namespace WowsKarma.Web.Services
 			HttpRequestMessage request = new(HttpMethod.Get, $"{RequestUri}/list{BuildQuery(("postId", postId.ToString()))}");
 			HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
-			return await response.Content.ReadFromJsonAsync<PostModActionDTO[]>(Utilities.JsonSerializerOptions);
+
+			return response.StatusCode is not System.Net.HttpStatusCode.NoContent
+				? await response.Content.ReadFromJsonAsync<PostModActionDTO[]>(Utilities.JsonSerializerOptions)
+				: null;
 		}
 
 		public async Task DeletePostAsync(Guid postId, string reason)

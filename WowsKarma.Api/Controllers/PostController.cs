@@ -33,8 +33,8 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="404">No post was found with given ID.</response>
 		/// <response code="410">Post is locked by Community Managers.</response>
 		[HttpGet("{postId}"), ProducesResponseType(typeof(PlayerPostDTO), 200), ProducesResponseType(404), ProducesResponseType(410)]
-		public IActionResult GetPost(Guid postId)
-			=> postService.GetPost(postId).Adapt<PlayerPostDTO>() is PlayerPostDTO post
+		public async Task<IActionResult> GetPostAsync(Guid postId)
+			=> await postService.GetPostDTOAsync(postId) is PlayerPostDTO post
 				? !post.ModLocked || post.AuthorId == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
 					? StatusCode(200, post)
 					: StatusCode(410)
@@ -175,8 +175,8 @@ namespace WowsKarma.Api.Controllers
 
 			try
 			{
-				await postService.CreatePostAsync(post, ignoreChecks);
-				return StatusCode(201);
+				Post created = await postService.CreatePostAsync(post, ignoreChecks);
+				return StatusCode(201, created.Id);
 			}
 			catch (ArgumentException e)
 			{

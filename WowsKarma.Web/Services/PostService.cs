@@ -77,13 +77,15 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
-		public async Task SubmitNewPostAsync(PlayerPostDTO post)
+		public async Task<Guid> SubmitNewPostAsync(PlayerPostDTO post)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}");
 			request.Content = JsonContent.Create(post, new("application/json"), JsonSerializerOptions);
 
 			using HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();
+
+			return new((await response.Content.ReadAsStringAsync()).Replace("\"", null));
 		}
 
 		public async Task EditPostAsync(PlayerPostDTO post)

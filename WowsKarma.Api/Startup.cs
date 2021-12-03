@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Nodsoft.WowsReplaysUnpack;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -32,6 +33,7 @@ using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Discord;
+using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api
@@ -148,6 +150,8 @@ namespace WowsKarma.Api
 				});
 			});
 
+
+
 			services.AddApplicationInsightsTelemetry(options =>
 			{
 #if DEBUG
@@ -180,6 +184,7 @@ namespace WowsKarma.Api
 			services.AddSingleton<PostWebhookService>();
 			services.AddSingleton<ModActionWebhookService>();
 			services.AddSingleton<ITelemetryInitializer, TelemetryEnrichment>();
+			services.AddSingleton<ReplayUnpacker>();
 
 
 			services.AddTransient<PostHub>();
@@ -190,6 +195,8 @@ namespace WowsKarma.Api
 			services.AddScoped<KarmaService>();
 			services.AddScoped<ModService>();
 			services.AddScoped<NotificationService>();
+			services.AddScoped<ReplaysIngestService>();
+			services.AddScoped<ReplaysProcessService>();
 
 			services.AddApplicationInsightsTelemetryProcessor<HubTelemetryFilter>();
 

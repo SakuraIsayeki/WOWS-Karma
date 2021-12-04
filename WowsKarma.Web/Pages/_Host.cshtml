@@ -21,7 +21,7 @@
 	<meta property="og:url" content="https://wows-karma.com/" />
 	<meta property="og:image" content="http://wows-karma.com/assets/media/logo.webp" />
 	<meta property="og:description" content="WOWS Karma - The persistent and comprehensive Karma system for World of Warships" />
-	<meta name="theme-color" content="#FF0000">
+	<meta name="theme-color" content="#222222">
 
 	<link rel="stylesheet" href="lib/bootstrap/dist/css/bootswatch-darkly.min.css" id="dark-theme" />
 	<link rel="stylesheet" href="lib/bootstrap/dist/css/bootswatch-flatly.min.css" id="light-theme" disabled />
@@ -46,6 +46,7 @@
 	</div>
 
 	<script src="_framework/blazor.server.js"></script>
+	<script>navigator.serviceWorker.register('service-worker.js');</script>
 	<script src="/js/site.js"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
+using WebEssentials.AspNetCore.Pwa;
 using WowsKarma.Common;
 using WowsKarma.Web.Middlewares;
 using WowsKarma.Web.Services;
@@ -43,6 +44,13 @@ namespace WowsKarma.Web
 			services.AddServerSideBlazor();
 			services.AddRazorPages();
 			services.AddHttpContextAccessor();
+
+			services.AddProgressiveWebApp(new PwaOptions()
+			{
+				RegisterServiceWorker = true,
+				RegisterWebmanifest = true,
+				AllowHttp = false
+			});
 
 			services.AddDistributedMemoryCache();
 

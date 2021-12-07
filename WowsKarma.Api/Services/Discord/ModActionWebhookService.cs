@@ -86,8 +86,6 @@ namespace WowsKarma.Api.Services.Discord
 		private static DiscordEmbedBuilder AddModActionRevertContent(DiscordEmbedBuilder embed, PostModAction modAction)
 		{
 			embed.AddField("Mod-Action ID", modAction.Id.ToString(), true);
-			embed.AddField("Reverted by", $"[{modAction.Mod?.Username ?? "Unknown"}]({modAction.Mod.GetPlayerProfileLink()})", true);
-
 			return embed;
 		}
 	}

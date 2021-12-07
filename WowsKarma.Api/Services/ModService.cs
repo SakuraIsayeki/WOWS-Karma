@@ -45,7 +45,7 @@ public class ModService
 
 	public IQueryable<PlatformBan> GetPlatformBans(uint userId) => _context.PlatformBans.AsNoTracking().Where(b => b.UserId == userId);
 
-	public async Task SubmitModActionAsync(PostModActionDTO modAction)
+	public async Task SubmitPostModActionAsync(PostModActionDTO modAction)
 	{
 		EntityEntry<PostModAction> entityEntry = await _context.PostModActions.AddAsync(modAction.Adapt<PostModAction>());
 
@@ -73,17 +73,19 @@ public class ModService
 		await entityEntry.Reference(pma => pma.Mod).LoadAsync();
 		await entityEntry.Reference(pma => pma.Post).Query().Include(p => p.Author).LoadAsync();
 
-		_ = _webhookService.SendModActionWebhookAsync(entityEntry.Entity);
+		await _webhookService.SendModActionWebhookAsync(entityEntry.Entity);
 	}
 
-	public Task RevertModActionAsync(Guid modActionId)
+	public async Task RevertModActionAsync(Guid modActionId)
 	{
-		PostModAction stub = new() { Id = modActionId };
+		PostModAction modAction = await _context.PostModActions.FindAsync(modActionId);
 
-		_context.PostModActions.Attach(stub);
-		_context.PostModActions.Remove(stub);
+		_context.PostModActions.Remove(modAction);
+		await _postService.RevertPostModLockAsync(modAction.PostId);
 
-		return _context.SaveChangesAsync();
+		await _context.SaveChangesAsync();
+
+		await _webhookService.SendModActionRevertedWebhookAsync(modAction);
 	}
 
 	public async Task EmitPlatformBanAsync(PlatformBanDTO platformBan, [FromServices] AuthDbContext authContext)

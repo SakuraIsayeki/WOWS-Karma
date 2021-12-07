@@ -67,24 +67,33 @@ public class ModActionController : ControllerBase
 	/// Usable only by Community Managers.
 	/// </remarks>
 	/// <param name="modAction">ModAction to submit</param>
+	/// <param name="postService">(DI)</param>
 	/// <response code="202">ModAction was successfully submitted.</response>
 	[HttpPost, Authorize(Roles = ApiRoles.CM), ProducesResponseType(202)]
-	public async Task<IActionResult> Submit([FromBody] PostModActionDTO modAction)
+	public async Task<IActionResult> Submit([FromBody] PostModActionDTO modAction,
+		[FromServices] PostService postService)
 	{
+		Post post = postService.GetPost(modAction.PostId);
 		uint modId = uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-		await _service.SubmitModActionAsync(modAction with { ModId = modId });
+
+		if ((post.AuthorId == modId || post.PlayerId == modId) && !User.IsInRole(ApiRoles.Administrator))
+		{
+			return StatusCode(403, $"CMs cannot act on Posts with relation to self. This restriction is lifted for users with {ApiRoles.Administrator} role.");
+		}
+
+		await _service.SubmitPostModActionAsync(modAction with { ModId = modId });
 		return StatusCode(202);
 	}
 
 	/// <summary>
-	/// Deletes an existing ModAction.
+	/// Reverts an existing ModAction.
 	/// </summary>
 	/// <remarks>
-	/// Usable only by Community Managers.
+	/// Usable only by Community Managers and Administrators.
 	/// </remarks>
 	/// <param name="id">ID of ModAction to delete.</param>
 	/// <response code="205">ModAction was flagged for deletion.</response>
-	[HttpDelete("{id}"), Authorize(Roles = ApiRoles.CM), ProducesResponseType(205)]
+	[HttpDelete("{id}"), Authorize(Roles = $"{ApiRoles.Administrator},{ApiRoles.CM}"), ProducesResponseType(205)]
 	public async Task<IActionResult> Revert(Guid id)
 	{
 		await _service.RevertModActionAsync(id);

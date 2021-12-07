@@ -1,19 +1,11 @@
 name: .NET Build
 
-on:
-  push:
-    branches:
-      - main
-      - develop
-  pull_request:
-    branches:
-      - main
-      - develop
+on: [ push, pull_request ]
 
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -23,11 +15,11 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '6.0.x'
-        include-prerelease: true
+        dotnet-version: '6.x'
+    #    include-prerelease: true
     - name: Restore dependencies
-      run: dotnet restore WoWS-Karma.sln
+      run: dotnet restore *.sln
     - name: Build
-      run: dotnet build --no-restore WoWS-Karma.sln
+      run: dotnet build --no-restore *.sln
     - name: Test
-      run: dotnet test --no-build --verbosity normal WoWS-Karma.sln
+      run: dotnet test --no-build --verbosity normal *.sln

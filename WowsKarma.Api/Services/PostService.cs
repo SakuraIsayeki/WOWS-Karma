@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
@@ -200,6 +201,32 @@ namespace WowsKarma.Api.Services
 			{
 				Account = player,
 				AccountId = player.Id,
+				PostId = post.Id,
+			});
+		}
+
+		public async Task RevertPostModLockAsync(Guid id)
+		{
+			Post post = await context.Posts.FindAsync(id);
+			post.ModLocked = false;
+
+			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {post.PlayerId} not found");
+			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
+
+			await context.SaveChangesAsync();
+
+			_ = _postsHub.Clients.All.DeletedPost(id);
+
+			_ = _notificationService.SendNewNotification(new PostEditedNotification
+			{
+				AccountId = post.PlayerId,
+				PostId = post.Id,
+			});
+
+			_ = _notificationService.SendNewNotification(new PostEditedNotification
+			{
+				AccountId = post.AuthorId,
 				PostId = post.Id,
 			});
 		}

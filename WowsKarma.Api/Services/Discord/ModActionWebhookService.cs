@@ -34,6 +34,23 @@ namespace WowsKarma.Api.Services.Discord
 				.AddEmbed(embed));
 		}
 
+		public async Task SendModActionRevertedWebhookAsync(PostModAction modAction)
+		{
+			DiscordEmbedBuilder embed = new()
+			{
+				Title = $"**Post Mod-Action Reverted**",
+				Url = modAction.Post.GetPostLink(),
+				Footer = GetDefaultFooter(),
+				Color = DiscordColor.Red
+			};
+
+			AddModActionRevertContent(embed, modAction);
+
+			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder()
+				.WithContent("**Reverted Post Mod-Action**")
+				.AddEmbed(embed));
+		}
+
 		public async Task SendPlatformBanWebhookAsync(PlatformBan ban)
 		{
 			DiscordEmbedBuilder embed = new()
@@ -57,12 +74,19 @@ namespace WowsKarma.Api.Services.Discord
 				.AddEmbed(embed));
 		}
 
-
 		private static DiscordEmbedBuilder AddModActionContent(DiscordEmbedBuilder embed, PostModAction modAction)
 		{
 			embed.AddField("Moderated by", $"[{modAction.Mod?.Username ?? "Unknown"}]({modAction.Mod.GetPlayerProfileLink()})", true);
 			embed.AddField("Post Author", $"[{modAction.Post.Author?.Username ?? "Unknown"}]({modAction.Post.Author?.GetPlayerProfileLink()})", true);
 			embed.AddField("Reason", modAction.Reason, false);
+
+			return embed;
+		}
+
+		private static DiscordEmbedBuilder AddModActionRevertContent(DiscordEmbedBuilder embed, PostModAction modAction)
+		{
+			embed.AddField("Mod-Action ID", modAction.Id.ToString(), true);
+			embed.AddField("Reverted by", $"[{modAction.Mod?.Username ?? "Unknown"}]({modAction.Mod.GetPlayerProfileLink()})", true);
 
 			return embed;
 		}

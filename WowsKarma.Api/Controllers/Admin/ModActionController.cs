@@ -67,12 +67,21 @@ public class ModActionController : ControllerBase
 	/// Usable only by Community Managers.
 	/// </remarks>
 	/// <param name="modAction">ModAction to submit</param>
+	/// <param name="postService">(DI)</param>
 	/// <response code="202">ModAction was successfully submitted.</response>
 	[HttpPost, Authorize(Roles = ApiRoles.CM), ProducesResponseType(202)]
-	public async Task<IActionResult> Submit([FromBody] PostModActionDTO modAction)
+	public async Task<IActionResult> Submit([FromBody] PostModActionDTO modAction,
+		[FromServices] PostService postService)
 	{
+		Post post = postService.GetPost(modAction.PostId);
 		uint modId = uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-		await _service.SubmitModActionAsync(modAction with { ModId = modId });
+
+		if ((post.AuthorId == modId || post.PlayerId == modId) && !User.IsInRole(ApiRoles.Administrator))
+		{
+			return StatusCode(403, $"CMs cannot act on Posts with relation to self. This restriction is lifted for users with {ApiRoles.Administrator} role.");
+		}
+
+		await _service.SubmitPostModActionAsync(modAction with { ModId = modId });
 		return StatusCode(202);
 	}
 

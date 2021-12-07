@@ -45,7 +45,7 @@ public class ModService
 
 	public IQueryable<PlatformBan> GetPlatformBans(uint userId) => _context.PlatformBans.AsNoTracking().Where(b => b.UserId == userId);
 
-	public async Task SubmitModActionAsync(PostModActionDTO modAction)
+	public async Task SubmitPostModActionAsync(PostModActionDTO modAction)
 	{
 		EntityEntry<PostModAction> entityEntry = await _context.PostModActions.AddAsync(modAction.Adapt<PostModAction>());
 

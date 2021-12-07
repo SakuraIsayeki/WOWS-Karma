@@ -86,14 +86,14 @@ public class ModActionController : ControllerBase
 	}
 
 	/// <summary>
-	/// Deletes an existing ModAction.
+	/// Reverts an existing ModAction.
 	/// </summary>
 	/// <remarks>
-	/// Usable only by Community Managers.
+	/// Usable only by Community Managers and Administrators.
 	/// </remarks>
 	/// <param name="id">ID of ModAction to delete.</param>
 	/// <response code="205">ModAction was flagged for deletion.</response>
-	[HttpDelete("{id}"), Authorize(Roles = ApiRoles.CM), ProducesResponseType(205)]
+	[HttpDelete("{id}"), Authorize(Roles = $"{ApiRoles.Administrator},{ApiRoles.CM}"), ProducesResponseType(205)]
 	public async Task<IActionResult> Revert(Guid id)
 	{
 		await _service.RevertModActionAsync(id);

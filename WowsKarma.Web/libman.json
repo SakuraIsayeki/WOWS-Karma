@@ -2,7 +2,6 @@
   "version": "1.0",
   "defaultProvider": "cdnjs",
   "libraries": [
-
     {
       "library": "bootswatch@5.1.3",
       "destination": "wwwroot/lib/bootswatch/",

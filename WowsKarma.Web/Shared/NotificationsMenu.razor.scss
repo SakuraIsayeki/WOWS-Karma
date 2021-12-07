@@ -3,6 +3,11 @@
 	-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
 }
+
+.dropdown-menu-end {
+	right: initial;
+}
+
 .dropdown-menu::-webkit-scrollbar {
 //	display: none; /* Chrome, Safari and Opera */
 }

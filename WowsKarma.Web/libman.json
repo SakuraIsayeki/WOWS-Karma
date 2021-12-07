@@ -8,7 +8,9 @@
       "destination": "wwwroot/lib/bootswatch/",
       "files": [
         "darkly/bootstrap.css",
-        "darkly/bootstrap.min.css"
+        "darkly/bootstrap.min.css",
+        "flatly/bootstrap.css",
+        "flatly/bootstrap.min.css"
       ]
     },
     {

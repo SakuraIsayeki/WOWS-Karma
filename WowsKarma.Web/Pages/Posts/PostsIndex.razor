@@ -49,10 +49,12 @@
 		}
 		else
 		{
-			<div class="row">
+			<div class="row gx-2 gy-3">
 				@foreach (PlayerPostDTO post in Posts)
 				{
-					<Post PlayerPost=post DisplayType=Post.PostDisplayType.Neutral />
+					<div class="col-lg-4 col-md-6">
+						<Post PlayerPost=post DisplayType=Post.PostDisplayType.Neutral />
+					</div>
 				}
 			</div>
 		}

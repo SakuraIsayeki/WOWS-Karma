@@ -22,10 +22,14 @@ else
 
 
 	<div class="my-5">
-		<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=CurrentUser.Id
-			  OnEditClick=EditorModalInit
-			  OnDeleteClick=DeleteModalInit
-		/>
+		<div class="row">
+			<div class="col-lg-4">
+				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=CurrentUser.Id
+					OnEditClick=EditorModalInit
+					OnDeleteClick=DeleteModalInit
+				/>
+			</div>
+		</div>
 	</div>
 
 	@if (post.Replay is not null)

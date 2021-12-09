@@ -138,11 +138,11 @@ public class ReplaysIngestService
 			_processService.ProcessReplay(replayStub, ms, ct);
 		}
 
-		_logger.LogWarning("Finished file reprocessing of each replay. Saving to database...");
+		_logger.LogWarning("Finished file reprocessing of {count} replays. Saving to database...", replays.Count);
 
 		_context.UpdateRange(replays);
 		await _context.SaveChangesAsync(ct);
 
-		_logger.LogWarning("Replay Files Reprocess complete!");
+		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {count} replays total.", replays.Count);
 	}
 }

@@ -23,7 +23,7 @@ public record Replay
 	 */
 
 	[Column(TypeName = "jsonb")]
-	public virtual ReplayArenaInfo ArenaInfo { get; set; }
+	public virtual ArenaInfo ArenaInfo { get; set; }
 
 	[Column(TypeName = "jsonb")]
 	public virtual IEnumerable<ReplayPlayer> Players { get; set; }

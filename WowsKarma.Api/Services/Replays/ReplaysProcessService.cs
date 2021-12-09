@@ -49,7 +49,7 @@ public class ReplaysProcessService
 		{
 			ReplayRaw replayRaw = _replayUnpacker.UnpackReplay(replayStream);
 
-			replay.ArenaInfo = JsonSerializer.Deserialize<ReplayArenaInfo>(replayRaw.ArenaInfoJson, SerializerOptions);
+			replay.ArenaInfo = replayRaw.ArenaInfo;
 			replay.Players = ProcessReplayPlayers(replayRaw.ReplayPlayers);
 			replay.ChatMessages = replayRaw.ChatMessages.Select(m => new ReplayChatMessage()
 			{

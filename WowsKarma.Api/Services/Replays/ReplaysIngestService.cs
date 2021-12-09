@@ -104,4 +104,23 @@ public class ReplaysIngestService
 		_context.Replays.Remove(replay);
 		await _context.SaveChangesAsync();
 	}
+
+
+	public async Task ReprocessAllReplaysAsync(CancellationToken ct)
+	{
+		MemoryStream DownloadBlobToMemory(string blobName, CancellationToken ct)
+		{
+			using MemoryStream ms = new();
+			_containerClient.GetBlobClient(blobName).DownloadTo(ms, ct);
+			return ms;
+
+		}
+
+		ParallelQuery<Replay> replays =
+			from replay in _context.Replays.AsParallel().WithCancellation(ct)
+			let ms = DownloadBlobToMemory(replay.BlobName, ct)
+			select _processService.ProcessReplay(replay, ms, ct);
+
+		await _context.SaveChangesAsync(ct);
+	}
 }

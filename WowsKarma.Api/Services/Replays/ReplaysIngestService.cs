@@ -1,8 +1,11 @@
 ﻿using Azure.Storage.Blobs;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
@@ -18,14 +21,16 @@ public class ReplaysIngestService
 
 	private readonly BlobServiceClient _serviceClient;
 	private readonly BlobContainerClient _containerClient;
+	private readonly ILogger<ReplaysIngestService> _logger;
 	private readonly ApiDbContext _context;
 	private readonly ReplaysProcessService _processService;
 
-	public ReplaysIngestService(IConfiguration configuration, ApiDbContext context, ReplaysProcessService processService)
+	public ReplaysIngestService(ILogger<ReplaysIngestService> logger, IConfiguration configuration, ApiDbContext context, ReplaysProcessService processService)
 	{
 		string connectionString = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:Azure:Storage:ConnectionString"];
 		_serviceClient = new(connectionString);
 		_containerClient = _serviceClient.GetBlobContainerClient(ReplayBlobContainer);
+		_logger = logger;
 		_context = context;
 		_processService = processService;
 	}
@@ -103,5 +108,41 @@ public class ReplaysIngestService
 
 		_context.Replays.Remove(replay);
 		await _context.SaveChangesAsync();
+	}
+
+
+	public async Task ReprocessAllReplaysAsync(CancellationToken ct)
+	{
+		_logger.LogWarning("Starting reprocess of all replays...");
+
+		List<Replay> replays = await _context.Replays.Select(r => new Replay
+		{
+			Id = r.Id,
+			PostId = r.PostId,
+			BlobName = r.BlobName
+		}).ToListAsync(ct);
+
+		_logger.LogWarning("Database readout complete. {count} replays will be reprocessed.", replays.Count);
+
+		foreach (Replay replayStub in replays)
+		{
+			if (ct.IsCancellationRequested)
+			{
+				break;
+			}
+
+			using MemoryStream ms = new();
+			_containerClient.GetBlobClient(replayStub.BlobName).DownloadTo(ms, ct);
+			ms.Position = 0;
+
+			_processService.ProcessReplay(replayStub, ms, ct);
+		}
+
+		_logger.LogWarning("Finished file reprocessing of {count} replays. Saving to database...", replays.Count);
+
+		_context.UpdateRange(replays);
+		await _context.SaveChangesAsync(ct);
+
+		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {count} replays total.", replays.Count);
 	}
 }

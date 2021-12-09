@@ -69,7 +69,7 @@ public class ReplayController : ControllerBase
 		}
 	}
 
-	[HttpPatch("reprocess"), Authorize(ApiRoles.Administrator)]
+	[HttpPatch("reprocess"), Authorize(Roles = ApiRoles.Administrator)]
 	public async Task<IActionResult> ReprocessPostsAsync(CancellationToken ct)
 	{
 		await _ingestService.ReprocessAllReplaysAsync(ct);

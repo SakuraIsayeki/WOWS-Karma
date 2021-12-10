@@ -61,13 +61,13 @@ public class ApiTokenAuthenticationHandler : AuthenticationHandler<Authenticatio
 						Logger.LogInformation("API denied authentication token for Host {host}.", Request.Host.Host);
 						return AuthenticateResult.NoResult();
 					}
+
+					_authCache.NewUserSeedToken(token);
 				}
 
 				ClaimsPrincipal principal = new(new ClaimsIdentity(token.Payload.Claims, AuthenticationScheme));
 
 				Logger.LogInformation("Authenticated user {userId} from Host {host}.", principal.Identity.Name, Request.Host.Host);
-
-				_authCache.NewUserSeedToken(token);
 
 				return AuthenticateResult.Success(new(principal, AuthenticationScheme));
 			}

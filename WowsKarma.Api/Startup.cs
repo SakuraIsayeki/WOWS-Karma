@@ -2,26 +2,20 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Nodsoft.WowsReplaysUnpack;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using Wargaming.WebAPI;
 using Wargaming.WebAPI.Models;
 using Wargaming.WebAPI.Requests;
@@ -254,6 +248,7 @@ namespace WowsKarma.Api
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapDefaultControllerRoute();
+				endpoints.MapHub<AuthHub>("/api/hubs/auth");
 				endpoints.MapHub<PostHub>("/api/hubs/post");
 				endpoints.MapHub<NotificationsHub>("/api/hubs/notifications");
 			});

@@ -9,11 +9,8 @@
 		<ValidationSummary />
 
 		<div class="input-group">
-			<label class="sr-only" for="text">Username</label>
-			<InputText @bind-Value="CurrentSearch.Search" class="form-control" id="Search" placeholder="Username" DisplayName="Search" />
-			<div class="input-group-append">
-				<button type="submit" class="btn btn-primary px-3">Search</button>
-			</div>
+			<InputText id="search-player" class="form-control" @bind-Value="CurrentSearch.Search" DisplayName="Search" placeholder="Username" />
+			<button type="submit" class="btn btn-primary px-3">Search</button>
 		</div>
 	</EditForm>
 </div>
@@ -31,7 +28,7 @@
 			}
 		</ul>
 	}
-	else 
+	else
 	{
 		<h4 class="text-warning">No Results found. Try again.</h4>
 	}
@@ -57,7 +54,7 @@ else if (Searching)
 	{
 		AccountsResults = null;
 		Searching = true;
-		AccountsResults = ((CurrentSearch.Search is null || CurrentSearch.Search.Length > 2)
+		AccountsResults = ((CurrentSearch.Search is null or { Length: > 2 })
 			? await PlayerService.SearchPlayersAsync(CurrentSearch.Search) : null)
 			?? Array.Empty<AccountListingDTO>();
 		Searching = false;

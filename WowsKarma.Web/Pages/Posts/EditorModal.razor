@@ -36,9 +36,9 @@
 								<tr>
 									<td>
 										<div class="btn-group" role="group">
-											<button type="button" class="btn btn-danger @(PostFlairs.Performance is false ? "active" : "")" @onclick="() => { PostFlairs.Performance = false; }">Negative</button>
-											<button type="button" class="btn btn-warning @(PostFlairs.Performance is null ? "active" : "")" @onclick="() => { PostFlairs.Performance = null; }">Neutral</button>
-											<button type="button" class="btn btn-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
+											<button type="button" class="btn btn-outline-danger @(PostFlairs.Performance is false ? "active" : "")" @onclick="() => { PostFlairs.Performance = false; }">Negative</button>
+											<button type="button" class="btn btn-outline-warning @(PostFlairs.Performance is null ? "active" : "")" @onclick="() => { PostFlairs.Performance = null; }">Neutral</button>
+											<button type="button" class="btn btn-outline-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
 										</div>
 									</td>
 									<td class="align-middle"><h5 class="m-0">Performance</h5></td>
@@ -46,9 +46,9 @@
 								<tr>
 									<td>
 										<div class="btn-group" role="group">
-											<button type="button" class="btn btn-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
-											<button type="button" class="btn btn-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
-											<button type="button" class="btn btn-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
+											<button type="button" class="btn btn-outline-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
+											<button type="button" class="btn btn-outline-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
+											<button type="button" class="btn btn-outline-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
 
 										</div>
 									</td>
@@ -58,9 +58,9 @@
 								<tr>
 									<td>
 										<div class="btn-group" role="group">
-											<button type="button" class="btn btn-danger @(PostFlairs.Courtesy is false ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = false; }">Negative</button>
-											<button type="button" class="btn btn-warning @(PostFlairs.Courtesy is null ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = null; }">Neutral</button>
-											<button type="button" class="btn btn-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
+											<button type="button" class="btn btn-outline-danger @(PostFlairs.Courtesy is false ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = false; }">Negative</button>
+											<button type="button" class="btn btn-outline-warning @(PostFlairs.Courtesy is null ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = null; }">Neutral</button>
+											<button type="button" class="btn btn-outline-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
 										</div>
 									</td>
 									<td class="align-middle"><h5 class="m-0">Courtesy</h5></td>
@@ -69,13 +69,9 @@
 						</table>
 					</div>
 
-					<div class="form-group">
-						<h4 class="mb-2">Replay</h4>
-
-						<div class="custom-file">
-							<InputFile OnChange=LoadFiles class="custom-file-input" accept=".wowsreplay"></InputFile>
-							<label class="custom-file-label text-truncate" for="validatedCustomFile">@(currentFile ?? "Choose Replay File...")</label>
-						</div>
+					<div>
+						<h4 class="mb-2">Replay File</h4>
+						<InputFile OnChange=LoadFiles class="form-control" accept=".wowsreplay" placeholer="Choose Replay File..." />
 					</div>
 				</div>
 

@@ -22,10 +22,14 @@ else
 
 
 	<div class="my-5">
-		<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=CurrentUser.Id
-			  OnEditClick=EditorModalInit
-			  OnDeleteClick=DeleteModalInit
-		/>
+		<div class="row">
+			<div class="col-lg-4">
+				<Post Editable PlayerPost=post DisplayType=Post.PostDisplayType.Neutral CurrentUserId=CurrentUser.Id
+					OnEditClick=EditorModalInit
+					OnDeleteClick=DeleteModalInit
+				/>
+			</div>
+		</div>
 	</div>
 
 	@if (post.Replay is not null)
@@ -33,10 +37,15 @@ else
 		<div class="my-5">
 			<h2>
 				Replay
-				<a class="btn btn-primary btn-lg ml-5 px-4" href="@post.Replay.DownloadUri">Download Replay</a>
+				<a class="btn btn-primary btn-lg ms-5 px-4" href="@post.Replay.DownloadUri">Download Replay</a>
 			</h2>
 
 			<div class="row justify-content-between my-3">
+				<div class="col-lg-7 mb-5 order-lg-5">
+					<h4 class="my-3">Teams Roster</h4>
+					<ReplayPlayersRoster Players=@post.Replay.Players />
+				</div>
+
 				<div class="col-lg-5 mb-5">
 					<h4 class="my-3">Chat Messages</h4>
 
@@ -48,11 +57,6 @@ else
 					{
 						<h5 class="text-info">No Chat messages were sent during this battle.</h5>
 					}
-				</div>
-
-				<div class="col-lg-7 mb-5">
-					<h4 class="my-3">Teams Roster</h4>
-					<ReplayPlayersRoster Players=@post.Replay.Players />
 				</div>
 			</div>
 		</div>

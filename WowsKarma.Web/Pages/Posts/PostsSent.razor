@@ -15,12 +15,15 @@
 	}
 	else
 	{
-		<div class="row">
+		<div class="row gx-2 gy-3">
 			@foreach (PlayerPostDTO post in PlayerPosts)
 			{
-				<Post Editable @key=post.Id PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=CurrentUser.Id
-					OnEditClick="() => EditPost(post)"
-					OnDeleteClick="() => InitDeleteModal(post.Id.Value)" />
+				<div class="col-lg-4">
+					<Post Editable @key=post.Id PlayerPost=post DisplayType=Post.PostDisplayType.Sent CurrentUserId=CurrentUser.Id
+						OnEditClick="() => EditPost(post)"
+						OnDeleteClick="() => InitDeleteModal(post.Id.Value)"
+					/>
+				</div>
 			}
 		</div>
 		@if (showEditorModal)

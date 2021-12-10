@@ -4,7 +4,6 @@
 @using static WowsKarma.Common.Models.PostFlairsUtils
 
 @inject PostService PostService
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
 
 
@@ -102,7 +101,6 @@ else
 	private Guid currentDeleteId;
 
 	public record PostCooldownDTO(bool OnCooldown, DateTime EndsAt);
-	private PostCooldownDTO postCooldown;
 
 
 	protected override async Task OnParametersSetAsync()

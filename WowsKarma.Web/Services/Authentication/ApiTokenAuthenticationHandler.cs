@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -11,40 +12,46 @@ using WowsKarma.Common;
 using static WowsKarma.Common.Utilities;
 
 
-namespace WowsKarma.Web.Services.Authentication
+namespace WowsKarma.Web.Services.Authentication;
+
+public class ApiTokenAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
-	public class ApiTokenAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+	public const string AuthenticationScheme = "ApiToken";
+
+	public static string CookieName { get; private set; }
+	public static string CookieDomain { get; private set; }
+
+	private static string loginPath;
+	private static string websitePath;
+
+	private readonly JwtSecurityTokenHandler tokenHandler;
+	private readonly AuthCacheService _authCache;
+	private readonly HttpClient httpClient;
+
+	public ApiTokenAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder,
+		ISystemClock clock, IConfiguration configuration, JwtSecurityTokenHandler tokenHandler, IHttpClientFactory httpClientFactory, AuthCacheService authCache)
+		: base(options, logger, encoder, clock)
 	{
-		public const string AuthenticationScheme = "ApiToken";
+		CookieName ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieName"];
+		CookieDomain ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieDomain"];
 
-		public static string CookieName { get; private set; }
-		public static string CookieDomain { get; private set; }
+		loginPath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:Login"];
+		websitePath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:WebDomain"];
+		this.tokenHandler = tokenHandler;
+		_authCache = authCache;
+		httpClient = httpClientFactory.CreateClient();
+	}
 
-		private static string loginPath;
-		private static string websitePath;
-
-		private readonly JwtSecurityTokenHandler tokenHandler;
-		private readonly HttpClient httpClient;
-
-		public ApiTokenAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder,
-			ISystemClock clock, IConfiguration configuration, JwtSecurityTokenHandler tokenHandler, IHttpClientFactory httpClientFactory)
-			: base(options, logger, encoder, clock)
+	protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
+	{
+		try
 		{
-			CookieName ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieName"];
-			CookieDomain ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:CookieDomain"];
-
-			loginPath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:Login"];
-			websitePath ??= configuration[$"Api:{Utilities.CurrentRegion.ToRegionString()}:WebDomain"];
-			this.tokenHandler = tokenHandler;
-			httpClient = httpClientFactory.CreateClient();
-		}
-
-		protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
-		{
-			try
+			if (Request.Cookies[CookieName] is string jwt && tokenHandler.ReadJwtToken(jwt) is JwtSecurityToken token)
 			{
-				if (Request.Cookies[CookieName] is string jwt && tokenHandler.ReadJwtToken(jwt) is JwtSecurityToken token)
+				if (!_authCache.IsValidToken(token))
 				{
+					Logger.LogDebug("No cache hit. Sending Authentication HTTP Request to API...");
+
 					using HttpRequestMessage request = new(HttpMethod.Head, "auth");
 					request.Headers.Authorization = new("Bearer", Request.Cookies[CookieName]);
 					using HttpResponseMessage response = await httpClient.SendAsync(request);
@@ -54,32 +61,35 @@ namespace WowsKarma.Web.Services.Authentication
 						Logger.LogInformation("API denied authentication token for Host {host}.", Request.Host.Host);
 						return AuthenticateResult.NoResult();
 					}
-
-					ClaimsPrincipal principal = new(new ClaimsIdentity(token.Payload.Claims, AuthenticationScheme));
-
-					Logger.LogInformation("Authenticated user {userId} from Host {host}.", principal.Identity.Name, Request.Host.Host);
-					return AuthenticateResult.Success(new(principal, AuthenticationScheme));
 				}
-			}
-			catch (ArgumentException)
-			{
-				Logger.LogInformation("Invalid token read from Host {host} while attempting to authenticate.", Request.Host.Host);
-				return AuthenticateResult.NoResult();
-			}
-			catch (Exception e)
-			{
-				return AuthenticateResult.Fail(e.Message);
-			}
 
+				ClaimsPrincipal principal = new(new ClaimsIdentity(token.Payload.Claims, AuthenticationScheme));
+
+				Logger.LogInformation("Authenticated user {userId} from Host {host}.", principal.Identity.Name, Request.Host.Host);
+
+				_authCache.NewUserSeedToken(token);
+
+				return AuthenticateResult.Success(new(principal, AuthenticationScheme));
+			}
+		}
+		catch (ArgumentException)
+		{
+			Logger.LogInformation("Invalid token read from Host {host} while attempting to authenticate.", Request.Host.Host);
 			return AuthenticateResult.NoResult();
 		}
-
-		protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+		catch (Exception e)
 		{
-			properties.RedirectUri = $"{loginPath}?redirectUri={websitePath}/{properties.RedirectUri}";
-			Response.Redirect(properties.RedirectUri);
-
-			return Task.CompletedTask;
+			return AuthenticateResult.Fail(e.Message);
 		}
+
+		return AuthenticateResult.NoResult();
+	}
+
+	protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+	{
+		properties.RedirectUri = $"{loginPath}?redirectUri={websitePath}/{properties.RedirectUri}";
+		Response.Redirect(properties.RedirectUri);
+
+		return Task.CompletedTask;
 	}
 }

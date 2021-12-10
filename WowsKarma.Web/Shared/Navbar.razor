@@ -1,22 +1,23 @@
 ﻿@namespace WowsKarma.Web.Shared
 @inject NavigationManager NavigationManager
 
-<nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-3">
-	<div class="container-fluid">
-		<NavLink class="navbar-brand" href="" Match=NavLinkMatch.All>WOWS Karma</NavLink>
-		<span class="badge badge-pill badge-primary">WIP</span> &emsp;
+<nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark box-shadow mb-5 px-3">
+	<div class="container-fluid ps-0">
+		<div class="align-content-center mx-3">
+			<NavLink class="navbar-brand" href="" Match=NavLinkMatch.All>WOWS Karma</NavLink>
+		</div>
 
-		<div class="navbar-collapse @(collapse ? "collapse" : null)">
+		<div id="navbarNavContent" class="navbar-collapse collapse">
 			<ul class="navbar-nav flex-grow-1">
 				<li class="nav-item"><NavLink class="nav-link text-light" href="" Match=NavLinkMatch.All>Home</NavLink></li>
 				<li class="nav-item"><NavLink class="nav-link text-light" href="Player">Players</NavLink></li>
 				<li class="nav-item"><NavLink class="nav-link text-light" href="Posts">Posts</NavLink></li>
 			</ul>
 
-			<ul class="navbar-nav">
+			<ul class="navbar-nav flex-grow 0">
 				<NavLogin CurrentUri=@CurrentUri />
 
-				<li class="nav-item ml-3">
+				<li class="nav-item ml-3 msl-5">
 					<button class="btn btn-link text-light" onclick="setTheme()">
 						<i class="bi bi-moon" id="icon-theme-selector" onload="getThemeSelectorIcon()"></i>
 					</button>
@@ -30,7 +31,7 @@
 			</Authorized>
 		</AuthorizeView>
 
-		<button class="navbar-toggler" @onclick=Toggle>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavContent">
 			<span class="navbar-toggler-icon"></span>
 		</button>
 	</div>
@@ -39,8 +40,4 @@
 @code {
 	[Parameter]
 	public string CurrentUri { get; set; }
-
-	bool collapse = true;
-
-	void Toggle() => collapse = !collapse;
 }

@@ -1,8 +1,10 @@
 ﻿.dropdown-menu {
 	overflow-y: scroll !important;
+
 	-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
 }
+
 .dropdown-menu::-webkit-scrollbar {
-//	display: none; /* Chrome, Safari and Opera */
+	display: none; /* Chrome, Safari and Opera */
 }

@@ -58,6 +58,7 @@ namespace WowsKarma.Web
 					});
 
 					webBuilder.UseStartup<Startup>();
+					webBuilder.UseStaticWebAssets();
 					webBuilder.UseSerilog();
 				});
 	}

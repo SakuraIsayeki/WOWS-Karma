@@ -85,6 +85,7 @@ namespace WowsKarma.Web
 					new[] { "application/octet-stream" });
 			});
 
+			services.AddSingleton<AuthCacheService>();
 			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton<PageContentLoader>();
 

@@ -358,3 +358,8 @@ WowsKarma.Web/wwwroot/js/site.js
 appsettings.Production.json
 
 WowsKarma.Web/wwwroot/assets/mod-guidelines.html
+
+WowsKarma.Web/wwwroot/lib/
+
+WowsKarma.Web/**/*.min.*
+WowsKarma.Web/**/*.razor.css

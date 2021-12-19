@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.FileProviders;
@@ -14,6 +15,8 @@ namespace WowsKarma.Web.Services
 	public class PageContentLoader
 	{
 		public const string WebRootPageAssetsPath = "assets";
+
+		public event EventHandler<string> OnCacheEviction;
 
 		private readonly ILogger<PageContentLoader> logger;
 		private readonly IDistributedCache cache;
@@ -92,6 +95,8 @@ namespace WowsKarma.Web.Services
 			tokens.Remove(filePath);
 			await cache.RemoveAsync(filePath);
 			logger.LogInformation("Evicted file {file} from cache.", filePath);
+
+			OnCacheEviction.Invoke(this, filePath);
 		}
 	}
 }

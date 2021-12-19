@@ -5,13 +5,23 @@
 @code {
 
 
-	[Parameter] public string ContentFilePath { get; set; }
+    [Parameter] public string ContentFilePath { get; set; }
 
-	private MarkupString markup;
+    private MarkupString markup;
 
-	protected override async Task OnInitializedAsync()
-	{
-		markup = (MarkupString)await Loader.LoadContent(ContentFilePath, CancellationToken.None);
-		await base.OnInitializedAsync();
-	}
+    protected override async Task OnInitializedAsync()
+    {
+        markup = (MarkupString)await Loader.LoadContent(ContentFilePath, CancellationToken.None);
+        await base.OnInitializedAsync();
+
+        Loader.OnCacheEviction += OnCacheRefresh;
+    }
+
+    protected void OnCacheRefresh(object _, string refreshed)
+    {
+        if (refreshed == ContentFilePath)
+        {
+            StateHasChanged();
+        }
+    }
 }

@@ -51,7 +51,7 @@ else
 
 					@if (post.Replay.ChatMessages?.Any() is true)
 					{
-						<ReplayChat Messages=@post.Replay.ChatMessages />
+						<ReplayChat Messages=@post.Replay.ChatMessages PostAuthorId="post.AuthorId" PostPlayerId="post.PlayerId"/>
 					}
 					else
 					{

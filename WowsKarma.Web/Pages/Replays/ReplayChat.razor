@@ -1,47 +1,75 @@
 ﻿@using WowsKarma.Common.Models.DTOs.Replays
 @using static WowsKarma.Common.Utilities
 
+<div class="my-3">
+    @if (playerChatted && authorChatted)
+    {
+        <h5 class="text-success">Both players have interacted with chat.</h5>
+    }
+    else if (playerChatted ^ authorChatted)
+    {
+        <h5 class="text-info">Only the @(authorChatted ? "Author" : "Player") has interacted with chat.</h5>
+    }
+    else
+    {
+        <h5 class="text-warning">Neither player has interacted with chat.</h5>
+    }
+</div>
+
 <div class="list-group">
 
-@foreach (ReplayChatMessageDTO msg in Messages)
-{
-	<a class="list-group-item list-group-item-action">
-		<div class="d-flex w-100 justify-content-between">
-			<div>
-				<b class="mb-1"><NavLink href="@($"/player/{msg.PlayerId},{msg.Username}")">@msg.Username</NavLink></b>
+    @foreach (ReplayChatMessageDTO msg in Messages)
+    {
+        <a class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <div>
+                    <b class="mb-1"><NavLink href="@($"/player/{msg.PlayerId},{msg.Username}")">@msg.Username</NavLink></b>
 
-				@if (PostAuthorId == msg.PlayerId)
-				{
-					<span class="text-muted small fst-italic ms-4">(Author)</span>
-				}
-				else if (PostPlayerId == msg.PlayerId)
-				{
-					<span class="text-muted small fst-italic ms-4">(Player)</span>
-				}
-			</div>
+                    @if (PostAuthorId == msg.PlayerId)
+                    {
+                        <span class="text-muted small fst-italic ms-4">(Author)</span>
+                    }
+                    else if (PostPlayerId == msg.PlayerId)
+                    {
+                        <span class="text-muted small fst-italic ms-4">(Player)</span>
+                    }
+                </div>
 
-			@{ ReplayChatMessageChannel channel = GetMessageChannelType(msg.MessageGroup); }
-			<small class="@GetChannelColor(channel)">@channel.GetDisplayString()</small>
-		</div>
+                @{ ReplayChatMessageChannel channel = GetMessageChannelType(msg.MessageGroup); }
+                <small class="@GetChannelColor(channel)">@channel.GetDisplayString()</small>
+            </div>
 
-		<p class="mb-1">@msg.MessageContent</p>
-	</a>
-}
+            <p class="mb-1">@msg.MessageContent</p>
+        </a>
+    }
 
 </div>
 
 @code {
 
-	[Parameter] public IEnumerable<ReplayChatMessageDTO> Messages { get; set; }
+    [Parameter] public IEnumerable<ReplayChatMessageDTO> Messages { get; set; }
 
-	[Parameter] public uint PostAuthorId { get; set; }
-	[Parameter] public uint PostPlayerId { get; set; }
+    [Parameter] public uint PostAuthorId { get; set; }
+    [Parameter] public uint PostPlayerId { get; set; }
 
-	public string GetChannelColor(ReplayChatMessageChannel channel) => channel switch
-	{
-		ReplayChatMessageChannel.All => "text-white",
-		ReplayChatMessageChannel.Division => "text-warning",
-		ReplayChatMessageChannel.Team => "text-success",
-		_ => "text-danger"
-	};
+    [Parameter] public bool ShowPlayersRelation { get; set; }
+
+    private bool authorChatted;
+    private bool playerChatted;
+
+    public string GetChannelColor(ReplayChatMessageChannel channel) => channel switch
+    {
+        ReplayChatMessageChannel.All => "text-white",
+        ReplayChatMessageChannel.Division => "text-warning",
+        ReplayChatMessageChannel.Team => "text-success",
+        _ => "text-danger"
+    };
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        authorChatted = Messages.Any(m => m.PlayerId == PostAuthorId);
+        playerChatted = Messages.Any(m => m.PlayerId == PostPlayerId);
+    }
 }

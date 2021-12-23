@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.FileProviders;
@@ -14,6 +15,8 @@ namespace WowsKarma.Web.Services
 	public class PageContentLoader
 	{
 		public const string WebRootPageAssetsPath = "assets";
+
+		public event EventHandler<string> OnCacheEviction;
 
 		private readonly ILogger<PageContentLoader> logger;
 		private readonly IDistributedCache cache;
@@ -30,8 +33,14 @@ namespace WowsKarma.Web.Services
 
 		public async Task<string> LoadContent(string fileName, CancellationToken cancellationToken)
 		{
-			string filePath = fileProvider.GetFileInfo(fileName).PhysicalPath;
 			string fileContent;
+
+			if (fileProvider.GetFileInfo(fileName)?.PhysicalPath is not string filePath)
+			{
+				logger.LogWarning("No HTML content file exists with path or name {fileName}. Be sure to create one at this location.", fileName);
+				return null;
+			}
+
 
 			// Try to obtain the file contents from the cache.
 			if ((fileContent = await cache.GetStringAsync(filePath, cancellationToken)) is not null)
@@ -57,7 +66,7 @@ namespace WowsKarma.Web.Services
 				return fileContent;
 			}
 
-			return string.Empty;
+			return null;
 		}
 
 		private static async Task<string> GetContentFromFileAsync(string filePath)
@@ -92,6 +101,8 @@ namespace WowsKarma.Web.Services
 			tokens.Remove(filePath);
 			await cache.RemoveAsync(filePath);
 			logger.LogInformation("Evicted file {file} from cache.", filePath);
+
+			OnCacheEviction.Invoke(this, filePath);
 		}
 	}
 }

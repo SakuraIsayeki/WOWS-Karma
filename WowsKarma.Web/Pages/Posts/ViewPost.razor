@@ -43,21 +43,21 @@ else
 			<div class="row justify-content-between my-3">
 				<div class="col-lg-7 mb-5 order-lg-5">
 					<h4 class="my-3">Teams Roster</h4>
-					<ReplayPlayersRoster Players=@post.Replay.Players />
+					<ReplayPlayersRoster ShowPlayersRelation Players=post.Replay.Players PostAuthorId=post.AuthorId PostPlayerId=post.PlayerId />
 				</div>
 
-				<div class="col-lg-5 mb-5">
-					<h4 class="my-3">Chat Messages</h4>
+                <div class="col-lg-5 mb-5">
+                    <h4 class="my-3">Chat Messages</h4>
 
-					@if (post.Replay.ChatMessages?.Any() is true)
-					{
-						<ReplayChat Messages=@post.Replay.ChatMessages />
-					}
-					else
-					{
-						<h5 class="text-info">No Chat messages were sent during this battle.</h5>
-					}
-				</div>
+                    @if (post.Replay.ChatMessages?.Any() is true)
+                    {
+                        <ReplayChat ShowPlayersRelation Messages=post.Replay.ChatMessages PostAuthorId=post.AuthorId PostPlayerId=post.PlayerId />
+                    }
+                    else
+                    {
+                        <h5 class="text-info">No Chat messages were sent during this battle.</h5>
+                    }
+                </div>
 			</div>
 		</div>
 	}
@@ -80,7 +80,7 @@ else
 						</AuthorizeView>
 
 						<tr><th>Removed by</th><td>@lastModAction?.ModUsername</td></tr>
-						<tr><th>Reason</th><td>@lastModAction?.Reason</td></tr>
+						<tr><th>Reason</th><td style="white-space: pre-wrap;">@lastModAction?.Reason</td></tr>
 					</tbody>
 				</table>
 			</div>

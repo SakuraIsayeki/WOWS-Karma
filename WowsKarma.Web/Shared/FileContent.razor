@@ -11,7 +11,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        markup = (MarkupString)await Loader.LoadContent(ContentFilePath, CancellationToken.None);
+        markup = (MarkupString)(await Loader?.LoadContent(ContentFilePath, CancellationToken.None) ?? String.Empty);
         await base.OnInitializedAsync();
 
         Loader.OnCacheEviction += OnCacheRefresh;

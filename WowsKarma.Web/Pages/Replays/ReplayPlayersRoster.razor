@@ -18,9 +18,20 @@
 			@for (byte j = 0; j < Teams.Count(); j++)
 			{
 				ReplayPlayerDTO player = Teams[j][i];
-
+				bool isAuthor = PostAuthorId == player.AccountId;
+				bool isPlayer = PostPlayerId == player.AccountId;
+				
 				<td class="px-3 py-3">
 					<NavLink href="@($"/player/{player.AccountId},{player.Name}")">@player.Name</NavLink>
+
+					@if (isAuthor)
+					{
+						<span class="text-muted small fst-italic ms-4">(Author)</span>
+					}
+					else if (isPlayer)
+					{
+						<span class="text-muted small fst-italic ms-4">(Player)</span>
+					}
 				</td>
 			}
 		</tr>
@@ -30,8 +41,10 @@
 
 
 @code {
-	[Parameter]
-	public IEnumerable<ReplayPlayerDTO> Players { get; set; }
+	[Parameter] public IEnumerable<ReplayPlayerDTO> Players { get; set; }
+
+	[Parameter] public uint PostAuthorId { get; set; }
+	[Parameter] public uint PostPlayerId { get; set; }
 
 	public ReplayPlayerDTO[][] Teams { get; private set; }
 
@@ -41,7 +54,7 @@
 		base.OnParametersSet();
 
 		Teams = (from p in Players
-				group p by p.TeamId into team
-				select team.ToArray()).ToArray();
+				 group p by p.TeamId into team
+				 select team.ToArray()).ToArray();
 	}
 }

@@ -34,12 +34,25 @@ namespace WowsKarma.Web.Services
 		public async Task<string> LoadContent(string fileName, CancellationToken cancellationToken)
 		{
 			string fileContent;
+			string filePath;
 
-			if (fileProvider.GetFileInfo(fileName)?.PhysicalPath is not string filePath)
+			try
 			{
-				logger.LogWarning("No HTML content file exists with path or name {fileName}. Be sure to create one at this location.", fileName);
+				filePath = fileProvider.GetFileInfo(fileName)?.PhysicalPath;
+
+				if (filePath is null)
+				{
+					logger.LogWarning("No HTML content file exists with path or name {fileName}. Be sure to create one at this location.", fileName);
+					return null;
+				}
+			}
+			catch (Exception e)
+			{
+				logger.LogWarning(e, "No HTML content file exists with path or name {fileName}. Be sure to create one at this location.", fileName);
 				return null;
 			}
+
+
 
 
 			// Try to obtain the file contents from the cache.

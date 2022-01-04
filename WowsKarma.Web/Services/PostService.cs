@@ -50,9 +50,18 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
-		public async Task<IEnumerable<PlayerPostDTO>> FetchLatestPostsAsync(int count)
+		public async Task<IEnumerable<PlayerPostDTO>> FetchLatestPostsAsync(int count, bool? hasReplay = null, bool hideModActions = false)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{EndpointCategory}/latest?count={count}");
+			string query = $"{EndpointCategory}/latest?count={count}";
+			
+			if (hasReplay.HasValue)
+			{
+				query += $"&hasReplay={hasReplay.Value}";
+			}
+
+			query += $"&hideModActions={hideModActions}";
+
+			using HttpRequestMessage request = new(HttpMethod.Get, query);
 			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			response.EnsureSuccessStatusCode();

@@ -32,6 +32,7 @@ public record Player : ITimestamped
 
 	public virtual List<Post> PostsReceived { get; init; }
 	public virtual List<Post> PostsSent { get; init; }
+	public virtual List<PostReaction> PostReactions { get; init; }
 
 	public virtual List<PlatformBan> PlatformBans { get; init; }
 

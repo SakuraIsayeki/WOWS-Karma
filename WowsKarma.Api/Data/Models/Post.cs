@@ -15,11 +15,11 @@ namespace WowsKarma.Api.Data.Models
 		[Required]
 		public uint PlayerId { get; init; }
 		[Required]
-		public Player Player { get; init; }
+		public virtual Player Player { get; init; }
 		[Required]
 		public uint AuthorId { get; init; }
 		[Required]
-		public Player Author { get; init; }
+		public virtual Player Author { get; init; }
 
 		public PostFlairs Flairs { get; set; }
 		public PostFlairsParsed ParsedFlairs => Flairs.ParseFlairsEnum();
@@ -31,6 +31,8 @@ namespace WowsKarma.Api.Data.Models
 
 		public Guid? ReplayId { get; set; }
 		public virtual Replay Replay { get; set; }
+
+		public virtual List<PostReaction> Reactions { get; set; }
 
 		// Computed by DB Engine (hopefully)
 		public DateTime CreatedAt { get; init; }

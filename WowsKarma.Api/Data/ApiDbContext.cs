@@ -16,6 +16,7 @@ public class ApiDbContext : DbContext
 	public DbSet<Player> Players { get; set; }
 	public DbSet<Post> Posts { get; set; }
 	public DbSet<PostModAction> PostModActions { get; set; }
+	public DbSet<PostReaction> PostReactions { get; set; }
 	public DbSet<Replay> Replays { get; set; }
 
 
@@ -88,7 +89,7 @@ public class ApiDbContext : DbContext
 			.IsRequired(false)
 			.OnDelete(DeleteBehavior.Restrict);
 
-		#endregion
+		#endregion // Players
 
 		#region Posts
 
@@ -114,6 +115,13 @@ public class ApiDbContext : DbContext
 			.WithMany()
 			.HasForeignKey(pma => pma.PostId);
 
-		#endregion
+		#endregion // PostModActions
+
+		#region PostReactions
+
+		modelBuilder.Entity<PostReaction>()
+			.HasKey(r => new { r.PostId, r.PlayerId });
+
+		#endregion // PostReactions
 	}
 }

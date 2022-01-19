@@ -1,40 +1,79 @@
 ﻿@inherits ComponentBaseAuth
 @implements IAsyncDisposable
 
-
 @page "/posts"
 
 @inject PostService PostService
 @inject IConfiguration Configuration
 
+<h1 class="mb-3">Latest Posts</h1>
 
-<div class="row justify-content-between mb-5">
-	<div class="col-auto">
-		<h1>Latest Posts</h1>
-	</div>
+<div class="row d-flex justify-content-between">
+    <div class="col flex-md-grow-1">
+        <h4>Search Filters</h4>
 
-	<div class="col-auto">
-		<div>
-			<h3>Updates :</h3>
+        <EditForm EditContext=FilterContext Context="PostFilters">
+
+
+            <div id="post-filters" class="row mb-sm-5 mb-mb-3">
+                <div class="col col-lg-4">
+                    <h5>Has Replay</h5>
+
+                    <InputSelect class="form-select" @bind-Value=Filters.HasReplayString>
+                        <option value="null" selected></option>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </InputSelect>
+                </div>
+
+                <AuthorizeView Roles=@ApiRoles.CM>
+                    <Authorized>
+                        <div class="col">
+                            <div>
+                                <p class="lead">Exclude Mod-Actions</p>
+                                <InputCheckbox class="form-check-input me-3" @bind-Value=Filters.HideModActions style="height:1.25rem;width:1.25rem;" />
+                            </div>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+        </EditForm>
+    </div>
+
+	<div class="col-md-auto align-content-end mb-sm-5 mb-md-3">
+		<h3 class="mb-3">
+			<span class="me-4">Updates :</span>
 
 			@if (IsConnected)
 			{
-				<p class="lead text-success">Real-Time</p>
+				<span class="lead text-success">Real-Time</span>
 			}
 			else
 			{
-				<p class="lead text-info">Press F5 to update</p>
+				<span class="lead text-info">Press F5 to update</span>
+			}
+		</h3>
+
+		<div class="btn-group mr-2" role="group" aria-label="Select count">
+			<button @onclick=@(async () => { Filters.Count = 10; await RefreshListAsync(); }) type="button" class="btn btn-secondary">10</button>
+			<button @onclick=@(async () => { Filters.Count = 25; await RefreshListAsync(); }) type="button" class="btn btn-secondary">25</button>
+			<button @onclick=@(async () => { Filters.Count = 50; await RefreshListAsync(); }) type="button" class="btn btn-secondary">50</button>
+			<button @onclick=@(async () => { Filters.Count = 100; await RefreshListAsync(); }) type="button" class="btn btn-secondary">100</button>
+
+			@if (CurrentUser is not null)
+			{
+				<button @onclick=@(async () => { Filters.Count = 500; await RefreshListAsync(); }) type="button" class="btn btn-secondary">500</button>
 			}
 		</div>
 
-		<div class="btn-group mr-2" role="group" aria-label="Select count">
-			<button @onclick=@(() => RefreshListAsync(10)) type="button" class="btn btn-secondary">10</button>
-			<button @onclick=@(() => RefreshListAsync(25)) type="button" class="btn btn-secondary">25</button>
-			<button @onclick=@(() => RefreshListAsync(50)) type="button" class="btn btn-secondary">50</button>
-			<button @onclick=@(() => RefreshListAsync(100)) type="button" class="btn btn-secondary">100</button>
-		</div>
+		@if (Loaded)
+		{
+			<h5 class="my-2 text-info">Loaded @Posts.Count posts.</h5>
+		}
 	</div>
 </div>
+
+<hr class="my-sm-5 mt-md-3" />
 
 <div>
 	@if (Posts is null)
@@ -66,6 +105,9 @@
 @code {
 	public LinkedList<PlayerPostDTO> Posts { get; set; }
 
+	public EditContext FilterContext { get; set; }
+	public PostsFilterViewModel Filters { get; set; } = new();
+
 	public bool Loaded { get; private set; }
 
 	private HubConnection hubConnection;
@@ -74,6 +116,19 @@
 	{
 		Loaded = false;
 		await base.OnParametersSetAsync();
+
+		FilterContext = new(Filters);
+		FilterContext.OnFieldChanged += (_, ctx) =>
+		{
+			FilterContext.Validate();
+		};
+
+		FilterContext.OnValidationRequested += async (_, ctx) =>
+		{
+			await RefreshListAsync();
+		};
+
+
 		Posts = new(await PostService.FetchLatestPostsAsync(10));
 		Loaded = true;
 
@@ -89,11 +144,20 @@
 		await hubConnection.StartAsync();
 	}
 
-	public async Task RefreshListAsync(int count)
+	public async Task RefreshListAsync()
 	{
+		bool? hasReplay = Filters.HasReplayString switch
+		{
+			"true" => true,
+			"false" => false,
+			_ => null
+		};
+
 		Loaded = false;
-		Posts = new(await PostService.FetchLatestPostsAsync(count));
+		Posts = new(await PostService.FetchLatestPostsAsync(Filters.Count, hasReplay, Filters.HideModActions));
 		Loaded = true;
+
+		StateHasChanged();
 	}
 
 	public bool IsConnected => hubConnection?.State is HubConnectionState.Connected;
@@ -135,5 +199,14 @@
 				StateHasChanged();
 			}
 		});
+	}
+
+	public record PostsFilterViewModel
+	{
+		public int Count { get; set; } = 10;
+
+		public string HasReplayString { get; set; } = null;
+
+		public bool HideModActions { get; set; } = false;
 	}
 }

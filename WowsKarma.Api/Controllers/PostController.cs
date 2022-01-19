@@ -106,9 +106,11 @@ namespace WowsKarma.Api.Controllers
 		/// Fetches latest posts.
 		/// </summary>
 		/// <param name="count">Return maximum of results.</param>
+		/// <param name="hasReplay">Filters returned posts by Replay attachment.</param>
+		/// <param name="hideModActions">Hides posts containing Mod Actions (visible only to CMs).</param>
 		/// <response code="200">List of latest posts, sorted by Submission time.</response>
 		[HttpGet("latest"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200)]
-		public IActionResult GetLatestPosts([FromQuery] int count = 10)
+		public IActionResult GetLatestPosts([FromQuery] int count = 10, bool? hasReplay = null, bool hideModActions = false)
 		{
 			AccountListingDTO currentUser = User.ToAccountListing();
 
@@ -117,6 +119,17 @@ namespace WowsKarma.Api.Controllers
 			if (!User.IsInRole(ApiRoles.CM))
 			{
 				posts = posts.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id);
+			}
+			else if (hideModActions)
+			{
+				posts = posts.Where(p => !p.ModLocked);
+			}
+
+			if (hasReplay.HasValue)
+			{
+				posts = hasReplay.Value
+					? posts.Where(p => p.Replay != null)
+					: posts.Where(p => p.Replay == null);
 			}
 
 			return base.StatusCode(200, posts.Take(count).Adapt<List<PlayerPostDTO>>());

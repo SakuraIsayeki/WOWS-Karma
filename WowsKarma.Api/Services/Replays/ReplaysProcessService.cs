@@ -49,7 +49,7 @@ public class ReplaysProcessService
 		{
 			ReplayRaw replayRaw = _replayUnpacker.UnpackReplay(replayStream);
 
-			replay.ArenaInfo = replayRaw.ArenaInfo;
+			replay.ArenaInfo = replayRaw.ReplayMetadata.ArenaInfo;
 			replay.Players = ProcessReplayPlayers(replayRaw.ReplayPlayers);
 			replay.ChatMessages = replayRaw.ChatMessages.Select(m => new ReplayChatMessage()
 			{

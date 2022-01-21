@@ -51,11 +51,6 @@ namespace WowsKarma.Api.Controllers
 		[HttpGet("{userId}/received"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(404)]
 		public async Task<IActionResult> GetReceivedPosts(uint userId, [FromQuery] int? lastResults)
 		{
-			if (await playerService.GetPlayerAsync(userId) is null)
-			{
-				return StatusCode(404, $"Account {userId} not found");
-			}
-
 			IEnumerable<Post> posts = postService.GetReceivedPosts(userId);
 
 			if (!User.IsInRole(ApiRoles.CM))
@@ -80,13 +75,8 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="204">No posts sent by given player.</response>
 		/// <response code="404">No player found for given Account ID.</response>
 		[HttpGet("{userId}/sent"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(typeof(string), 404)]
-		public async Task<IActionResult> GetSentPosts(uint userId, [FromQuery] int? lastResults)
+		public IActionResult GetSentPosts(uint userId, [FromQuery] int? lastResults)
 		{
-			if (await playerService.GetPlayerAsync(userId) is null)
-			{
-				return StatusCode(404, $"Account {userId} not found");
-			}
-
 			IEnumerable<Post> posts = postService.GetSentPosts(userId);
 
 			if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))

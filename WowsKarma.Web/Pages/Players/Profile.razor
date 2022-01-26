@@ -99,10 +99,11 @@
 
 		<div class="col">
 			<nav class="nav nav-pills nav-justified">
-				@if (!Player.OptedOut)
+				@if (!Player.OptedOut || Player.Id == CurrentUser.Id || (ClaimsPrincipal?.IsInRole(ApiRoles.CM) ?? false))
 				{
 					<a class="nav-item nav-link @(ReceivedOrSent ? "" : "active")" @onclick=@(() => ReceivedOrSent = false)>Received</a>
 				}
+
 				<a class="nav-item nav-link @(ReceivedOrSent ? "active" : "")" @onclick=@(() => ReceivedOrSent = true)>Sent</a>
 			</nav>
 		</div>

@@ -88,6 +88,7 @@ namespace WowsKarma.Api.Controllers
 		/// Can only be called by Site Administrators.
 		/// </remarks>
 		/// <param name="playerId">Account ID of player profile</param>
+		/// <param name="cancellationToken"></param>
 		/// <response code="205">Profile Karma recalculation was processed.</response>
 		[HttpPost("Recalculate"), Authorize(Roles = ApiRoles.Administrator), ProducesResponseType(205), ProducesResponseType(401), ProducesResponseType(403)]
 		public async Task<IActionResult> RecalculateMetrics([FromQuery] uint playerId, CancellationToken cancellationToken)

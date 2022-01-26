@@ -69,7 +69,7 @@ namespace WowsKarma.Api.Services
 					return player;
 				}
 			}
-			catch (ApplicationException)
+			catch (Exception)
 			{
 				return null;
 			}

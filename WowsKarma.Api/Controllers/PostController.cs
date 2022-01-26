@@ -49,13 +49,18 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="204">No posts received for given player.</response>
 		/// <response code="404">No player found for given Account ID.</response>
 		[HttpGet("{userId}/received"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(404)]
-		public async Task<IActionResult> GetReceivedPosts(uint userId, [FromQuery] int? lastResults)
+		public IActionResult GetReceivedPosts(uint userId, [FromQuery] int? lastResults)
 		{
 			IEnumerable<Post> posts = postService.GetReceivedPosts(userId);
 
-			if (!User.IsInRole(ApiRoles.CM))
+			if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 			{
 				posts = posts?.Where(p => !p.ModLocked || p.AuthorId == User.ToAccountListing().Id);
+			}
+
+			if (lastResults is not null and > 0)
+			{
+				posts.Take((int)lastResults);
 			}
 
 			if (posts?.Count() is null or 0)
@@ -82,6 +87,11 @@ namespace WowsKarma.Api.Controllers
 			if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 			{
 				posts = posts?.Where(p => !p.ModLocked);
+			}
+
+			if (lastResults is not null and > 0)
+			{
+				posts.Take((int)lastResults);
 			}
 
 			if (posts?.Count() is null or 0)

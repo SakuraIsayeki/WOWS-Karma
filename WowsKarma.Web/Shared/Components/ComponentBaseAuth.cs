@@ -24,6 +24,7 @@ namespace WowsKarma.Web.Shared.Components
 			await base.OnInitializedAsync();
 
 			AuthenticationState authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+			ClaimsPrincipal = authenticationState.User;
 			CurrentUser = authenticationState.User.ToAccountListing();
 			CurrentToken = HttpContextAccessor?.HttpContext?.Request?.Cookies[ApiTokenAuthenticationHandler.CookieName];
 		}

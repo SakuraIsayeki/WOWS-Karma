@@ -1,4 +1,5 @@
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -6,10 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Data.Models.Notifications;
+using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
@@ -81,8 +84,12 @@ namespace WowsKarma.Api.Services
 			.Include(p => p.Player)
 			.OrderByDescending(p => p.CreatedAt);
 
-		public async Task<Post> CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
+		public async Task<Post> CreatePostAsync(PlayerPostDTO postDTO, IFormFile replayFile, bool bypassChecks)
 		{
+			bool hasReplay = replayFile is not null;
+
+			Task<Replay> replayIngestTask = hasReplay ? _replayService.IngestReplayAsync(replayFile, CancellationToken.None) : null;
+
 			try
 			{
 				ValidatePostContents(postDTO);
@@ -114,6 +121,14 @@ namespace WowsKarma.Api.Services
 			EntityEntry<Post> entry = context.Posts.Add(post);
 			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
 			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
+
+			if (hasReplay)
+			{
+				Replay replay = await replayIngestTask;
+
+				entry.Entity.ReplayId = replay.Id;
+				entry.Entity.Replay = replay; 
+			}
 
 			await context.SaveChangesAsync();
 

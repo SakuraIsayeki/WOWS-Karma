@@ -1,19 +1,17 @@
 ﻿using AngleSharp.Text;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.AspNetCore.Components.Forms;
 using Wargaming.WebAPI.Models;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
+using WowsKarma.Web.Services;
 using WowsKarma.Web.Services.Authentication;
 
 namespace WowsKarma.Web
@@ -97,5 +95,19 @@ namespace WowsKarma.Web
 
 		internal static AuthenticationHeaderValue GenerateAuthenticationHeader(this HttpContext context) 
 			=> new("Bearer", context.Request.Cookies[ApiTokenAuthenticationHandler.CookieName]);
+
+		public static StreamContent AddReplayFile(this MultipartFormDataContent form, IBrowserFile replayFile, CancellationToken ct = default)
+		{
+			StreamContent fileContent = new(replayFile.OpenReadStream(ReplayService.MaxReplayFileSize, ct));
+			fileContent.Headers.ContentDisposition = new("form-data")
+			{
+				Name = "replay",
+				FileName = replayFile.Name
+			};
+			
+			form.Add(fileContent, "replay", replayFile.Name);
+
+			return fileContent; // This is a TERRIBLE hack. But at least it ensures no GC action before the replay is properly used.
+		}
 	}
 }

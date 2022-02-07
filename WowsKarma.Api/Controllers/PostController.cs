@@ -5,11 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Nodsoft.WowsReplaysUnpack.Infrastructure.Exceptions;
 using WowsKarma.Api.Data.Models;
+using WowsKarma.Api.Infrastructure;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs;
+using InvalidReplayException = WowsKarma.Api.Infrastructure.Exceptions.InvalidReplayException;
+
+
 
 namespace WowsKarma.Api.Controllers
 {
@@ -32,7 +40,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="200">Returns <see cref="PlayerPostDTO"/> object of Post with specified ID</response>
 		/// <response code="404">No post was found with given ID.</response>
 		/// <response code="410">Post is locked by Community Managers.</response>
-		[HttpGet("{postId}"), ProducesResponseType(typeof(PlayerPostDTO), 200), ProducesResponseType(404), ProducesResponseType(410)]
+		[HttpGet("{postId:guid}"), ProducesResponseType(typeof(PlayerPostDTO), 200), ProducesResponseType(404), ProducesResponseType(410)]
 		public async Task<IActionResult> GetPostAsync(Guid postId)
 			=> await postService.GetPostDTOAsync(postId) is PlayerPostDTO post
 				? !post.ModLocked || post.AuthorId == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
@@ -139,14 +147,31 @@ namespace WowsKarma.Api.Controllers
 		/// Submits a new post for creation.
 		/// </summary>
 		/// <param name="post">Post object to submit</param>
-		/// <param name="ignoreChecks">Bypass API Validation for post creation (Admin only).</param>
+		/// <param name="replay">Optional replay file to attach to post</param>
+		/// <param name="ignoreChecks">Bypass API Validation for post creation (Admin only)</param>
 		/// <response code="201">Post was successfuly created.</response>
 		/// <response code="400">Post contents validation has failed.</response>
+		/// <response code="422">Attached replay is invalid.</response>
 		/// <response code="403">Restrictions are in effect for one of the targeted accounts.</response>
 		/// <response code="404">One of the targeted accounts was not found.</response>
-		[HttpPost, Authorize, ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
-		public async Task<IActionResult> CreatePost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
+		[HttpPost, Authorize]
+		[ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(422), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
+		public async Task<IActionResult> CreatePost(
+			[FromForm] string postDto, 
+			[FromForm] IFormFile replay = null, 
+			[FromQuery] bool ignoreChecks = false)
 		{
+            PlayerPostDTO post;
+			
+            try
+			{
+				post = JsonSerializer.Deserialize<PlayerPostDTO>(postDto);
+			}
+			catch (Exception e)
+			{
+				return BadRequest(e);
+			}
+			
 			if (await playerService.GetPlayerAsync(post.AuthorId) is not Player author)
 			{
 				return StatusCode(404, $"Account {post.AuthorId} not found.");
@@ -188,8 +213,12 @@ namespace WowsKarma.Api.Controllers
 
 			try
 			{
-				Post created = await postService.CreatePostAsync(post, ignoreChecks);
+				Post created = await postService.CreatePostAsync(post, replay, ignoreChecks);
 				return StatusCode(201, created.Id);
+			}
+			catch (InvalidReplayException e)
+			{
+				return UnprocessableEntity(e);
 			}
 			catch (ArgumentException e)
 			{
@@ -252,7 +281,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="205">Post was successfuly deleted.</response>
 		/// <response code="403">Restrictions are in effect for the existing post.</response>
 		/// <response code="404">Targeted post was not found.</response>
-		[HttpDelete("{postId}"), Authorize, ProducesResponseType(205), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
+		[HttpDelete("{postId:guid}"), Authorize, ProducesResponseType(205), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> DeletePost(Guid postId, [FromQuery] bool ignoreChecks = false)
 		{
 			if (postService.GetPost(postId) is not Post post)

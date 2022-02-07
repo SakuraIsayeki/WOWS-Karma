@@ -131,18 +131,13 @@
 
 		if (PostModel.Id is null)
 		{
-			PostModel.Id = await PostService.SubmitNewPostAsync(PlayerPostViewModel.ToDTO(PostModel));
+			PostModel.Id = await PostService.SubmitNewPostAsync(PlayerPostViewModel.ToDTO(PostModel), PostModel.ReplayFile);
 		}
 		else
 		{
 			await PostService.EditPostAsync(PlayerPostViewModel.ToDTO(PostModel));
 		}
-
-		if (PostModel.ReplayFile is not null)
-		{
-			await ReplayService.SubmitNewReplayAsync(PostModel.Id.Value, PostModel.ReplayFile, CancellationToken.None);
-		}
-
+		
 		await OnPostSubmited.InvokeAsync(null);
 	}
 

@@ -3,14 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using WowsKarma.Api.Data;
-using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Hubs;
@@ -18,9 +12,8 @@ using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common.Hubs;
-using WowsKarma.Common.Models;
-using WowsKarma.Common.Models.DTOs;
-using WowsKarma.Common.Models.DTOs.Notifications;
+
+
 
 namespace WowsKarma.Api.Services
 {
@@ -132,7 +125,9 @@ namespace WowsKarma.Api.Services
 
 			await context.SaveChangesAsync();
 
-			_ = webhookService.SendNewPostWebhookAsync(post, author, player);
+			_ = webhookService.SendNewPostWebhookAsync(post, author, player, entry.Entity.Replay is not null 
+				? await _replayService.GetReplayDTOAsync(entry.Entity.ReplayId ?? throw new InvalidOperationException($"No replay ID found for post {entry.Entity.Id}."))
+				: null);
 
 			_ = _postsHub.Clients.All.NewPost(post.Adapt<PlayerPostDTO>() with
 			{

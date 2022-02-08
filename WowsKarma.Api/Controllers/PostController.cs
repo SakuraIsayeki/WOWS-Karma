@@ -1,20 +1,11 @@
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Nodsoft.WowsReplaysUnpack.Infrastructure.Exceptions;
-using WowsKarma.Api.Data.Models;
-using WowsKarma.Api.Infrastructure;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
-using WowsKarma.Common.Models.DTOs;
 using InvalidReplayException = WowsKarma.Api.Infrastructure.Exceptions.InvalidReplayException;
 
 

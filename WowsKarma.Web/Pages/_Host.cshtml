@@ -33,20 +33,39 @@
 <body>
 	<component type="typeof(App)" render-mode="ServerPrerendered" />
 
-	<div id="blazor-error-ui">
-		<environment include="Staging,Production">
-			An error has occurred. This application may no longer respond until reloaded.
-		</environment>
-
-		<environment include="Development">
-			An unhandled exception has occurred. See browser dev tools for details.
-		</environment>
-
-		<a href="" class="reload">Reload</a>
-		<a class="dismiss">🗙</a>
+<div id="blazor-error-ui" style="display: none;">
+	<div class="modal fade show" style="display: inherit;">
+		<div class="modal-dialog modal-md modal-dialog-centered">
+			<div class="modal-content text-danger">
+				<div class="modal-header">
+					<h5 class="modal-title">
+						<environment include="Staging,Production">
+							A critical error has occurred.
+						</environment>
+    
+						<environment include="Development">
+							An unhandled exception has occurred.
+						</environment>
+					</h5>
+				</div>
+    
+				<div class="modal-body">
+					<environment include="Staging,Production">
+						This application may no longer respond until reloaded.
+					</environment>
+    
+					<environment include="Development">
+						See browser dev tools for details.
+					</environment>
+				</div>
+			</div>
+		</div>
 	</div>
+	
+	<div class="modal-backdrop" style="display: inherit"></div>
+</div>
 
-	<script src="_framework/blazor.server.js"></script>
+<script src="_framework/blazor.server.js"></script>
 	<script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 	<script>navigator.serviceWorker.register('service-worker.js');</script>
 	<script src="js/site.js"></script>

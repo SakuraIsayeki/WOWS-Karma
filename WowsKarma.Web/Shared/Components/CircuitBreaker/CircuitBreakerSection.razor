@@ -1,0 +1,18 @@
+﻿@inherits ErrorBoundary
+
+@if (CurrentException is null)
+{
+    @ChildContent
+}
+else if (ErrorContent is not null)
+{
+    @ErrorContent(CurrentException)
+}
+else
+{
+    <div class="text-danger">An error occured.</div>
+}
+
+@code {
+    public Exception Exception => CurrentException;
+}

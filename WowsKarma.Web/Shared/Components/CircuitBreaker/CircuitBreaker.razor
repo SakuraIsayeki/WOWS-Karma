@@ -1,0 +1,25 @@
+﻿@using Microsoft.Extensions.Logging
+@inject ILogger<CircuitBreaker> Logger
+@inject IHttpContextAccessor HttpContextAccessor
+
+<CascadingValue Value="this">
+	@ChildContent
+
+	@if (CurrentException is not null)
+	{
+		
+	}
+</CascadingValue>
+
+@code {
+	[Parameter]
+	public RenderFragment? ChildContent { get; set; }
+
+	public Exception CurrentException { get; protected set; }
+	
+	public void ProcessError(Exception e)
+	{
+		Logger.LogError(e, "Exception caught by the CircuitBreaker");
+		CurrentException = e;
+	}
+}

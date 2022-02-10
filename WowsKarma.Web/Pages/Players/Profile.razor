@@ -111,11 +111,27 @@
 
 	@if (!ReceivedOrSent)
 	{
-		<PostsReceived AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync AuthorProfileFlags=CurrentUserProfileFlags />
+		<CircuitBreakerSection @ref="_receivedPostsOuterBreaker" DisplayTripped>
+			<ChildContent>
+				<PostsReceived AccountId=Player.Id OnPostsUpdate=UpdatePlayerAsync AuthorProfileFlags=CurrentUserProfileFlags />
+			</ChildContent>
+			
+			<ErrorContent>
+				<h4 class="text-danger">An error occured while loading received posts.</h4>
+			</ErrorContent>
+		</CircuitBreakerSection>
 	}
 	else
 	{
-		<PostsSent AccountId=Player.Id />
+		<CircuitBreakerSection @ref="_receivedPostsOuterBreaker" DisplayTripped>
+			<ChildContent>
+				<PostsSent AccountId=Player.Id />
+			</ChildContent>
+            			
+            <ErrorContent>
+            	<h4 class="text-danger">An error occured while loading sent posts.</h4>
+            </ErrorContent>
+        </CircuitBreakerSection>
 	}
 }
 else if (Loaded)
@@ -140,19 +156,26 @@ else
 	public bool Loaded { get; private set; }
 	public bool ReceivedOrSent { get; set; }
 
+	private CircuitBreakerSection _receivedPostsOuterBreaker, _sentPostsOuterBreaker;
+	
 	protected override async Task OnParametersSetAsync()
 	{
+		Loaded = false;
+		_receivedPostsOuterBreaker = new();
+		_sentPostsOuterBreaker = new();
+		
 		uint id = GetIdFromRouteParameter(IdNamePair);
 		Player = id is 0 ? null : await PlayerService.FetchPlayerProfileAsync(id);
 		await base.OnParametersSetAsync();
 		ReceivedOrSent = Player.OptedOut; // Lock on "Sent" if player has opted out
-		await CheckBannedUser();
+		await CheckBannedUserAsync();
+		
 		Loaded = true;
 	}
 
 	private async Task UpdatePlayerAsync() => Player = await PlayerService.FetchPlayerProfileAsync(Player.Id);
 
-	private async Task CheckBannedUser() => CurrentUserProfileFlags = CurrentUser.Id is not 0
+	private async Task CheckBannedUserAsync() => CurrentUserProfileFlags = CurrentUser.Id is not 0
 		? await UserService.GetUserProfileFlagsAsync(CurrentUser.Id)
 		: null;
 }

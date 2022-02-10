@@ -1,4 +1,4 @@
-﻿@inherits ComponentBaseAuth
+@inherits ComponentBaseAuth
 @implements IAsyncDisposable
 
 @page "/posts"
@@ -82,7 +82,7 @@
 	}
 	else
 	{
-		@if (Posts.Count() is 0)
+		@if (Posts.Count is 0)
 		{
 			<h4 class="text-warning mb-5">No Posts found.</h4>
 		}
@@ -115,20 +115,12 @@
 	protected override async Task OnParametersSetAsync()
 	{
 		Loaded = false;
+	
 		await base.OnParametersSetAsync();
 
 		FilterContext = new(Filters);
-		FilterContext.OnFieldChanged += (_, ctx) =>
-		{
-			FilterContext.Validate();
-		};
-
-		FilterContext.OnValidationRequested += async (_, ctx) =>
-		{
-			await RefreshListAsync();
-		};
-
-
+		FilterContext.OnFieldChanged += (_, ctx) => FilterContext.Validate();
+		FilterContext.OnValidationRequested += async (_, ctx) => await RefreshListAsync();
 		Posts = new(await PostService.FetchLatestPostsAsync(10));
 		Loaded = true;
 

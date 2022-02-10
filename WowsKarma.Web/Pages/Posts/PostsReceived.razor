@@ -25,7 +25,7 @@
 					{
 						<h5 class="text-info">You cannot self-post.</h5>
 					}
-					else if (CheckCooldown() is PostCooldownDTO postCooldown && postCooldown.OnCooldown)
+					else if (CheckCooldown() is { OnCooldown: true } postCooldown)
 					{
 						<h5 class="text-info">You may post again for this Player after @postCooldown.EndsAt.ToString("dd/MM/yyyy @ HH:mm").</h5>
 					}
@@ -114,9 +114,11 @@ else
 
 	private void CreatePost()
 	{
-		currentEditorPost = new();
-		currentEditorPost.PlayerId = AccountId;
-		currentEditorPost.AuthorId = CurrentUser.Id;
+		currentEditorPost = new()
+		{
+			PlayerId = AccountId,
+			AuthorId = CurrentUser.Id
+		};
 		showEditorModal = true;
 	}
 

@@ -1,14 +1,23 @@
+@using WowsKarma.Web.Shared.Components.CircuitBreaker
 @namespace WowsKarma.Web
 
-<CascadingAuthenticationState>
-	<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true" >
-		<Found Context="routeData">
-			<RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-		</Found>
-		<NotFound>
-			<LayoutView Layout="@typeof(MainLayout)">
-				<p>Sorry, there's nothing at this address.</p>
-			</LayoutView>
-		</NotFound>
-	</Router>
-</CascadingAuthenticationState>
+<CircuitBreaker @ref="CircuitBreaker">
+	<CascadingAuthenticationState>
+		<Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
+			<Found Context="routeData">
+				<RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+			</Found>
+
+			<NotFound>
+				<LayoutView Layout="@typeof(MainLayout)">
+					<p>Sorry, there's nothing at this address.</p>
+				</LayoutView>
+			</NotFound>
+		</Router>
+	</CascadingAuthenticationState>
+</CircuitBreaker>
+
+@code {
+	public CircuitBreaker CircuitBreaker { get; set; } = new();
+
+}

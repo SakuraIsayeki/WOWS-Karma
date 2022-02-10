@@ -1,4 +1,6 @@
 ﻿@namespace WowsKarma.Web.Shared
+@using WowsKarma.Web.Shared.Components.CircuitBreaker
+
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 
@@ -13,9 +15,28 @@
 	</div>
 	
 	<main role="main">
-		@Body
+		<CircuitBreakerSection @key="_breakerSection">
+			<ChildContent>
+				@Body
+			</ChildContent>
+			
+			<ErrorContent>
+				<h3 class="text-danger">An error occurred within this page. Please try again later.</h3>
+			</ErrorContent>
+		</CircuitBreakerSection>
 	</main>
 </div>
 
 <Footer />
 
+@code {
+
+	CircuitBreakerSection _breakerSection { get; set; } = new();
+
+	protected override void OnParametersSet()
+	{
+		_breakerSection = new();
+		base.OnParametersSet();
+	}
+
+}

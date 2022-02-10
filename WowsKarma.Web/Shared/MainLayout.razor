@@ -15,7 +15,7 @@
 	</div>
 	
 	<main role="main">
-		<CircuitBreakerSection>
+		<CircuitBreakerSection @key="_breakerSection">
 			<ChildContent>
 				@Body
 			</ChildContent>
@@ -29,3 +29,14 @@
 
 <Footer />
 
+@code {
+
+	CircuitBreakerSection _breakerSection { get; set; } = new();
+
+	protected override void OnParametersSet()
+	{
+		_breakerSection = new();
+		base.OnParametersSet();
+	}
+
+}

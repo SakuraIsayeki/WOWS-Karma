@@ -12,29 +12,31 @@
 		</button>
 
 		<div class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notifications-dropdown">
-			<div class="row no-gutters mt-2 mb-3">
-				<div class="col">
-					<h5 class="mx-3">Notifications</h5>
-				</div>
-
-
-				<div class="col-auto">
-					<button class="btn btn-sm btn-primary" @onclick=ClearNotificationsAsync>Clear All</button>
-				</div>
+			<div class="d-flex flex-row mt-2 mb-3">
+				<h5 class="mx-3 me-lg-5">Notifications</h5>
+				<button class="btn btn-sm btn-primary" @onclick=ClearNotificationsAsync>Clear All</button>
 			</div>
 
-			@if (Notifications?.Count is 0)
-			{
-				<h5 class="text-info">No new Notifications.</h5>
-			}
-			else
-			{
-				<div class="d-flex flex-column">
-					<Virtualize TItem=INotification Items=Notifications Context=notification>
-						<Notification Model=notification OnDismissClicked=AcknowledgeNotificationAsync />
-					</Virtualize>
-				</div>
-			}
+			<CircuitBreakerSection @ref="_breakerSection" DisplayTripped>
+				<ChildContent>
+					@if (Notifications?.Count is 0)
+					{
+						<h5 class="text-info">No new Notifications.</h5>
+					}
+					else
+					{
+						<div class="d-flex flex-column">
+							<Virtualize TItem=INotification Items=Notifications Context=notification>
+								<Notification Model=notification OnDismissClicked=AcknowledgeNotificationAsync />
+							</Virtualize>
+						</div>
+					}
+				</ChildContent>
+				
+				<ErrorContent>
+					<h5 class="text-danger">Something went wrong while loading Notifications.</h5>
+				</ErrorContent>
+			</CircuitBreakerSection>
 		</div>
 	</li>
 </ul>

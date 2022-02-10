@@ -45,7 +45,7 @@ else
         return base.OnErrorAsync(e);
     }
 
-    public async Task SetExceptionAsync(Exception e)
+    public async Task TripExceptionAsync(Exception e)
     {
         CurrentException = e;
         await OnErrorAsync(CurrentException);

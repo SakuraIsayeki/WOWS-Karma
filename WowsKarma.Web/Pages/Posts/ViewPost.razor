@@ -43,20 +43,37 @@ else
 			<div class="row justify-content-between my-3">
 				<div class="col-lg-7 mb-5 order-lg-5">
 					<h4 class="my-3">Teams Roster</h4>
-					<ReplayPlayersRoster ShowPlayersRelation Players=post.Replay.Players PostAuthorId=post.AuthorId PostPlayerId=post.PlayerId />
+					
+					<CircuitBreakerSection @ref="_replayRosterOuterBreaker" DisplayTripped>
+						<ChildContent>
+							<ReplayPlayersRoster ShowPlayersRelation Players=post.Replay.Players PostAuthorId=post.AuthorId PostPlayerId=post.PlayerId />
+						</ChildContent>
+						
+						<ErrorContent>
+							<h5 class="text-danger">An error occured while displaying the teams roster.</h5>
+						</ErrorContent>
+					</CircuitBreakerSection>
 				</div>
 
                 <div class="col-lg-5 mb-5">
                     <h4 class="my-3">Chat Messages</h4>
 
-                    @if (post.Replay.ChatMessages?.Any() is true)
-                    {
-                        <ReplayChat ShowPlayersRelation Messages=post.Replay.ChatMessages PostAuthorId=post.AuthorId PostPlayerId=post.PlayerId />
-                    }
-                    else
-                    {
-                        <h5 class="text-info">No Chat messages were sent during this battle.</h5>
-                    }
+	                <CircuitBreakerSection @ref="_replayChatOuterBreaker" DisplayTripped>
+		                <ChildContent>
+			                @if (post.Replay.ChatMessages?.Any() is true)
+			                {
+				                <ReplayChat ShowPlayersRelation Messages=post.Replay.ChatMessages PostAuthorId=post.AuthorId PostPlayerId=post.PlayerId />
+			                }
+			                else
+			                {
+				                <h5 class="text-info">No Chat messages were sent during this battle.</h5>
+			                }
+		                </ChildContent>
+		                
+		                <ErrorContent>
+			                <h5 class="text-danger">An error occured while displaying the chat messages.</h5>
+		                </ErrorContent>
+	                </CircuitBreakerSection>
                 </div>
 			</div>
 		</div>
@@ -110,14 +127,18 @@ else
 	private PlayerPostDTO post;
 	private PostModActionDTO lastModAction;
 
-	private bool showEditorModal = false;
-	private bool showDeleteModal = false;
+	private bool showEditorModal, showDeleteModal;
+
+	private CircuitBreakerSection _replayRosterOuterBreaker, _replayChatOuterBreaker;
 
 	protected override async Task OnParametersSetAsync()
 	{
 		Loaded = false;
-
 		await base.OnParametersSetAsync();
+
+		_replayChatOuterBreaker = new();
+		_replayRosterOuterBreaker = new();
+		
 		post = await PostService.FetchPostAsync(Id);
 
 		if (post is not null && post.ModLocked)

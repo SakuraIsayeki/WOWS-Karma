@@ -1,0 +1,31 @@
+﻿@if (Exception is not null)
+        {
+        	<div class="position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 11">
+        		<div id="liveToast" class="toast show" role="alert" aria-live="assertive" aria-atomic="true" style="width: unset;">
+        			<div class="toast-header text-danger">
+	                    <strong class="me-auto">Error caught:<span class="ms-3 font-monospace">@Exception.GetType().Name</span></strong>
+        				<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close" @onclick=DismissToast></button>
+        			</div>
+        			<div class="toast-body">
+	                    <h6 class="text-danger" style="white-space: pre-wrap;">@Exception.Message</h6>
+	                    <p class="font-monospace small" style="white-space: pre-wrap;">@Exception.StackTrace</p>
+                    </div>
+        		</div>
+        	</div>
+        }
+
+@code {
+	[Parameter] public Exception Exception { get; set; }
+
+	public void SetException(Exception e)
+	{
+		Exception = e;
+		StateHasChanged();
+	}
+
+	public void DismissToast()
+	{
+		Exception = null;
+		StateHasChanged();
+	}
+}

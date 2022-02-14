@@ -1,23 +1,19 @@
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using WowsKarma.Api.Data;
-using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Data.Models.Notifications;
+using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common.Hubs;
-using WowsKarma.Common.Models;
-using WowsKarma.Common.Models.DTOs;
-using WowsKarma.Common.Models.DTOs.Notifications;
+
+
 
 namespace WowsKarma.Api.Services
 {
@@ -81,8 +77,12 @@ namespace WowsKarma.Api.Services
 			.Include(p => p.Player)
 			.OrderByDescending(p => p.CreatedAt);
 
-		public async Task<Post> CreatePostAsync(PlayerPostDTO postDTO, bool bypassChecks)
+		public async Task<Post> CreatePostAsync(PlayerPostDTO postDTO, IFormFile replayFile, bool bypassChecks)
 		{
+			bool hasReplay = replayFile is not null;
+
+			Task<Replay> replayIngestTask = hasReplay ? _replayService.IngestReplayAsync(replayFile, CancellationToken.None) : null;
+
 			try
 			{
 				ValidatePostContents(postDTO);
@@ -115,9 +115,19 @@ namespace WowsKarma.Api.Services
 			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, null, post.NegativeKarmaAble);
 			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
 
+			if (hasReplay)
+			{
+				Replay replay = await replayIngestTask;
+
+				entry.Entity.ReplayId = replay.Id;
+				entry.Entity.Replay = replay; 
+			}
+
 			await context.SaveChangesAsync();
 
-			_ = webhookService.SendNewPostWebhookAsync(post, author, player);
+			_ = webhookService.SendNewPostWebhookAsync(post, author, player, entry.Entity.Replay is not null 
+				? await _replayService.GetReplayDTOAsync(entry.Entity.ReplayId ?? throw new InvalidOperationException($"No replay ID found for post {entry.Entity.Id}."))
+				: null);
 
 			_ = _postsHub.Clients.All.NewPost(post.Adapt<PlayerPostDTO>() with
 			{

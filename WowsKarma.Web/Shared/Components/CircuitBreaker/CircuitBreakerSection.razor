@@ -1,0 +1,60 @@
+﻿@inherits ErrorBoundary
+
+@if (CurrentException is null)
+{
+    @ChildContent
+}
+else
+{
+    OnCaughtException?.Invoke(this, CurrentException);
+    
+    if (ErrorContent is not null)
+    {
+        @ErrorContent(CurrentException)
+    }
+    else
+    {
+        <div class="text-danger">An error occured.</div>
+    }
+}
+
+@code {
+    [CascadingParameter] public CircuitBreaker CircuitBreaker { get; set; }
+    [Parameter] public bool DisplayTripped { get; set; }
+
+    public new Exception CurrentException
+    {
+        get => _current ?? base.CurrentException; 
+        protected set => _current = value;
+    }
+    
+    private Exception _current;
+    
+    public event EventHandler<Exception> OnCaughtException;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        OnCaughtException += (_, e) => OnErrorAsync(e);
+    }
+
+    protected override Task OnErrorAsync(Exception e)
+    {
+        CircuitBreaker.ProcessError(e);
+        return base.OnErrorAsync(e);
+    }
+
+    public async Task TripExceptionAsync(Exception e)
+    {
+        CurrentException = e;
+        await OnErrorAsync(CurrentException);
+    }
+    
+    public new void Recover()
+    {
+        CurrentException = null;
+        base.Recover();
+    }
+    
+}

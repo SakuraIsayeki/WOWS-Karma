@@ -6,7 +6,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Forms;
 using WowsKarma.Common.Models.DTOs;
 using static WowsKarma.Web.Utilities;
 
@@ -86,15 +88,21 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
-		public async Task<Guid> SubmitNewPostAsync(PlayerPostDTO post)
+		public async Task<Guid> SubmitNewPostAsync(PlayerPostDTO post, IBrowserFile replayFile = null, CancellationToken ct = default)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}");
-			request.Content = JsonContent.Create(post, new("application/json"), JsonSerializerOptions);
+			using MultipartFormDataContent form = new();
+			using StreamContent replayFileStream = replayFile is null ? null : form.AddReplayFile(replayFile, ct);
+			form.Add(JsonContent.Create(post, new("application/json"), JsonSerializerOptions), "postDto");
 
-			using HttpResponseMessage response = await Client.SendAsync(request);
+			using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}")
+			{
+				Content = form
+			};
+			
+			using HttpResponseMessage response = await Client.SendAsync(request, ct);
 			response.EnsureSuccessStatusCode();
 
-			return new((await response.Content.ReadAsStringAsync()).Replace("\"", null));
+			return new((await response.Content.ReadAsStringAsync(ct)).Replace("\"", null));
 		}
 
 		public async Task EditPostAsync(PlayerPostDTO post)

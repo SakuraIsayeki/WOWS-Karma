@@ -38,7 +38,7 @@ public class ReplaysIngestService
 	public Replay GetReplay(Guid id) => _context.Replays.Find(id);
 	public async Task<ReplayDTO> GetReplayDTOAsync(Guid id)
 	{
-		Replay replay = _context.Replays.Find(id);
+		Replay replay = await _context.Replays.FindAsync(id);
 
 		return new()
 		{
@@ -61,11 +61,11 @@ public class ReplaysIngestService
 
 		Post post = await _context.Posts.FindAsync(new object[] { postId }, cancellationToken: ct);
 
-		Replay replay = _processService.ProcessReplay(new(), replayFile.OpenReadStream(), ct);
+		Replay replay = await _processService.ProcessReplayAsync(new Replay(), replayFile.OpenReadStream(), ct);
 
 		// Past here, the replay is valid.
 
-		if (post.ReplayId is Guid existingReplayId)
+		if (post.ReplayId is { } existingReplayId)
 		{
 			await RemoveReplayAsync(GetReplay(existingReplayId));
 		}
@@ -81,6 +81,22 @@ public class ReplaysIngestService
 		await _context.SaveChangesAsync(ct);
 		return entityEntry.Entity;
 	}
+	public async Task<Replay> IngestReplayAsync(IFormFile replayFile, CancellationToken ct)
+	{
+		// Over 5MB is too much for a WOWS Replay file.
+		if (replayFile.Length is 0 or > MaxReplaySize)
+		{
+			throw new ArgumentOutOfRangeException(nameof(replayFile));
+		}
+
+		Replay replay = await _processService.ProcessReplayAsync(new Replay(), replayFile.OpenReadStream(), ct);
+		EntityEntry<Replay> entityEntry = _context.Replays.Add(replay);
+		entityEntry.Entity.BlobName = $"{entityEntry.Entity.Id:N}-{replayFile.FileName}";
+		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
+		await _context.SaveChangesAsync(ct);
+		
+		return replay;
+	}
 
 	public async Task<MemoryStream> FetchReplayFileAsync(Guid replayId, CancellationToken ct)
 	{
@@ -89,7 +105,7 @@ public class ReplaysIngestService
 
 		BlobClient blobClient = _containerClient.GetBlobClient(replay.BlobName);
 
-		using MemoryStream ms = new();
+		await using MemoryStream ms = new();
 		await blobClient.DownloadToAsync(ms, ct);
 		ms.Position = 0;
 
@@ -131,11 +147,11 @@ public class ReplaysIngestService
 				break;
 			}
 
-			using MemoryStream ms = new();
-			_containerClient.GetBlobClient(replayStub.BlobName).DownloadTo(ms, ct);
+			await using MemoryStream ms = new();
+			await _containerClient.GetBlobClient(replayStub.BlobName).DownloadToAsync(ms, ct);
 			ms.Position = 0;
 
-			_processService.ProcessReplay(replayStub, ms, ct);
+			_processService.ProcessReplayAsync(replayStub, ms, ct);
 		}
 
 		_logger.LogWarning("Finished file reprocessing of {count} replays. Saving to database...", replays.Count);

@@ -1,4 +1,4 @@
-﻿@inject PostService PostService
+@inject PostService PostService
 @inject ReplayService ReplayService
 
 <div class="modal fade show" id="post-editor-modal" tabindex="-1" style="display:block" aria-modal="true" role="dialog">
@@ -41,17 +41,19 @@
 											<button type="button" class="btn btn-outline-success @(PostFlairs.Performance is true ? "active" : "")" @onclick="() => { PostFlairs.Performance = true; }">Positive</button>
 										</div>
 									</td>
+										
 									<td class="align-middle"><h5 class="m-0">Performance</h5></td>
 								</tr>
+							
 								<tr>
 									<td>
 										<div class="btn-group" role="group">
 											<button type="button" class="btn btn-outline-danger @(PostFlairs.Teamplay is false ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = false; }">Negative</button>
 											<button type="button" class="btn btn-outline-warning @(PostFlairs.Teamplay is null ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = null; }">Neutral</button>
 											<button type="button" class="btn btn-outline-success @(PostFlairs.Teamplay is true ? "active" : "")" @onclick="() => { PostFlairs.Teamplay = true; }">Positive</button>
-
 										</div>
 									</td>
+									
 									<td class="align-middle"><h5 class="m-0">Teamplay</h5></td>
 								</tr>
 
@@ -63,6 +65,7 @@
 											<button type="button" class="btn btn-outline-success @(PostFlairs.Courtesy is true ? "active" : "")" @onclick="() => { PostFlairs.Courtesy = true; }">Positive</button>
 										</div>
 									</td>
+									
 									<td class="align-middle"><h5 class="m-0">Courtesy</h5></td>
 								</tr>
 							</tbody>
@@ -77,13 +80,23 @@
 
 				<!-- Modal footer -->
 				<div class="modal-footer">
+					@if (errored)
+					{
+						<div class="row">
+							<div class="col">
+								<p class="text-danger lead">An error occured while sumbitting this post. Please try again.</p>
+							</div>
+						</div>
+					}
+					
 					<div class="row">
 						<div class="col">
 							<div class="form-check">
 								<input class="form-check-input" type="checkbox" checked=@approvedGuidelines @onclick=OnApprovedGuidelinesToggle>
 
 								<label class="form-check-label" for="flexCheckDefault">
-									I hereby affirm to have read and followed the <a href="guidelines" target="_blank">Posting Guidelines</a>.
+									I hereby affirm to have read and followed the
+									<a href="guidelines" target="_blank">Posting Guidelines</a>.
 								</label>
 							</div>
 						</div>
@@ -103,6 +116,8 @@
 
 
 @code {
+	[CascadingParameter] 
+	private CircuitBreaker Breaker { get; set; } 
 
 	[Parameter]
 	public PlayerPostViewModel PostModel { get; set; }
@@ -114,6 +129,7 @@
 	[Parameter]
 	public EventCallback OnCancel { get; set; }
 
+	private bool errored = true;
 	private bool approvedGuidelines;
 	private string currentFile;
 
@@ -121,29 +137,32 @@
 	protected override async Task OnInitializedAsync()
 	{
 		PostFlairs = PostModel.Flairs.ParseFlairsEnum() ?? new();
-
 		await base.OnInitializedAsync();
 	}
 
 	private async Task ModalSubmitAsync()
 	{
-		PostModel.Flairs = PostFlairs.ToEnum();
-
-		if (PostModel.Id is null)
+		try
 		{
-			PostModel.Id = await PostService.SubmitNewPostAsync(PlayerPostViewModel.ToDTO(PostModel));
-		}
-		else
-		{
-			await PostService.EditPostAsync(PlayerPostViewModel.ToDTO(PostModel));
-		}
+			errored = false;
+			PostModel.Flairs = PostFlairs.ToEnum();
 
-		if (PostModel.ReplayFile is not null)
-		{
-			await ReplayService.SubmitNewReplayAsync(PostModel.Id.Value, PostModel.ReplayFile, CancellationToken.None);
+			if (PostModel.Id is null)
+			{
+				PostModel.Id = await PostService.SubmitNewPostAsync(PlayerPostViewModel.ToDTO(PostModel), PostModel.ReplayFile);
+			}
+			else
+			{
+				await PostService.EditPostAsync(PlayerPostViewModel.ToDTO(PostModel));
+			}
+		
+			await OnPostSubmited.InvokeAsync(null);
 		}
-
-		await OnPostSubmited.InvokeAsync(null);
+		catch (Exception e)
+		{
+			errored = true;
+			Breaker.ProcessError(e);
+		}
 	}
 
 	private void LoadFiles(InputFileChangeEventArgs e)

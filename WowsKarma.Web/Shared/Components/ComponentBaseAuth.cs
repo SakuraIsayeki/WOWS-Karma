@@ -19,7 +19,7 @@ namespace WowsKarma.Web.Shared.Components
 		protected ClaimsPrincipal ClaimsPrincipal { get; private set; }
 		protected string CurrentToken { get; private set; }
 
-		protected async override Task OnInitializedAsync()
+		protected override async Task OnInitializedAsync()
 		{
 			await base.OnInitializedAsync();
 

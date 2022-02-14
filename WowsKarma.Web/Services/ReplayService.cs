@@ -1,19 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Threading;
-using System.Threading.Tasks;
-using WowsKarma.Common.Models.DTOs;
-using WowsKarma.Web.Shared;
-using static AspNet.Security.OpenId.OpenIdAuthenticationConstants;
-using static WowsKarma.Web.Utilities;
+
 
 
 namespace WowsKarma.Web.Services;
@@ -28,17 +17,12 @@ public class ReplayService : HttpServiceBase
 	public async Task SubmitNewReplayAsync(Guid postId, IBrowserFile browserFile, CancellationToken ct)
 	{
 		using MultipartFormDataContent form = new();
-		using StreamContent fileContent = new(browserFile.OpenReadStream(MaxReplayFileSize, ct));
-		fileContent.Headers.ContentDisposition = new("form-data")
+		form.AddReplayFile(browserFile, ct);
+
+		using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}/{postId}")
 		{
-			Name = "replay",
-			FileName = browserFile.Name
+			Content = form
 		};
-
-		form.Add(fileContent, "replay", browserFile.Name);
-
-		using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}/{postId}");
-		request.Content = form;
 
 
 		using HttpResponseMessage response = await Client.SendAsync(request, ct);

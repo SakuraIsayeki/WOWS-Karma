@@ -71,7 +71,6 @@
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
-    <None Include="Shared\Components\Post.razor.scss" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

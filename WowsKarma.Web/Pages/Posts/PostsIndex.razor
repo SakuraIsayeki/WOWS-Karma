@@ -156,7 +156,10 @@
 
 	public async ValueTask DisposeAsync()
 	{
-		await hubConnection.DisposeAsync();
+		if (hubConnection is not null)
+		{
+			await hubConnection.DisposeAsync();
+		}
 	}
 
 	public void SetupEvents()

@@ -59,7 +59,7 @@ namespace WowsKarma.Api.Controllers
 
 			if (lastResults is not null and > 0)
 			{
-				posts.Take((int)lastResults);
+				posts?.Take((int)lastResults);
 			}
 
 			if (posts?.Count() is null or 0)

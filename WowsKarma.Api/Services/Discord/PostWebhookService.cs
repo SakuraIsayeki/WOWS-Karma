@@ -1,9 +1,4 @@
 ﻿using DSharpPlus.Entities;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
-using WowsKarma.Api.Data.Models;
-using WowsKarma.Api.Data.Models.Replays;
-using WowsKarma.Api.Services.Replays;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs.Replays;

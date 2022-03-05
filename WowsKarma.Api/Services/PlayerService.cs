@@ -1,16 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Wargaming.WebAPI.Models.WorldOfWarships.Responses;
-using Wargaming.WebAPI.Requests;
+using Nodsoft.Wargaming.Api.Client.Clients.Wows;
+using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using WowsKarma.Api.Data;
-using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Utilities;
-using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Services
 {
@@ -19,16 +13,16 @@ namespace WowsKarma.Api.Services
 		public static TimeSpan DataUpdateSpan { get; } = TimeSpan.FromHours(1);
 		public static TimeSpan OptOutCooldownSpan { get; } = TimeSpan.FromDays(7);
 
-		private readonly ApiDbContext context;
-		private readonly WorldOfWarshipsHandler wgApi;
-		private readonly VortexApiHandler vortex;
+		private readonly ApiDbContext _context;
+		private readonly WowsPublicApiClient _wgApi;
+		private readonly WowsVortexApiClient _vortex;
 
 
-		public PlayerService(ApiDbContext context, WorldOfWarshipsHandler wgApi, VortexApiHandler vortex)
+		public PlayerService(ApiDbContext context, WowsPublicApiClient wgApi, WowsVortexApiClient vortex)
 		{
-			this.context = context;
-			this.wgApi = wgApi;
-			this.vortex = vortex;
+			_context = context;
+			_wgApi = wgApi;
+			_vortex = vortex;
 		}
 
 
@@ -46,8 +40,8 @@ namespace WowsKarma.Api.Services
 			}
 
 			IQueryable<Player> dbPlayers = !includeRelated
-				? context.Players
-				: context.Players
+				? _context.Players
+				: _context.Players
 					.Include(p => p.PlatformBans);
 
 
@@ -60,14 +54,13 @@ namespace WowsKarma.Api.Services
 				{
 					return await UpdatePlayerRecordAsync(accountId, true);
 				}
-				else if (UpdateNeeded(player))
+
+				if (UpdateNeeded(player))
 				{
 					return await UpdatePlayerRecordAsync(accountId, false);
 				}
-				else
-				{
-					return player;
-				}
+
+				return player;
 			}
 			catch (Exception)
 			{
@@ -77,41 +70,41 @@ namespace WowsKarma.Api.Services
 
 		public IQueryable<AccountFullKarmaDTO> GetPlayersFullKarma(IEnumerable<uint> accountIds)
 		{
-			return from p in context.Players.AsNoTracking()
+			return from p in _context.Players.AsNoTracking()
 				   where accountIds.Contains(p.Id)
 				   select new AccountFullKarmaDTO(p.Id, p.SiteKarma, p.PerformanceRating, p.TeamplayRating, p.CourtesyRating);
 		}
 		public IQueryable<AccountKarmaDTO> GetPlayersKarma(IEnumerable<uint> accountIds)
 		{
-			return from p in context.Players.AsNoTracking()
+			return from p in _context.Players.AsNoTracking()
 				   where accountIds.Contains(p.Id)
 				   select new AccountKarmaDTO(p.Id, p.SiteKarma);
 		}
 
 		public async Task<IEnumerable<AccountListingDTO>> ListPlayersAsync(string search)
 		{
-			IEnumerable<AccountListing> result = await wgApi.ListPlayersAsync(search);
+			AccountListing[] result = (await _wgApi.ListPlayersAsync(search))?.Data?.ToArray();
 
-			return result?.Count() is not null or 0
+			return result is { Length: > 0 }
 				? result.Select(listing => listing.ToDTO())
 				: null;
 		}
 
 		internal async Task<Player> UpdatePlayerRecordAsync(uint accountId, bool firstEntry)
 		{
-			Player player = (await vortex.FetchAccountAsync(accountId)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
+			Player player = (await _vortex.FetchAccountAsync(accountId)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
 
 			if (firstEntry)
 			{
-				context.Players.Add(player);
+				_context.Players.Add(player);
 			}
 			else
 			{
-				player = Player.MapFromApi(await context.Players.FindAsync(accountId), player);
+				player = Player.MapFromApi(await _context.Players.FindAsync(accountId), player);
 			}
 
 			player.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
-			await context.SaveChangesAsync();
+			await _context.SaveChangesAsync();
 			return player;
 		}
 
@@ -132,14 +125,14 @@ namespace WowsKarma.Api.Services
 				}
 			}
 
-			await context.SaveChangesAsync();
+			await _context.SaveChangesAsync();
 		}
 
-		public async Task RecalculatePlayerMetrics(uint playerId, CancellationToken cancellationToken)
+		public async Task RecalculatePlayerMetrics(uint playerId, CancellationToken ct)
 		{
-			Player player = await context.Players.Include(p => p.PostsReceived).FirstOrDefaultAsync(p => p.Id == playerId, cancellationToken);
+			Player player = await _context.Players.Include(p => p.PostsReceived).FirstOrDefaultAsync(p => p.Id == playerId, ct);
 
-			if (cancellationToken.IsCancellationRequested || player is null)
+			if (ct.IsCancellationRequested || player is null)
 			{
 				return;
 			}
@@ -159,7 +152,7 @@ namespace WowsKarma.Api.Services
 					KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
 				}
 
-				await context.SaveChangesAsync(cancellationToken);
+				await _context.SaveChangesAsync(ct);
 			}
 			catch (OperationCanceledException)
 			{

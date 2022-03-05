@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace WowsKarma.Api.Infrastructure.Exceptions
+﻿namespace WowsKarma.Api.Infrastructure.Exceptions
 {
 
 	[Serializable]

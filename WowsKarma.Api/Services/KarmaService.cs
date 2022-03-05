@@ -1,13 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using WowsKarma.Api.Data;
-using WowsKarma.Api.Data.Models;
-using WowsKarma.Common.Models;
-
-namespace WowsKarma.Api.Services
+﻿namespace WowsKarma.Api.Services
 {
 	public class KarmaService
 	{

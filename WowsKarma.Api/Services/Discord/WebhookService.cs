@@ -1,7 +1,5 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using Microsoft.Extensions.Configuration;
-using System;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api.Services.Discord

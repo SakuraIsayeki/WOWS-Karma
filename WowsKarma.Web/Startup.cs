@@ -11,7 +11,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Reflection;
 using WebEssentials.AspNetCore.Pwa;
-using WowsKarma.Common;
 using WowsKarma.Web.Middlewares;
 using WowsKarma.Web.Services;
 using WowsKarma.Web.Services.Authentication;
@@ -31,7 +30,7 @@ namespace WowsKarma.Web
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
-			DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+			DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 		}
 
 

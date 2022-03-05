@@ -1,18 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Services;
-using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Common;
-using WowsKarma.Common.Models.DTOs;
-
 
 
 namespace WowsKarma.Api.Controllers

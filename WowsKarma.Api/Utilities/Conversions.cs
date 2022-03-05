@@ -1,9 +1,6 @@
 ﻿using Mapster;
-using System;
-using Wargaming.WebAPI.Models.WorldOfWarships.Responses;
-using WowsKarma.Api.Data.Models;
-using WowsKarma.Common.Models;
-using WowsKarma.Common.Models.DTOs;
+using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
+using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
 
 namespace WowsKarma.Api.Utilities
 {
@@ -34,7 +31,7 @@ namespace WowsKarma.Api.Utilities
 
 		public static AccountListingDTO ToDTO(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);
 
-		public static Player ToDbModel(this AccountInfo accountInfo)
+		public static Player ToDbModel(this VortexAccountInfo accountInfo)
 		{
 			Player player = new()
 			{
@@ -48,12 +45,12 @@ namespace WowsKarma.Api.Utilities
 				: player with
 				{
 					WgAccountCreatedAt = accountInfo.CreatedAtTime,
-					GameKarma = accountInfo.Statistics.Basic.Karma,
-					LastBattleTime = DateTime.UnixEpoch.AddSeconds(accountInfo.Statistics.Basic.LastBattleTime)
+					GameKarma = accountInfo.Statistics.Basic?.Karma ?? 0,
+					LastBattleTime = DateTime.UnixEpoch.AddSeconds(accountInfo.Statistics.Basic!.LastBattleTime)
 				};
 		}
 
-		public static Player[] ToDbModel(this AccountInfo[] accountInfos) => Array.ConvertAll(accountInfos, new Converter<AccountInfo, Player>(ToDbModel));
+		public static Player[] ToDbModel(this VortexAccountInfo[] accountInfos) => Array.ConvertAll(accountInfos, ToDbModel);
 
 		public static int ToInt(this PostFlairs input) => (int)input;
 	}

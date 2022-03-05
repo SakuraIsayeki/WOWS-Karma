@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography.X509Certificates;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Services.Discord;
@@ -91,6 +90,7 @@ public class ModService
 	public async Task EmitPlatformBanAsync(PlatformBanDTO platformBan, [FromServices] AuthDbContext authContext)
 	{
 		_ = platformBan ?? throw new ArgumentNullException(nameof(platformBan));
+		
 		EntityEntry<PlatformBan> entityEntry = _context.PlatformBans.Add(new()
 		{
 			UserId = platformBan.UserId,
@@ -100,10 +100,8 @@ public class ModService
 		});
 
 		await _context.SaveChangesAsync();
-
-
+		
 		const string logFormat = "Platform banned user {userId} until {until} for reason \"{reason}\".";
-
 
 		if (await authContext.Users.AnyAsync(u => u.Id == platformBan.UserId))
 		{
@@ -115,8 +113,8 @@ public class ModService
 				platformBan.Reason, platformBan.BannedUntil as object ?? "Indefinitely", platformBan.Reason);
 		}
 
-		entityEntry.Reference(b => b.Mod).Load();
-		entityEntry.Reference(b => b.User).Load();
+		await entityEntry.Reference(b => b.Mod).LoadAsync();
+		await entityEntry.Reference(b => b.User).LoadAsync();
 
 		await _webhookService.SendPlatformBanWebhookAsync(entityEntry.Entity);
 		await _notifications.SendNewNotification(new PlatformBanNotification
@@ -131,6 +129,6 @@ public class ModService
 		PlatformBan ban = await _context.PlatformBans.FindAsync(id);
 		ban.Reverted = true;
 		await _context.SaveChangesAsync();
-		_logger.LogInformation("Reverted Ban {banId}.", ban.Id);
+		_logger.LogInformation("Reverted Ban {BanId}.", ban.Id);
 	}
 }

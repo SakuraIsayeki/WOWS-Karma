@@ -1,5 +1,4 @@
 ﻿using Mapster;
-using System;
 using WowsKarma.Common.Models.DTOs.Notifications;
 
 namespace WowsKarma.Api.Data.Models.Notifications;

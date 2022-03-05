@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;

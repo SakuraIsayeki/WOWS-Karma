@@ -1,5 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using Wargaming.WebAPI.Models;
+using Nodsoft.Wargaming.Api.Common;
 
 namespace WowsKarma.Api.Data.Models.Replays;
 

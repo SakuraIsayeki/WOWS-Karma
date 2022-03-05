@@ -16,9 +16,10 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using Wargaming.WebAPI;
-using Wargaming.WebAPI.Models;
-using Wargaming.WebAPI.Requests;
+using Nodsoft.Wargaming.Api.Client;
+using Nodsoft.Wargaming.Api.Client.Clients;
+using Nodsoft.Wargaming.Api.Client.Clients.Wows;
+using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Telemetry;
@@ -43,7 +44,7 @@ namespace WowsKarma.Api
 		{
 			Configuration = configuration;
 			ApiRegion = Common.Utilities.GetRegionConfigString(Configuration["Api:CurrentRegion"] ?? "EU");
-			DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+			DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 		}
 
 
@@ -164,23 +165,24 @@ namespace WowsKarma.Api
 				options => options.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 					providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 64 : dbPoolSize);
 
-			services.AddHttpClient<WorldOfWarshipsHandler>(client => client.BaseAddress = new(ApiProperties.GetApiHost(ApiProperties.Game.WOWS, ApiRegion)));
-			services.AddHttpClient<VortexApiHandler>(client => client.BaseAddress = new(VortexApiHandler.GetApiHost(ApiRegion)));
-
+			services.AddThrottledApiClient<WowsPublicApiClient>((_, client) => client.BaseAddress = new(ApiHostUtilities.GetApiHost(Game.WOWS, ApiRegion)), 20);
+			services.AddApiClient<WowsVortexApiClient>((_, client) => client.BaseAddress = new(ApiHostUtilities.GetApiHost(Game.WOWS, ApiRegion)));
+			
+			services.AddSingleton(services => new PublicApiOptions
+			{
+				AppId = services.GetRequiredService<IConfiguration>()[$"Api:{ApiRegion.ToRegionString()}:AppId"]
+			});
+			
 			services.AddWargamingAuth();
 			services.AddScoped<JwtAuthenticationHandler>();
 
 			services.AddSingleton<JwtService>();
 			services.AddSingleton<JwtSecurityTokenHandler>();
-			services.AddSingleton(new WorldOfWarshipsHandlerOptions(ApiRegion, Configuration[$"Api:{ApiRegion.ToRegionString()}:AppId"]));
-			services.AddSingleton<WorldOfWarshipsHandler>();
-			services.AddSingleton<VortexApiHandler>();
 			services.AddSingleton<PostWebhookService>();
 			services.AddSingleton<ModActionWebhookService>();
 			services.AddSingleton<ITelemetryInitializer, TelemetryEnrichment>();
 			services.AddSingleton<ReplayUnpacker>();
-
-
+			
 			services.AddTransient<PostHub>();
 
 			services.AddScoped<UserService>();

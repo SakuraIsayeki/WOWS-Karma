@@ -1,5 +1,4 @@
-﻿using WowsKarma.Api.Data.Models;
-using WowsKarma.Common;
+﻿using WowsKarma.Common;
 
 
 

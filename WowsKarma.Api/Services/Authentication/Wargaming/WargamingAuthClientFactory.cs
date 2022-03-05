@@ -1,5 +1,5 @@
 ﻿using System.Net.Http;
-using Wargaming.WebAPI.Models;
+using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api.Services.Authentication.Wargaming

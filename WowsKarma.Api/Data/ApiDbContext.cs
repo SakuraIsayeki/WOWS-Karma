@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Utilities;
-using WowsKarma.Common.Models;
 
 
 namespace WowsKarma.Api.Data;

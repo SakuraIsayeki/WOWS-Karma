@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-using WowsKarma.Common.Models;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 

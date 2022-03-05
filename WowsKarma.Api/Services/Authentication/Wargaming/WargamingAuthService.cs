@@ -1,14 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Wargaming.WebAPI.Models;
 using WowsKarma.Common;
 
 using static WowsKarma.Common.Utilities;
@@ -36,9 +29,9 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 			this.authClientFactory = authClientFactory;
 		}
 
-		public IActionResult RedirectToLogin(Region region, IDictionary<string, string> extraRedirectParams = null) => new RedirectResult(GetAuthUri(region, extraRedirectParams).ToString());
+		public static IActionResult RedirectToLogin(IDictionary<string, string> extraRedirectParams = null) => new RedirectResult(GetAuthUri(extraRedirectParams).ToString());
 
-		public Uri GetAuthUri(Region region, IDictionary<string, string> extraRedirectParams = null)
+		public static Uri GetAuthUri(IDictionary<string, string> extraRedirectParams = null)
 		{
 			string verifyIdentityUri = callbackUrl;
 
@@ -51,15 +44,16 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 				verifyIdentityUri += $"?{queryString}";
 			}
 
-			UriBuilder builder = new(OpenIdDomain);
-
-			builder.Query = BuildQuery(
-				("openid.ns", "http://specs.openid.net/auth/2.0"),
-				("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select"),
-				("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select"),
-				("openid.return_to", verifyIdentityUri),
-				("openid.mode", "checkid_setup")
-			);
+			UriBuilder builder = new(OpenIdDomain)
+			{
+				Query = BuildQuery(
+					("openid.ns", "http://specs.openid.net/auth/2.0"),
+					("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select"),
+					("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select"),
+					("openid.return_to", verifyIdentityUri),
+					("openid.mode", "checkid_setup")
+				)
+			};
 
 			return builder.Uri;
 		}
@@ -75,7 +69,7 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 			return isValid;
 		}
 
-		private async Task<bool> IsValid(Dictionary<string, string> paramDict)
+		private async Task<bool> IsValid(IDictionary<string, string> paramDict)
 		{
 			paramDict["openid.mode"] = "check_authentication";
 

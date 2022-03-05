@@ -51,7 +51,7 @@ public record Player : ITimestamped
 	 * Mapping
 	 */
 
-	public static implicit operator PlayerProfileDTO(Player value) => new()
+	public static implicit operator PlayerProfileDTO(Player value) => value is null ? null : new()
 	{
 		Id = value.Id,
 		Username = value.Username,

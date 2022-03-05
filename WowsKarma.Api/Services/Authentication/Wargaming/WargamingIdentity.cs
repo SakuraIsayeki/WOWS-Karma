@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using Wargaming.WebAPI.Models;
+﻿using System.Security.Claims;
+using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Common;
-using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Services.Authentication.Wargaming
 {
@@ -17,8 +13,6 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 		public static WargamingIdentity FromUri(Uri identityUri)
 		{
 			Region region = identityUri.Host.Split(".")[0].FromWargamingSubdomain();
-
-
 			string segment = identityUri.Segments[^1];
 			int index = segment.IndexOf('-');
 			string accountId = segment[..index];
@@ -26,13 +20,13 @@ namespace WowsKarma.Api.Services.Authentication.Wargaming
 
 			List<Claim> claims = new()
 			{
-				new Claim(ClaimTypes.NameIdentifier, accountId),
-				new Claim(ClaimTypes.Name, nickname),
-				new Claim(WargamingClaimTypes.Region, ((int)region).ToString()),
-				new Claim(WargamingClaimTypes.RegionName, region.ToString())
+				new(ClaimTypes.NameIdentifier, accountId),
+				new(ClaimTypes.Name, nickname),
+				new(WargamingClaimTypes.Region, ((int)region).ToString()),
+				new(WargamingClaimTypes.RegionName, region.ToString())
 			};
 
-			return new WargamingIdentity(claims);
+			return new(claims);
 		}
 
 		public AccountListingDTO GetAccountListing()

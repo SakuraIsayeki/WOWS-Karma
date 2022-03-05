@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.AspNetCore.Components.Forms;
-using Wargaming.WebAPI.Models;
+using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 using WowsKarma.Web.Services;
@@ -38,7 +38,7 @@ namespace WowsKarma.Web
 			Region.EU => "https://eu.wargaming.net/id/",
 			Region.NA => "https://na.wargaming.net/id/",
 			Region.CIS => "https://ru.wargaming.net/id/",
-			Region.ASIA => "https://asia.wargaming.net/id/",
+			Region.SEA => "https://asia.wargaming.net/id/",
 
 			_ => throw new NotImplementedException()
 		};
@@ -48,7 +48,7 @@ namespace WowsKarma.Web
 			Region.EU => "https://wows-numbers.com/",
 			Region.NA => "https://na.wows-numbers.com/",
 			Region.CIS => "https://ru.wows-numbers.com/",
-			Region.ASIA => "https://asia.wows-numbers.com/",
+			Region.SEA => "https://asia.wows-numbers.com/",
 
 			_ => throw new NotImplementedException()
 		};

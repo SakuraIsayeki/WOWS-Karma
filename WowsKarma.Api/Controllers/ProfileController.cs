@@ -1,13 +1,9 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
-using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
-using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Controllers
 {

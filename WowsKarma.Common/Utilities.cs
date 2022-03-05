@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using Wargaming.WebAPI.Models;
+using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
@@ -22,7 +21,7 @@ public static class Utilities
 		"EU" => Region.EU,
 		"NA" => Region.NA,
 		"CIS" or "RU" => Region.CIS,
-		"ASIA" => Region.ASIA,
+		"ASIA" => Region.SEA,
 		_ => throw new ArgumentOutOfRangeException(nameof(configString))
 	};
 
@@ -31,7 +30,7 @@ public static class Utilities
 		Region.EU => "EU",
 		Region.NA => "NA",
 		Region.CIS => "CIS",
-		Region.ASIA => "ASIA",
+		Region.SEA => "ASIA",
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 
@@ -40,7 +39,7 @@ public static class Utilities
 		Region.EU => "eu",
 		Region.NA => "na",
 		Region.CIS => "ru",
-		Region.ASIA => "asia",
+		Region.SEA => "asia",
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 
@@ -49,7 +48,7 @@ public static class Utilities
 		"eu" => Region.EU,
 		"na" => Region.NA,
 		"ru" => Region.CIS,
-		"asia" => Region.ASIA,
+		"asia" => Region.SEA,
 		_ => throw new ArgumentOutOfRangeException(nameof(subdomain))
 	};
 
@@ -58,7 +57,7 @@ public static class Utilities
 		Region.EU => "https://wows-karma.com/",
 		Region.NA => "https://na.wows-karma.com/",
 		Region.CIS => "https://ru.wows-karma.com/",
-		Region.ASIA => "https://asia.wows-karma.com/",
+		Region.SEA => "https://asia.wows-karma.com/",
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 
@@ -67,7 +66,7 @@ public static class Utilities
 		Region.EU => "https://api.wows-karma.com/",
 		Region.NA => "https://api.na.wows-karma.com/",
 		Region.CIS => "https://api.ru.wows-karma.com/",
-		Region.ASIA => "https://api.asia.wows-karma.com/",
+		Region.SEA => "https://api.asia.wows-karma.com/",
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 

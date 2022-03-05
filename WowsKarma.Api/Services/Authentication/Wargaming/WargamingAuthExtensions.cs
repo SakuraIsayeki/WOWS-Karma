@@ -1,5 +1,4 @@
 ﻿using System.Net.Http;
-using System;
 using WowsKarma.Api.Services.Authentication.Wargaming;
 using WowsKarma.Common;
 using WowsKarma.Api;

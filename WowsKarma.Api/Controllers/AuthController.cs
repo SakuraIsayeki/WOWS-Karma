@@ -6,8 +6,6 @@ using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
 using WowsKarma.Common;
-using static WowsKarma.Common.Utilities;
-
 
 
 namespace WowsKarma.Api.Controllers;
@@ -45,7 +43,7 @@ public class AuthController : ControllerBase
 	/// </summary>
 	/// <response code="302">Redirection to Wargaming Auth</response>
 	[HttpGet("login"), ProducesResponseType(302)]
-	public IActionResult Login() => wargamingAuthService.RedirectToLogin(Startup.ApiRegion, Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault()));
+	public IActionResult Login() => WargamingAuthService.RedirectToLogin(Request.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault()));
 
 	/// <summary>
 	/// Provides a callback endpoint for Wargaming OpenID results, and stores all authentication information to relevant cookies.

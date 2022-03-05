@@ -1,9 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using WowsKarma.Api.Data.Models.Replays;
-using WowsKarma.Common.Models;
-using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Api.Data.Models
 {

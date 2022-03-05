@@ -1,7 +1,4 @@
 ﻿using DSharpPlus.Entities;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
-using WowsKarma.Api.Data.Models;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
 

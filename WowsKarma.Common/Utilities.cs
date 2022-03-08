@@ -2,6 +2,8 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using NodaTime.Serialization.SystemTextJson;
 using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
@@ -11,6 +13,12 @@ namespace WowsKarma.Common;
 
 public static class Utilities
 {
+	public static JsonSerializerOptions ApiSerializerOptions { get; } = new JsonSerializerOptions
+	{
+		ReferenceHandler = ReferenceHandler.Preserve
+	}
+		.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+	
 	public static JsonSerializerOptions CookieSerializerOptions { get; } = new()
 	{
 		PropertyNamingPolicy = JsonNamingPolicy.CamelCase

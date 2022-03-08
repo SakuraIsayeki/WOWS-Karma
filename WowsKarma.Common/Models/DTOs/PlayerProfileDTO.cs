@@ -16,9 +16,9 @@ public record PlayerProfileDTO
 	public int RatingTeamplay { get; init; }
 	public int RatingCourtesy { get; init; }
 
-	public DateTime WgAccountCreatedAt { get; init; }
-	public DateTime LastBattleTime { get; init; }
-	public DateTime OptOutChanged { get; init; }
+	public Instant WgAccountCreatedAt { get; init; }
+	public Instant LastBattleTime { get; init; }
+	public Instant OptOutChanged { get; init; }
 
 	public bool NegativeKarmaAble { get; init; }
 	public bool PostsBanned { get; init; }

@@ -5,13 +5,14 @@ using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Utilities;
+using WowsKarma.Common;
 
 namespace WowsKarma.Api.Services
 {
 	public class PlayerService
 	{
-		public static TimeSpan DataUpdateSpan { get; } = TimeSpan.FromHours(1);
-		public static TimeSpan OptOutCooldownSpan { get; } = TimeSpan.FromDays(7);
+		public static Duration DataUpdateSpan { get; } = Duration.FromHours(1);
+		public static Duration OptOutCooldownSpan { get; } = Duration.FromDays(7);
 
 		private readonly ApiDbContext _context;
 		private readonly WowsPublicApiClient _wgApi;
@@ -62,7 +63,7 @@ namespace WowsKarma.Api.Services
 
 				return player;
 			}
-			catch (Exception)
+			catch
 			{
 				return null;
 			}
@@ -103,7 +104,7 @@ namespace WowsKarma.Api.Services
 				player = Player.MapFromApi(await _context.Players.FindAsync(accountId), player);
 			}
 
-			player.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
+			player.UpdatedAt = Time.Now; // Forcing UpdatedAt refresh
 			await _context.SaveChangesAsync();
 			return player;
 		}
@@ -117,11 +118,11 @@ namespace WowsKarma.Api.Services
 				if (!IsOptOutOnCooldown(player.OptOutChanged))
 				{
 					player.OptedOut = flags.OptedOut;
-					player.OptOutChanged = DateTime.UtcNow;
+					player.OptOutChanged = Time.Now;
 				}
 				else
 				{
-					throw new CooldownException(nameof(OptOutCooldownSpan), player.OptOutChanged, DateTime.UtcNow);
+					throw new CooldownException(nameof(OptOutCooldownSpan), player.OptOutChanged, DateTimeOffset.UtcNow);
 				}
 			}
 
@@ -161,8 +162,8 @@ namespace WowsKarma.Api.Services
 			}
 		}
 
-		internal static bool UpdateNeeded(Player player) => player.UpdatedAt.Add(DataUpdateSpan) < DateTime.UtcNow;
-		internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange.Add(OptOutCooldownSpan) > DateTime.UtcNow;
+		internal static bool UpdateNeeded(Player player) => player.UpdatedAt + DataUpdateSpan < Time.Now;
+		internal static bool IsOptOutOnCooldown(Instant lastChange) => lastChange + OptOutCooldownSpan > Time.Now;
 
 		private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
 		{

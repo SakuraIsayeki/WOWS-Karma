@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 
-
 namespace WowsKarma.Api.Data.Models.Auth
 {
 	public record User
@@ -15,6 +14,6 @@ namespace WowsKarma.Api.Data.Models.Auth
 		[Required]
 		public Guid SeedToken { get; set; }
 
-		public DateTime LastTokenRequested { get; set; }
+		public Instant LastTokenRequested { get; set; }
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using WowsKarma.Common;
 
 
 namespace WowsKarma.Api.Data.Models;
@@ -15,8 +15,8 @@ public record Player : ITimestamped
 
 	public string Username { get; set; }
 
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
+	public Instant CreatedAt { get; init; }
+	public Instant UpdatedAt { get; set; }
 	
 	public virtual ClanMember ClanMember { get; set; }
 	
@@ -29,8 +29,8 @@ public record Player : ITimestamped
 	public int TeamplayRating { get; set; }
 	public int CourtesyRating { get; set; }
 
-	public DateTime WgAccountCreatedAt { get; init; }
-	public DateTime LastBattleTime { get; set; }
+	public Instant WgAccountCreatedAt { get; init; }
+	public Instant LastBattleTime { get; set; }
 
 	public virtual List<Post> PostsReceived { get; init; } = new();
 	public virtual List<Post> PostsSent { get; init; } = new();
@@ -40,12 +40,12 @@ public record Player : ITimestamped
 	public bool NegativeKarmaAble => (SiteKarma + GameKarma) > NegativeKarmaAbilityThreshold;
 	public bool PostsBanned { get; set; }
 	public bool OptedOut { get; set; }
-	public DateTime OptOutChanged { get; set; }
+	public Instant OptOutChanged { get; set; }
 
 
 	public bool IsBanned()
 		=> PostsBanned
-		|| PlatformBans?.Where(pb => !pb.Reverted && (pb.BannedUntil is null || pb.BannedUntil > DateTime.UtcNow)).Any() is true;
+		|| PlatformBans?.Where(pb => !pb.Reverted && (pb.BannedUntil is null || pb.BannedUntil > Time.Now)).Any() is true;
 
 
 

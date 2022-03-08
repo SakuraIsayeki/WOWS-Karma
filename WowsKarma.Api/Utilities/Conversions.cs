@@ -1,6 +1,9 @@
-﻿using Mapster;
+﻿using System.Drawing;
+using Mapster;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
+using WowsKarma.Common;
+using ClanInfo = Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Clans.ClanInfo;
 
 namespace WowsKarma.Api.Utilities
 {
@@ -27,6 +30,19 @@ namespace WowsKarma.Api.Utilities
 				.NewConfig()
 				.Ignore(dest => dest.Post)
 				.Ignore(dest => dest.Mod);
+
+			TypeAdapterConfig<ClanInfo, Clan>
+				.NewConfig()
+				.IgnoreNullValues(true)
+				.Map(dest => dest.LeagueColor, src => (uint)ColorTranslator.FromHtml(src.Color).ToArgb())
+				.Ignore(dest => dest.CreatedAt)
+				.Ignore(dest => dest.UpdatedAt);
+
+			TypeAdapterConfig<DateTime, Instant>.Clear();
+			TypeAdapterConfig<DateTime, Instant>.NewConfig().MapWith(x => Instant.FromDateTimeUtc(x));
+			
+			TypeAdapterConfig<DateTimeOffset, Instant>.Clear();
+			TypeAdapterConfig<DateTimeOffset, Instant>.NewConfig().MapWith(x => Instant.FromDateTimeOffset(x));
 		}
 
 		public static AccountListingDTO ToDTO(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);
@@ -44,9 +60,9 @@ namespace WowsKarma.Api.Utilities
 				? player
 				: player with
 				{
-					WgAccountCreatedAt = accountInfo.CreatedAtTime,
+					WgAccountCreatedAt = accountInfo.CreatedAtTime.Adapt<Instant>(),
 					GameKarma = accountInfo.Statistics.Basic?.Karma ?? 0,
-					LastBattleTime = DateTime.UnixEpoch.AddSeconds(accountInfo.Statistics.Basic!.LastBattleTime)
+					LastBattleTime = Instant.FromUnixTimeSeconds(accountInfo.Statistics.Basic!.LastBattleTime)
 				};
 		}
 

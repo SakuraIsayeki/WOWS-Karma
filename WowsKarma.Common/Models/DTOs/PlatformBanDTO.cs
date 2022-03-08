@@ -23,10 +23,10 @@ public record PlatformBanDTO
 	[Required]
 	public string Reason { get; set; }
 
-	public DateTime? BannedUntil { get; set; }
+	public Instant? BannedUntil { get; set; }
 
 	public bool Reverted { get; set; }
 
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
+	public Instant CreatedAt { get; init; }
+	public Instant UpdatedAt { get; set; }
 }

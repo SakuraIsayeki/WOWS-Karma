@@ -32,7 +32,7 @@ public class PlatformBansController : ControllerBase
 
 		if (currentOnly || User.ToAccountListing().Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			bans = bans.Where(b => b.BannedUntil > DateTime.UtcNow);
+			bans = bans.Where(b => b.BannedUntil > Time.Now);
 		}
 
 		return bans.Any()
@@ -53,7 +53,7 @@ public class PlatformBansController : ControllerBase
 		{
 			ModId = User.ToAccountListing().Id,
 			Reverted = false,
-			BannedUntil = days is 0 ? null : DateTime.UtcNow.AddDays(days)
+			BannedUntil = days is 0 ? null : Time.Now + Duration.FromDays(days)
 		}, authDb);
 
 		return StatusCode(202);
@@ -64,7 +64,7 @@ public class PlatformBansController : ControllerBase
 	/// </summary>
 	/// <param name="id">ID of Platform Ban to revert.</param>
 	/// <response code="200">Platform Ban was successfully reverted.</response>
-	[HttpDelete("{id}"), ProducesResponseType(200)]
+	[HttpDelete("{id:guid}"), ProducesResponseType(200)]
 	public async Task<IActionResult> RevertBan([FromQuery] Guid id)
 	{
 		await _service.RevertPlatformBanAsync(id);

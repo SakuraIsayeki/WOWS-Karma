@@ -11,6 +11,7 @@ using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Api.Services.Replays;
+using WowsKarma.Common;
 using WowsKarma.Common.Hubs;
 
 
@@ -157,7 +158,7 @@ namespace WowsKarma.Api.Services
 			post.Title = editedPostDTO.Title;
 			post.Content = editedPostDTO.Content;
 			post.Flairs = editedPostDTO.Flairs;
-			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
+			post.UpdatedAt = Time.Now; // Forcing UpdatedAt refresh
 
 			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
 			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, previousFlairs);

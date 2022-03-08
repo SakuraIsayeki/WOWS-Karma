@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NodaTime;
 
 namespace WowsKarma.Api.Data.Models;
 
@@ -17,8 +18,8 @@ public record Clan : ITimestamped
 	
 	public bool IsDisbanded { get; set; }
 
-	public List<ClanMember> Members { get; init; } = new();
+	public virtual List<ClanMember> Members { get; set; } = new();
 	
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
+	public Instant CreatedAt { get; init; }
+	public Instant UpdatedAt { get; set; }
 }

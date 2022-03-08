@@ -1,8 +1,10 @@
-﻿namespace WowsKarma.Api.Data.Models
+﻿using NodaTime;
+
+namespace WowsKarma.Api.Data.Models
 {
 	public interface ITimestamped
 	{
-		public DateTime CreatedAt { get; init; }
-		public DateTime UpdatedAt { get; set; }
+		public Instant CreatedAt { get; init; }
+		public Instant UpdatedAt { get; set; }
 	}
 }

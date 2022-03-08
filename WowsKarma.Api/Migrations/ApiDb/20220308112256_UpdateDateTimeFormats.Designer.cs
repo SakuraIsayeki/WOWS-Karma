@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NodaTime;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 using Nodsoft.WowsReplaysUnpack.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -18,13 +18,14 @@ using ReplayPlayer = WowsKarma.Api.Data.Models.Replays.ReplayPlayer;
 namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220308112256_UpdateDateTimeFormats")]
+    partial class UpdateDateTimeFormats
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "clan_role", new[] { "unknown", "commander", "executive_officer", "recruitment_officer", "commissioned_officer", "officer", "private" });
@@ -37,7 +38,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
 
-                    b.Property<Instant>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
@@ -57,7 +58,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<string>("Tag")
                         .HasColumnType("text");
 
-                    b.Property<Instant>("UpdatedAt")
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -74,10 +75,10 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<long>("ClanId")
                         .HasColumnType("bigint");
 
-                    b.Property<LocalDate>("JoinedAt")
+                    b.Property<DateOnly>("JoinedAt")
                         .HasColumnType("date");
 
-                    b.Property<LocalDate?>("LeftAt")
+                    b.Property<DateOnly?>("LeftAt")
                         .HasColumnType("date");
 
                     b.Property<long>("PlayerId")
@@ -93,7 +94,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.HasIndex("PlayerId")
                         .IsUnique();
 
-                    b.ToTable("ClanMembers");
+                    b.ToTable("ClanMember");
                 });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.NotificationBase", b =>
@@ -129,10 +130,10 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Instant?>("BannedUntil")
+                    b.Property<DateTimeOffset?>("BannedUntil")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Instant>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
@@ -147,7 +148,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<bool>("Reverted")
                         .HasColumnType("boolean");
 
-                    b.Property<Instant>("UpdatedAt")
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<long>("UserId")
@@ -170,7 +171,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<int>("CourtesyRating")
                         .HasColumnType("integer");
 
-                    b.Property<Instant>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
@@ -178,10 +179,10 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<int>("GameKarma")
                         .HasColumnType("integer");
 
-                    b.Property<Instant>("LastBattleTime")
+                    b.Property<DateTimeOffset>("LastBattleTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Instant>("OptOutChanged")
+                    b.Property<DateTimeOffset>("OptOutChanged")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("OptedOut")
@@ -199,13 +200,13 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<int>("TeamplayRating")
                         .HasColumnType("integer");
 
-                    b.Property<Instant>("UpdatedAt")
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
                         .HasColumnType("text");
 
-                    b.Property<Instant>("WgAccountCreatedAt")
+                    b.Property<DateTimeOffset>("WgAccountCreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("WgHidden")
@@ -229,7 +230,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Instant>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
@@ -253,7 +254,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Instant>("UpdatedAt")
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");

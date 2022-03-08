@@ -7,6 +7,7 @@ using WowsKarma.Api.Data.Models.Auth;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
+using WowsKarma.Common;
 using WowsKarma.Common.Hubs;
 
 namespace WowsKarma.Api.Services.Authentication;
@@ -25,13 +26,13 @@ public class UserService
 
 	public Task<User> GetUserAsync(uint id) => context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
 
-	public async Task<IEnumerable<Claim>> GetUserClaimsAsync(uint id) => await GetUserAsync(id) is User user
+	public async Task<IEnumerable<Claim>> GetUserClaimsAsync(uint id) => await GetUserAsync(id) is { } user
 		? (from role in user.Roles select new Claim(ClaimTypes.Role, role.InternalName))
 		: Enumerable.Empty<Claim>();
 
 	public async Task<Guid> GetUserSeedTokenAsync(uint id)
 	{
-		if (await GetUserAsync(id) is not User user)
+		if (await GetUserAsync(id) is not { } user)
 		{
 			user = new()
 			{
@@ -42,16 +43,16 @@ public class UserService
 			await context.Users.AddAsync(user);
 		}
 
-		user.LastTokenRequested = DateTime.UtcNow;
+		user.LastTokenRequested = Time.Now;
 		await context.SaveChangesAsync();
 		return user.SeedToken;
 	}
 
-	public async Task<bool> ValidateUserSeedTokenAsync(uint id, Guid seedToken) => await GetUserAsync(id) is User user && user.SeedToken == seedToken;
+	public async Task<bool> ValidateUserSeedTokenAsync(uint id, Guid seedToken) => await GetUserAsync(id) is { } user && user.SeedToken == seedToken;
 
 	public async Task RenewSeedTokenAsync(uint id)
 	{
-		if (await GetUserAsync(id) is User user)
+		if (await GetUserAsync(id) is { } user)
 		{
 			user.SeedToken = Guid.NewGuid();
 			await context.SaveChangesAsync();
@@ -62,9 +63,9 @@ public class UserService
 
 	public async Task<JwtSecurityToken> CreateTokenAsync(WargamingIdentity identity)
 	{
-		AccountListingDTO accountListing = identity.GetAccountListing();
+		(uint id, _) = identity.GetAccountListing();
 
-		if (identity.Claims.Where(c => c.Type is ClaimTypes.Role).ToArray() is IEnumerable<Claim> claims && claims.Any())
+		if (identity.Claims.Where(c => c.Type is ClaimTypes.Role).ToArray() is { Length: > 0 } claims)
 		{
 			foreach (Claim c in claims)
 			{
@@ -72,20 +73,20 @@ public class UserService
 			}
 		}
 
-		identity.AddClaims(await GetUserClaimsAsync(accountListing.Id));
+		identity.AddClaims(await GetUserClaimsAsync(id));
 
 
-		if (identity.Claims.FirstOrDefault(c => c.Type is SeedTokenClaimType) is Claim seedClaim)
+		if (identity.Claims.FirstOrDefault(c => c.Type is SeedTokenClaimType) is { } seedClaim)
 		{
 			identity.RemoveClaim(seedClaim);
 		}
 
-		if (identity.Claims.FirstOrDefault(c => c.Type is "aud") is Claim audClaim)
+		if (identity.Claims.FirstOrDefault(c => c.Type is "aud") is { } audClaim)
 		{
 			identity.RemoveClaim(audClaim);
 		}
 
-		identity.AddClaim(new(SeedTokenClaimType, (await GetUserSeedTokenAsync(accountListing.Id)).ToString()));
+		identity.AddClaim(new(SeedTokenClaimType, (await GetUserSeedTokenAsync(id)).ToString()));
 
 		return JwtService.GenerateToken(identity.Claims);
 	}

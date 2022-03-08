@@ -30,8 +30,8 @@ namespace WowsKarma.Api.Data.Models
 		public virtual Replay Replay { get; set; }
 
 		// Computed by DB Engine (hopefully)
-		public DateTime CreatedAt { get; init; }
-		public DateTime UpdatedAt { get; set; }
+		public Instant CreatedAt { get; init; }
+		public Instant UpdatedAt { get; set; }
 
 		public bool NegativeKarmaAble { get; internal set; }
 

@@ -1,7 +1,12 @@
-﻿namespace WowsKarma.Api.Utilities;
+﻿namespace WowsKarma.Common;
 
 public static class Time
 {
+	/// <summary>
+	/// Get an Instant object for Now, from the SystemClock.
+	/// </summary>
+	public static Instant Now => SystemClock.Instance.GetCurrentInstant();
+	
 	/// <summary>
 	/// Converts a given DateTime into a Unix timestamp
 	/// </summary>

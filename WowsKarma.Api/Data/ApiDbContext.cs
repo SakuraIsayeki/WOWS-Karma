@@ -12,6 +12,7 @@ namespace WowsKarma.Api.Data;
 public class ApiDbContext : DbContext
 {
 	public DbSet<Clan> Clans { get; init; }
+	public DbSet<ClanMember> ClanMembers { get; init; }
 	public DbSet<PlatformBan> PlatformBans { get; init; }
 	public DbSet<Player> Players { get; init; }
 	public DbSet<Post> Posts { get; init; }
@@ -31,6 +32,8 @@ public class ApiDbContext : DbContext
 
 	static ApiDbContext()
 	{
+		NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
+		
 		NpgsqlConnection.GlobalTypeMapper.MapEnum<ModActionType>();
 		NpgsqlConnection.GlobalTypeMapper.MapEnum<NotificationType>();
 		NpgsqlConnection.GlobalTypeMapper.MapEnum<ClanRole>();
@@ -43,7 +46,7 @@ public class ApiDbContext : DbContext
 		foreach (Type type in modelBuilder.Model.GetEntityTypes().Where(t => t.ClrType.ImplementsInterface(typeof(ITimestamped))).Select(t => t.ClrType))
 		{
 			modelBuilder.Entity(type)
-				.Property<DateTime>(nameof(ITimestamped.CreatedAt))
+				.Property<Instant>(nameof(ITimestamped.CreatedAt))
 					.ValueGeneratedOnAdd()
 					.HasDefaultValueSql("NOW()");
 		}

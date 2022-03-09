@@ -62,39 +62,31 @@ namespace WowsKarma.Api.Services
 			Player player = await dbPlayers.FirstOrDefaultAsync(p => p.Id == accountId, ct);
 			bool updated = false;
 			
+			if (player is null || UpdateNeeded(player))
+			{
+				player = await UpdatePlayerRecordAsync(player, accountId);
+				updated = true;
+			}
+
+			if (includeClanInfo)
+			{
+				player = await UpdatePlayerClanStatusAsync(player, ct);
+				updated = true;
+			}
+
+			if (updated)
+			{
+				player.UpdatedAt = Time.Now;
+			}
+
+			await _context.SaveChangesAsync(ct);
+
+			if (player.ClanMember is { ClanId: not 0 })
+			{
+				player.ClanMember = player.ClanMember with { Clan = await _clanService.GetClanAsync(player.ClanMember.ClanId, ct: ct) };
+			}
 			
-			try
-			{
-				if (player is null || UpdateNeeded(player))
-				{
-					player = await UpdatePlayerRecordAsync(player, accountId);
-					updated = true;
-				}
-
-				if (includeClanInfo)
-				{
-					player = await UpdatePlayerClanStatusAsync(player, ct);
-					updated = true;
-				}
-
-				if (updated)
-				{
-					player.UpdatedAt = Time.Now;
-				}
-
-				await _context.SaveChangesAsync(ct);
-
-				if (player.ClanMember is { ClanId: not 0 })
-				{
-					player.ClanMember = player.ClanMember with { Clan = await _clanService.GetClanAsync(player.ClanMember.ClanId, ct: ct) };
-				}
-				
-				return player;
-			}
-			catch
-			{
-				return null;
-			}
+			return player;
 		}
 
 		public IQueryable<AccountFullKarmaDTO> GetPlayersFullKarma(IEnumerable<uint> accountIds)
@@ -123,28 +115,35 @@ namespace WowsKarma.Api.Services
 		{
 			// Bypass if individual player was recently updated, or if clan members were recently updated and supercedes player update.
 			if (player?.ClanMember?.Clan?.MembersUpdatedAt is { } lastClanUpdate 
-					&& Time.Now > lastClanUpdate + ClanService.ClanMemberUpdateSpan
-					&& lastClanUpdate > player!.UpdatedAt
-				|| Time.Now > player!.UpdatedAt + ClanService.ClanMemberUpdateSpan)
+				&& Time.Now > lastClanUpdate + ClanService.ClanMemberUpdateSpan
+				&& lastClanUpdate > player!.UpdatedAt
+				|| Time.Now < player!.UpdatedAt + ClanService.ClanMemberUpdateSpan)
 			{
 				return player;
 			}
 
 			VortexAccountClanInfo apiResult = await _vortex.FetchAccountClanAsync(player.Id, ct);
+			Clan clan = null;
+			
+			if (apiResult.ClanId is not null)
+			{
+				clan = await _clanService.GetClanAsync(apiResult.ClanId.Value, ct: ct);
+			}
 
-			if (player.ClanMember?.ClanId != apiResult?.ClanId)
+			if (player.ClanMember?.ClanId != apiResult.ClanId)
 			{
 				if (player.ClanMember is not null)
 				{
 					_context.ClanMembers.Remove(player.ClanMember);
 				}
 				
-				player.ClanMember = apiResult?.ClanId is null
+				player.ClanMember = apiResult.ClanId is null
 					? null
 					: new()
 					{
 						PlayerId = player.Id,
 						ClanId = apiResult.ClanId.Value,
+						Clan = clan,
 						JoinedAt = LocalDate.FromDateTime(apiResult.JoinedAt!.Value),
 						Role = apiResult.Role
 					};

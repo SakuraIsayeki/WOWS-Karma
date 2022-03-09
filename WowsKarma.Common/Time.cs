@@ -1,4 +1,6 @@
-﻿namespace WowsKarma.Common;
+﻿using System.Globalization;
+
+namespace WowsKarma.Common;
 
 public static class Time
 {

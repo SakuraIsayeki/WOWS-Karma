@@ -15,7 +15,9 @@ public static class Utilities
 {
 	public static JsonSerializerOptions ApiSerializerOptions { get; } = new JsonSerializerOptions
 	{
-		ReferenceHandler = ReferenceHandler.Preserve
+		ReferenceHandler = ReferenceHandler.Preserve,
+		PropertyNameCaseInsensitive = true,
+		NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals
 	}
 		.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
 	

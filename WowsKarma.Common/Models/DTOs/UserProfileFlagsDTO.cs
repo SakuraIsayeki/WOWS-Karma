@@ -7,5 +7,5 @@ public record UserProfileFlagsDTO
 	public bool PostsBanned { get; init; }
 
 	public bool OptedOut { get; init; }
-	public DateTime OptOutChanged { get; init; }
+	public Instant OptOutChanged { get; init; }
 }

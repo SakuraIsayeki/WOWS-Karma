@@ -1,4 +1,8 @@
-﻿namespace WowsKarma.Common.Models.DTOs;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
+using System.Text.Json.Serialization;
+
+namespace WowsKarma.Common.Models.DTOs;
 
 public record ClanListingDTO
 {
@@ -8,4 +12,7 @@ public record ClanListingDTO
 	public string Name { get; set; } = string.Empty;
 
 	public uint LeagueColor { get; set; }
+
+	[JsonIgnore, NotMapped]
+	public string LeagueColorHex => LeagueColor.ToString("X")[2..8];
 }

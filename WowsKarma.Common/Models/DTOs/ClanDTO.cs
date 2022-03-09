@@ -13,8 +13,11 @@ public record ClanDTO
 	
 	public bool IsDisbanded { get; set; }
 
-	public virtual IEnumerable<PlayerClanProfileDTO> Members { get; set; }
-	
 	public Instant CreatedAt { get; init; }
 	public Instant UpdatedAt { get; set; }
+}
+
+public record ClanFullDTO : ClanDTO
+{
+	public virtual IEnumerable<PlayerClanProfileDTO>? Members { get; set; }
 }

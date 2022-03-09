@@ -79,9 +79,6 @@ public class ClanService
 			uint[] missing = members.Keys.Where(x => players.All(p => p.Key != x)).ToArray();
 			uint[] outdated = players.Values.Where(PlayerService.UpdateNeeded).Select(p => p.Id).ToArray();
 
-			Dictionary<uint, Player> missingResolved = new();
-
-
 			foreach (uint id in missing)
 			{
 				Player dbPlayer = (await _vortex.FetchAccountAsync(id, ct)).ToDbModel();
@@ -104,8 +101,6 @@ public class ClanService
 				JoinedAt = Time.Now.InUtc().Date.Minus(Period.FromDays(Convert.ToInt32(x.DaysInClan))),
 				Role = x.Role.Name
 			}));
-
-			
 		}
 
 		if (firstEntry)
@@ -113,9 +108,11 @@ public class ClanService
 			_context.Clans.Add(dbClan);
 		}
 		
-		_context.AttachRange(dbClan.Members.Where(m => _context.ClanMembers.Contains(m)));
-		await _context.AddRangeAsync(dbClan.Members.Except(_context.ClanMembers.Where(m => dbClan.Members.Contains(m))), ct);
+		_context.ClanMembers.UpsertRange(dbClan.Members);
+		_context.RemoveRange(_context.ClanMembers.Where(x => x.ClanId == clanId && !dbClan.Members.Select(x => x.PlayerId).Contains(x.PlayerId)));
 
+		dbClan.UpdatedAt = Time.Now;
+		
 		await _context.SaveChangesAsync(ct);
 		return dbClan;
 	}

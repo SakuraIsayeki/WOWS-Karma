@@ -11,20 +11,10 @@ namespace WowsKarma.Api.Utilities
 	{
 		public static void ConfigureMapping()
 		{
-			TypeAdapterConfig<Post, PlayerPostDTO>
-				.NewConfig()
-				.Map(dest => dest.AuthorUsername, src => src.Author.Username)
-				.Map(dest => dest.PlayerUsername, src => src.Player.Username);
-
 			TypeAdapterConfig<PlayerPostDTO, Post>
 				.NewConfig()
 				.Ignore(dest => dest.Author)
 				.Ignore(dest => dest.Player);
-
-			TypeAdapterConfig<PostModAction, PostModActionDTO>
-				.NewConfig()
-				.IgnoreNullValues(true)
-				.Map(dest => dest.ModUsername, src => src.Mod.Username);
 
 			TypeAdapterConfig<PostModActionDTO, PostModAction>
 				.NewConfig()
@@ -37,6 +27,21 @@ namespace WowsKarma.Api.Utilities
 				.Map(dest => dest.LeagueColor, src => (uint)ColorTranslator.FromHtml(src.Color).ToArgb())
 				.Ignore(dest => dest.CreatedAt)
 				.Ignore(dest => dest.UpdatedAt);
+
+			TypeAdapterConfig<Player, PlayerClanProfileDTO>
+				.NewConfig()
+				.IgnoreNullValues(true)
+				.Map(dest => dest.Id, src => src.Id)
+				.Map(dest => dest.ClanMemberRole, src => src.ClanMember.Role)
+				.Map(dest => dest.Clan, src => src.ClanMember.Clan);
+
+
+			TypeAdapterConfig<ClanMember, PlayerClanProfileDTO>
+				.NewConfig()
+				.IgnoreNullValues(true)
+				.Map(dest => dest, src => src.Player)
+				.Map(dest => dest.Id, src => src.PlayerId);
+
 
 			TypeAdapterConfig<DateTime, Instant>.Clear();
 			TypeAdapterConfig<DateTime, Instant>.NewConfig().MapWith(x => Instant.FromDateTimeUtc(x));

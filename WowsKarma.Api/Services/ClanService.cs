@@ -17,7 +17,8 @@ namespace WowsKarma.Api.Services;
 
 public class ClanService
 {
-	public static Duration DataUpdateSpan { get; } = Duration.FromHours(1);
+	public static Duration ClanInfoUpdateSpan { get; } = Duration.FromHours(4);
+	public static Duration ClanMemberUpdateSpan { get; } = Duration.FromHours(1);
 	
 	private readonly ApiDbContext _context;
 	private readonly WowsPublicApiClient _publicApi;
@@ -40,82 +41,79 @@ public class ClanService
 	
 	public async Task<Clan> GetClanAsync(uint clanId, bool includeMembers = false, CancellationToken ct = default)
 	{
-		Clan dbClan = await GetDbClans(includeMembers).FirstOrDefaultAsync(c => c.Id == clanId, ct);
+		Clan clan = await GetDbClans(includeMembers).FirstOrDefaultAsync(c => c.Id == clanId, ct);
+		bool updateInfo = clan is null || ClanInfoUpdateNeeded(clan);
+		bool updateMembers = clan is null || ClanMembersUpdateNeeded(clan);
 
-		if (dbClan is null)
+		if (updateInfo || updateMembers)
 		{
-			dbClan = await UpdateClanAsync(clanId, true, includeMembers, ct);
-		}
-		else if (UpdateNeeded(dbClan))
-		{
-			dbClan = await UpdateClanAsync(clanId, false, includeMembers, ct);
+			if (updateInfo)
+			{
+				ClanInfo apiClan = (await _clansApi.FetchClanViewAsync(clanId, ct))?.Clan;
+				clan = clan is null
+					? apiClan?.Adapt<Clan>()
+					: clan with
+					{
+						Tag = apiClan.Tag,
+						Name = apiClan.Name,
+						Description = apiClan.Description,
+						LeagueColor = (uint)ColorTranslator.FromHtml(apiClan.Color).ToArgb()
+					};
+
+				clan.UpdatedAt = Time.Now;
+				_context.Clans.Upsert(clan);
+			}
+
+			if (updateMembers)
+			{
+				await UpdateClanMembersAsync(clan, ct);
+			}
+			
+			await _context.SaveChangesAsync(ct);
 		}
 
-		return dbClan;
+		return clan;
 	}
 
-	internal async Task<Clan> UpdateClanAsync(uint clanId, bool firstEntry, bool updateMembers = true, CancellationToken ct = default)
+	private async Task UpdateClanMembersAsync(Clan clan, CancellationToken ct)
 	{
-		ClanInfo apiClan = (await _clansApi.FetchClanViewAsync(clanId, ct))?.Clan;
-		
-		Clan dbClan = firstEntry
-			? apiClan?.Adapt<Clan>()
-			: await GetDbClans(updateMembers).FirstAsync(c => c.Id == clanId, ct) with
-			{
-				Tag = apiClan.Tag,
-				Name = apiClan.Name,
-				Description = apiClan.Description,
-				LeagueColor = (uint)ColorTranslator.FromHtml(apiClan.Color).ToArgb()
-			};
+		Dictionary<uint, ApiClanMember> members = (await _clansApi.FetchClanMembersAsync(clan.Id, ct: ct))!.Items!.ToDictionary(x => x.Id);
+			
+#pragma warning disable CA1841
+		Dictionary<uint, Player> players = _context.Players.Where(p => members.Keys.Contains(p.Id)).ToDictionary(p => p.Id);
+#pragma warning restore CA1841
+			
+		uint[] missing = members.Keys.Where(x => players.All(p => p.Key != x)).ToArray();
+		uint[] outdated = players.Values.Where(PlayerService.UpdateNeeded).Select(p => p.Id).ToArray();
 
-		if (updateMembers)
+		foreach (uint id in missing)
 		{
-			Dictionary<uint, ApiClanMember> members = (await _clansApi.FetchClanMembersAsync(clanId, ct: ct))!.Items!.ToDictionary(x => x.Id);
+			Player dbPlayer = (await _vortex.FetchAccountAsync(id, ct)).ToDbModel();
+			players.Add(id, dbPlayer);
+			_context.Players.Add(dbPlayer);
+		}
 			
-			#pragma warning disable CA1841
-			Dictionary<uint, Player> players = _context.Players.Where(p => members.Keys.Contains(p.Id)).ToDictionary(p => p.Id);
-			#pragma warning restore CA1841
-			
-			uint[] missing = members.Keys.Where(x => players.All(p => p.Key != x)).ToArray();
-			uint[] outdated = players.Values.Where(PlayerService.UpdateNeeded).Select(p => p.Id).ToArray();
-
-			foreach (uint id in missing)
-			{
-				Player dbPlayer = (await _vortex.FetchAccountAsync(id, ct)).ToDbModel();
-				players.Add(id, dbPlayer);
-				_context.Players.Add(dbPlayer);
-			}
-			
-			foreach (uint id in outdated)
-			{
-				Player dbPlayer = Player.MapFromApi(players[id], await _context.Players.FindAsync(new object[] { id }, ct));
-				_context.Attach(dbPlayer);
-				players[id] = dbPlayer;
-			}
-
-			dbClan!.Members = new(members.Values.Select(x => new ClanMember
-			{
-				PlayerId = x.Id,
-				Player = players[x.Id],
-				ClanId = clanId,
-				JoinedAt = Time.Now.InUtc().Date.Minus(Period.FromDays(Convert.ToInt32(x.DaysInClan))),
-				Role = x.Role.Name
-			}));
+		foreach (uint id in outdated)
+		{
+			Player dbPlayer = Player.MapFromApi(players[id], await _context.Players.FindAsync(new object[] { id }, ct));
+			_context.Attach(dbPlayer);
+			players[id] = dbPlayer;
 		}
 
-		if (firstEntry)
+		clan!.Members = new(members.Values.Select(x => new ClanMember
 		{
-			_context.Clans.Add(dbClan);
-		}
+			PlayerId = x.Id,
+			Player = players[x.Id],
+			ClanId = clan.Id,
+			JoinedAt = Time.Now.InUtc().Date.Minus(Period.FromDays(Convert.ToInt32(x.DaysInClan))),
+			Role = x.Role.Name
+		}));
 		
-		_context.ClanMembers.UpsertRange(dbClan.Members);
-		_context.RemoveRange(_context.ClanMembers.Where(x => x.ClanId == clanId && !dbClan.Members.Select(x => x.PlayerId).Contains(x.PlayerId)));
-
-		dbClan.UpdatedAt = Time.Now;
-		
-		await _context.SaveChangesAsync(ct);
-		return dbClan;
+		_context.ClanMembers.UpsertRange(clan.Members);
+		clan.MembersUpdatedAt = Time.Now;
+		_context.RemoveRange(_context.ClanMembers.Where(x => x.ClanId == clan.Id && !clan.Members.Select(y => y.PlayerId).Contains(x.PlayerId)));
 	}
-	
-	internal static bool UpdateNeeded(Clan clan) => clan.UpdatedAt + DataUpdateSpan < Time.Now;
+
+	internal static bool ClanInfoUpdateNeeded(Clan clan) => clan.UpdatedAt + ClanInfoUpdateSpan < Time.Now;
+	internal static bool ClanMembersUpdateNeeded(Clan clan) => clan.MembersUpdatedAt + ClanMemberUpdateSpan < Time.Now;
 }

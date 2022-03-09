@@ -22,4 +22,5 @@ public record Clan : ITimestamped
 	
 	public Instant CreatedAt { get; init; }
 	public Instant UpdatedAt { get; set; }
+	public Instant MembersUpdatedAt { get; set; }
 }

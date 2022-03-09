@@ -13,4 +13,6 @@ public record ClanProfileDTO : ClanListingDTO
 public record ClanProfileFullDTO : ClanProfileDTO
 {
 	public virtual IEnumerable<PlayerClanProfileDTO>? Members { get; set; }
+	
+	public Instant MembersUpdatedAt { get; set; }
 }

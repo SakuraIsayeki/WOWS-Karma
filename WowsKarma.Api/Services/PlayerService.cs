@@ -36,7 +36,7 @@ namespace WowsKarma.Api.Services
 		 * Method no longer returns any tracked entity, resulting in dropped changes for EF Core
 		 * Do not use unless readonly.
 		 */
-		public async Task<Player> GetPlayerAsync(uint accountId, bool includeRelated = false, bool includeClanInfo = true)
+		public async Task<Player> GetPlayerAsync(uint accountId, bool includeRelated = false, bool includeClanInfo = true, CancellationToken ct = default)
 		{
 			if (accountId is 0)
 			{
@@ -59,23 +59,37 @@ namespace WowsKarma.Api.Services
 			}
 
 
-			Player player = await dbPlayers.FirstOrDefaultAsync(p => p.Id == accountId);
-
+			Player player = await dbPlayers.FirstOrDefaultAsync(p => p.Id == accountId, ct);
+			bool updated = false;
+			
+			
 			try
 			{
-				if (player is null)
+				if (player is null || UpdateNeeded(player))
 				{
-					return await UpdatePlayerRecordAsync(accountId, true);
+					player = await UpdatePlayerRecordAsync(player, accountId);
+					updated = true;
 				}
 
-				if (UpdateNeeded(player))
+				if (includeClanInfo)
 				{
-					return await UpdatePlayerRecordAsync(accountId, false);
+					player = await UpdatePlayerClanStatusAsync(player, ct);
+					updated = true;
 				}
 
-				return includeClanInfo 
-					? await UpdatePlayerClanStatusAsync(player) 
-					: player;
+				if (updated)
+				{
+					player.UpdatedAt = Time.Now;
+				}
+
+				await _context.SaveChangesAsync(ct);
+
+				if (player.ClanMember is { ClanId: not 0 })
+				{
+					player.ClanMember = player.ClanMember with { Clan = await _clanService.GetClanAsync(player.ClanMember.ClanId, ct: ct) };
+				}
+				
+				return player;
 			}
 			catch
 			{
@@ -107,8 +121,10 @@ namespace WowsKarma.Api.Services
 
 		internal async Task<Player> UpdatePlayerClanStatusAsync(Player player, CancellationToken ct = default)
 		{
-			// Bypass if clan members were recently updated, or if individual player was.
-			if (player?.ClanMember?.Clan?.MembersUpdatedAt is { } lastClanUpdate && Time.Now > lastClanUpdate + ClanService.ClanMemberUpdateSpan
+			// Bypass if individual player was recently updated, or if clan members were recently updated and supercedes player update.
+			if (player?.ClanMember?.Clan?.MembersUpdatedAt is { } lastClanUpdate 
+					&& Time.Now > lastClanUpdate + ClanService.ClanMemberUpdateSpan
+					&& lastClanUpdate > player!.UpdatedAt
 				|| Time.Now > player!.UpdatedAt + ClanService.ClanMemberUpdateSpan)
 			{
 				return player;
@@ -118,7 +134,10 @@ namespace WowsKarma.Api.Services
 
 			if (player.ClanMember?.ClanId != apiResult?.ClanId)
 			{
-				_context.ClanMembers.Remove(player.ClanMember!);
+				if (player.ClanMember is not null)
+				{
+					_context.ClanMembers.Remove(player.ClanMember);
+				}
 				
 				player.ClanMember = apiResult?.ClanId is null
 					? null
@@ -126,41 +145,31 @@ namespace WowsKarma.Api.Services
 					{
 						PlayerId = player.Id,
 						ClanId = apiResult.ClanId.Value,
-						Clan = await _clanService.GetClanAsync(apiResult.ClanId.Value, ct: ct),
 						JoinedAt = LocalDate.FromDateTime(apiResult.JoinedAt!.Value),
 						Role = apiResult.Role
 					};
 
-				_context.ClanMembers.Attach(player.ClanMember!);
+				_context.ClanMembers.Upsert(player.ClanMember!);
 			}
 			else
 			{
 				player.ClanMember = player.ClanMember! with
 				{
-					Role = apiResult!.Role,
-					Clan = await _clanService.GetClanAsync(player.ClanMember.ClanId, ct: ct)
+					Role = apiResult!.Role
 				};
 			}
-
-			await _context.SaveChangesAsync(ct);
+			
 			return player;
 		}
 
-		internal async Task<Player> UpdatePlayerRecordAsync(uint accountId, bool firstEntry)
+		internal async Task<Player> UpdatePlayerRecordAsync(Player player, uint? accountId = null)
 		{
-			Player player = (await _vortex.FetchAccountAsync(accountId)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
+			Player apiPlayer = (await _vortex.FetchAccountAsync(player?.Id ?? accountId ?? 0)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
 
-			if (firstEntry)
-			{
-				_context.Players.Add(player);
-			}
-			else
-			{
-				player = Player.MapFromApi(await _context.Players.FindAsync(accountId), player);
-			}
-
-			player.UpdatedAt = Time.Now; // Forcing UpdatedAt refresh
-			await _context.SaveChangesAsync();
+			player = player is null 
+				? _context.Players.Add(apiPlayer).Entity 
+				: Player.MapFromApi(player, apiPlayer);
+			
 			return player;
 		}
 

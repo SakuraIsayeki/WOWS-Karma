@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
+using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Utilities;
@@ -17,13 +18,15 @@ namespace WowsKarma.Api.Services
 		private readonly ApiDbContext _context;
 		private readonly WowsPublicApiClient _wgApi;
 		private readonly WowsVortexApiClient _vortex;
+		private readonly ClanService _clanService;
 
 
-		public PlayerService(ApiDbContext context, WowsPublicApiClient wgApi, WowsVortexApiClient vortex)
+		public PlayerService(ApiDbContext context, WowsPublicApiClient wgApi, WowsVortexApiClient vortex, ClanService clanService)
 		{
 			_context = context;
 			_wgApi = wgApi;
 			_vortex = vortex;
+			_clanService = clanService;
 		}
 
 
@@ -33,18 +36,27 @@ namespace WowsKarma.Api.Services
 		 * Method no longer returns any tracked entity, resulting in dropped changes for EF Core
 		 * Do not use unless readonly.
 		 */
-		public async Task<Player> GetPlayerAsync(uint accountId, bool includeRelated = false)
+		public async Task<Player> GetPlayerAsync(uint accountId, bool includeRelated = false, bool includeClanInfo = true)
 		{
 			if (accountId is 0)
 			{
 				return null;
 			}
 
-			IQueryable<Player> dbPlayers = !includeRelated
-				? _context.Players
-				: _context.Players
-					.Include(p => p.PlatformBans);
+			IQueryable<Player> dbPlayers = _context.Players;
 
+			if (includeRelated)
+			{
+				_context.Players
+					.Include(p => p.PlatformBans);
+			}
+
+			if (includeClanInfo)
+			{
+				dbPlayers = dbPlayers
+					.Include(p => p.ClanMember)
+						.ThenInclude(cm => cm.Clan);
+			}
 
 
 			Player player = await dbPlayers.FirstOrDefaultAsync(p => p.Id == accountId);
@@ -61,7 +73,9 @@ namespace WowsKarma.Api.Services
 					return await UpdatePlayerRecordAsync(accountId, false);
 				}
 
-				return player;
+				return includeClanInfo 
+					? await UpdatePlayerClanStatusAsync(player) 
+					: player;
 			}
 			catch
 			{
@@ -89,6 +103,47 @@ namespace WowsKarma.Api.Services
 			return result is { Length: > 0 }
 				? result.Select(listing => listing.ToDTO())
 				: null;
+		}
+
+		internal async Task<Player> UpdatePlayerClanStatusAsync(Player player, CancellationToken ct = default)
+		{
+			// Bypass if clan members were recently updated, or if individual player was.
+			if (player?.ClanMember?.Clan?.MembersUpdatedAt is { } lastClanUpdate && Time.Now > lastClanUpdate + ClanService.ClanMemberUpdateSpan
+				|| Time.Now > player!.UpdatedAt + ClanService.ClanMemberUpdateSpan)
+			{
+				return player;
+			}
+
+			VortexAccountClanInfo apiResult = await _vortex.FetchAccountClanAsync(player.Id, ct);
+
+			if (player.ClanMember?.ClanId != apiResult?.ClanId)
+			{
+				_context.ClanMembers.Remove(player.ClanMember!);
+				
+				player.ClanMember = apiResult?.ClanId is null
+					? null
+					: new()
+					{
+						PlayerId = player.Id,
+						ClanId = apiResult.ClanId.Value,
+						Clan = await _clanService.GetClanAsync(apiResult.ClanId.Value, ct: ct),
+						JoinedAt = LocalDate.FromDateTime(apiResult.JoinedAt!.Value),
+						Role = apiResult.Role
+					};
+
+				_context.ClanMembers.Attach(player.ClanMember!);
+			}
+			else
+			{
+				player.ClanMember = player.ClanMember! with
+				{
+					Role = apiResult!.Role,
+					Clan = await _clanService.GetClanAsync(player.ClanMember.ClanId, ct: ct)
+				};
+			}
+
+			await _context.SaveChangesAsync(ct);
+			return player;
 		}
 
 		internal async Task<Player> UpdatePlayerRecordAsync(uint accountId, bool firstEntry)

@@ -8,5 +8,5 @@ public record PlayerClanProfileDTO : PlayerProfileDTO
 	
 	public ClanRole ClanMemberRole { get; init; }
 	
-	public LocalDate JoinedAt { get; init; }
+	public LocalDate JoinedClanAt { get; init; }
 }

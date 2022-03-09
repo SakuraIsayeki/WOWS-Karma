@@ -1,4 +1,4 @@
-﻿namespace WowsKarma.Common.Models.DTOs;
+﻿namespace WowsKarma.Common.Models.DTOs.Clans;
 
 public record ClanProfileDTO : ClanListingDTO
 {

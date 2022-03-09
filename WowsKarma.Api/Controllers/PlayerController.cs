@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
+using Mapster;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
 
@@ -25,7 +26,7 @@ namespace WowsKarma.Api.Controllers
 		/// <param name="query">Username search query</param>
 		/// <response code="200">Account listings for given search query</response>
 		/// <response code="204">No results found for given search query</response>
-		[HttpGet("Search/{query}"), ProducesResponseType(typeof(IEnumerable<AccountListingDTO>), 200), ProducesResponseType(204)]
+		[HttpGet("search/{query}"), ProducesResponseType(typeof(IEnumerable<AccountListingDTO>), 200), ProducesResponseType(204)]
 		public async Task<IActionResult> SearchAccount([StringLength(100, MinimumLength = 3), RegularExpression(@"^[a-zA-Z0-9_]*$")] string query)
 		{
 			IEnumerable<AccountListingDTO> accounts = await service.ListPlayersAsync(query);
@@ -39,21 +40,24 @@ namespace WowsKarma.Api.Controllers
 		/// Fetches the player profile for a given Account ID.
 		/// </summary>
 		/// <param name="id">Player account ID</param>
+		/// <param name="includeClanInfo">Include clan membership info while fetching player profile.</param>
 		/// <response code="200">Returns player profile</response>
 		/// <response code="204">No profile found</response>
 		[HttpGet("{id}"), ProducesResponseType(typeof(PlayerProfileDTO), 200), ProducesResponseType(204)]
-		public async Task<IActionResult> GetAccount(uint id)
+		public async Task<IActionResult> GetAccount(uint id, bool includeClanInfo = true)
 		{
 			if (id is 0)
 			{
 				return StatusCode(400, new ArgumentException(null, nameof(id)));
 			}
 
-			PlayerProfileDTO playerProfile = await service.GetPlayerAsync(id);
+			Player playerProfile = await service.GetPlayerAsync(id, false, includeClanInfo);
 
 			return playerProfile is null
 				? StatusCode(204)
-				: StatusCode(200, playerProfile);
+				: StatusCode(200, includeClanInfo 
+					? playerProfile.Adapt<PlayerClanProfileDTO>()
+					: playerProfile.Adapt<PlayerProfileDTO>());
 		}
 
 		/// <summary>
@@ -61,7 +65,7 @@ namespace WowsKarma.Api.Controllers
 		/// </summary>
 		/// <param name="ids">List of Account IDs</param>
 		/// <response code="200">Returns "Account":"SiteKarma" Dictionary of Karma metrics for available accounts (may be empty).</response>
-		[HttpPost("Karmas"), ProducesResponseType(typeof(Dictionary<uint, int>), 200)]
+		[HttpPost("karmas"), ProducesResponseType(typeof(Dictionary<uint, int>), 200)]
 		public IActionResult FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary(service.GetPlayersKarma(ids)));
 
 		/// <summary>
@@ -69,7 +73,7 @@ namespace WowsKarma.Api.Controllers
 		/// </summary>
 		/// <param name="ids">List of Account IDs</param>
 		/// <response code="200">Returns Full Karma metrics for available accounts (may be empty).</response>
-		[HttpPost("KarmasFull"), ProducesResponseType(typeof(IEnumerable<AccountFullKarmaDTO>), 200)]
+		[HttpPost("karmas-full"), ProducesResponseType(typeof(IEnumerable<AccountFullKarmaDTO>), 200)]
 		public IActionResult FetchFullKarmas([FromBody] uint[] ids) => StatusCode(200, service.GetPlayersFullKarma(ids));
 
 		/// <summary>
@@ -81,7 +85,7 @@ namespace WowsKarma.Api.Controllers
 		/// <param name="playerId">Account ID of player profile</param>
 		/// <param name="cancellationToken"></param>
 		/// <response code="205">Profile Karma recalculation was processed.</response>
-		[HttpPost("Recalculate"), Authorize(Roles = ApiRoles.Administrator), ProducesResponseType(205), ProducesResponseType(401), ProducesResponseType(403)]
+		[HttpPost("recalculate"), Authorize(Roles = ApiRoles.Administrator), ProducesResponseType(205), ProducesResponseType(401), ProducesResponseType(403)]
 		public async Task<IActionResult> RecalculateMetrics([FromQuery] uint playerId, CancellationToken cancellationToken)
 		{
 			await service.RecalculatePlayerMetrics(playerId, cancellationToken);

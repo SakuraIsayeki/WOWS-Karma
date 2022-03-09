@@ -43,7 +43,7 @@ public class ClanService
 	{
 		Clan clan = await GetDbClans(includeMembers).FirstOrDefaultAsync(c => c.Id == clanId, ct);
 		bool updateInfo = clan is null || ClanInfoUpdateNeeded(clan);
-		bool updateMembers = clan is null || ClanMembersUpdateNeeded(clan);
+		bool updateMembers = includeMembers && (clan is null || ClanMembersUpdateNeeded(clan));
 
 		if (updateInfo || updateMembers)
 		{

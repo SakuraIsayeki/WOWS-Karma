@@ -2,6 +2,7 @@
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using WowsKarma.Api.Services;
+using WowsKarma.Common.Models.DTOs.Clans;
 
 namespace WowsKarma.Api.Controllers;
 
@@ -16,7 +17,7 @@ public class ClanController : ControllerBase
 	}
 
 	[HttpGet("{clanId}")]
-	public async Task<IActionResult> GetClan(uint clanId, bool includeMembers, CancellationToken ct = default)
+	public async Task<IActionResult> GetClan(uint clanId, bool includeMembers = true, CancellationToken ct = default)
 	{
 		Clan clan = await _clanService.GetClanAsync(clanId, includeMembers, ct);
 

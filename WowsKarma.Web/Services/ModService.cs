@@ -23,7 +23,7 @@ namespace WowsKarma.Web.Services
 			response.EnsureSuccessStatusCode();
 
 			return response.StatusCode is not System.Net.HttpStatusCode.NoContent
-				? await response.Content.ReadFromJsonAsync<PostModActionDTO[]>(Utilities.JsonSerializerOptions)
+				? await response.Content.ReadFromJsonAsync<PostModActionDTO[]>(SerializerOptions)
 				: null;
 		}
 
@@ -31,12 +31,12 @@ namespace WowsKarma.Web.Services
 		{
 
 			HttpRequestMessage request = new(HttpMethod.Post, RequestUri);
-			request.Content = JsonContent.Create(new PostModActionDTO()
+			request.Content = JsonContent.Create(new PostModActionDTO
 				{
 					ActionType = ModActionType.Deletion,
 					PostId = postId,
 					Reason = reason
-				}, null, Utilities.JsonSerializerOptions);
+				}, null, SerializerOptions);
 
 			HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();

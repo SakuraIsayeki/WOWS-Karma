@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using WowsKarma.Common.Models.DTOs;
 using static WowsKarma.Web.Utilities;
@@ -24,21 +25,21 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return await DeserializeFromHttpResponseAsync<IEnumerable<AccountListingDTO>>(response);
+				return await response.Content.ReadFromJsonAsync<IEnumerable<AccountListingDTO>>(SerializerOptions);
 			}
 			
 			return null;
 		}
 
-		public async Task<PlayerProfileDTO> FetchPlayerProfileAsync(uint id)
+		public async Task<PlayerClanProfileDTO> FetchPlayerProfileAsync(uint id)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}");
+			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}?includeClanInfo=true");
 			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				PlayerProfileDTO player = await DeserializeFromHttpResponseAsync<PlayerProfileDTO>(response);
-				return player with { Id = id };
+				PlayerClanProfileDTO player = await response.Content.ReadFromJsonAsync<PlayerClanProfileDTO>(SerializerOptions);
+				return player;
 			}
 
 			return null;

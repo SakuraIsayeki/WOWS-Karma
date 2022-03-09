@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Forms;
 using WowsKarma.Common.Models.DTOs;
 using static WowsKarma.Web.Utilities;
+using static WowsKarma.Common.Utilities;
 
 
 namespace WowsKarma.Web.Services
@@ -27,7 +28,7 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return await response.Content.ReadFromJsonAsync<PlayerPostDTO>(JsonSerializerOptions);
+				return await response.Content.ReadFromJsonAsync<PlayerPostDTO>(SerializerOptions);
 			}
 			else
 			{
@@ -42,7 +43,8 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return new List<PlayerPostDTO>(await DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response)).OrderByDescending(p => p.CreatedAt);
+				return new List<PlayerPostDTO>(await response.Content.ReadFromJsonAsync<PlayerPostDTO[]>(SerializerOptions) ?? Array.Empty<PlayerPostDTO>())
+					.OrderByDescending(p => p.CreatedAt);
 			}
 			else if (response.StatusCode is HttpStatusCode.NoContent)
 			{
@@ -67,7 +69,7 @@ namespace WowsKarma.Web.Services
 			using HttpResponseMessage response = await Client.SendAsync(request);
 
 			response.EnsureSuccessStatusCode();
-			return await DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response);
+			return await response.Content.ReadFromJsonAsync<PlayerPostDTO[]>(SerializerOptions);
 		}
 
 
@@ -78,7 +80,7 @@ namespace WowsKarma.Web.Services
 
 			if (response.StatusCode is HttpStatusCode.OK)
 			{
-				return new List<PlayerPostDTO>(await DeserializeFromHttpResponseAsync<PlayerPostDTO[]>(response)).OrderByDescending(p => p.CreatedAt);
+				return new List<PlayerPostDTO>(await response.Content.ReadFromJsonAsync<PlayerPostDTO[]>(SerializerOptions)).OrderByDescending(p => p.CreatedAt);
 			}
 			else if (response.StatusCode is HttpStatusCode.NoContent)
 			{
@@ -92,7 +94,7 @@ namespace WowsKarma.Web.Services
 		{
 			using MultipartFormDataContent form = new();
 			using StreamContent replayFileStream = replayFile is null ? null : form.AddReplayFile(replayFile, ct);
-			form.Add(JsonContent.Create(post, new("application/json"), JsonSerializerOptions), "postDto");
+			form.Add(JsonContent.Create(post, new("application/json"), ApiSerializerOptions), "postDto");
 
 			using HttpRequestMessage request = new(HttpMethod.Post, $"{EndpointCategory}")
 			{
@@ -108,7 +110,7 @@ namespace WowsKarma.Web.Services
 		public async Task EditPostAsync(PlayerPostDTO post)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Put, $"{EndpointCategory}");
-			request.Content = JsonContent.Create(post, new("application/json"), JsonSerializerOptions);
+			request.Content = JsonContent.Create(post, new("application/json"), ApiSerializerOptions);
 
 			using HttpResponseMessage response = await Client.SendAsync(request);
 			response.EnsureSuccessStatusCode();

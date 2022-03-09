@@ -22,13 +22,13 @@ public class UserService : HttpServiceBase
 		using HttpResponseMessage response = await Client.SendAsync(request);
 
 		response.EnsureSuccessStatusCode();
-		return await DeserializeFromHttpResponseAsync<UserProfileFlagsDTO>(response);
+		return await response.Content.ReadFromJsonAsync<UserProfileFlagsDTO>(SerializerOptions);
 	}
 
 	public async Task SetUserProfileFlagsAsync(UserProfileFlagsDTO flags)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Put, profileEndpointCategory);
-		request.Content = JsonContent.Create(flags, new("application/json"), JsonSerializerOptions);
+		request.Content = JsonContent.Create(flags, new("application/json"), SerializerOptions);
 
 		using HttpResponseMessage response = await Client.SendAsync(request);
 		response.EnsureSuccessStatusCode();
@@ -50,12 +50,10 @@ public class UserService : HttpServiceBase
 		if (response.IsSuccessStatusCode)
 		{
 			return response.StatusCode is not HttpStatusCode.NoContent
-				? await response.Content.ReadFromJsonAsync<IEnumerable<PlatformBanDTO>>(JsonSerializerOptions)
+				? await response.Content.ReadFromJsonAsync<IEnumerable<PlatformBanDTO>>(SerializerOptions)
 				: null;
 		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 }

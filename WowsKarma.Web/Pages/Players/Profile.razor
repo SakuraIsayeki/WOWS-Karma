@@ -9,7 +9,15 @@
 @if (Player is not null)
 {
 	<div class="text-center mb-5">
-		<h1>@Player.Username&ensp;<sup class="text-@GetKarmaColor(TotalKarma)">@TotalKarma</sup></h1>
+		<h1>
+			@if (Player.Clan is not null)
+			{
+				<a style="color: #@Player.Clan.LeagueColorHex;" href=@($"/clan/{Player.Clan.Id},{Player.Clan.Tag}-{Player.Clan.Name}") tooltip="@Player.Clan.Name">[@Player.Clan.Tag]</a>
+			}
+			
+			<span class="mx-3">@Player.Username</span>
+			<sup class="text-@GetKarmaColor(TotalKarma)">@TotalKarma</sup>
+		</h1>
 	</div>
 
 	<div class="row justify-content-center text-center my-5">
@@ -50,8 +58,8 @@
 
 					@if (!Player.Hidden)
 					{
-						<tr><th>Created On :</th><td>@Player.WgAccountCreatedAt.ToString("f", null)</td></tr>
-						<tr><th>Last Battle :</th><td>@Player.LastBattleTime.ToString("f", null)</td></tr>
+						<tr><th>Created On :</th><td>@Player.WgAccountCreatedAt.ToDateTimeOffset().ToString("f")</td></tr>
+						<tr><th>Last Battle :</th><td>@Player.LastBattleTime.ToDateTimeOffset().ToString("f")</td></tr>
 						<tr><th>Statistics :</th><td><a target="_blank" href="@($"{GetWowsNumbersBaseLink()}player/{IdNamePair}/")">View on WOWS Numbers</a></td></tr>
 					}
 				</tbody>
@@ -149,7 +157,7 @@ else
 	public string IdNamePair { get; set; }
 
 	public int TotalKarma => Player.GameKarma + Player.SiteKarma;
-	public PlayerProfileDTO Player { get; set; }
+	public PlayerClanProfileDTO Player { get; set; }
 	public UserProfileFlagsDTO CurrentUserProfileFlags { get; set; }
 
 

@@ -33,8 +33,8 @@ namespace WowsKarma.Api.Utilities
 				.IgnoreNullValues(true)
 				.Map(dest => dest.Id, src => src.Id)
 				.Map(dest => dest.ClanMemberRole, src => src.ClanMember.Role)
+				.Map(dest => dest.JoinedAt, src => src.ClanMember.JoinedAt)
 				.Map(dest => dest.Clan, src => src.ClanMember.Clan);
-
 
 			TypeAdapterConfig<ClanMember, PlayerClanProfileDTO>
 				.NewConfig()

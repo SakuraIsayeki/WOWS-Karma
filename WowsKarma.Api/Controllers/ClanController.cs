@@ -21,8 +21,8 @@ public class ClanController : ControllerBase
 		Clan clan = await _clanService.GetClanAsync(clanId, includeMembers, ct);
 
 		return Ok(includeMembers 
-			? clan.Adapt<ClanFullDTO>()
-			: clan.Adapt<ClanDTO>());
+			? clan.Adapt<ClanProfileFullDTO>()
+			: clan.Adapt<ClanProfileDTO>());
 	}
 	
 }

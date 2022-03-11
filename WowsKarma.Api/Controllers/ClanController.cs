@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using WowsKarma.Api.Services;
@@ -17,13 +18,15 @@ public class ClanController : ControllerBase
 	}
 
 	[HttpGet("{clanId}")]
-	public async Task<IActionResult> GetClan(uint clanId, bool includeMembers = true, CancellationToken ct = default)
+	public async Task<ClanProfileDTO> GetClan(uint clanId, bool includeMembers = true, CancellationToken ct = default)
 	{
 		Clan clan = await _clanService.GetClanAsync(clanId, includeMembers, ct);
 
-		return Ok(includeMembers 
+		return includeMembers 
 			? clan.Adapt<ClanProfileFullDTO>()
-			: clan.Adapt<ClanProfileDTO>());
+			: clan.Adapt<ClanProfileDTO>();
 	}
-	
+
+	[HttpGet("search/{search:length(2,50)}")]
+	public async Task<IEnumerable<ClanListingDTO>> SearchClans(string search, [Range(0, 500)] uint results = 20) => await _clanService.SearchClansAsync(search, results);
 }

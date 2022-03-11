@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Drawing;
 using System.Threading;
 using Mapster;
 using MapsterMapper;
@@ -38,7 +39,17 @@ public class ClanService
 		: _context.Clans
 			.Include(c => c.Members)
 			.ThenInclude(m => m.Player);
-	
+
+	public async Task<IEnumerable<ClanListingDTO>> SearchClansAsync([MinLength(2)] string search, [Range(0, 500)] uint count = 20) =>
+		(await _clansApi.SearchClansAsync(search, count))?.Clans.Select(
+			x => new ClanListingDTO
+			{
+				Id = x.Id,
+				Name = x.Name,
+				Tag = x.Tag,
+				LeagueColor = (uint)ColorTranslator.FromHtml(x.HexColor).ToArgb()
+		});
+
 	public async Task<Clan> GetClanAsync(uint clanId, bool includeMembers = false, CancellationToken ct = default)
 	{
 		Clan clan = await GetDbClans(includeMembers).FirstOrDefaultAsync(c => c.Id == clanId, ct);

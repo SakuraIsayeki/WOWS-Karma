@@ -27,6 +27,7 @@ public class ClanController : ControllerBase
 			: clan.Adapt<ClanProfileDTO>();
 	}
 
-	[HttpGet("search/{search:length(2,50)}")]
-	public async Task<IEnumerable<ClanListingDTO>> SearchClans(string search, [Range(0, 500)] uint results = 20) => await _clanService.SearchClansAsync(search, results);
+	[HttpGet("search/{search}")]
+	public async Task<IEnumerable<ClanListingDTO>> SearchClans([FromRoute, StringLength(50, MinimumLength = 2)] string search, [FromQuery, Range(0, 500)] uint results = 20) 
+		=> await _clanService.SearchClansAsync(search, results);
 }

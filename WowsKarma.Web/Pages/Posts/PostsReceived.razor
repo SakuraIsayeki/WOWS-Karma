@@ -100,7 +100,7 @@ else
 	private PlayerPostViewModel currentEditorPost;
 	private Guid currentDeleteId;
 
-	public record PostCooldownDTO(bool OnCooldown, DateTime EndsAt);
+	public record PostCooldownDTO(bool OnCooldown, DateTimeOffset EndsAt);
 
 
 	protected override async Task OnParametersSetAsync()
@@ -160,9 +160,9 @@ else
 	{
 		PlayerPostDTO lastAuthoredPost = (from p in PlayerPosts where p.AuthorId == CurrentUser.Id orderby p.CreatedAt select p)?.LastOrDefault();
 
-		if (lastAuthoredPost is not null)
+		if (lastAuthoredPost is { CreatedAt: not null })
 		{
-			DateTime endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
+			DateTimeOffset endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
 			bool onCooldown = endsAt > DateTime.UtcNow;
 
 			return new(onCooldown, endsAt);

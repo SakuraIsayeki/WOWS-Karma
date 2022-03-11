@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mapster;
 using WowsKarma.Common;
 
 
@@ -57,16 +58,16 @@ public record Player : ITimestamped
 	{
 		Id = value.Id,
 		Username = value.Username,
-		WgAccountCreatedAt = value.WgAccountCreatedAt,
+		WgAccountCreatedAt = value.WgAccountCreatedAt.Adapt<DateTimeOffset>(),
 		Hidden = value.WgHidden,
 		OptedOut = value.OptedOut,
-		OptOutChanged = value.OptOutChanged,
+		OptOutChanged = value.OptOutChanged.Adapt<DateTimeOffset>(),
 		GameKarma = value.GameKarma,
 		SiteKarma = value.SiteKarma,
 		RatingPerformance = value.PerformanceRating,
 		RatingTeamplay = value.TeamplayRating,
 		RatingCourtesy = value.CourtesyRating,
-		LastBattleTime = value.LastBattleTime
+		LastBattleTime = value.LastBattleTime.Adapt<DateTimeOffset>()
 	};
 
 	public static Player MapFromApi(Player source, Player mod)

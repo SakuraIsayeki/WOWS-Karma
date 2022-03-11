@@ -8,10 +8,10 @@ public record ClanListingDTO
 {
 	public uint Id { get; init; }
 
-	public string Tag { get; set; } = string.Empty;
-	public string Name { get; set; } = string.Empty;
+	public string Tag { get; init; } = string.Empty;
+	public string Name { get; init; } = string.Empty;
 
-	public uint LeagueColor { get; set; }
+	public uint LeagueColor { get; init; }
 
 	[JsonIgnore, NotMapped]
 	public string LeagueColorHex => LeagueColor.ToString("X")[2..8];

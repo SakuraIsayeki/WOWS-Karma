@@ -50,40 +50,49 @@ public class ClanService
 				LeagueColor = (uint)ColorTranslator.FromHtml(x.HexColor).ToArgb()
 		});
 
+	// FIXME: Caching is broken, values do not update.
 	public async Task<Clan> GetClanAsync(uint clanId, bool includeMembers = false, CancellationToken ct = default)
 	{
 		Clan clan = await GetDbClans(includeMembers).FirstOrDefaultAsync(c => c.Id == clanId, ct);
 		bool updateInfo = clan is null || ClanInfoUpdateNeeded(clan);
 		bool updateMembers = includeMembers && (clan is null || ClanMembersUpdateNeeded(clan));
 
+		List<Task> updateTasks = new();
+		
 		if (updateInfo || updateMembers)
 		{
 			if (updateInfo)
 			{
-				ClanInfo apiClan = (await _clansApi.FetchClanViewAsync(clanId, ct))?.Clan;
-				clan = clan is null
-					? apiClan?.Adapt<Clan>()
-					: clan with
-					{
-						Tag = apiClan.Tag,
-						Name = apiClan.Name,
-						Description = apiClan.Description,
-						LeagueColor = (uint)ColorTranslator.FromHtml(apiClan.Color).ToArgb()
-					};
-
-				clan.UpdatedAt = Time.Now;
-				_context.Clans.Upsert(clan);
+				updateTasks.Add(UpdateClanInfo(clanId, clan, ct));
 			}
 
 			if (updateMembers)
 			{
-				await UpdateClanMembersAsync(clan, ct);
+				updateTasks.Add(UpdateClanMembersAsync(clan, ct));
 			}
 			
+			await Task.WhenAll(updateTasks);
 			await _context.SaveChangesAsync(ct);
 		}
 
 		return clan;
+	}
+
+	internal async Task UpdateClanInfo(uint clanId, Clan clan, CancellationToken ct)
+	{
+		ClanInfo apiClan = (await _clansApi.FetchClanViewAsync(clanId, ct))?.Clan;
+		clan = clan is null
+			? apiClan?.Adapt<Clan>()
+			: clan with
+			{
+				Tag = apiClan.Tag,
+				Name = apiClan.Name,
+				Description = apiClan.Description,
+				LeagueColor = (uint)ColorTranslator.FromHtml(apiClan.Color).ToArgb()
+			};
+
+		clan.UpdatedAt = Time.Now;
+		_context.Clans.Upsert(clan);
 	}
 
 	private async Task UpdateClanMembersAsync(Clan clan, CancellationToken ct)

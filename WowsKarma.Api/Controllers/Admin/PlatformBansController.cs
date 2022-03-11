@@ -53,7 +53,7 @@ public class PlatformBansController : ControllerBase
 		{
 			ModId = User.ToAccountListing().Id,
 			Reverted = false,
-			BannedUntil = days is 0 ? null : Time.Now + Duration.FromDays(days)
+			BannedUntil = days is 0 ? null : DateTimeOffset.Now.AddDays(days)
 		}, authDb);
 
 		return StatusCode(202);

@@ -58,8 +58,8 @@
 
 					@if (!Player.Hidden)
 					{
-						<tr><th>Created On :</th><td>@Player.WgAccountCreatedAt.ToDateTimeOffset().ToString("f")</td></tr>
-						<tr><th>Last Battle :</th><td>@Player.LastBattleTime.ToDateTimeOffset().ToString("f")</td></tr>
+						<tr><th>Created On :</th><td>@Player.WgAccountCreatedAt.ToString("f")</td></tr>
+						<tr><th>Last Battle :</th><td>@Player.LastBattleTime.ToString("f")</td></tr>
 						<tr><th>Statistics :</th><td><a target="_blank" href="@($"{GetWowsNumbersBaseLink()}player/{IdNamePair}/")">View on WOWS Numbers</a></td></tr>
 					}
 				</tbody>

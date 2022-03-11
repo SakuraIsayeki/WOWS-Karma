@@ -266,13 +266,14 @@ namespace WowsKarma.Api.Services
 			{
 				PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault().Adapt<PlayerPostDTO>();
 
-				if (lastAuthoredPost is not null)
+				if (lastAuthoredPost is { CreatedAt: not null })
 				{
-					DateTime endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
+					DateTimeOffset endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
 					return endsAt > DateTime.UtcNow;
 
 				}
 			}
+			
 			return false;
 		}
 	}

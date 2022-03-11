@@ -95,7 +95,7 @@ public class ModService
 		{
 			UserId = platformBan.UserId,
 			Reason = platformBan.Reason,
-			BannedUntil = platformBan.BannedUntil,
+			BannedUntil = platformBan.BannedUntil.Adapt<Instant>(),
 			ModId = platformBan.ModId,
 		});
 

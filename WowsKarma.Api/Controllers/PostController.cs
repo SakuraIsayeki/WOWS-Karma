@@ -57,7 +57,7 @@ namespace WowsKarma.Api.Controllers
 				posts = posts?.Where(p => !p.ModLocked || p.AuthorId == User.ToAccountListing().Id);
 			}
 
-			if (lastResults is not null and > 0)
+			if (lastResults is > 0)
 			{
 				posts?.Take((int)lastResults);
 			}
@@ -67,7 +67,7 @@ namespace WowsKarma.Api.Controllers
 				return StatusCode(204);
 			}
 
-			return base.StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
+			return Ok(posts.Adapt<IEnumerable<PlayerPostDTO>>());
 		}
 
 		/// <summary>

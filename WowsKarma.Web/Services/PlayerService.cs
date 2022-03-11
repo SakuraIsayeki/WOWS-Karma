@@ -36,13 +36,15 @@ namespace WowsKarma.Web.Services
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}?includeClanInfo=true");
 			using HttpResponseMessage response = await Client.SendAsync(request);
 
-			if (response.StatusCode is HttpStatusCode.OK)
+			if (response.StatusCode is HttpStatusCode.NotFound)
 			{
-				PlayerClanProfileDTO player = await response.Content.ReadFromJsonAsync<PlayerClanProfileDTO>(SerializerOptions);
-				return player;
+				return null;
 			}
 
-			return null;
+			response.EnsureSuccessStatusCode();
+			PlayerClanProfileDTO player = await response.Content.ReadFromJsonAsync<PlayerClanProfileDTO>(SerializerOptions);
+			
+			return player;
 		}
 	}
 }

@@ -128,7 +128,7 @@
 	private bool showSeedModal;
 
 	private bool optOutOnCooldown;
-	private DateTime OptOutCooldownClearedOn => model.OptOutChanged.AddDays(7); 
+	private DateTimeOffset OptOutCooldownClearedOn => model.OptOutChanged.AddDays(7); 
 
 	private ProfileSettingsViewModel model;
 

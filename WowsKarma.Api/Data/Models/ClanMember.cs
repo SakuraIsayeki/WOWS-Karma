@@ -7,12 +7,11 @@ namespace WowsKarma.Api.Data.Models;
 
 public record ClanMember : IComparable<ClanMember>, IComparable<ClanRole>
 {
-	[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), JsonIgnore]
-	public Guid Id { get; init; }
-	
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public uint PlayerId { get; init; }
 	public virtual Player Player { get; init; }
 
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public uint ClanId { get; init; }
 	public virtual Clan Clan { get; init; }
 
@@ -29,8 +28,8 @@ public record ClanMember : IComparable<ClanMember>, IComparable<ClanRole>
 	public int CompareTo(ClanRole other) => Role == other 
 		? 0
 		: (Role, other, Role > other) switch
-			{
-				(not ClanRole.Unknown, not ClanRole.Unknown, true) or (_, ClanRole.Unknown, _)  => 1,
-				(not ClanRole.Unknown, not ClanRole.Unknown, false) or (ClanRole.Unknown, _, _) => -1
-			};
+		{
+			(not ClanRole.Unknown, not ClanRole.Unknown, true) or (_, ClanRole.Unknown, _)  => 1,
+			(not ClanRole.Unknown, not ClanRole.Unknown, false) or (ClanRole.Unknown, _, _) => -1
+		};
 }

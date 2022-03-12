@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 using Nodsoft.WowsReplaysUnpack.Data;
@@ -17,9 +18,10 @@ using ReplayPlayer = WowsKarma.Api.Data.Models.Replays.ReplayPlayer;
 namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220312144159_ReplaceClanMemberNavigation")]
+    partial class ReplaceClanMemberNavigation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -31,7 +31,6 @@ namespace WowsKarma.Api.Utilities
 			TypeAdapterConfig<Player, PlayerClanProfileDTO>
 				.NewConfig()
 				.IgnoreNullValues(true)
-				.IgnoreNonMapped(true)
 				.Map(dest => dest.Id, src => src.Id)
 				.Map(dest => dest.ClanMemberRole, src => src.ClanMember.Role)
 				.Map(dest => dest.JoinedClanAt, src => src.ClanMember.JoinedAt)
@@ -40,12 +39,14 @@ namespace WowsKarma.Api.Utilities
 			TypeAdapterConfig<ClanMember, PlayerClanProfileDTO>
 				.NewConfig()
 				.IgnoreNullValues(true)
-				.IgnoreNonMapped(true)
 				.Map(dest => dest, src => src.Player)
 				.Map(dest => dest.Id, src => src.PlayerId);
 
 			TypeAdapterConfig<DateTimeOffset, DateTime>.NewConfig().MapWith(x => x.UtcDateTime);
 			TypeAdapterConfig<DateTime, DateTimeOffset>.NewConfig().MapWith(x => new(x));
+			
+			TypeAdapterConfig<DateTime, DateOnly>.NewConfig().MapWith(x => DateOnly.FromDateTime(x));
+			TypeAdapterConfig<DateOnly?, DateTime>.NewConfig().MapWith(x => x == null ? DateTime.UnixEpoch : x.Value.ToDateTime(TimeOnly.MinValue));
 		}
 
 		public static AccountListingDTO ToDTO(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);

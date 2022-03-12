@@ -133,7 +133,12 @@ namespace WowsKarma.Api.Services
 			
 			if (apiResult?.ClanId is not null)
 			{
-				clan = await _clanService.GetClanAsync(apiResult.ClanId.Value, ct: ct);
+				clan = await _context.Clans.FirstOrDefaultAsync(c => c.Id == apiResult.ClanId, ct);
+
+				if (clan is null || ClanService.ClanInfoUpdateNeeded(clan))
+				{
+					await _clanService.UpdateClanInfoAsync(_context, apiResult.ClanId.Value, clan, ct);
+				}
 			}
 
 			if (player.ClanMember?.ClanId != apiResult?.ClanId)
@@ -153,8 +158,6 @@ namespace WowsKarma.Api.Services
 						JoinedAt = DateOnly.FromDateTime(apiResult.JoinedAt.Value),
 						Role = apiResult.Role
 					};
-
-				_context.ClanMembers.Upsert(player.ClanMember!);
 			}
 			else
 			{

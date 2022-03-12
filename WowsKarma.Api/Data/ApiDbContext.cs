@@ -55,6 +55,13 @@ public class ApiDbContext : DbContext
 		
 		#endregion // Clans
 
+		#region ClanMembers
+
+		modelBuilder.Entity<ClanMember>()
+			.HasKey(c => c.PlayerId);
+
+		#endregion
+
 		#region Notifications
 
 		modelBuilder.HasPostgresEnum<NotificationType>();

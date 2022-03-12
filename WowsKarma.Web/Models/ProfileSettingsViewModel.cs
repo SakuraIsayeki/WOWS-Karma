@@ -10,6 +10,6 @@ namespace WowsKarma.Web.Models
 
 		public bool OptedOut { get; set; }
 
-		public DateTimeOffset OptOutChanged { get; init; }
+		public DateTime OptOutChanged { get; init; }
 	}
 }

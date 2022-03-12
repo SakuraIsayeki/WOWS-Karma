@@ -14,9 +14,9 @@ namespace WowsKarma.Common.Models.DTOs.Notifications
 
 		public NotificationType Type { get; init; }
 
-		public DateTimeOffset EmittedAt { get; init; }
+		public DateTime EmittedAt { get; init; }
 
-		public DateTimeOffset? AcknowledgedAt { get; init; }
+		public DateTime? AcknowledgedAt { get; init; }
 
 
 	}

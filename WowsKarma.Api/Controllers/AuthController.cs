@@ -71,7 +71,7 @@ public class AuthController : ControllerBase
 				Domain = config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieDomain"],
 				HttpOnly = true,
 				IsEssential = true,
-				Expires = DateTimeOffset.UtcNow.AddDays(7)
+				Expires = DateTime.UtcNow.AddDays(7)
 			});
 
 		return Request.Query["redirectUri"].FirstOrDefault() is string redirectUri

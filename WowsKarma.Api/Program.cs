@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System.IO;
-using Npgsql;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common;

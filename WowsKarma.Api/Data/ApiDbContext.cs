@@ -32,8 +32,6 @@ public class ApiDbContext : DbContext
 
 	static ApiDbContext()
 	{
-		NpgsqlConnection.GlobalTypeMapper.UseNodaTime();
-		
 		NpgsqlConnection.GlobalTypeMapper.MapEnum<ModActionType>();
 		NpgsqlConnection.GlobalTypeMapper.MapEnum<NotificationType>();
 		NpgsqlConnection.GlobalTypeMapper.MapEnum<ClanRole>();
@@ -46,7 +44,7 @@ public class ApiDbContext : DbContext
 		foreach (Type type in modelBuilder.Model.GetEntityTypes().Where(t => t.ClrType.ImplementsInterface(typeof(ITimestamped))).Select(t => t.ClrType))
 		{
 			modelBuilder.Entity(type)
-				.Property<Instant>(nameof(ITimestamped.CreatedAt))
+				.Property<DateTime>(nameof(ITimestamped.CreatedAt))
 					.ValueGeneratedOnAdd()
 					.HasDefaultValueSql("NOW()");
 		}

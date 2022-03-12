@@ -25,7 +25,7 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 		public static JwtSecurityToken GenerateToken(IEnumerable<Claim> authClaims) => new(
 				issuer: configuration["JWT:ValidIssuer"],
 				audience: configuration["JWT:ValidAudience"],
-				expires: DateTime.Now.AddDays(8),
+				expires: DateTime.UtcNow.AddDays(8),
 				claims: authClaims,
 				signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
 

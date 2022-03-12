@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using NodaTime;
 
 namespace WowsKarma.Api.Data.Models;
 
@@ -20,7 +19,7 @@ public record Clan : ITimestamped
 
 	public virtual List<ClanMember> Members { get; set; } = new();
 	
-	public Instant CreatedAt { get; init; }
-	public Instant UpdatedAt { get; set; }
-	public Instant MembersUpdatedAt { get; set; }
+	public DateTime CreatedAt { get; init; }
+	public DateTime UpdatedAt { get; set; }
+	public DateTime MembersUpdatedAt { get; set; }
 }

@@ -43,21 +43,9 @@ namespace WowsKarma.Api.Utilities
 				.IgnoreNonMapped(true)
 				.Map(dest => dest, src => src.Player)
 				.Map(dest => dest.Id, src => src.PlayerId);
-			
-			TypeAdapterConfig<DateTime, Instant>.NewConfig().IgnoreNullValues(true).MapWith(x => Instant.FromDateTimeUtc(x));
-			TypeAdapterConfig<Instant, DateTime>.NewConfig().IgnoreNullValues(true).MapWith(x => x.ToDateTimeUtc());
-			
-			TypeAdapterConfig<DateTimeOffset, Instant>.NewConfig().IgnoreNullValues(true).MapWith(x => Instant.FromDateTimeOffset(x));
-			TypeAdapterConfig<Instant, DateTimeOffset>.NewConfig().IgnoreNullValues(true).MapWith(x => x.ToDateTimeOffset());
 
-			TypeAdapterConfig<LocalDate, DateOnly>.NewConfig().IgnoreNullValues(true).MapWith(x => DateOnly.FromDateTime(x.ToDateTimeUnspecified()));
-			TypeAdapterConfig<DateOnly, LocalDate>.NewConfig().IgnoreNullValues(true).MapWith(x => LocalDate.FromDateTime(x.ToDateTime(TimeOnly.MinValue)));
-			
-			TypeAdapterConfig<DateTimeOffset, DateOnly>.NewConfig().IgnoreNullValues(true).MapWith(x => DateOnly.FromDateTime(x.Date));
-			TypeAdapterConfig<DateOnly, DateTimeOffset>.NewConfig().IgnoreNullValues(true).MapWith(x => new(x.ToDateTime(TimeOnly.MinValue)));
-			
-			TypeAdapterConfig<DateTimeOffset, LocalDate>.NewConfig().IgnoreNullValues(true).MapWith(x => LocalDate.FromDateTime(x.Date));
-			TypeAdapterConfig<LocalDate?, DateTimeOffset>.NewConfig().IgnoreNullValues(true).MapWith(x => new(x.Value.ToDateTimeUnspecified()));
+			TypeAdapterConfig<DateTimeOffset, DateTime>.NewConfig().MapWith(x => x.UtcDateTime);
+			TypeAdapterConfig<DateTime, DateTimeOffset>.NewConfig().MapWith(x => new(x));
 		}
 
 		public static AccountListingDTO ToDTO(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);
@@ -75,9 +63,9 @@ namespace WowsKarma.Api.Utilities
 				? player
 				: player with
 				{
-					WgAccountCreatedAt = accountInfo.CreatedAtTime.Adapt<Instant>(),
+					WgAccountCreatedAt = accountInfo.CreatedAtTime,
 					GameKarma = accountInfo.Statistics.Basic?.Karma ?? 0,
-					LastBattleTime = Instant.FromUnixTimeSeconds(accountInfo.Statistics.Basic!.LastBattleTime)
+					LastBattleTime = DateTime.UnixEpoch.AddSeconds(accountInfo.Statistics.Basic!.LastBattleTime)
 				};
 		}
 

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Mapster;
 using WowsKarma.Common;
 
 
@@ -16,8 +15,8 @@ public record Player : ITimestamped
 
 	public string Username { get; set; }
 
-	public Instant CreatedAt { get; init; }
-	public Instant UpdatedAt { get; set; }
+	public DateTime CreatedAt { get; init; }
+	public DateTime UpdatedAt { get; set; }
 	
 	public virtual ClanMember ClanMember { get; set; }
 	
@@ -30,8 +29,8 @@ public record Player : ITimestamped
 	public int TeamplayRating { get; set; }
 	public int CourtesyRating { get; set; }
 
-	public Instant WgAccountCreatedAt { get; init; }
-	public Instant LastBattleTime { get; set; }
+	public DateTime WgAccountCreatedAt { get; init; }
+	public DateTime LastBattleTime { get; set; }
 
 	public virtual List<Post> PostsReceived { get; init; } = new();
 	public virtual List<Post> PostsSent { get; init; } = new();
@@ -41,12 +40,12 @@ public record Player : ITimestamped
 	public bool NegativeKarmaAble => (SiteKarma + GameKarma) > NegativeKarmaAbilityThreshold;
 	public bool PostsBanned { get; set; }
 	public bool OptedOut { get; set; }
-	public Instant OptOutChanged { get; set; }
+	public DateTime OptOutChanged { get; set; }
 
 
 	public bool IsBanned()
 		=> PostsBanned
-		|| PlatformBans?.Where(pb => !pb.Reverted && (pb.BannedUntil is null || pb.BannedUntil > Time.Now)).Any() is true;
+		|| PlatformBans?.Where(pb => !pb.Reverted && (pb.BannedUntil is null || pb.BannedUntil > DateTime.UtcNow)).Any() is true;
 
 
 
@@ -58,16 +57,16 @@ public record Player : ITimestamped
 	{
 		Id = value.Id,
 		Username = value.Username,
-		WgAccountCreatedAt = value.WgAccountCreatedAt.Adapt<DateTimeOffset>(),
+		WgAccountCreatedAt = value.WgAccountCreatedAt,
 		Hidden = value.WgHidden,
 		OptedOut = value.OptedOut,
-		OptOutChanged = value.OptOutChanged.Adapt<DateTimeOffset>(),
+		OptOutChanged = value.OptOutChanged,
 		GameKarma = value.GameKarma,
 		SiteKarma = value.SiteKarma,
 		RatingPerformance = value.PerformanceRating,
 		RatingTeamplay = value.TeamplayRating,
 		RatingCourtesy = value.CourtesyRating,
-		LastBattleTime = value.LastBattleTime.Adapt<DateTimeOffset>()
+		LastBattleTime = value.LastBattleTime
 	};
 
 	public static Player MapFromApi(Player source, Player mod)

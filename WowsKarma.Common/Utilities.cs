@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using NodaTime.Serialization.SystemTextJson;
 using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
@@ -13,14 +12,13 @@ namespace WowsKarma.Common;
 
 public static class Utilities
 {
-	public static JsonSerializerOptions ApiSerializerOptions { get; } = new JsonSerializerOptions
+	public static JsonSerializerOptions ApiSerializerOptions { get; } = new()
 	{
 		ReferenceHandler = ReferenceHandler.Preserve,
 		PropertyNameCaseInsensitive = true,
 		NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals
-	}
-		.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
-	
+	};
+
 	public static JsonSerializerOptions CookieSerializerOptions { get; } = new()
 	{
 		PropertyNamingPolicy = JsonNamingPolicy.CamelCase

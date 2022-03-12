@@ -27,7 +27,7 @@ public class UserService
 	public Task<User> GetUserAsync(uint id) => context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
 
 	public async Task<IEnumerable<Claim>> GetUserClaimsAsync(uint id) => await GetUserAsync(id) is { } user
-		? (from role in user.Roles select new Claim(ClaimTypes.Role, role.InternalName))
+		? from role in user.Roles select new Claim(ClaimTypes.Role, role.InternalName)
 		: Enumerable.Empty<Claim>();
 
 	public async Task<Guid> GetUserSeedTokenAsync(uint id)
@@ -43,7 +43,7 @@ public class UserService
 			await context.Users.AddAsync(user);
 		}
 
-		user.LastTokenRequested = Time.Now;
+		user.LastTokenRequested = DateTime.UtcNow;
 		await context.SaveChangesAsync();
 		return user.SeedToken;
 	}

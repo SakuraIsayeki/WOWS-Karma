@@ -16,8 +16,8 @@ public record ClanMember : IComparable<ClanMember>, IComparable<ClanRole>
 	public uint ClanId { get; init; }
 	public virtual Clan Clan { get; init; }
 
-	public LocalDate JoinedAt { get; init; }
-	public LocalDate? LeftAt { get; set; }
+	public DateOnly JoinedAt { get; init; }
+	public DateOnly? LeftAt { get; set; }
 	
 	public ClanRole Role { get; set; }
 

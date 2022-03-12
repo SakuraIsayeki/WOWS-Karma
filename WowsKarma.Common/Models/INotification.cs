@@ -8,8 +8,8 @@
 
 		public NotificationType Type { get; }
 
-		public DateTimeOffset EmittedAt { get; }
+		public DateTime EmittedAt { get; }
 
-		public DateTimeOffset? AcknowledgedAt { get; }
+		public DateTime? AcknowledgedAt { get; }
 	}
 }

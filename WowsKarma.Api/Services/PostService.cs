@@ -158,7 +158,7 @@ namespace WowsKarma.Api.Services
 			post.Title = editedPostDTO.Title;
 			post.Content = editedPostDTO.Content;
 			post.Flairs = editedPostDTO.Flairs;
-			post.UpdatedAt = Time.Now; // Forcing UpdatedAt refresh
+			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
 
 			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
 			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, previousFlairs);
@@ -264,11 +264,11 @@ namespace WowsKarma.Api.Services
 
 			if (filteredPosts.Any())
 			{
-				PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault().Adapt<PlayerPostDTO>();
+				PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault()?.Adapt<PlayerPostDTO>();
 
 				if (lastAuthoredPost is { CreatedAt: not null })
 				{
-					DateTimeOffset endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
+					DateTime endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
 					return endsAt > DateTime.UtcNow;
 
 				}

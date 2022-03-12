@@ -12,8 +12,8 @@ namespace WowsKarma.Api.Services
 {
 	public class PlayerService
 	{
-		public static Duration DataUpdateSpan { get; } = Duration.FromHours(1);
-		public static Duration OptOutCooldownSpan { get; } = Duration.FromDays(7);
+		public static TimeSpan DataUpdateSpan { get; } = TimeSpan.FromHours(1);
+		public static TimeSpan OptOutCooldownSpan { get; } = TimeSpan.FromDays(7);
 
 		private readonly ApiDbContext _context;
 		private readonly WowsPublicApiClient _wgApi;
@@ -61,11 +61,17 @@ namespace WowsKarma.Api.Services
 
 			Player player = await dbPlayers.FirstOrDefaultAsync(p => p.Id == accountId, ct);
 			bool updated = false;
-			
-			if (player is null || UpdateNeeded(player))
+			bool insert = player is null;
+
+			if (insert || UpdateNeeded(player))
 			{
 				player = await UpdatePlayerRecordAsync(player, accountId);
 				updated = true;
+
+				if (insert)
+				{
+					await _context.SaveChangesAsync(ct);
+				}
 			}
 
 			if (includeClanInfo)
@@ -76,7 +82,7 @@ namespace WowsKarma.Api.Services
 
 			if (updated)
 			{
-				player.UpdatedAt = Time.Now;
+				player.UpdatedAt = DateTime.UtcNow;
 			}
 
 			await _context.SaveChangesAsync(ct);
@@ -115,9 +121,9 @@ namespace WowsKarma.Api.Services
 		{
 			// Bypass if individual player was recently updated, or if clan members were recently updated and supercedes player update.
 			if (player?.ClanMember?.Clan?.MembersUpdatedAt is { } lastClanUpdate 
-				&& Time.Now > lastClanUpdate + ClanService.ClanMemberUpdateSpan
+				&& DateTime.UtcNow > lastClanUpdate + ClanService.ClanMemberUpdateSpan
 				&& lastClanUpdate > player!.UpdatedAt
-				|| Time.Now < player!.UpdatedAt + ClanService.ClanMemberUpdateSpan)
+				|| DateTime.UtcNow < player!.UpdatedAt + ClanService.ClanMemberUpdateSpan)
 			{
 				return player;
 			}
@@ -125,12 +131,12 @@ namespace WowsKarma.Api.Services
 			VortexAccountClanInfo apiResult = await _vortex.FetchAccountClanAsync(player.Id, ct);
 			Clan clan = null;
 			
-			if (apiResult.ClanId is not null)
+			if (apiResult?.ClanId is not null)
 			{
 				clan = await _clanService.GetClanAsync(apiResult.ClanId.Value, ct: ct);
 			}
 
-			if (player.ClanMember?.ClanId != apiResult.ClanId)
+			if (player.ClanMember?.ClanId != apiResult?.ClanId)
 			{
 				if (player.ClanMember is not null)
 				{
@@ -144,7 +150,7 @@ namespace WowsKarma.Api.Services
 						PlayerId = player.Id,
 						ClanId = apiResult.ClanId.Value,
 						Clan = clan,
-						JoinedAt = LocalDate.FromDateTime(apiResult.JoinedAt!.Value),
+						JoinedAt = DateOnly.FromDateTime(apiResult.JoinedAt.Value),
 						Role = apiResult.Role
 					};
 
@@ -152,10 +158,13 @@ namespace WowsKarma.Api.Services
 			}
 			else
 			{
-				player.ClanMember = player.ClanMember! with
+				if (player.ClanMember is not null)
 				{
-					Role = apiResult!.Role
-				};
+					player.ClanMember = player.ClanMember! with
+					{
+						Role = apiResult!.Role
+					};
+				}
 			}
 			
 			return player;
@@ -181,11 +190,11 @@ namespace WowsKarma.Api.Services
 				if (!IsOptOutOnCooldown(player.OptOutChanged))
 				{
 					player.OptedOut = flags.OptedOut;
-					player.OptOutChanged = Time.Now;
+					player.OptOutChanged = DateTime.UtcNow;
 				}
 				else
 				{
-					throw new CooldownException(nameof(OptOutCooldownSpan), player.OptOutChanged, DateTimeOffset.UtcNow);
+					throw new CooldownException(nameof(OptOutCooldownSpan), player.OptOutChanged, DateTime.UtcNow);
 				}
 			}
 
@@ -225,8 +234,8 @@ namespace WowsKarma.Api.Services
 			}
 		}
 
-		internal static bool UpdateNeeded(Player player) => player.UpdatedAt + DataUpdateSpan < Time.Now;
-		internal static bool IsOptOutOnCooldown(Instant lastChange) => lastChange + OptOutCooldownSpan > Time.Now;
+		internal static bool UpdateNeeded(Player player) => player.UpdatedAt + DataUpdateSpan < DateTime.UtcNow;
+		internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange + OptOutCooldownSpan > DateTime.UtcNow;
 
 		private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
 		{

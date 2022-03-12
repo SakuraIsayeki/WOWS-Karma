@@ -16,7 +16,6 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using NodaTime.Serialization.SystemTextJson;
 using Nodsoft.Wargaming.Api.Client;
 using Nodsoft.Wargaming.Api.Client.Clients;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
@@ -52,8 +51,7 @@ namespace WowsKarma.Api
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllers()
-				.AddJsonOptions(o => o.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
+			services.AddControllers();
 			
 			
 			services.AddSignalR()
@@ -165,7 +163,6 @@ namespace WowsKarma.Api
 				o => o.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 					p =>
 					{
-						p.UseNodaTime();
 						p.EnableRetryOnFailure();
 					}
 				), 
@@ -175,7 +172,6 @@ namespace WowsKarma.Api
 				o => o.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 					p =>
 					{
-						p.UseNodaTime();
 						p.EnableRetryOnFailure();
 					}
 				), 

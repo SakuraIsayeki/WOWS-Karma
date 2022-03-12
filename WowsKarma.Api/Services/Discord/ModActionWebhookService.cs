@@ -63,7 +63,7 @@ namespace WowsKarma.Api.Services.Discord
 
 			if (ban.BannedUntil is not null)
 			{
-				embed.AddField("Until", $"<t:{ban.BannedUntil?.ToUnixTimeSeconds()}:F>");
+				embed.AddField("Until", $"<t:{ban.BannedUntil?.ToUnixTimestamp()}:F>");
 			}
 
 			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder()

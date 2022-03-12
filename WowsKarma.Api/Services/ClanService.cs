@@ -2,12 +2,9 @@
 using System.Drawing;
 using System.Threading;
 using Mapster;
-using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
-using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Clans;
-using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
@@ -18,8 +15,8 @@ namespace WowsKarma.Api.Services;
 
 public class ClanService
 {
-	public static Duration ClanInfoUpdateSpan { get; } = Duration.FromHours(4);
-	public static Duration ClanMemberUpdateSpan { get; } = Duration.FromHours(1);
+	public static TimeSpan ClanInfoUpdateSpan { get; } = TimeSpan.FromHours(4);
+	public static TimeSpan ClanMemberUpdateSpan { get; } = TimeSpan.FromHours(1);
 	
 	private readonly ApiDbContext _context;
 	private readonly WowsPublicApiClient _publicApi;
@@ -56,22 +53,16 @@ public class ClanService
 		Clan clan = await GetDbClans(includeMembers).FirstOrDefaultAsync(c => c.Id == clanId, ct);
 		bool updateInfo = clan is null || ClanInfoUpdateNeeded(clan);
 		bool updateMembers = includeMembers && (clan is null || ClanMembersUpdateNeeded(clan));
-
-		List<Task> updateTasks = new();
 		
-		if (updateInfo || updateMembers)
+		if (updateInfo)
 		{
-			if (updateInfo)
-			{
-				updateTasks.Add(UpdateClanInfo(clanId, clan, ct));
-			}
+			await UpdateClanInfo(clanId, clan, ct);
+			await _context.SaveChangesAsync(ct);
+		}
 
-			if (updateMembers)
-			{
-				updateTasks.Add(UpdateClanMembersAsync(clan, ct));
-			}
-			
-			await Task.WhenAll(updateTasks);
+		if (updateMembers)
+		{
+			await UpdateClanMembersAsync(clan, ct);
 			await _context.SaveChangesAsync(ct);
 		}
 
@@ -91,7 +82,7 @@ public class ClanService
 				LeagueColor = (uint)ColorTranslator.FromHtml(apiClan.Color).ToArgb()
 			};
 
-		clan.UpdatedAt = Time.Now;
+		clan.UpdatedAt = DateTime.UtcNow;
 		_context.Clans.Upsert(clan);
 	}
 
@@ -125,15 +116,15 @@ public class ClanService
 			PlayerId = x.Id,
 			Player = players[x.Id],
 			ClanId = clan.Id,
-			JoinedAt = Time.Now.InUtc().Date.Minus(Period.FromDays(Convert.ToInt32(x.DaysInClan))),
+			JoinedAt = DateOnly.FromDateTime(DateTime.UtcNow - TimeSpan.FromDays(x.DaysInClan)),
 			Role = x.Role.Name
 		}));
 		
 		_context.ClanMembers.UpsertRange(clan.Members);
-		clan.MembersUpdatedAt = Time.Now;
+		clan.MembersUpdatedAt = DateTime.UtcNow;
 		_context.RemoveRange(_context.ClanMembers.Where(x => x.ClanId == clan.Id && !clan.Members.Select(y => y.PlayerId).Contains(x.PlayerId)));
 	}
 
-	internal static bool ClanInfoUpdateNeeded(Clan clan) => clan.UpdatedAt + ClanInfoUpdateSpan < Time.Now;
-	internal static bool ClanMembersUpdateNeeded(Clan clan) => clan.MembersUpdatedAt + ClanMemberUpdateSpan < Time.Now;
+	internal static bool ClanInfoUpdateNeeded(Clan clan) => clan.UpdatedAt + ClanInfoUpdateSpan < DateTime.UtcNow;
+	internal static bool ClanMembersUpdateNeeded(Clan clan) => clan.MembersUpdatedAt + ClanMemberUpdateSpan < DateTime.UtcNow;
 }

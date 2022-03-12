@@ -10,5 +10,5 @@ public record PlayerClanProfileDTO : PlayerProfileDTO
 	
 	// HACK: DateOnly / TimeOnly serialization is not supported by STJ as of now.
 	// See: https://github.com/dotnet/runtime/issues/53539
-	public DateTimeOffset JoinedClanAt { get; init; }
+	public DateTime JoinedClanAt { get; init; }
 }

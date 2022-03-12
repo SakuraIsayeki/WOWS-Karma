@@ -32,7 +32,7 @@ public class PlatformBansController : ControllerBase
 
 		if (currentOnly || User.ToAccountListing().Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			bans = bans.Where(b => b.BannedUntil > Time.Now);
+			bans = bans.Where(b => b.BannedUntil > DateTime.UtcNow);
 		}
 
 		return bans.Any()
@@ -53,7 +53,7 @@ public class PlatformBansController : ControllerBase
 		{
 			ModId = User.ToAccountListing().Id,
 			Reverted = false,
-			BannedUntil = days is 0 ? null : DateTimeOffset.Now.AddDays(days)
+			BannedUntil = days is 0 ? null : DateTime.UtcNow.AddDays(days)
 		}, authDb);
 
 		return StatusCode(202);

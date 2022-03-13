@@ -58,7 +58,7 @@ public record Player : ITimestamped
 		Id = value.Id,
 		Username = value.Username,
 		WgAccountCreatedAt = value.WgAccountCreatedAt,
-		Hidden = value.WgHidden,
+		WgHidden = value.WgHidden,
 		OptedOut = value.OptedOut,
 		OptOutChanged = value.OptOutChanged,
 		GameKarma = value.GameKarma,

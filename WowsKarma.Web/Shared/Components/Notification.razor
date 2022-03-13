@@ -1,4 +1,5 @@
 ﻿@using WowsKarma.Common.Models.DTOs.Notifications
+@using System.Globalization
 
 <a class="toast show text-decoration-none text-reset" href="@(linkFragment ?? "#")">
 	<div class="toast-header d-flex justify-content-between text-nowrap">
@@ -7,7 +8,7 @@
 		</div>
 
 		<div>
-			<small>@Model.EmittedAt.ToString()</small>
+			<small>@Model.EmittedAt.ToString(CultureInfo.InvariantCulture)</small>
 
 			<button type="button" class="btn btn-link btn-sm text-white ml-2" data-bs-dismiss="toast" aria-label="Close" @onclick=DismissClicked>
 				<i class="bi bi-x-lg"></i>

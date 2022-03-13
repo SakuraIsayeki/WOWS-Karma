@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using WowsKarma.Common;
+using WowsKarma.Web.Infrastructure;
 
 namespace WowsKarma.Web
 {
@@ -19,7 +20,6 @@ namespace WowsKarma.Web
 			using IServiceScope scope = host.Services.CreateScope();
 
 			IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-
 
 			Log.Logger = new LoggerConfiguration()
 #if DEBUG
@@ -41,6 +41,8 @@ namespace WowsKarma.Web
 
 			Log.Information("Region selected : {Region}", Utilities.CurrentRegion);
 
+			Conversions.ConfigureMapping();
+			
 			await host.RunAsync();
 		}
 

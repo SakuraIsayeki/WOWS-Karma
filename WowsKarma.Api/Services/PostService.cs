@@ -44,7 +44,13 @@ namespace WowsKarma.Api.Services
 
 		public Post GetPost(Guid id) => context.Posts
 			.Include(p => p.Author)
+				.ThenInclude(p => p.ClanMember)
+					.ThenInclude(p => p.Clan)
+			
 			.Include(p => p.Player)
+				.ThenInclude(p => p.ClanMember)
+					.ThenInclude(p => p.Clan)
+			
 			.Include(p => p.Replay)
 			.FirstOrDefault(p => p.Id == id);
 
@@ -61,17 +67,27 @@ namespace WowsKarma.Api.Services
 				};
 		}
 
-		public IEnumerable<Post> GetReceivedPosts(uint playerId) => context.Players.AsNoTracking()
-			.Include(p => p.PostsReceived)
-				.ThenInclude(p => p.Author)
-			.FirstOrDefault(p => p.Id == playerId)?
-			.PostsReceived?.OrderBy(p => p.CreatedAt);
+		public IQueryable<Post> GetReceivedPosts(uint playerId) => context.Posts.AsNoTracking()
+			.Include(p => p.Author)
+				.ThenInclude(p => p.ClanMember)
+					.ThenInclude(p => p.Clan)
+			
+			.Include(p => p.Player)
+				.ThenInclude(p => p.ClanMember)
+					.ThenInclude(p => p.Clan)
+			.Where(p => p.PlayerId == playerId)
+			.OrderBy(p => p.CreatedAt);
 
-		public IEnumerable<Post> GetSentPosts(uint authorId) => context.Players.AsNoTracking()
-			.Include(p => p.PostsSent)
-				.ThenInclude(p => p.Player)
-			.FirstOrDefault(p => p.Id == authorId)?
-			.PostsSent?.OrderBy(p => p.CreatedAt);
+		public IQueryable<Post> GetSentPosts(uint authorId) => context.Posts.AsNoTracking()
+			.Include(p => p.Author)
+				.ThenInclude(p => p.ClanMember)
+					.ThenInclude(p => p.Clan)
+			
+			.Include(p => p.Player)
+				.ThenInclude(p => p.ClanMember)
+					.ThenInclude(p => p.Clan)
+			.Where(p => p.AuthorId == authorId)?
+			.OrderBy(p => p.CreatedAt);
 
 		public IQueryable<Post> GetLatestPosts() => context.Posts.AsNoTracking()
 			.Include(p => p.Author)
@@ -93,8 +109,8 @@ namespace WowsKarma.Api.Services
 				throw new ArgumentException("Validation failed.", nameof(postDTO), e);
 			}
 
-			Player author = await playerService.GetPlayerAsync(postDTO.AuthorId) ?? throw new ArgumentException($"Author Account {postDTO.AuthorId} not found", nameof(postDTO));
-			Player player = await context.Players.FindAsync(postDTO.PlayerId) ?? throw new ArgumentException($"Player Account {postDTO.PlayerId} not found", nameof(postDTO));
+			Player author = await playerService.GetPlayerAsync(postDTO.Author.Id) ?? throw new ArgumentException($"Author Account {postDTO.Author.Id} not found", nameof(postDTO));
+			Player player = await context.Players.FindAsync(postDTO.Player.Id) ?? throw new ArgumentException($"Player Account {postDTO.Player.Id} not found", nameof(postDTO));
 
 			if (!bypassChecks)
 			{
@@ -130,11 +146,7 @@ namespace WowsKarma.Api.Services
 				? await _replayService.GetReplayDTOAsync(entry.Entity.ReplayId ?? throw new InvalidOperationException($"No replay ID found for post {entry.Entity.Id}."))
 				: null);
 
-			_ = _postsHub.Clients.All.NewPost(post.Adapt<PlayerPostDTO>() with
-			{
-				AuthorUsername = author.Username,
-				PlayerUsername = player.Username
-			});
+			_ = _postsHub.Clients.All.NewPost(post.Adapt<PlayerPostDTO>());
 
 			_ = _notificationService.SendNewNotification(new PostAddedNotification
 			{
@@ -153,7 +165,7 @@ namespace WowsKarma.Api.Services
 
 			Post post = await context.Posts.FindAsync(id);
 			PostFlairsParsed previousFlairs = post.ParsedFlairs;
-			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {editedPostDTO.PlayerId} not found", nameof(editedPostDTO));
+			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {editedPostDTO.Player.Id} not found", nameof(editedPostDTO));
 
 			post.Title = editedPostDTO.Title;
 			post.Content = editedPostDTO.Content;
@@ -167,11 +179,7 @@ namespace WowsKarma.Api.Services
 
 			_ = webhookService.SendEditedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
 
-			_ = _postsHub.Clients.All.EditedPost(post.Adapt<PlayerPostDTO>() with
-			{
-				AuthorUsername = post.Author?.Username,
-				PlayerUsername = post.Player?.Username
-			});
+			_ = _postsHub.Clients.All.EditedPost(post.Adapt<PlayerPostDTO>());
 
 			_ = _notificationService.SendNewNotification(new PostEditedNotification
 			{
@@ -258,8 +266,8 @@ namespace WowsKarma.Api.Services
 		{
 			IQueryable<Post> filteredPosts =
 				 from p in context.Posts
-				 where p.AuthorId == post.AuthorId
-				 where p.PlayerId == post.PlayerId
+				 where p.AuthorId == post.Author.Id
+				 where p.PlayerId == post.Player.Id
 				 select p;
 
 			if (filteredPosts.Any())

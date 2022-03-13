@@ -13,8 +13,15 @@ namespace WowsKarma.Api.Utilities
 		{
 			TypeAdapterConfig<PlayerPostDTO, Post>
 				.NewConfig()
+				.IgnoreNullValues(true)
 				.Ignore(dest => dest.Author)
 				.Ignore(dest => dest.Player);
+			
+			TypeAdapterConfig<Post, PlayerPostDTO>
+				.NewConfig()
+				.IgnoreNullValues(true)
+				.Map(dest => dest.Author.Clan, src => src.Author.ClanMember.Clan)
+				.Map(dest => dest.Player.Clan, src => src.Player.ClanMember.Clan);
 
 			TypeAdapterConfig<PostModActionDTO, PostModAction>
 				.NewConfig()
@@ -28,19 +35,18 @@ namespace WowsKarma.Api.Utilities
 				.Ignore(dest => dest.CreatedAt)
 				.Ignore(dest => dest.UpdatedAt);
 
-			TypeAdapterConfig<Player, PlayerClanProfileDTO>
+			TypeAdapterConfig<Player, PlayerProfileDTO>
 				.NewConfig()
 				.IgnoreNullValues(true)
-				.Map(dest => dest.Id, src => src.Id)
-				.Map(dest => dest.ClanMemberRole, src => src.ClanMember.Role)
-				.Map(dest => dest.JoinedClanAt, src => src.ClanMember.JoinedAt)
-				.Map(dest => dest.Clan, src => src.ClanMember.Clan);
+				.Map(dest => dest.Clan, src => src.ClanMember)
+				.Map(dest => dest.RatingPerformance, src => src.PerformanceRating)
+				.Map(dest => dest.RatingTeamplay, src => src.TeamplayRating)
+				.Map(dest => dest.RatingCourtesy, src => src.CourtesyRating);
 
 			TypeAdapterConfig<ClanMember, PlayerClanProfileDTO>
 				.NewConfig()
 				.IgnoreNullValues(true)
-				.Map(dest => dest, src => src.Player)
-				.Map(dest => dest.Id, src => src.PlayerId);
+				.Map(dest => dest.ClanInfo, src => src.Clan);
 
 			TypeAdapterConfig<DateTimeOffset, DateTime>.NewConfig().MapWith(x => x.UtcDateTime);
 			TypeAdapterConfig<DateTime, DateTimeOffset>.NewConfig().MapWith(x => new(x));

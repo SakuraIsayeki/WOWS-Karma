@@ -2,9 +2,9 @@
 
 namespace WowsKarma.Common.Models.DTOs;
 
-public record PlayerClanProfileDTO : PlayerProfileDTO
+public record PlayerClanProfileDTO
 {
-	public ClanListingDTO Clan { get; init; }
+	public ClanListingDTO ClanInfo { get; init; }
 	
 	public ClanRole ClanMemberRole { get; init; }
 	

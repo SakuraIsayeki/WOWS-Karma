@@ -55,9 +55,7 @@ namespace WowsKarma.Api.Controllers
 
 			return playerProfile is null
 				? StatusCode(204)
-				: StatusCode(200, includeClanInfo 
-					? playerProfile.Adapt<PlayerClanProfileDTO>()
-					: playerProfile.Adapt<PlayerProfileDTO>());
+				: StatusCode(200, playerProfile.Adapt<PlayerProfileDTO>());
 		}
 
 		/// <summary>

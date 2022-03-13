@@ -12,8 +12,8 @@ public record PostModActionDTO
 	public ModActionType ActionType { get; init; }
 
 	public uint ModId { get; init; }
-	public string ModUsername { get; init; }
+	public string ModUsername { get; init; } = string.Empty;
 
 	[Required]
-	public string Reason { get; set; }
+	public string Reason { get; set; } = string.Empty;
 }

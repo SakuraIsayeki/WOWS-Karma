@@ -33,8 +33,8 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="410">Post is locked by Community Managers.</response>
 		[HttpGet("{postId:guid}"), ProducesResponseType(typeof(PlayerPostDTO), 200), ProducesResponseType(404), ProducesResponseType(410)]
 		public async Task<IActionResult> GetPostAsync(Guid postId)
-			=> await postService.GetPostDTOAsync(postId) is PlayerPostDTO post
-				? !post.ModLocked || post.AuthorId == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
+			=> await postService.GetPostDTOAsync(postId) is { } post
+				? !post.ModLocked || post.Author.Id == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
 					? StatusCode(200, post)
 					: StatusCode(410)
 				: StatusCode(404);
@@ -47,27 +47,22 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="200">List of posts received by player</response>
 		/// <response code="204">No posts received for given player.</response>
 		/// <response code="404">No player found for given Account ID.</response>
-		[HttpGet("{userId}/received"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(404)]
+		[HttpGet("{userId}/received"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200)]
 		public IActionResult GetReceivedPosts(uint userId, [FromQuery] int? lastResults)
 		{
-			IEnumerable<Post> posts = postService.GetReceivedPosts(userId);
+			IQueryable<Post> posts = postService.GetReceivedPosts(userId);
 
 			if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 			{
-				posts = posts?.Where(p => !p.ModLocked || p.AuthorId == User.ToAccountListing().Id);
+				posts = posts.Where(p => !p.ModLocked || p.AuthorId == User.ToAccountListing().Id);
 			}
 
 			if (lastResults is > 0)
 			{
-				posts?.Take((int)lastResults);
+				posts = posts.Take((int)lastResults);
 			}
 
-			if (posts?.Count() is null or 0)
-			{
-				return StatusCode(204);
-			}
-
-			return Ok(posts.Adapt<IEnumerable<PlayerPostDTO>>());
+			return Ok(posts.Adapt<List<PlayerPostDTO>>());
 		}
 
 		/// <summary>
@@ -81,24 +76,19 @@ namespace WowsKarma.Api.Controllers
 		[HttpGet("{userId}/sent"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(typeof(string), 404)]
 		public IActionResult GetSentPosts(uint userId, [FromQuery] int? lastResults)
 		{
-			IEnumerable<Post> posts = postService.GetSentPosts(userId);
+			IQueryable<Post> posts = postService.GetSentPosts(userId);
 
 			if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 			{
 				posts = posts?.Where(p => !p.ModLocked);
 			}
 
-			if (lastResults is not null and > 0)
+			if (lastResults is > 0)
 			{
-				posts.Take((int)lastResults);
+				posts = posts.Take((int)lastResults);
 			}
 
-			if (posts?.Count() is null or 0)
-			{
-				return StatusCode(204);
-			}
-
-			return StatusCode(200, posts.Adapt<List<PlayerPostDTO>>());
+			return Ok(posts.Adapt<List<PlayerPostDTO>>());
 		}
 
 		/// <summary>
@@ -163,14 +153,14 @@ namespace WowsKarma.Api.Controllers
 				return BadRequest(e);
 			}
 			
-			if (await playerService.GetPlayerAsync(post.AuthorId) is not Player author)
+			if (await playerService.GetPlayerAsync(post.Author.Id) is not { } author)
 			{
-				return StatusCode(404, $"Account {post.AuthorId} not found.");
+				return StatusCode(404, $"Account {post.Author.Id} not found.");
 			}
 
-			if (await playerService.GetPlayerAsync(post.PlayerId) is not Player player)
+			if (await playerService.GetPlayerAsync(post.Player.Id) is not { } player)
 			{
-				return StatusCode(404, $"Account {post.PlayerId} not found.");
+				return StatusCode(404, $"Account {post.Player.Id} not found.");
 			}
 
 			if (ignoreChecks)
@@ -182,7 +172,7 @@ namespace WowsKarma.Api.Controllers
 			}
 			else
 			{
-				if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+				if (post.Author.Id != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
 				{
 					return StatusCode(403, "Author is not authorized to post on behalf of other users.");
 				}

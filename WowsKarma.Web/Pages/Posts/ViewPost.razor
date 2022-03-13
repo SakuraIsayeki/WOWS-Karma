@@ -46,7 +46,7 @@ else
 					
 					<CircuitBreakerSection @ref="_replayRosterOuterBreaker" DisplayTripped>
 						<ChildContent>
-							<ReplayPlayersRoster ShowPlayersRelation Players=post.Replay.Players PostAuthorId=post.AuthorId PostPlayerId=post.PlayerId />
+							<ReplayPlayersRoster ShowPlayersRelation Players=post.Replay.Players PostAuthorId=post.Author.Id PostPlayerId=post.Player.Id />
 						</ChildContent>
 						
 						<ErrorContent>
@@ -62,7 +62,7 @@ else
 		                <ChildContent>
 			                @if (post.Replay.ChatMessages?.Any() is true)
 			                {
-				                <ReplayChat ShowPlayersRelation Messages=post.Replay.ChatMessages PostAuthorId=post.AuthorId PostPlayerId=post.PlayerId />
+				                <ReplayChat ShowPlayersRelation Messages=post.Replay.ChatMessages PostAuthorId=post.Author.Id PostPlayerId=post.Player.Id />
 			                }
 			                else
 			                {

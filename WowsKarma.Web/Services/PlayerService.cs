@@ -31,7 +31,7 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
-		public async Task<PlayerClanProfileDTO> FetchPlayerProfileAsync(uint id)
+		public async Task<PlayerProfileDTO> FetchPlayerProfileAsync(uint id)
 		{
 			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}?includeClanInfo=true");
 			using HttpResponseMessage response = await Client.SendAsync(request);
@@ -42,7 +42,7 @@ namespace WowsKarma.Web.Services
 			}
 
 			response.EnsureSuccessStatusCode();
-			PlayerClanProfileDTO player = await response.Content.ReadFromJsonAsync<PlayerClanProfileDTO>(SerializerOptions);
+			PlayerProfileDTO player = await response.Content.ReadFromJsonAsync<PlayerProfileDTO>(SerializerOptions);
 			
 			return player;
 		}

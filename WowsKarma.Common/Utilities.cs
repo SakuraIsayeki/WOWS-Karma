@@ -82,12 +82,9 @@ public static class Utilities
 	{
 		StringBuilder path = new();
 
-		if (arguments is not null)
+		for (int i = 0; i < arguments.Length; i++)
 		{
-			for (int i = 0; i < arguments.Length; i++)
-			{
-				path.AppendFormat("{0}{1}={2}", i is 0 ? '?' : '&', arguments[i].parameter, arguments[i].value);
-			}
+			path.Append($"{(i is 0 ? '?' : '&')}{arguments[i].parameter}={arguments[i].value}");
 		}
 
 		return path.ToString();
@@ -102,7 +99,7 @@ public static class Utilities
 		{
 			enumerator.MoveNext();
 			KeyValuePair<string, string> current = enumerator.Current;
-			path.AppendFormat("{0}{1}={2}", i is 0 ? '?' : '&', current.Key, Uri.EscapeDataString(current.Value));
+			path.Append($"{(i is 0 ? '?' : '&')}{current.Key}={Uri.EscapeDataString(current.Value)}");
 		}
 
 		return path.ToString();
@@ -112,9 +109,9 @@ public static class Utilities
 		=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
 
 
-	public static Type GetType(string typeName)
+	public static Type? GetType(string typeName)
 	{
-		if (Type.GetType(typeName) is Type type)
+		if (Type.GetType(typeName) is { } type)
 		{
 			return type;
 		}

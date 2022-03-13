@@ -91,7 +91,13 @@ namespace WowsKarma.Api.Services
 
 		public IQueryable<Post> GetLatestPosts() => context.Posts.AsNoTracking()
 			.Include(p => p.Author)
+				.ThenInclude(p => p.ClanMember)
+					.ThenInclude(p => p.Clan)
+			
 			.Include(p => p.Player)
+				.ThenInclude(p => p.ClanMember)
+					.ThenInclude(p => p.Clan)
+			
 			.OrderByDescending(p => p.CreatedAt);
 
 		public async Task<Post> CreatePostAsync(PlayerPostDTO postDTO, IFormFile replayFile, bool bypassChecks)

@@ -1,0 +1,31 @@
+﻿@if (Total is not null)
+{
+    <h2 class="my-3">
+        <span title="Total" class="text-@GetKarmaColor(Total.Value)">@Total</span>
+        
+        <span class="sup-sub">
+           @if (Maximum is not null)
+           {
+               <sup title="Most" class="text-@GetKarmaColor(Maximum.Value)">@Maximum</sup>
+           }
+           
+           @if (Minimum is not null)
+           {
+               <sub title="Least" class="text-@GetKarmaColor(Minimum.Value)">@Minimum</sub>
+           }
+        </span>
+    </h2>
+}
+else
+{
+    <h2 class="my-3 text-danger">N/A</h2>
+}
+
+
+@code {
+	[Parameter] public int? Total { get; set; }
+    
+	[Parameter] public int? Maximum { get; set; }
+    
+	[Parameter] public int? Minimum { get; set; }
+}

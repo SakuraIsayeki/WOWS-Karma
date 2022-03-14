@@ -57,7 +57,7 @@
     private bool authorChatted;
     private bool playerChatted;
 
-    public string GetChannelColor(ReplayChatMessageChannel channel) => channel switch
+    public static string GetChannelColor(ReplayChatMessageChannel channel) => channel switch
     {
         ReplayChatMessageChannel.All => "text-white",
         ReplayChatMessageChannel.Division => "text-warning",

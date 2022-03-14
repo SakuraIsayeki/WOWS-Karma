@@ -14,7 +14,7 @@ public abstract class HttpServiceBase : IDisposable
 
 	protected HttpClient Client { get; init; }
 	protected IHttpContextAccessor HttpContextAccessor { get; init; }
-	protected JsonSerializerOptions SerializerOptions => WowsKarma.Common.Utilities.ApiSerializerOptions;
+	protected static JsonSerializerOptions SerializerOptions => Common.Utilities.ApiSerializerOptions;
 	
 	public HttpServiceBase(IHttpClientFactory httpClientFactory, string httpClientName, IHttpContextAccessor contextAccessor)
 	{

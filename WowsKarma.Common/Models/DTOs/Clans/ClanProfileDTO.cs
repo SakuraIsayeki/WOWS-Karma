@@ -2,17 +2,17 @@
 
 public record ClanProfileDTO : ClanListingDTO
 {
-	public string Description { get; set; } = string.Empty;
+	public string Description { get; init; } = string.Empty;
 
-	public bool IsDisbanded { get; set; }
+	public bool IsDisbanded { get; init; }
 
 	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
+	public DateTime UpdatedAt { get; init; }
 }
 
 public record ClanProfileFullDTO : ClanProfileDTO
 {
-	public virtual IEnumerable<PlayerClanProfileDTO>? Members { get; set; }
+	public virtual List<PlayerProfileDTO> Members { get; init; } = new();
 	
-	public DateTime MembersUpdatedAt { get; set; }
+	public DateTime MembersUpdatedAt { get; init; }
 }

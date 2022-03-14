@@ -2,7 +2,7 @@
 using Mapster;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
-using WowsKarma.Common;
+using WowsKarma.Common.Models.DTOs.Clans;
 using ClanInfo = Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Clans.ClanInfo;
 
 namespace WowsKarma.Api.Utilities
@@ -46,8 +46,27 @@ namespace WowsKarma.Api.Utilities
 			TypeAdapterConfig<ClanMember, PlayerClanProfileDTO>
 				.NewConfig()
 				.IgnoreNullValues(true)
-				.Map(dest => dest.ClanInfo, src => src.Clan);
+				.Map(dest => dest.ClanInfo, src => src.Clan)
+				.Map(dest => dest.JoinedClanAt, src => src.JoinedAt)
+				.Map(dest => dest.ClanMemberRole, src => src.Role);
+			
+			TypeAdapterConfig<ClanMember, PlayerProfileDTO>
+				.NewConfig()
+				.IgnoreNullValues(true)
+				.Unflattening(true)
+				.Map(dest => dest, src => src.Player)
+				.Map(dest => dest.Clan, src => src);
 
+			TypeAdapterConfig<Clan, ClanProfileFullDTO>
+				.NewConfig()
+				.IgnoreNullValues(true)
+				.Map(dest => dest.Members, src => src.Members)
+				
+				.Fork(fork => 
+					fork.ForType<ClanMember, PlayerClanProfileDTO>()
+						.Ignore(dest => dest.ClanInfo));
+
+			
 			TypeAdapterConfig<DateTimeOffset, DateTime>.NewConfig().MapWith(x => x.UtcDateTime);
 			TypeAdapterConfig<DateTime, DateTimeOffset>.NewConfig().MapWith(x => new(x));
 			

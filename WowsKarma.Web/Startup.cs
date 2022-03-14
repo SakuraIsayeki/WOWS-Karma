@@ -94,6 +94,7 @@ namespace WowsKarma.Web
 			services.AddScoped<PostService>();
 			services.AddScoped<ModService>();
 			services.AddScoped<ReplayService>();
+			services.AddScoped<ClanService>();
 		}
 
 

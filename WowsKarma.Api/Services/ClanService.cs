@@ -16,7 +16,7 @@ namespace WowsKarma.Api.Services;
 public class ClanService
 {
 	public static TimeSpan ClanInfoUpdateSpan { get; } = TimeSpan.FromHours(4);
-	public static TimeSpan ClanMemberUpdateSpan { get; } = TimeSpan.FromHours(1);
+	public static TimeSpan ClanMemberUpdateSpan { get; } = TimeSpan.FromHours(4);
 	
 	private readonly ApiDbContext _context;
 	private readonly WowsVortexApiClient _vortex;
@@ -44,11 +44,10 @@ public class ClanService
 				Tag = x.Tag,
 				LeagueColor = (uint)ColorTranslator.FromHtml(x.HexColor).ToArgb()
 		});
-
-	// FIXME: Caching is broken, values do not update.
+	
 	public async Task<Clan> GetClanAsync(uint clanId, bool includeMembers = false, CancellationToken ct = default)
 	{
-		Clan clan = await GetDbClans(includeMembers).FirstOrDefaultAsync(c => c.Id == clanId, ct);
+		Clan clan = await GetDbClans(includeMembers).AsNoTracking().FirstOrDefaultAsync(c => c.Id == clanId, ct);
 		bool updateInfo = clan is null || ClanInfoUpdateNeeded(clan);
 		bool updateMembers = includeMembers && (clan is null || ClanMembersUpdateNeeded(clan));
 		
@@ -82,6 +81,8 @@ public class ClanService
 		await context.Clans.Upsert(clan).RunAsync(ct);
 	}
 
+	
+	// FIXME: Player field `UpdatedAt` does not update, leading to redundant requests between all player lookups.
 	internal async Task UpdateClanMembersAsync(ApiDbContext context, Clan clan, CancellationToken ct)
 	{
 		Dictionary<uint, ApiClanMember> members = (await _clansApi.FetchClanMembersAsync(clan.Id, ct: ct))!.Items!.ToDictionary(x => x.Id);
@@ -103,11 +104,13 @@ public class ClanService
 		foreach (uint id in outdated)
 		{
 			Player dbPlayer = Player.MapFromApi(players[id], await context.Players.FindAsync(new object[] { id }, ct));
-			context.Attach(dbPlayer);
+			dbPlayer.UpdatedAt = DateTime.UtcNow;
+			
 			players[id] = dbPlayer;
+			context.Update(players[id]);
 		}
 
-		clan!.Members = new(members.Values.Select(x => new ClanMember
+		clan.Members = new(members.Values.Select(x => new ClanMember
 		{
 			PlayerId = x.Id,
 			Player = players[x.Id],
@@ -116,9 +119,12 @@ public class ClanService
 			Role = x.Role.Name
 		}));
 		
-		context.ClanMembers.UpsertRange(clan.Members);
+		context.RemoveRange(clan.Members.Where(x => x.ClanId == clan.Id && !members.ContainsKey(x.PlayerId)));
+		await context.SaveChangesAsync(ct);
+		
 		clan.MembersUpdatedAt = DateTime.UtcNow;
-		context.RemoveRange(context.ClanMembers.Where(x => x.ClanId == clan.Id && !clan.Members.Select(y => y.PlayerId).Contains(x.PlayerId)));
+		await context.Clans.Upsert(clan).RunAsync(ct);
+		await context.ClanMembers.UpsertRange(clan.Members).RunAsync(ct);
 	}
 
 	public static bool ClanInfoUpdateNeeded(Clan clan) => clan.UpdatedAt + ClanInfoUpdateSpan < DateTime.UtcNow;

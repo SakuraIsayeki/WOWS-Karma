@@ -72,6 +72,9 @@
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
+    <None Update="Pages\Clans\ClanMetricDisplay.razor.scss">
+      <DependentUpon>ClanMetricDisplay.razor</DependentUpon>
+    </None>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

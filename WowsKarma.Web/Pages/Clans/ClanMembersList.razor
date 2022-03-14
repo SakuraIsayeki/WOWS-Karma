@@ -1,4 +1,5 @@
-﻿<table class="table table-responsive table-hover align-middle">
+﻿@using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows
+<table class="table table-responsive table-hover align-middle">
 	<thead>
 		<tr>
 			<th>Rank</th>
@@ -13,13 +14,13 @@
 			<th>Last Battle</th>
 		</tr>
 	</thead>
-	
+
 	<tbody>
 		@foreach (PlayerProfileDTO player in Players.OrderBy(p => p.Clan!.ClanMemberRole).ThenByDescending(p => p.Clan.JoinedClanAt))
 		{
 			<tr>
-				<td class="lead">@player.Clan!.ClanMemberRole.ToString("D")</td>
-				<td>@player.Username</td>
+				<td><i class=@GetClanRoleIconClass(player.Clan!.ClanMemberRole) title=@player.Clan.ClanMemberRole.ToString("G")></i></td>
+				<td><a href="/player/@player.Id,@player.Username">@player.Username</a></td>
 				<td class="small">@player.WgAccountCreatedAt.ToString("d")</td>
 				<td class="small">@player.Clan.JoinedClanAt.ToString("d")</td>
 				<td class="lead text-@GetKarmaColor(player.GameKarma)">@player.GameKarma</td>
@@ -34,6 +35,18 @@
 </table>
 
 @code {
-	[Parameter] 
+
+	[Parameter]
 	public IEnumerable<PlayerProfileDTO> Players { get; set; }
+
+	public static string GetClanRoleIconClass(ClanRole role) => role switch
+	{
+		ClanRole.Commander           => "clanranks-commander",
+		ClanRole.ExecutiveOfficer    => "clanranks-executiveofficer",
+		ClanRole.RecruitmentOfficer  => "clanranks-recruiter",
+		ClanRole.CommissionedOfficer => "clanranks-commissionedofficer",
+		ClanRole.Officer             => "clanranks-officer",
+		ClanRole.Private             => "clanranks-private",
+		_ => string.Empty
+	};
 }

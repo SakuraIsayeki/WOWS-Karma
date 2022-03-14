@@ -1,0 +1,34 @@
+﻿@import 'site.scss';
+
+/* Icons
+-------------------------------------------------- */
+
+.clanranks-commander {
+	@extend .clanranks;
+	content: url('icons/clans/clanranks-light-commander.svg');
+}
+
+.clanranks-executiveofficer {
+	@extend .clanranks;
+	content: url('icons/clans/clanranks-light-executiveofficer.svg');
+}
+
+.clanranks-recruiter {
+	@extend .clanranks;
+	content: url('icons/clans/clanranks-light-recruiter.svg');
+}
+
+.clanranks-commissionedofficer {
+	@extend .clanranks;
+	content: url('icons/clans/clanranks-light-commissionedofficer.svg');
+}
+
+.clanranks-officer {
+	@extend .clanranks;
+	content: url('icons/clans/clanranks-light-officer.svg');
+}
+
+.clanranks-private {
+	@extend .clanranks;
+	content: url('icons/clans/clanranks-light-private.svg');
+}

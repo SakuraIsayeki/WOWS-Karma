@@ -11,9 +11,9 @@ public class ClanService : HttpServiceBase
 {
 	public ClanService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor) : base(httpClientFactory, null, contextAccessor) { }
 
-	public async Task<IEnumerable<ClanListingDTO>> SearchClansAsync(string search)
+	public async Task<IEnumerable<ClanListingDTO>> SearchClansAsync(string search, ushort results = 50)
 	{
-		using HttpRequestMessage request = new(HttpMethod.Get, $"clan/search/{search}");
+		using HttpRequestMessage request = new(HttpMethod.Get, $"clan/search/{search}?results={results}");
 		using HttpResponseMessage response = await Client.SendAsync(request);
 
 		if (response.StatusCode is HttpStatusCode.OK)

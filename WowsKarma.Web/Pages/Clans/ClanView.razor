@@ -9,21 +9,19 @@
 {
 	<div class="row mb-5 clearfix">
 		<div class="col-xl-7 order-0">
-			<div>
-				<h1 id="clan-name" class="mb-5">
-					<span style="color: #@Clan.LeagueColorHex;">[@Clan.Tag]</span><span class="mx-3">@Clan.Name</span>
-					
-					@if (Clan.Members?.Sum(m => m.GameKarma + m.SiteKarma) is { } totalMixedKarma)
-					{
-						<sup class="text-@GetKarmaColor(totalMixedKarma)">@totalMixedKarma</sup>
-					}
-				</h1>
-            
-				<div class="my-5">
-					<hr />
-					<p class="my-3" style="white-space: pre-line;">@Clan.Description</p>
-					<hr />
-				</div>
+			<h1 id="clan-name" class="mb-5">
+				<span style="color: #@Clan.LeagueColorHex;">[@Clan.Tag]</span><span class="mx-3">@Clan.Name</span>
+				
+				@if (Clan.Members?.Sum(m => m.GameKarma + m.SiteKarma) is { } totalMixedKarma)
+				{
+					<sup class="text-@GetKarmaColor(totalMixedKarma)">@totalMixedKarma</sup>
+				}
+			</h1>
+        
+			<div class="my-5">
+				<hr />
+				<p class="my-3" style="white-space: pre-line;">@Clan.Description</p>
+				<hr />
 			</div>
 		</div>
 
@@ -65,8 +63,8 @@
 				</div>
 			</div>
 			
-			<div class="row justify-content-center">
-				<div class="col my-5">
+			<div class="row justify-content-center my-5">
+				<div class="col">
 					<ClanMetricDisplay
 						Total="Clan.Members.Sum(m => m.RatingPerformance)"
 						Maximum="Clan.Members.Max(m => m.RatingPerformance)"
@@ -76,7 +74,7 @@
 					<h4>Performance</h4>
 				</div>
 				
-				<div class="col my-5">
+				<div class="col">
 					<ClanMetricDisplay
 						Total="Clan.Members.Sum(m => m.RatingTeamplay)"
 						Maximum="Clan.Members.Max(m => m.RatingTeamplay)"
@@ -86,7 +84,7 @@
 					<h4>Teamplay</h4>
 				</div>
             	
-				<div class="col my-5">
+				<div class="col">
 					<ClanMetricDisplay
 						Total="Clan.Members.Sum(m => m.RatingCourtesy)"
 						Maximum="Clan.Members.Max(m => m.RatingCourtesy)"

@@ -1,0 +1,95 @@
+﻿@page "/clan"
+@inject ClanService ClanService
+
+<div class="col-md-6">
+	<h1 class="mb-3">Search Clans</h1>
+
+	<EditForm Model="CurrentSearch" OnValidSubmit="HandleValidSubmitAsync">
+		<DataAnnotationsValidator />
+		<ValidationSummary />
+
+		<div class="input-group">
+			<InputText id="search-clan" class="form-control" @bind-Value="CurrentSearch.Search" DisplayName="Search" placeholder="Clan Tag or Name" />
+			<button type="submit" class="btn btn-primary px-3">Search</button>
+		</div>
+	</EditForm>
+</div>
+
+<CircuitBreakerSection @ref="_breakerSection" DisplayTripped>
+	<ChildContent>
+		@if (ClansResults is not null)
+		{
+			<div class="mx-3 my-5">
+				@if (ClansResults.Count() is not 0)
+				{
+					<h4 class="text-success mb-3">Found @ClansResults.Count() Clan(s) :</h4>
+					                                                                        
+					<ul>
+						@foreach (ClanListingDTO clan in ClansResults)
+						{
+							<li>
+								<a href="/clan/@clan.Id,@clan.Tag-@clan.Name/">
+									<span style="color: #@clan.LeagueColorHex;">[@clan.Tag]</span> <span>@clan.Name</span>
+								</a>
+							</li>
+						}
+					</ul>
+				}
+				else
+				{
+					<h4 class="text-warning">No Results found. Try again.</h4>
+				}
+			</div>
+		}
+		else if (Searching)
+		{
+			<h4 class="text-info my-5">Searching...</h4>
+		}
+	</ChildContent>
+	
+	<ErrorContent>
+		<h3 class="text-danger my-5">An error occured while loading results.</h3>
+	</ErrorContent>
+</CircuitBreakerSection>
+
+
+
+@code {
+
+	public IEnumerable<ClanListingDTO> ClansResults { get; set; }
+
+	[Parameter]
+	public SearchModel CurrentSearch { get; set; } = new();
+
+	public bool Searching { get; private set; }
+
+	private CircuitBreakerSection _breakerSection = new();
+	
+	protected async Task HandleValidSubmitAsync()
+	{
+		try
+		{
+			Searching = true;
+			_breakerSection.Recover();
+			ClansResults = null;
+
+			ClansResults = (CurrentSearch.Search is null or { Length: >= 2 }
+				? await ClanService.SearchClansAsync(CurrentSearch.Search) : null)
+				?? Array.Empty<ClanListingDTO>();
+		
+			Searching = false;
+		}
+		catch (Exception e)
+		{
+			await _breakerSection.TripExceptionAsync(e);
+		}
+	}
+
+	public record SearchModel
+	{
+		[StringLength(50, MinimumLength = 2)]
+		public string Search { get; set; }
+	}
+
+
+}

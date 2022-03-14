@@ -32,12 +32,11 @@ namespace WowsKarma.Api.Utilities
 				.NewConfig()
 				.IgnoreNullValues(true)
 				.Map(dest => dest.LeagueColor, src => (uint)ColorTranslator.FromHtml(src.Color).ToArgb())
-				.Ignore(dest => dest.CreatedAt)
+				.Map(dest => dest.CreatedAt, src => src.CreatedAt.UtcDateTime)
 				.Ignore(dest => dest.UpdatedAt);
 
 			TypeAdapterConfig<Player, PlayerProfileDTO>
 				.NewConfig()
-				.IgnoreNullValues(true)
 				.Map(dest => dest.Clan, src => src.ClanMember)
 				.Map(dest => dest.RatingPerformance, src => src.PerformanceRating)
 				.Map(dest => dest.RatingTeamplay, src => src.TeamplayRating)
@@ -45,7 +44,6 @@ namespace WowsKarma.Api.Utilities
 
 			TypeAdapterConfig<ClanMember, PlayerClanProfileDTO>
 				.NewConfig()
-				.IgnoreNullValues(true)
 				.Map(dest => dest.ClanInfo, src => src.Clan)
 				.Map(dest => dest.JoinedClanAt, src => src.JoinedAt)
 				.Map(dest => dest.ClanMemberRole, src => src.Role);
@@ -55,7 +53,10 @@ namespace WowsKarma.Api.Utilities
 				.IgnoreNullValues(true)
 				.Unflattening(true)
 				.Map(dest => dest, src => src.Player)
-				.Map(dest => dest.Clan, src => src);
+				.Map(dest => dest.Clan, src => src)
+				.Map(dest => dest.RatingPerformance, src => src.Player.PerformanceRating)
+				.Map(dest => dest.RatingTeamplay, src => src.Player.TeamplayRating)
+				.Map(dest => dest.RatingCourtesy, src => src.Player.CourtesyRating);
 
 			TypeAdapterConfig<Clan, ClanProfileFullDTO>
 				.NewConfig()

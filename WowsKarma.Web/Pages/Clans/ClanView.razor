@@ -7,8 +7,8 @@
 
 @if (Clan is not null)
 {
-	<div class="row mb-5">
-		<div class="col-xl-7">
+	<div class="row mb-5 clearfix">
+		<div class="col-xl-7 order-0">
 			<div>
 				<h1 id="clan-name" class="mb-5">
 					<span style="color: #@Clan.LeagueColorHex;">[@Clan.Tag]</span><span class="mx-3">@Clan.Name</span>
@@ -25,22 +25,22 @@
 					<hr />
 				</div>
 			</div>
-			
-			<div>
-				<table class="table table-borderless">
-					<thead />
-					
-                    <tbody>
-                        <tr><th>Clan ID :</th><td>@Clan.Id</td></tr>
-                        <tr><th>Founded on :</th><td>@Clan.CreatedAt.ToString("f")</td></tr>
-                        <tr><th>Members count :</th><td>@Clan.Members.Count</td></tr>
-                        <tr><th>Statistics :</th><td><a target="_blank" href="@($"{GetWowsNumbersBaseLink()}clan/{IdNamePair}/")">View on WOWS Numbers</a></td></tr>
-                    </tbody>
-                </table>
-			</div>
 		</div>
 
-		<div class="col-lg-5 text-center">
+		<div class="col-md-6 order-md-1 order-lg-5">
+			<table class="table table-borderless">
+            	<thead />
+            	
+            	<tbody>
+            		<tr><th>Clan ID :</th><td>@Clan.Id</td></tr>
+            		<tr><th>Founded on :</th><td>@Clan.CreatedAt.ToString("f")</td></tr>
+            		<tr><th>Members count :</th><td>@Clan.Members.Count</td></tr>
+            		<tr><th>Statistics :</th><td><a target="_blank" href="@($"{GetWowsNumbersBaseLink()}clan/{IdNamePair}/")">View on WOWS Numbers</a></td></tr>
+            	</tbody>
+            </table>
+		</div>
+		
+		<div class="col-lg-5 col-md-6 order-md-5 order-lg-1 float-lg-end text-center">
 			<h2>Clan Metrics</h2>
 		
 			<div class="row justify-content-center my-5">
@@ -97,10 +97,13 @@
 				</div>
 			</div>
 		</div>
-		
-		<div class="col-lg-4 mb-5">
-			
-		</div>
+	</div>
+	
+	<hr />
+	
+	<div class="my-5">
+		<h2>Clan Members</h2>
+		<ClanMembersList Players=Clan.Members />
 	</div>
 }
 else if (Loaded)

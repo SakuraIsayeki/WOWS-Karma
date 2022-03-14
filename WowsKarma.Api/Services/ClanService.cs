@@ -53,18 +53,18 @@ public class ClanService
 		
 		if (updateInfo)
 		{
-			await UpdateClanInfoAsync(_context, clanId, clan, ct);
+			clan = await UpdateClanInfoAsync(_context, clanId, clan, ct);
 		}
 
 		if (updateMembers)
 		{
-			await UpdateClanMembersAsync(_context, clan, ct);
+			clan = await UpdateClanMembersAsync(_context, clan, ct);
 		}
 
 		return clan;
 	}
 
-	internal async Task UpdateClanInfoAsync(ApiDbContext context, uint clanId, Clan clan, CancellationToken ct)
+	internal async Task<Clan> UpdateClanInfoAsync(ApiDbContext context, uint clanId, Clan clan, CancellationToken ct)
 	{
 		ClanInfo apiClan = (await _clansApi.FetchClanViewAsync(clanId, ct))?.Clan;
 		clan = clan is null
@@ -79,11 +79,11 @@ public class ClanService
 
 		clan!.UpdatedAt = DateTime.UtcNow;
 		await context.Clans.Upsert(clan).RunAsync(ct);
-	}
 
+		return clan;
+	}
 	
-	// FIXME: Player field `UpdatedAt` does not update, leading to redundant requests between all player lookups.
-	internal async Task UpdateClanMembersAsync(ApiDbContext context, Clan clan, CancellationToken ct)
+	internal async Task<Clan> UpdateClanMembersAsync(ApiDbContext context, Clan clan, CancellationToken ct)
 	{
 		Dictionary<uint, ApiClanMember> members = (await _clansApi.FetchClanMembersAsync(clan.Id, ct: ct))!.Items!.ToDictionary(x => x.Id);
 			
@@ -125,6 +125,8 @@ public class ClanService
 		clan.MembersUpdatedAt = DateTime.UtcNow;
 		await context.Clans.Upsert(clan).RunAsync(ct);
 		await context.ClanMembers.UpsertRange(clan.Members).RunAsync(ct);
+
+		return clan;
 	}
 
 	public static bool ClanInfoUpdateNeeded(Clan clan) => clan.UpdatedAt + ClanInfoUpdateSpan < DateTime.UtcNow;

@@ -1,0 +1,39 @@
+﻿<table class="table table-responsive table-hover align-middle">
+	<thead>
+		<tr>
+			<th>Rank</th>
+			<th>Username</th>
+			<th>Account Created</th>
+			<th>Joined Clan</th>
+			<th>Game Karma</th>
+			<th>Platform Karma</th>
+			<th>Performance</th>
+			<th>Teamplay</th>
+			<th>Courtesy</th>
+			<th>Last Battle</th>
+		</tr>
+	</thead>
+	
+	<tbody>
+		@foreach (PlayerProfileDTO player in Players.OrderBy(p => p.Clan!.ClanMemberRole).ThenByDescending(p => p.Clan.JoinedClanAt))
+		{
+			<tr>
+				<td class="lead">@player.Clan!.ClanMemberRole.ToString("D")</td>
+				<td>@player.Username</td>
+				<td class="small">@player.WgAccountCreatedAt.ToString("d")</td>
+				<td class="small">@player.Clan.JoinedClanAt.ToString("d")</td>
+				<td class="lead text-@GetKarmaColor(player.GameKarma)">@player.GameKarma</td>
+				<td class="lead text-@GetKarmaColor(player.SiteKarma)">@player.SiteKarma</td>
+				<td class="lead text-@GetKarmaColor(player.RatingPerformance)">@player.RatingPerformance</td>
+				<td class="lead text-@GetKarmaColor(player.RatingTeamplay)">@player.RatingTeamplay</td>
+				<td class="lead text-@GetKarmaColor(player.RatingCourtesy)">@player.RatingCourtesy</td>
+				<td class="small">@player.LastBattleTime.ToString("G")</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+@code {
+	[Parameter] 
+	public IEnumerable<PlayerProfileDTO> Players { get; set; }
+}

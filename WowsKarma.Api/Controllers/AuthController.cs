@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
 	/// <response code="200">Authentication successful.</response>
 	/// <response code="401">Authentication failed.</response>
 	[HttpHead, Authorize, ProducesResponseType(200), ProducesResponseType(401)]
-	public IActionResult ValidateAuth() => StatusCode(200);
+	public IActionResult ValidateAuth() => Ok();
 
 	/// <summary>
 	/// Provides redirection to Wargaming OpenID Authentication.
@@ -54,14 +54,12 @@ public class AuthController : ControllerBase
 	[HttpGet("wg-callback"), ProducesResponseType(302), ProducesResponseType(200), ProducesResponseType(403)]
 	public async Task<IActionResult> WgAuthCallback()
 	{
-		bool valid = await wargamingAuthService.VerifyIdentity(Request);
-
-		if (!valid)
+		if (!await wargamingAuthService.VerifyIdentity(Request))
 		{
-			return StatusCode(403);
+			return Forbid();
 		}
 
-		JwtSecurityToken token = await userService.CreateTokenAsync(WargamingIdentity.FromUri(new Uri(Request.Query["openid.identity"].FirstOrDefault())));
+		JwtSecurityToken token = await userService.CreateTokenAsync(WargamingIdentity.FromUri(new(Request.Query["openid.identity"].FirstOrDefault() ?? throw new InvalidOperationException())));
 
 		Response.Cookies.Append(
 			config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieName"],
@@ -74,9 +72,9 @@ public class AuthController : ControllerBase
 				Expires = DateTime.UtcNow.AddDays(7)
 			});
 
-		return Request.Query["redirectUri"].FirstOrDefault() is string redirectUri
+		return Request.Query["redirectUri"].FirstOrDefault() is { } redirectUri
 			? Redirect(redirectUri)
-			: StatusCode(200);
+			: Ok();
 	}
 
 	/// <summary>
@@ -84,11 +82,11 @@ public class AuthController : ControllerBase
 	/// </summary>
 	/// <response code="200">Seed Token successfully reset.</response>
 	/// <response code="401">Authentication failed.</response>
-	[HttpPost("renew-seed"), Authorize, ProducesResponseType(200), ProducesResponseType(401)]
+	[HttpPost("renew-seed"), Authorize, ProducesResponseType(205), ProducesResponseType(401)]
 	public async Task<IActionResult> RenewSeed()
 	{
 		await userService.RenewSeedTokenAsync(uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
-		return StatusCode(200);
+		return StatusCode(205);
 	}
 
 	/// <summary>
@@ -100,6 +98,6 @@ public class AuthController : ControllerBase
 	public async Task<IActionResult> RefreshToken()
 	{
 		JwtSecurityToken token = await userService.CreateTokenAsync(new(User.Claims));
-		return StatusCode(200, jwtService.TokenHandler.WriteToken(token));
+		return Ok(jwtService.TokenHandler.WriteToken(token));
 	}
 }

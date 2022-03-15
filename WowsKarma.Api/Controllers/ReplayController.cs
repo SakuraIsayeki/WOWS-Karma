@@ -27,15 +27,15 @@ public class ReplayController : ControllerBase
 		_postService = postService;
 	}
 
-	[HttpGet("{replayId}")]
+	[HttpGet("{replayId:guid}")]
 	public Task<ReplayDTO> GetAsync(Guid replayId) => _ingestService.GetReplayDTOAsync(replayId);
 
-	[HttpPost("{postId}"), Authorize, RequestSizeLimit(ReplaysIngestService.MaxReplaySize)]
+	[HttpPost("{postId:guid}"), Authorize, RequestSizeLimit(ReplaysIngestService.MaxReplaySize)]
 	public async Task<IActionResult> UploadReplayAsync(Guid postId, IFormFile replay, CancellationToken ct, [FromQuery] bool ignoreChecks = false)
 	{
-		if (_postService.GetPost(postId) is not Post current)
+		if (_postService.GetPost(postId) is not { } current)
 		{
-			return StatusCode(404, $"No post with GUID {postId} found.");
+			return NotFound($"No post with GUID {postId} found.");
 		}
 
 		if (ignoreChecks)

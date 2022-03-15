@@ -127,7 +127,7 @@ namespace WowsKarma.Api.Controllers
 		/// <summary>
 		/// Submits a new post for creation.
 		/// </summary>
-		/// <param name="post">Post object to submit</param>
+		/// <param name="postDto">Post object to submit</param>
 		/// <param name="replay">Optional replay file to attach to post</param>
 		/// <param name="ignoreChecks">Bypass API Validation for post creation (Admin only)</param>
 		/// <response code="201">Post was successfuly created.</response>
@@ -155,12 +155,12 @@ namespace WowsKarma.Api.Controllers
 			
 			if (await playerService.GetPlayerAsync(post.Author.Id) is not { } author)
 			{
-				return StatusCode(404, $"Account {post.Author.Id} not found.");
+				return NotFound($"Account {post.Author.Id} not found.");
 			}
 
 			if (await playerService.GetPlayerAsync(post.Player.Id) is not { } player)
 			{
-				return StatusCode(404, $"Account {post.Player.Id} not found.");
+				return NotFound($"Account {post.Player.Id} not found.");
 			}
 
 			if (ignoreChecks)
@@ -219,9 +219,9 @@ namespace WowsKarma.Api.Controllers
 		[HttpPut, Authorize, ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{
-			if (postService.GetPost(post.Id ?? default) is not Post current)
+			if (postService.GetPost(post.Id ?? default) is not { } current)
 			{
-				return StatusCode(404, $"No post with ID {post.Id} found.");
+				return NotFound($"No post with ID {post.Id} found.");
 			}
 
 			if (ignoreChecks)
@@ -265,9 +265,9 @@ namespace WowsKarma.Api.Controllers
 		[HttpDelete("{postId:guid}"), Authorize, ProducesResponseType(205), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> DeletePost(Guid postId, [FromQuery] bool ignoreChecks = false)
 		{
-			if (postService.GetPost(postId) is not Post post)
+			if (postService.GetPost(postId) is not { } post)
 			{
-				return StatusCode(404, $"No post with ID {postId} found.");
+				return NotFound($"No post with ID {postId} found.");
 			}
 
 			if (ignoreChecks)

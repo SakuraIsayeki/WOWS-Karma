@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using Mapster;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
 
@@ -43,19 +44,19 @@ namespace WowsKarma.Api.Controllers
 		/// <param name="includeClanInfo">Include clan membership info while fetching player profile.</param>
 		/// <response code="200">Returns player profile</response>
 		/// <response code="204">No profile found</response>
-		[HttpGet("{id}"), ProducesResponseType(typeof(PlayerClanProfileDTO), 200), ProducesResponseType(204)]
+		[HttpGet("{id:required}"), ProducesResponseType(typeof(PlayerClanProfileDTO), 200), ProducesResponseType(204)]
 		public async Task<IActionResult> GetAccount(uint id, bool includeClanInfo = true)
 		{
 			if (id is 0)
 			{
-				return StatusCode(400, new ArgumentException(null, nameof(id)));
+				return NotFound();
 			}
 
 			Player playerProfile = await service.GetPlayerAsync(id, false, includeClanInfo);
 
 			return playerProfile is null
-				? StatusCode(204)
-				: StatusCode(200, playerProfile.Adapt<PlayerProfileDTO>());
+				? NotFound()
+				: Ok(playerProfile.Adapt<PlayerProfileDTO>());
 		}
 
 		/// <summary>

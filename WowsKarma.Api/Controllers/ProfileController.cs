@@ -25,9 +25,9 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="200">Returns player profile flags for given ID.</response>
 		/// <response code="404">No player Profile was found.</response>
 		[HttpGet("{id}"), ProducesResponseType(typeof(UserProfileFlagsDTO), 200), ProducesResponseType(404)]
-		public async Task<IActionResult> GetProfileFlagsAsync(uint id) => (await playerService.GetPlayerAsync(id, true)) is Player player
-			? StatusCode(200, player.Adapt<UserProfileFlagsDTO>() with { PostsBanned = player.IsBanned() })
-			: StatusCode(404);
+		public async Task<IActionResult> GetProfileFlagsAsync(uint id) => await playerService.GetPlayerAsync(id, true) is { } player
+			? Ok(player.Adapt<UserProfileFlagsDTO>() with { PostsBanned = player.IsBanned() })
+			: NotFound();
 
 		/// <summary>
 		/// Updates user-settable profile values.
@@ -52,7 +52,7 @@ namespace WowsKarma.Api.Controllers
 				}
 
 				await playerService.UpdateProfileFlagsAsync(flags);
-				return StatusCode(200);
+				return Ok();
 			}
 			catch (CooldownException e)
 			{
@@ -60,7 +60,7 @@ namespace WowsKarma.Api.Controllers
 			}
 			catch (ArgumentException)
 			{
-				return StatusCode(404);
+				return NotFound();
 			}
 		}
 	}

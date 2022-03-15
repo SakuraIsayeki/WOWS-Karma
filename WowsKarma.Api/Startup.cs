@@ -78,7 +78,7 @@ namespace WowsKarma.Api
 							IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
 						};
 
-						options.Events = new JwtBearerEvents
+						options.Events = new()
 						{
 							OnMessageReceived = context =>
 							{
@@ -98,20 +98,20 @@ namespace WowsKarma.Api
 
 			services.AddSwaggerGen(options =>
 			{
-				options.SwaggerDoc(DisplayVersion, new OpenApiInfo
+				options.SwaggerDoc(DisplayVersion, new()
 				{
 					Version = DisplayVersion,
 					Title = $"WOWS Karma API ({ApiRegion.ToRegionString()})",
-					Contact = new OpenApiContact
+					Contact = new()
 					{
 						Name = "Sakura Isayeki",
 						Email = "sakura.isayeki@nodsoft.net",
-						Url = new Uri("https://github.com/SakuraIsayeki"),
+						Url = new("https://github.com/SakuraIsayeki"),
 					},
-					License = new OpenApiLicense
+					License = new()
 					{
 						Name = "GNU-GPL v3",
-						Url = new Uri("https://github.com/SakuraIsayeki/WoWS-Karma/blob/main/LICENSE"),
+						Url = new("https://github.com/SakuraIsayeki/WoWS-Karma/blob/main/LICENSE"),
 					}
 				});
 
@@ -121,7 +121,7 @@ namespace WowsKarma.Api
 				options.IncludeXmlComments(xmlPath);
 
 				// Bearer token authentication
-				options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+				options.AddSecurityDefinition("jwt_auth", new()
 				{
 					Name = "bearer",
 					BearerFormat = "JWT",
@@ -141,9 +141,9 @@ namespace WowsKarma.Api
 					}
 				};
 
-				options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+				options.AddSecurityRequirement(new()
 				{
-					{ securityScheme, Array.Empty<string>() },
+					{ securityScheme, Array.Empty<string>() }
 				});
 			});
 
@@ -233,10 +233,11 @@ namespace WowsKarma.Api
 				app.UseDeveloperExceptionPage();
 			}
 
+			app.UseExceptionHandler("/error");
 			app.UseRouting();
 
 
-			IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(x => IPAddress.Parse(x));
+			IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToArray();
 
 			// Nginx configuration step
 			ForwardedHeadersOptions forwardedHeadersOptions = new()
@@ -244,7 +245,7 @@ namespace WowsKarma.Api
 				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 			};
 
-			if (allowedProxies is not null && allowedProxies.Any())
+			if (allowedProxies is { Length: > 0 })
 			{
 				forwardedHeadersOptions.KnownProxies.Clear();
 

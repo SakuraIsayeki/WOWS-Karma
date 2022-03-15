@@ -37,7 +37,7 @@ public static class PostFlairsUtils
 		return flairs;
 	}
 
-	public static PostFlairsParsed ParseFlairsEnum(this PostFlairs flairs) => flairs is 0 ? null : new()
+	public static PostFlairsParsed? ParseFlairsEnum(this PostFlairs flairs) => flairs is 0 ? null : new()
 	{
 		Performance = ParseBalancedFlags(flairs, PostFlairs.PerformanceGood, PostFlairs.PerformanceBad),
 		Teamplay = ParseBalancedFlags(flairs, PostFlairs.TeamplayGood, PostFlairs.TeamplayBad),

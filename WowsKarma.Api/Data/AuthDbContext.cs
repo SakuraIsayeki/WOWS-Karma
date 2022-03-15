@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using WowsKarma.Api.Data.Models.Auth;
 using WowsKarma.Common;
 

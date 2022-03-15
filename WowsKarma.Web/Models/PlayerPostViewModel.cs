@@ -30,21 +30,11 @@ namespace WowsKarma.Web.Models
 		public static implicit operator PlayerPostViewModel(PlayerPostDTO value) => new()
 		{
 			Id = value.Id,
-			PlayerId = value.PlayerId,
-			AuthorId = value.AuthorId,
+			PlayerId = value.Player.Id,
+			AuthorId = value.Author.Id,
 			Flairs = value.Flairs,
 			Title = value.Title,
 			Content = value.Content
-		};
-
-		public static PlayerPostDTO ToDTO(PlayerPostViewModel value) => new()
-		{
-			Id = value.Id,
-			PlayerId = value.PlayerId,
-			AuthorId = value.AuthorId,
-			Flairs = value.Flairs,
-			Title = value.Title,
-			Content = value.Content,
 		};
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 using Npgsql;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Data.Models.Notifications;
@@ -10,21 +11,22 @@ namespace WowsKarma.Api.Data;
 
 public class ApiDbContext : DbContext
 {
-	public DbSet<PlatformBan> PlatformBans { get; set; }
-	public DbSet<Player> Players { get; set; }
-	public DbSet<Post> Posts { get; set; }
-	public DbSet<PostModAction> PostModActions { get; set; }
-	public DbSet<Replay> Replays { get; set; }
-
+	public DbSet<Clan> Clans { get; init; }
+	public DbSet<ClanMember> ClanMembers { get; init; }
+	public DbSet<PlatformBan> PlatformBans { get; init; }
+	public DbSet<Player> Players { get; init; }
+	public DbSet<Post> Posts { get; init; }
+	public DbSet<PostModAction> PostModActions { get; init; }
+	public DbSet<Replay> Replays { get; init; }
 
 	#region Notifications
-	public DbSet<NotificationBase> Notifications { get; set; }
+	public DbSet<NotificationBase> Notifications { get; init; }
 
-	public DbSet<PlatformBanNotification> PlatformBanNotifications { get; set; }
-	public DbSet<PostAddedNotification> PostAddedNotifications { get; set; }
-	public DbSet<PostEditedNotification> PostEditedNotifications { get; set; }
-	public DbSet<PostDeletedNotification> PostDeletedNotifications { get; set; }
-	public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; set; }
+	public DbSet<PlatformBanNotification> PlatformBanNotifications { get; init; }
+	public DbSet<PostAddedNotification> PostAddedNotifications { get; init; }
+	public DbSet<PostEditedNotification> PostEditedNotifications { get; init; }
+	public DbSet<PostDeletedNotification> PostDeletedNotifications { get; init; }
+	public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; init; }
 	#endregion
 
 
@@ -32,6 +34,7 @@ public class ApiDbContext : DbContext
 	{
 		NpgsqlConnection.GlobalTypeMapper.MapEnum<ModActionType>();
 		NpgsqlConnection.GlobalTypeMapper.MapEnum<NotificationType>();
+		NpgsqlConnection.GlobalTypeMapper.MapEnum<ClanRole>();
 	}
 
 	public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) { }
@@ -46,6 +49,18 @@ public class ApiDbContext : DbContext
 					.HasDefaultValueSql("NOW()");
 		}
 
+		#region Clans
+
+		modelBuilder.HasPostgresEnum<ClanRole>();
+		
+		#endregion // Clans
+
+		#region ClanMembers
+
+		modelBuilder.Entity<ClanMember>()
+			.HasKey(c => c.PlayerId);
+
+		#endregion
 
 		#region Notifications
 

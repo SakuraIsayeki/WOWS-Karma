@@ -64,7 +64,7 @@ public class PlatformBansController : ControllerBase
 	/// </summary>
 	/// <param name="id">ID of Platform Ban to revert.</param>
 	/// <response code="200">Platform Ban was successfully reverted.</response>
-	[HttpDelete("{id}"), ProducesResponseType(200)]
+	[HttpDelete("{id:guid}"), ProducesResponseType(200)]
 	public async Task<IActionResult> RevertBan([FromQuery] Guid id)
 	{
 		await _service.RevertPlatformBanAsync(id);

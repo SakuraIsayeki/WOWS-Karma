@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using System.IO;
 using WowsKarma.Api.Data;
+using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api
@@ -13,9 +14,11 @@ namespace WowsKarma.Api
 	{
 		public static async Task Main(string[] args)
 		{
+			Conversions.ConfigureMapping();
+			
 			using IHost host = CreateHostBuilder(args).Build();
 			using IServiceScope scope = host.Services.CreateScope();
-
+			
 			IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
 			Log.Logger = new LoggerConfiguration()
@@ -37,8 +40,8 @@ namespace WowsKarma.Api
 				.CreateLogger();
 
 			Log.Information("Region selected : {Region}", Startup.ApiRegion);
-
-
+			
+			
 			using (ApiDbContext db = scope.ServiceProvider.GetRequiredService<ApiDbContext>())
 			{
 				await db.Database.MigrateAsync();

@@ -4,9 +4,23 @@
 	@if (DisplayType is PostDisplayType.Neutral)
 	{
 		<p class="text-body ms-1">
-			<NavLink href=@($"/player/{PlayerPost.AuthorId},{PlayerPost.AuthorUsername}")>@PlayerPost.AuthorUsername</NavLink>
+			@if (PlayerPost.Author.Clan is { } authorClan)
+            {
+	            <a class="me-1" style="color: #@authorClan.LeagueColorHex;" 
+		            href=@($"/clan/{authorClan.Id},{authorClan.Tag}-{authorClan.Name}") 
+		            tooltip="@authorClan.Name">[@authorClan.Tag]</a>
+            }
+			
+			<NavLink href=@($"/player/{PlayerPost.Author.Id},{PlayerPost.Author.Username}")>@PlayerPost.Author.Username</NavLink>
 			>
-			<NavLink href=@($"/player/{PlayerPost.PlayerId},{PlayerPost.PlayerUsername}")>@PlayerPost.PlayerUsername</NavLink>
+			
+			@if (PlayerPost.Player.Clan is { } playerClan)
+            {
+	            <a class="me-1" style="color: #@playerClan.LeagueColorHex;" 
+		            href=@($"/clan/{playerClan.Id},{playerClan.Tag}-{playerClan.Name}") 
+		            tooltip="@playerClan.Name">[@playerClan.Tag]</a>
+            }
+			<NavLink href=@($"/player/{PlayerPost.Player.Id},{PlayerPost.Player.Username}")>@PlayerPost.Player.Username</NavLink>
 		</p>
 	}
 
@@ -58,11 +72,29 @@
 			<p class="blockquote-footer my-1">
 				@if (DisplayType is PostDisplayType.Received)
 				{
-					<span>From <NavLink href=@($"/player/{PlayerPost.AuthorId},{PlayerPost.AuthorUsername}")>@PlayerPost.AuthorUsername</NavLink>, </span>
+					<span>
+						From
+						
+						@if (PlayerPost.Author.Clan is { } clan)
+						{
+							<a class="me-1" style="color: #@clan.LeagueColorHex;" href=@($"/clan/{clan.Id},{clan.Tag}-{clan.Name}") tooltip="@clan.Name">[@clan.Tag]</a>
+						}
+
+						<NavLink href=@($"/player/{PlayerPost.Author.Id},{PlayerPost.Author.Username}")>@PlayerPost.Author.Username</NavLink>,
+					</span>
 				}
 				else if (DisplayType is PostDisplayType.Sent)
 				{
-					<span>To <NavLink href=@($"/player/{PlayerPost.PlayerId},{PlayerPost.PlayerUsername}")>@PlayerPost.PlayerUsername</NavLink>, </span>
+					<span>
+						To
+						
+						@if (PlayerPost.Player.Clan is { } clan)
+                        {
+                        	<a class="me-1" style="color: #@clan.LeagueColorHex;" href=@($"/clan/{clan.Id},{clan.Tag}-{clan.Name}") tooltip="@clan.Name">[@clan.Tag]</a>
+                        }
+						
+						<NavLink href=@($"/player/{PlayerPost.Player.Id},{PlayerPost.Player.Username}")>@PlayerPost.Player.Username</NavLink>,
+					</span>
 				}
 
 				@PlayerPost.CreatedAt.Value.ToString("dd/MM/yyyy @ HH:mm UTC")
@@ -71,7 +103,7 @@
 			<p class="my-1">
 				<AuthorizeView>
 					<Authorized>
-						@if (PlayerPost.AuthorId == CurrentUserId && !PlayerPost.ModLocked)
+						@if (PlayerPost.Author.Id == CurrentUserId && !PlayerPost.ModLocked)
 						{
 							<button class="btn btn-warning btn-sm" @onclick=EditClicked>Edit</button>
 							<button class="btn btn-danger btn-sm" @onclick=DeleteClicked>Delete</button>
@@ -108,7 +140,7 @@
 
 	private ModDeleteModal ModDeleteModal = new();
 
-	private MarkupString GetFlairMarkup(string name, bool? value) => value is bool x
+	private MarkupString GetFlairMarkup(string name, bool? value) => value is { } x
 		? new($"<small class=\"my-0 text-{(x ? "success" : "danger")}\">{(x ? "+" : "-")} {name}</small> <br />")
 		: new(string.Empty);
 
@@ -122,7 +154,7 @@
 		{
 			ModDeleteModal.Show = false;
 			ModDeleteModal.Sent = true;
-			await ModService.DeletePostAsync((Guid)PlayerPost.Id, parametersModel.Reason);
+			await ModService.DeletePostAsync(PlayerPost.Id ?? new(), parametersModel.Reason);
 
 		}
 	}

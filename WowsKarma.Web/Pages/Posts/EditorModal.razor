@@ -149,11 +149,11 @@
 
 			if (PostModel.Id is null)
 			{
-				PostModel.Id = await PostService.SubmitNewPostAsync(PlayerPostViewModel.ToDTO(PostModel), PostModel.ReplayFile);
+				PostModel.Id = await PostService.SubmitNewPostAsync(PostModel.Adapt<PlayerPostDTO>(), PostModel.ReplayFile);
 			}
 			else
 			{
-				await PostService.EditPostAsync(PlayerPostViewModel.ToDTO(PostModel));
+				await PostService.EditPostAsync(PostModel.Adapt<PlayerPostDTO>());
 			}
 		
 			await OnPostSubmited.InvokeAsync(null);

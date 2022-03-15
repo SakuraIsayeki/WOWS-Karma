@@ -12,9 +12,9 @@ public abstract record NotificationBase : INotification
 	public uint AccountId { get; init; }
 	public virtual Player Account { get; init; }
 
-	public abstract NotificationType Type { get; protected private init; }
+	public abstract NotificationType Type { get; private protected init; }
 
-	public DateTime EmittedAt { get; protected private init; } = DateTime.UtcNow;
+	public DateTime EmittedAt { get; private protected init; } = DateTime.UtcNow;
 	public DateTime? AcknowledgedAt { get; set; }
 
 	public virtual NotificationBaseDTO ToDTO() => new()

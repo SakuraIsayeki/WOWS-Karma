@@ -41,6 +41,7 @@ html {
 .border-top {
 	border-top: 1px solid #e5e5e5;
 }
+
 .border-bottom {
 	border-bottom: 1px solid #e5e5e5;
 }
@@ -60,6 +61,7 @@ button.accept-policy {
 	-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
 }
+
 .modal::-webkit-scrollbar {
 	display: none; /* Chrome, Safari and Opera */
 }
@@ -70,6 +72,7 @@ button.accept-policy {
 body {
 	margin-bottom: 150px
 }
+
 .footer {
 	position: absolute;
 	bottom: 0;
@@ -93,3 +96,14 @@ body {
 .validation-message {
 	color: red;
 }
+
+/* Icons
+-------------------------------------------------- */
+
+.clanranks {
+	height: 3rem;
+	width: 3rem;
+	padding: 0.5rem;
+}
+
+

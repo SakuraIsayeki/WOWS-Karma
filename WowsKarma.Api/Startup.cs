@@ -52,6 +52,8 @@ namespace WowsKarma.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
+			
+			
 			services.AddSignalR()
 				.AddNewtonsoftJsonProtocol(options =>
 				{
@@ -158,19 +160,30 @@ namespace WowsKarma.Api
 			int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
 			services.AddDbContextPool<ApiDbContext>(
-				options => options.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
-					providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 64 : dbPoolSize);
+				o => o.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
+					p =>
+					{
+						p.EnableRetryOnFailure();
+					}
+				), 
+				dbPoolSize is 0 ? 64 : dbPoolSize);
 
 			services.AddDbContextPool<AuthDbContext>(
-				options => options.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
-					providerOptions => providerOptions.EnableRetryOnFailure()), dbPoolSize is 0 ? 64 : dbPoolSize);
+				o => o.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
+					p =>
+					{
+						p.EnableRetryOnFailure();
+					}
+				), 
+				dbPoolSize is 0 ? 64 : dbPoolSize);
 
 			services.AddThrottledApiClient<WowsPublicApiClient>((_, client) => client.BaseAddress = new(ApiHostUtilities.GetApiHost(Game.WOWS, ApiRegion)), 20);
 			services.AddApiClient<WowsVortexApiClient>((_, client) => client.BaseAddress = new(WowsVortexApiClient.GetApiHost(ApiRegion)));
+			services.AddApiClient<WowsClansApiClient>((_, client) => client.BaseAddress = new(WowsClansApiClient.GetApiHost(ApiRegion)));
 			
-			services.AddSingleton(services => new PublicApiOptions
+			services.AddSingleton(s => new PublicApiOptions
 			{
-				AppId = services.GetRequiredService<IConfiguration>()[$"Api:{ApiRegion.ToRegionString()}:AppId"]
+				AppId = s.GetRequiredService<IConfiguration>()[$"Api:{ApiRegion.ToRegionString()}:AppId"]
 			});
 			
 			services.AddWargamingAuth();
@@ -185,6 +198,7 @@ namespace WowsKarma.Api
 			
 			services.AddTransient<PostHub>();
 
+			services.AddScoped<ClanService>();
 			services.AddScoped<UserService>();
 			services.AddScoped<PlayerService>();
 			services.AddScoped<PostService>();

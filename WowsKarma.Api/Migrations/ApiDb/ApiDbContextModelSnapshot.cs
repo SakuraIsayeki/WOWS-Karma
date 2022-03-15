@@ -4,10 +4,13 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
+using Nodsoft.WowsReplaysUnpack.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Common.Models;
+using ReplayPlayer = WowsKarma.Api.Data.Models.Replays.ReplayPlayer;
 
 #nullable disable
 
@@ -20,12 +23,73 @@ namespace WowsKarma.Api.Migrations.ApiDb
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "clan_role", new[] { "unknown", "commander", "executive_officer", "recruitment_officer", "commissioned_officer", "officer", "private" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "mod_action_type", new[] { "deletion", "update" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "notification_type", new[] { "unknown", "other", "post_added", "post_edited", "post_deleted", "post_mod_edited", "post_mod_deleted", "platform_ban" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Clan", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDisbanded")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("LeagueColor")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("MembersUpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Clans");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.ClanMember", b =>
+                {
+                    b.Property<long>("PlayerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ClanId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("JoinedAt")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("LeftAt")
+                        .HasColumnType("date");
+
+                    b.Property<ClanRole>("Role")
+                        .HasColumnType("clan_role");
+
+                    b.HasKey("PlayerId");
+
+                    b.HasIndex("ClanId");
+
+                    b.ToTable("ClanMembers");
+                });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.NotificationBase", b =>
                 {
@@ -232,7 +296,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<ReplayArenaInfo>("ArenaInfo")
+                    b.Property<ArenaInfo>("ArenaInfo")
                         .HasColumnType("jsonb");
 
                     b.Property<string>("BlobName")
@@ -313,6 +377,25 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.HasIndex("ModActionId");
 
                     b.HasDiscriminator().HasValue(NotificationType.PostModDeleted);
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.ClanMember", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.Clan", "Clan")
+                        .WithMany("Members")
+                        .HasForeignKey("ClanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WowsKarma.Api.Data.Models.Player", "Player")
+                        .WithOne("ClanMember")
+                        .HasForeignKey("WowsKarma.Api.Data.Models.ClanMember", "PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Clan");
+
+                    b.Navigation("Player");
                 });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.NotificationBase", b =>
@@ -441,8 +524,15 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Navigation("ModAction");
                 });
 
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Clan", b =>
+                {
+                    b.Navigation("Members");
+                });
+
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Player", b =>
                 {
+                    b.Navigation("ClanMember");
+
                     b.Navigation("PlatformBans");
 
                     b.Navigation("PostsReceived");

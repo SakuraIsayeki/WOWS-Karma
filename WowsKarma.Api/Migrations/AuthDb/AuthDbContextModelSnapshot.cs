@@ -3,8 +3,11 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
+
+#nullable disable
 
 namespace WowsKarma.Api.Migrations.AuthDb
 {
@@ -16,9 +19,10 @@ namespace WowsKarma.Api.Migrations.AuthDb
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("auth")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "6.0.0-preview.5.21301.9")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("RoleUser", b =>
                 {
@@ -32,15 +36,16 @@ namespace WowsKarma.Api.Migrations.AuthDb
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("RoleUser");
+                    b.ToTable("RoleUser", "auth");
                 });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Auth.Role", b =>
                 {
                     b.Property<byte>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("smallint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<byte>("Id"));
 
                     b.Property<string>("DisplayName")
                         .IsRequired()
@@ -52,7 +57,7 @@ namespace WowsKarma.Api.Migrations.AuthDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", "auth");
 
                     b.HasData(
                         new
@@ -74,15 +79,15 @@ namespace WowsKarma.Api.Migrations.AuthDb
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("LastTokenRequested")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<Instant>("LastTokenRequested")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("SeedToken")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", "auth");
                 });
 
             modelBuilder.Entity("RoleUser", b =>

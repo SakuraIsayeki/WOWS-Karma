@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using WowsKarma.Common;
 
 
 namespace WowsKarma.Api.Data.Models;
@@ -17,7 +17,9 @@ public record Player : ITimestamped
 
 	public DateTime CreatedAt { get; init; }
 	public DateTime UpdatedAt { get; set; }
-
+	
+	public virtual ClanMember ClanMember { get; set; }
+	
 	public bool WgHidden { get; set; }
 
 	public int SiteKarma { get; set; }
@@ -30,10 +32,10 @@ public record Player : ITimestamped
 	public DateTime WgAccountCreatedAt { get; init; }
 	public DateTime LastBattleTime { get; set; }
 
-	public virtual List<Post> PostsReceived { get; init; }
-	public virtual List<Post> PostsSent { get; init; }
+	public virtual List<Post> PostsReceived { get; init; } = new();
+	public virtual List<Post> PostsSent { get; init; } = new();
 
-	public virtual List<PlatformBan> PlatformBans { get; init; }
+	public virtual List<PlatformBan> PlatformBans { get; init; } = new();
 
 	public bool NegativeKarmaAble => (SiteKarma + GameKarma) > NegativeKarmaAbilityThreshold;
 	public bool PostsBanned { get; set; }
@@ -56,7 +58,7 @@ public record Player : ITimestamped
 		Id = value.Id,
 		Username = value.Username,
 		WgAccountCreatedAt = value.WgAccountCreatedAt,
-		Hidden = value.WgHidden,
+		WgHidden = value.WgHidden,
 		OptedOut = value.OptedOut,
 		OptOutChanged = value.OptOutChanged,
 		GameKarma = value.GameKarma,

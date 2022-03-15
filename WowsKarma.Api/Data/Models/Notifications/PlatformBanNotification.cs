@@ -7,7 +7,7 @@ namespace WowsKarma.Api.Data.Models.Notifications;
 
 public record PlatformBanNotification : NotificationBase
 {
-	public override NotificationType Type { get; protected private init; } = NotificationType.PlatformBan;
+	public override NotificationType Type { get; private protected init; } = NotificationType.PlatformBan;
 
 	[Required]
 	public Guid BanId { get; set; }

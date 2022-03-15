@@ -14,14 +14,15 @@ public record PlatformBanDTO
 
 	[Required]
 	public uint UserId { get; init; }
-	public virtual string Username { get; init; }
+	public virtual string Username { get; init; } = string.Empty;
 
 	[Required]
 	public uint ModId { get; init; }
-	public virtual string ModUsername { get; init; }
+
+	public virtual string ModUsername { get; init; } = string.Empty;
 
 	[Required]
-	public string Reason { get; set; }
+	public string Reason { get; set; } = string.Empty;
 
 	public DateTime? BannedUntil { get; set; }
 

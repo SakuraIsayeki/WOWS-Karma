@@ -22,7 +22,7 @@
 <table class="table table-hover table-bordered bg-dark">
     <thead>
         <tr>
-            @for (byte i = 1; i < Teams.Count() + 1; i++)
+            @for (byte i = 1; i < Teams.Length + 1; i++)
             {
                 <th class="p-3 lead">Team @i</th>
             }
@@ -30,10 +30,10 @@
     </thead>
 
     <tbody>
-        @for (byte i = 0; i < Teams.Max(t => t.Count()); i++)
+        @for (byte i = 0; i < Teams.Max(t => t.Length); i++)
         {
             <tr>
-                @for (byte j = 0; j < Teams.Count(); j++)
+                @for (byte j = 0; j < Teams.Length; j++)
                 {
                     try
                     {
@@ -44,6 +44,7 @@
                         <td class="p-3">
                             @if (player.ClanId is not 0)
                             {
+                                
                                 <span class="me-2 text-white-50">[@player.ClanTag]</span>
                             }
 

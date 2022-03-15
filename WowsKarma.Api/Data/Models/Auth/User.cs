@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 
-
 namespace WowsKarma.Api.Data.Models.Auth
 {
 	public record User

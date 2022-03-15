@@ -20,19 +20,6 @@ namespace WowsKarma.Web
 	{
 		public static Region CurrentRegion { get; internal set; }
 
-		public static JsonSerializerOptions JsonSerializerOptions { get; } = new()
-		{
-			PropertyNameCaseInsensitive = true,
-			NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals
-		};
-
-		public static async Task<TResult> DeserializeFromHttpResponseAsync<TResult>(HttpResponseMessage response)
-		{
-			string json = await response.Content.ReadAsStringAsync();
-			TResult result = JsonSerializer.Deserialize<TResult>(json, JsonSerializerOptions);
-			return result;
-		}
-
 		public static string GetOidcEndpoint() => CurrentRegion switch
 		{
 			Region.EU => "https://eu.wargaming.net/id/",

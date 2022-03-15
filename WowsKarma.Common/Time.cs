@@ -1,4 +1,6 @@
-﻿namespace WowsKarma.Api.Utilities;
+﻿using System.Globalization;
+
+namespace WowsKarma.Common;
 
 public static class Time
 {
@@ -16,9 +18,9 @@ public static class Time
 	public static long UnixTimestamp(this DateTime _) => (long)DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds;
 
 	/// <summary>
-	/// Returns a local DateTime based on provided unix timestamp
+	/// Returns a DateTime based on provided Unix timestamp
 	/// </summary>
-	/// <param name="timestamp">Unix/posix timestamp</param>
-	/// <returns>Local datetime</returns>
+	/// <param name="timestamp">UNIX/POSIX timestamp</param>
+	/// <returns>DateTime</returns>
 	public static DateTime ParseUnixTimestamp(long timestamp) => DateTime.UnixEpoch.AddSeconds(timestamp).ToLocalTime();
 }

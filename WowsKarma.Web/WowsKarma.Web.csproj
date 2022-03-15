@@ -45,7 +45,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0" />
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.113" />
-    <PackageReference Include="Nodsoft.Wargaming.Api.Common" Version="0.1.1" />
+    <PackageReference Include="Nodsoft.Wargaming.Api.Common" Version="0.2.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="5.1.0" />
@@ -72,6 +72,9 @@
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
+    <None Update="Pages\Clans\ClanMetricDisplay.razor.scss">
+      <DependentUpon>ClanMetricDisplay.razor</DependentUpon>
+    </None>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

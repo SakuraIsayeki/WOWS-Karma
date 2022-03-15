@@ -1,0 +1,135 @@
+﻿@page "/clan/{idnamepair}"
+@using WowsKarma.Common.Models.DTOs.Clans
+@using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Clans
+
+@inject ClanService _ClanService;
+
+
+@if (Clan is not null)
+{
+	<div class="row mb-5 clearfix">
+		<div class="col-xl-7 order-0">
+			<h1 id="clan-name" class="mb-5">
+				<span style="color: #@Clan.LeagueColorHex;">[@Clan.Tag]</span><span class="mx-3">@Clan.Name</span>
+				
+				@if (Clan.Members?.Sum(m => m.GameKarma + m.SiteKarma) is { } totalMixedKarma)
+				{
+					<sup class="text-@GetKarmaColor(totalMixedKarma)">@totalMixedKarma</sup>
+				}
+			</h1>
+        
+			<div class="my-5">
+				<hr />
+				<p class="my-3" style="white-space: pre-line;">@Clan.Description</p>
+				<hr />
+			</div>
+		</div>
+
+		<div class="col-md-6 order-md-1 order-lg-5">
+			<table class="table table-borderless">
+            	<thead />
+            	
+            	<tbody>
+            		<tr><th>Clan ID :</th><td>@Clan.Id</td></tr>
+            		<tr><th>Founded on :</th><td>@Clan.CreatedAt.ToString("f")</td></tr>
+            		<tr><th>Members count :</th><td>@Clan.Members.Count</td></tr>
+            		<tr><th>Statistics :</th><td><a target="_blank" href="@($"{GetWowsNumbersBaseLink()}clan/{IdNamePair}/")">View on WOWS Numbers</a></td></tr>
+            	</tbody>
+            </table>
+		</div>
+		
+		<div class="col-lg-5 col-md-6 order-md-5 order-lg-1 float-lg-end text-center">
+			<h2>Clan Metrics</h2>
+		
+			<div class="row justify-content-center my-5">
+				<div class="col">
+					<ClanMetricDisplay
+						Total="Clan.Members.Sum(m => m.GameKarma)"
+						Maximum="Clan.Members.Max(m => m.GameKarma)"
+						Minimum="Clan.Members.Min(m => m.GameKarma)"
+					/>
+					
+					<h4>In-Game Karma</h4>
+				</div>
+				
+				<div class="col">
+					<ClanMetricDisplay
+						Total="Clan.Members.Sum(m => m.SiteKarma)"
+						Maximum="Clan.Members.Max(m => m.SiteKarma)"
+						Minimum="Clan.Members.Min(m => m.SiteKarma)"
+					/>
+					
+					<h4>Platform Karma</h4>
+				</div>
+			</div>
+			
+			<div class="row justify-content-center my-5">
+				<div class="col">
+					<ClanMetricDisplay
+						Total="Clan.Members.Sum(m => m.RatingPerformance)"
+						Maximum="Clan.Members.Max(m => m.RatingPerformance)"
+						Minimum="Clan.Members.Min(m => m.RatingPerformance)"
+					/>
+					
+					<h4>Performance</h4>
+				</div>
+				
+				<div class="col">
+					<ClanMetricDisplay
+						Total="Clan.Members.Sum(m => m.RatingTeamplay)"
+						Maximum="Clan.Members.Max(m => m.RatingTeamplay)"
+						Minimum="Clan.Members.Min(m => m.RatingTeamplay)"
+					/>
+                	
+					<h4>Teamplay</h4>
+				</div>
+            	
+				<div class="col">
+					<ClanMetricDisplay
+						Total="Clan.Members.Sum(m => m.RatingCourtesy)"
+						Maximum="Clan.Members.Max(m => m.RatingCourtesy)"
+						Minimum="Clan.Members.Min(m => m.RatingCourtesy)"
+					/>
+                	
+					<h4>Courtesy</h4>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<hr />
+	
+	<div class="my-5">
+		<h2>Clan Members</h2>
+		<ClanMembersList Players=Clan.Members />
+	</div>
+}
+else if (Loaded)
+{
+	<h4 class="text-warning">Player not found.</h4>
+}
+else
+{
+	<h4 class="text-info">Loading...</h4>
+}
+
+
+
+@code {
+	[Parameter]
+	public string IdNamePair { get; set; }
+	public ClanProfileFullDTO Clan { get; set; } 
+	
+	public bool Loaded { get; private set; }
+	
+	protected override async Task OnParametersSetAsync()
+	{
+		Loaded = false;
+		await base.OnParametersSetAsync();
+		
+		uint id = GetIdFromRouteParameter(IdNamePair);
+		Clan = await _ClanService.FetchClanProfileFullAsync(id);
+		
+		Loaded = true;
+	}
+}

@@ -1,5 +1,6 @@
-@inject PostService PostService
-@inject ReplayService ReplayService
+@inject PostService PostService;
+@inject ReplayService ReplayService;
+@inject IConfiguration Configuration;
 
 <div class="modal fade show" id="post-editor-modal" tabindex="-1" style="display:block" aria-modal="true" role="dialog">
 	<div class="modal-dialog">
@@ -16,12 +17,12 @@
 
 				<!-- Modal body -->
 				<div class="modal-body">
-					<div class="form-group">
+					<div class="form-group mb-3">
 						<label for="Title">Title</label>
 						<InputText DisplayName=Title @bind-Value=PostModel.Title class="form-control" />
 					</div>
 
-					<div class="form-group">
+					<div class="form-group my-3">
 						<label for="Content">Content</label>
 						<InputTextArea DisplayName=Content @bind-Value=PostModel.Content class="form-control" style="height:10rem; min-height:100px;" />
 					</div>
@@ -103,7 +104,7 @@
 
 						<div class="col-auto">
 							<button type="button" class="btn btn-danger" @onclick=OnCancel>Cancel</button>
-							<button type="submit" class="btn btn-success" value="Create" disabled=@(!approvedGuidelines)>Create</button>
+							<button type="submit" class="btn btn-success" value="Create" disabled=@(!canPost)>Create</button>
 						</div>
 					</div>
 				</div>
@@ -131,13 +132,22 @@
 
 	private bool errored;
 	private bool approvedGuidelines;
+	private bool requireReplayForPost;
+
+	private bool canPost => approvedGuidelines 
+		&& (!requireReplayForPost 
+			|| PostModel.ReplayFile is not null 
+			|| PostFlairs is { Performance: null, Teamplay: null, Courtesy: null } or null
+			|| PostModel.Id is not null);
+	
 	private string currentFile;
 
 
 	protected override async Task OnInitializedAsync()
 	{
-		PostFlairs = PostModel.Flairs.ParseFlairsEnum() ?? new();
 		await base.OnInitializedAsync();
+		PostFlairs = PostModel.Flairs.ParseFlairsEnum() ?? new();
+		requireReplayForPost = Configuration.GetValue<bool>("SitePolicies:Posts:RequireReplayOnCreate");
 	}
 
 	private async Task ModalSubmitAsync()

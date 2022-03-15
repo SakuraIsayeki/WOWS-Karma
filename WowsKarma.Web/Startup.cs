@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using WebEssentials.AspNetCore.Pwa;
 using WowsKarma.Web.Middlewares;
@@ -44,7 +46,7 @@ namespace WowsKarma.Web
 			services.AddRazorPages();
 			services.AddHttpContextAccessor();
 
-			services.AddProgressiveWebApp(new PwaOptions()
+			services.AddProgressiveWebApp(new PwaOptions
 			{
 				RegisterServiceWorker = true,
 				RegisterWebmanifest = true,
@@ -56,7 +58,12 @@ namespace WowsKarma.Web
 			services.AddHttpClient(Options.DefaultName, config =>
 			{
 				config.BaseAddress = new(Configuration[$"Api:{CurrentRegion.ToRegionString()}:Host"]);
-			});
+			})
+				.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+				{
+					AutomaticDecompression = DecompressionMethods.All
+				});
+				
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{
@@ -73,7 +80,7 @@ namespace WowsKarma.Web
 
 			//TODO : Add custom Auth Handler
 			services.AddAuthentication(ApiTokenAuthenticationHandler.AuthenticationScheme)
-				.AddScheme<AuthenticationSchemeOptions, ApiTokenAuthenticationHandler>(ApiTokenAuthenticationHandler.AuthenticationScheme, "API Token", options => { });
+				.AddScheme<AuthenticationSchemeOptions, ApiTokenAuthenticationHandler>(ApiTokenAuthenticationHandler.AuthenticationScheme, "API Token", _ => { });
 
 			services.AddAuthorizationCore();
 			services.AddHttpContextAccessor();

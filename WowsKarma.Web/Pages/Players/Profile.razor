@@ -12,10 +12,7 @@
 		<h1>
 			@if (Player.Clan is { } clan)
 			{
-				<a style="color: #@clan.ClanInfo.LeagueColorHex;"
-					href=@($"/clan/{clan.ClanInfo.Id},{clan.ClanInfo.Tag}-{clan.ClanInfo.Name}") tooltip="@clan.ClanInfo.Name">
-					[@clan.ClanInfo.Tag]
-				</a>
+				<a style="color: #@clan.ClanInfo.LeagueColorHex;" href=@($"/clan/{clan.ClanInfo.Id},{clan.ClanInfo.Tag}-{clan.ClanInfo.Name}") tooltip="@clan.ClanInfo.Name">[@clan.ClanInfo.Tag]</a>
 			}
 			
 			<span class="mx-3">@Player.Username</span>

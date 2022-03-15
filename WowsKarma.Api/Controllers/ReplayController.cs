@@ -27,10 +27,15 @@ public class ReplayController : ControllerBase
 		_postService = postService;
 	}
 
-	[HttpGet("{replayId:guid}")]
+	/// <summary>
+	/// Gets Replay data for given Replay ID
+	/// </summary>
+	/// <param name="replayId">ID of Replay to fetch</param>
+	/// <returns>Replay data</returns>
+	[HttpGet("{replayId:guid}"), ProducesResponseType(typeof(ReplayDTO), 200)]
 	public Task<ReplayDTO> GetAsync(Guid replayId) => _ingestService.GetReplayDTOAsync(replayId);
 
-	[HttpPost("{postId:guid}"), Authorize, RequestSizeLimit(ReplaysIngestService.MaxReplaySize)]
+	[HttpPost("{postId:guid}"), Authorize, RequestSizeLimit(ReplaysIngestService.MaxReplaySize), ProducesResponseType(201)]
 	public async Task<IActionResult> UploadReplayAsync(Guid postId, IFormFile replay, CancellationToken ct, [FromQuery] bool ignoreChecks = false)
 	{
 		if (_postService.GetPost(postId) is not { } current)
@@ -69,6 +74,10 @@ public class ReplayController : ControllerBase
 		}
 	}
 
+	/// <summary>
+	/// Triggers reprocessing on a replay (Usable only by Administrators)
+	/// </summary>
+	/// <returns></returns>
 	[HttpPatch("reprocess"), Authorize(Roles = ApiRoles.Administrator)]
 	public async Task<IActionResult> ReprocessPostsAsync(CancellationToken ct)
 	{

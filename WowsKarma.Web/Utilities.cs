@@ -50,7 +50,7 @@ namespace WowsKarma.Web
 
 		public static uint GetIdFromRouteParameter(string routeParameter)
 		{
-			Match result = new Regex("([0-9]+),(\\w+)").Match(routeParameter);
+			Match result = new Regex("([0-9]+),(:*)").Match(routeParameter);
 			return result.Groups[1].Value.ToInteger(uint.MinValue);
 		}
 

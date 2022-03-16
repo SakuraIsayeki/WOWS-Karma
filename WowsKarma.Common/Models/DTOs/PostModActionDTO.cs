@@ -7,7 +7,7 @@ public record PostModActionDTO
 	[Required]
 	public Guid PostId { get; init; }
 
-	public PlayerPostDTO UpdatedPost { get; init; }
+	public PlayerPostDTO? UpdatedPost { get; init; }
 
 	public ModActionType ActionType { get; init; }
 

@@ -11,12 +11,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        markup = (MarkupString)(await Loader?.LoadContent(ContentFilePath, CancellationToken.None) ?? String.Empty);
+        markup = (MarkupString)(await Loader?.LoadContent(ContentFilePath, CancellationToken.None) ?? string.Empty);
         await base.OnInitializedAsync();
 
-        Loader.OnCacheEviction += OnCacheRefresh;
+        // Loader.OnCacheEviction += OnCacheRefresh;
     }
 
+    /*
     protected void OnCacheRefresh(object _, string refreshed)
     {
         if (refreshed.Contains(ContentFilePath))
@@ -24,4 +25,5 @@
             StateHasChanged();
         }
     }
+    */
 }

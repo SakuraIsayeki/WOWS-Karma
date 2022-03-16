@@ -42,13 +42,13 @@ namespace WowsKarma.Web.Services
 
 				if (filePath is null)
 				{
-					logger.LogWarning("No HTML content file exists with path or name {fileName}. Be sure to create one at this location.", fileName);
+					logger.LogWarning("No HTML content file exists with path or name {FileName}. Be sure to create one at this location.", fileName);
 					return null;
 				}
 			}
 			catch (Exception e)
 			{
-				logger.LogWarning(e, "No HTML content file exists with path or name {fileName}. Be sure to create one at this location.", fileName);
+				logger.LogWarning(e, "No HTML content file exists with path or name {FileName}. Be sure to create one at this location.", fileName);
 				return null;
 			}
 

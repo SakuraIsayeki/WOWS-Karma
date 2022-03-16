@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using System.IO;
+using Serilog.Events;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common;

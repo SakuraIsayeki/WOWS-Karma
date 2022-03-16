@@ -29,7 +29,7 @@ public static class Utilities
 		"EU" => Region.EU,
 		"NA" => Region.NA,
 		"CIS" or "RU" => Region.CIS,
-		"ASIA" => Region.SEA,
+		"SEA" => Region.SEA,
 		_ => throw new ArgumentOutOfRangeException(nameof(configString))
 	};
 
@@ -38,7 +38,7 @@ public static class Utilities
 		Region.EU => "EU",
 		Region.NA => "NA",
 		Region.CIS => "CIS",
-		Region.SEA => "ASIA",
+		Region.SEA => "SEA",
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 

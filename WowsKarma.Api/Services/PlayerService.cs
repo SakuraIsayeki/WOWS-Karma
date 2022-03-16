@@ -36,7 +36,7 @@ namespace WowsKarma.Api.Services
 		 * Method no longer returns any tracked entity, resulting in dropped changes for EF Core
 		 * Do not use unless readonly.
 		 */
-		public async Task<Player> GetPlayerAsync(uint accountId, bool includeRelated = false, bool includeClanInfo = true, CancellationToken ct = default)
+		public async Task<Player> GetPlayerAsync(uint accountId, bool includeRelated = false, bool includeClanInfo = false, CancellationToken ct = default)
 		{
 			if (accountId is 0)
 			{

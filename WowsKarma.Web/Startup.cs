@@ -15,6 +15,7 @@ using System.Reflection;
 using WebEssentials.AspNetCore.Pwa;
 using WowsKarma.Web.Middlewares;
 using WowsKarma.Web.Services;
+using WowsKarma.Web.Services.Api;
 using WowsKarma.Web.Services.Authentication;
 using static WowsKarma.Common.Utilities;
 using static WowsKarma.Web.Utilities;
@@ -55,15 +56,20 @@ namespace WowsKarma.Web
 
 			services.AddDistributedMemoryCache();
 
-			services.AddHttpClient(Options.DefaultName, config =>
-			{
-				config.BaseAddress = new(Configuration[$"Api:{CurrentRegion.ToRegionString()}:Host"]);
-			})
-				.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-				{
-					AutomaticDecompression = DecompressionMethods.All
-				});
-				
+			services.AddHttpClient(
+					Options.DefaultName,
+					config =>
+					{
+						config.BaseAddress = new(Configuration[$"Api:{CurrentRegion.ToRegionString()}:Host"]);
+					}
+				)
+				.ConfigurePrimaryHttpMessageHandler(
+					() => new HttpClientHandler
+					{
+						AutomaticDecompression = DecompressionMethods.All
+					}
+				);
+
 
 			services.AddApplicationInsightsTelemetry(options =>
 			{
@@ -96,11 +102,11 @@ namespace WowsKarma.Web
 			services.AddSingleton<JwtSecurityTokenHandler>();
 			services.AddSingleton<PageContentLoader>();
 
-			services.AddScoped<PlayerService>();
-			services.AddScoped<UserService>();
-			services.AddScoped<PostService>();
-			services.AddScoped<ModService>();
-			services.AddScoped<ReplayService>();
+			services.AddScoped<PlayerClient>();
+			services.AddScoped<UserClient>();
+			services.AddScoped<PostClient>();
+			services.AddScoped<ModClient>();
+			services.AddScoped<ReplayClient>();
 			services.AddScoped<ClanService>();
 		}
 

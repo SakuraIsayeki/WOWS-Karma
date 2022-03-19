@@ -1,9 +1,10 @@
 @inherits ComponentBaseAuth
 
 @using WowsKarma.Common.Models
+@using WowsKarma.Web.Services.Api
 @using static WowsKarma.Common.Models.PostFlairsUtils
 
-@inject PostService PostService
+@inject PostClient PostClient
 @inject NavigationManager NavigationManager
 
 
@@ -77,7 +78,7 @@ else
 
 	public async Task UpdatePostsAsync()
 	{
-		PlayerPosts = await PostService.FetchSentPostsAsync(AccountId, 0);
+		PlayerPosts = await PostClient.FetchSentPostsAsync(AccountId, 0);
 	}
 
 	private void EditorModalCancel() => showEditorModal = false;
@@ -98,7 +99,7 @@ else
 	private async Task DeleteModalSubmitAsync()
 	{
 		showDeleteModal = false;
-		await PostService.DeletePostAsync(currentDeleteId);
+		await PostClient.DeletePostAsync(currentDeleteId);
 		await UpdatePostsAsync();
 	}
 }

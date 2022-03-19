@@ -2,9 +2,10 @@
 
 @page "/player/{idnamepair}/"
 @using WowsKarma.Web.Pages.Posts
+@using WowsKarma.Web.Services.Api
 
-@inject PlayerService PlayerService
-@inject UserService UserService
+@inject PlayerClient PlayerClient
+@inject UserClient UserClient
 
 @if (Player is not null)
 {
@@ -173,7 +174,7 @@ else
 		_sentPostsOuterBreaker = new();
 		
 		uint id = GetIdFromRouteParameter(IdNamePair);
-		Player = id is 0 ? null : await PlayerService.FetchPlayerProfileAsync(id);
+		Player = id is 0 ? null : await PlayerClient.FetchPlayerProfileAsync(id);
 		await base.OnParametersSetAsync();
 		ReceivedOrSent = Player.OptedOut; // Lock on "Sent" if player has opted out
 		await CheckBannedUserAsync();
@@ -181,9 +182,9 @@ else
 		Loaded = true;
 	}
 
-	private async Task UpdatePlayerAsync() => Player = await PlayerService.FetchPlayerProfileAsync(Player.Id);
+	private async Task UpdatePlayerAsync() => Player = await PlayerClient.FetchPlayerProfileAsync(Player.Id);
 
 	private async Task CheckBannedUserAsync() => CurrentUserProfileFlags = CurrentUser.Id is not 0
-		? await UserService.GetUserProfileFlagsAsync(CurrentUser.Id)
+		? await UserClient.GetUserProfileFlagsAsync(CurrentUser.Id)
 		: null;
 }

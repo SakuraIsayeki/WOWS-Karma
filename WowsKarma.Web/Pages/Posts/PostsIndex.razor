@@ -1,9 +1,10 @@
 @inherits ComponentBaseAuth
+@using WowsKarma.Web.Services.Api
 @implements IAsyncDisposable
 
 @page "/posts"
 
-@inject PostService PostService
+@inject PostClient PostClient
 @inject IConfiguration Configuration
 
 <h1 class="mb-3">Latest Posts</h1>
@@ -121,7 +122,7 @@
 		FilterContext = new(Filters);
 		FilterContext.OnFieldChanged += (_, ctx) => FilterContext.Validate();
 		FilterContext.OnValidationRequested += async (_, ctx) => await RefreshListAsync();
-		Posts = new(await PostService.FetchLatestPostsAsync(10));
+		Posts = new(await PostClient.FetchLatestPostsAsync(10));
 		Loaded = true;
 
 		hubConnection = new HubConnectionBuilder()
@@ -146,7 +147,7 @@
 		};
 
 		Loaded = false;
-		Posts = new(await PostService.FetchLatestPostsAsync(Filters.Count, hasReplay, Filters.HideModActions));
+		Posts = new(await PostClient.FetchLatestPostsAsync(Filters.Count, hasReplay, Filters.HideModActions));
 		Loaded = true;
 
 		StateHasChanged();

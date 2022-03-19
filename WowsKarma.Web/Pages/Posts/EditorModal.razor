@@ -1,5 +1,6 @@
-@inject PostService PostService;
-@inject ReplayService ReplayService;
+@using WowsKarma.Web.Services.Api
+@inject PostClient PostClient;
+@inject ReplayClient ReplayClient;
 @inject IConfiguration Configuration;
 
 <div class="modal fade show" id="post-editor-modal" tabindex="-1" style="display:block" aria-modal="true" role="dialog">
@@ -159,11 +160,11 @@
 
 			if (PostModel.Id is null)
 			{
-				PostModel.Id = await PostService.SubmitNewPostAsync(PostModel.Adapt<PlayerPostDTO>(), PostModel.ReplayFile);
+				PostModel.Id = await PostClient.SubmitNewPostAsync(PostModel.Adapt<PlayerPostDTO>(), PostModel.ReplayFile);
 			}
 			else
 			{
-				await PostService.EditPostAsync(PostModel.Adapt<PlayerPostDTO>());
+				await PostClient.EditPostAsync(PostModel.Adapt<PlayerPostDTO>());
 			}
 		
 			await OnPostSubmited.InvokeAsync(null);

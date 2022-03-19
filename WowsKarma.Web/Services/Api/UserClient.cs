@@ -1,27 +1,25 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using WowsKarma.Common.Models.DTOs;
-using static WowsKarma.Web.Utilities;
 
 
-namespace WowsKarma.Web.Services;
+namespace WowsKarma.Web.Services.Api;
 
-public class UserService : HttpServiceBase
+public class UserClient : ApiClientBase
 {
 	public const string authEndpointCategory = "auth";
 	public const string profileEndpointCategory = "profile";
 
-	public UserService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor) : base(httpClientFactory, null, contextAccessor) { }
+	public UserClient(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
 
 	public async Task<UserProfileFlagsDTO> GetUserProfileFlagsAsync(uint id)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Get, $"{profileEndpointCategory}/{id}");
 		using HttpResponseMessage response = await Client.SendAsync(request);
 
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 		return await response.Content.ReadFromJsonAsync<UserProfileFlagsDTO>(SerializerOptions);
 	}
 
@@ -31,7 +29,7 @@ public class UserService : HttpServiceBase
 		request.Content = JsonContent.Create(flags, new("application/json"), SerializerOptions);
 
 		using HttpResponseMessage response = await Client.SendAsync(request);
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 	}
 
 	public async Task RefreshSeedTokenAsync()
@@ -39,7 +37,7 @@ public class UserService : HttpServiceBase
 		using HttpRequestMessage request = new(HttpMethod.Post, $"{authEndpointCategory}/renew-seed");
 
 		using HttpResponseMessage response = await Client.SendAsync(request);
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 	}
 
 	public async Task<IEnumerable<PlatformBanDTO>> FetchUserBansAsync(uint id)

@@ -3,9 +3,10 @@
 @page "/settings"
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
-@inject UserService UserService
+@inject UserClient UserClient
 
 @using System.IdentityModel.Tokens.Jwt
+@using WowsKarma.Web.Services.Api
 
 
 
@@ -148,7 +149,7 @@
 
 	private async Task LoadUserSettingsAsync()
 	{
-		UserProfileFlagsDTO current = await UserService.GetUserProfileFlagsAsync(CurrentUser.Id);
+		UserProfileFlagsDTO current = await UserClient.GetUserProfileFlagsAsync(CurrentUser.Id);
 		model = current.Adapt<ProfileSettingsViewModel>();
 		optOutOnCooldown = OptOutCooldownClearedOn > DateTime.Now;
 	}
@@ -163,7 +164,7 @@
 			OptedOut = model.OptedOut
 		};
 
-		await UserService.SetUserProfileFlagsAsync(updated);
+		await UserClient.SetUserProfileFlagsAsync(updated);
 		Saved = true;
 	}
 
@@ -175,7 +176,7 @@
 
 	private async Task RenewSeedToken()
 	{
-		await UserService.RefreshSeedTokenAsync();
+		await UserClient.RefreshSeedTokenAsync();
 		NavigationManager.NavigateTo("/logout", true);
 	}
 }

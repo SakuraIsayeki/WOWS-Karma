@@ -1,5 +1,6 @@
 ﻿@page "/player"
-@inject PlayerService PlayerService
+@using WowsKarma.Web.Services.Api
+@inject PlayerClient PlayerClient
 
 <div class="col-md-6">
 	<h1 class="mb-3">Search Players</h1>
@@ -70,7 +71,7 @@
 			AccountsResults = null;
 
 			AccountsResults = (CurrentSearch.Search is null or { Length: > 2 }
-				? await PlayerService.SearchPlayersAsync(CurrentSearch.Search) : null)
+				? await PlayerClient.SearchPlayersAsync(CurrentSearch.Search) : null)
 				?? Array.Empty<AccountListingDTO>();
 		
 			Searching = false;

@@ -7,19 +7,19 @@ using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Web.Services.Api;
 
-public class UserService : ApiClientBase
+public class UserClient : ApiClientBase
 {
 	public const string authEndpointCategory = "auth";
 	public const string profileEndpointCategory = "profile";
 
-	public UserService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
+	public UserClient(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
 
 	public async Task<UserProfileFlagsDTO> GetUserProfileFlagsAsync(uint id)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Get, $"{profileEndpointCategory}/{id}");
 		using HttpResponseMessage response = await Client.SendAsync(request);
 
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 		return await response.Content.ReadFromJsonAsync<UserProfileFlagsDTO>(SerializerOptions);
 	}
 
@@ -29,7 +29,7 @@ public class UserService : ApiClientBase
 		request.Content = JsonContent.Create(flags, new("application/json"), SerializerOptions);
 
 		using HttpResponseMessage response = await Client.SendAsync(request);
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 	}
 
 	public async Task RefreshSeedTokenAsync()
@@ -37,7 +37,7 @@ public class UserService : ApiClientBase
 		using HttpRequestMessage request = new(HttpMethod.Post, $"{authEndpointCategory}/renew-seed");
 
 		using HttpResponseMessage response = await Client.SendAsync(request);
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 	}
 
 	public async Task<IEnumerable<PlatformBanDTO>> FetchUserBansAsync(uint id)

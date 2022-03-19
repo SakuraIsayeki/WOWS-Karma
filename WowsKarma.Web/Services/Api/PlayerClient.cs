@@ -1,50 +1,46 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using WowsKarma.Common.Models.DTOs;
-using static WowsKarma.Web.Utilities;
 
-namespace WowsKarma.Web.Services
+namespace WowsKarma.Web.Services.Api;
+
+public class PlayerClient : ApiClientBase
 {
-	public class PlayerService : ApiClientBase
+	public const string playerEndpointCategory = "player";
+	public const string profileEndpointCategory = "profile";
+
+
+
+	public PlayerClient(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
+
+	public async Task<IEnumerable<AccountListingDTO>> SearchPlayersAsync(string search)
 	{
-		public const string playerEndpointCategory = "player";
-		public const string profileEndpointCategory = "profile";
+		using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/Search/{search}");
+		using HttpResponseMessage response = await Client.SendAsync(request);
 
-
-
-		public PlayerService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
-
-		public async Task<IEnumerable<AccountListingDTO>> SearchPlayersAsync(string search)
+		if (response.StatusCode is HttpStatusCode.OK)
 		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/Search/{search}");
-			using HttpResponseMessage response = await Client.SendAsync(request);
-
-			if (response.StatusCode is HttpStatusCode.OK)
-			{
-				return await response.Content.ReadFromJsonAsync<IEnumerable<AccountListingDTO>>(SerializerOptions);
-			}
+			return await response.Content.ReadFromJsonAsync<IEnumerable<AccountListingDTO>>(SerializerOptions);
+		}
 			
+		return null;
+	}
+
+	public async Task<PlayerProfileDTO> FetchPlayerProfileAsync(uint id)
+	{
+		using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}?includeClanInfo=true");
+		using HttpResponseMessage response = await Client.SendAsync(request);
+
+		if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.NoContent)
+		{
 			return null;
 		}
 
-		public async Task<PlayerProfileDTO> FetchPlayerProfileAsync(uint id)
-		{
-			using HttpRequestMessage request = new(HttpMethod.Get, $"{playerEndpointCategory}/{id}?includeClanInfo=true");
-			using HttpResponseMessage response = await Client.SendAsync(request);
-
-			if (response.StatusCode is HttpStatusCode.NotFound)
-			{
-				return null;
-			}
-
-			response.EnsureSuccessStatusCode();
-			PlayerProfileDTO player = await response.Content.ReadFromJsonAsync<PlayerProfileDTO>(SerializerOptions);
+		await EnsureSuccessfulResponseAsync(response);
+		PlayerProfileDTO player = await response.Content.ReadFromJsonAsync<PlayerProfileDTO>(SerializerOptions);
 			
-			return player;
-		}
+		return player;
 	}
 }

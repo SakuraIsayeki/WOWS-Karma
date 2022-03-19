@@ -11,11 +11,11 @@ using static WowsKarma.Common.Utilities;
 
 namespace WowsKarma.Web.Services.Api;
 
-public class PostService : ApiClientBase
+public class PostClient : ApiClientBase
 {
 	public const string EndpointCategory = "post";
 
-	public PostService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor)	{ }
+	public PostClient(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor)	{ }
 
 	public async Task<PlayerPostDTO> FetchPostAsync(Guid id)
 	{
@@ -63,7 +63,7 @@ public class PostService : ApiClientBase
 		using HttpRequestMessage request = new(HttpMethod.Get, query);
 		using HttpResponseMessage response = await Client.SendAsync(request);
 
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 		return await response.Content.ReadFromJsonAsync<PlayerPostDTO[]>(SerializerOptions);
 	}
 
@@ -97,7 +97,7 @@ public class PostService : ApiClientBase
 		};
 			
 		using HttpResponseMessage response = await Client.SendAsync(request, ct);
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 
 		return new((await response.Content.ReadAsStringAsync(ct)).Replace("\"", null));
 	}
@@ -108,7 +108,7 @@ public class PostService : ApiClientBase
 		request.Content = JsonContent.Create(post, new("application/json"), ApiSerializerOptions);
 
 		using HttpResponseMessage response = await Client.SendAsync(request);
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 	}
 
 	public async Task DeletePostAsync(Guid postId)
@@ -116,6 +116,6 @@ public class PostService : ApiClientBase
 		using HttpRequestMessage request = new(HttpMethod.Delete, $"{EndpointCategory}/{postId}");
 
 		using HttpResponseMessage response = await Client.SendAsync(request);
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 	}
 }

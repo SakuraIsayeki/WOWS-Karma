@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Http;
 using WowsKarma.Common.Models.DTOs;
 using WowsKarma.Common.Models.DTOs.Clans;
 
-namespace WowsKarma.Web.Services;
+namespace WowsKarma.Web.Services.Api;
 
-public class ClanService : HttpServiceBase
+public class ClanService : ApiClientBase
 {
 	public ClanService(HttpClient client, IHttpContextAccessor contextAccessor) : base(client, contextAccessor) { }
 
@@ -34,7 +34,7 @@ public class ClanService : HttpServiceBase
 			return null;
 		}
 
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 		return await response.Content.ReadFromJsonAsync<ClanProfileFullDTO>(SerializerOptions);
 	}
 }

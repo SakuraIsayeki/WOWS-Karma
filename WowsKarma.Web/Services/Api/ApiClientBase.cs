@@ -1,31 +1,28 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
+﻿using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
-using System.Threading.Tasks;
-using WowsKarma.Common.Models.DTOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using WowsKarma.Web.Infrastructure.Exceptions;
 
-namespace WowsKarma.Web.Services;
+namespace WowsKarma.Web.Services.Api;
 
-public abstract class HttpServiceBase : IDisposable
+public abstract class ApiClientBase : IDisposable
 {
 	private bool disposedValue;
 
 	protected HttpClient Client { get; init; }
 	protected IHttpContextAccessor HttpContextAccessor { get; init; }
 	protected static JsonSerializerOptions SerializerOptions => Common.Utilities.ApiSerializerOptions;
-	
-	public HttpServiceBase(HttpClient client, IHttpContextAccessor contextAccessor)
+
+	public ApiClientBase(HttpClient client, IHttpContextAccessor contextAccessor)
 	{
 		Client = client;
 		Client.DefaultRequestHeaders.Authorization = contextAccessor.HttpContext.GenerateAuthenticationHeader();
 
 		HttpContextAccessor = contextAccessor;
 	}
-	
-	
+
 
 	public void Dispose()
 	{
@@ -45,5 +42,24 @@ public abstract class HttpServiceBase : IDisposable
 
 			disposedValue = true;
 		}
+	}
+	
+	protected static async Task EnsureSuccessfulResponseAsync(HttpResponseMessage response)
+	{
+		if (!response.IsSuccessStatusCode)
+		{
+			ProblemDetails apiError = null;
+
+			try
+			{
+				apiError = await response.Content.ReadFromJsonAsync<ProblemDetails>(SerializerOptions);
+			}
+			catch
+			{
+				await EnsureSuccessfulResponseAsync(response);
+			}
+
+			throw new ApiErrorResponseException(apiError);
+		} 
 	}
 }

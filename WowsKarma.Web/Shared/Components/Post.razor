@@ -1,4 +1,5 @@
-﻿@inject ModService ModService
+﻿@using WowsKarma.Web.Services.Api
+@inject ModClient ModClient
 
 <div class="m-2 vstack" id=@PlayerPost.Id>
 	@if (DisplayType is PostDisplayType.Neutral)
@@ -154,7 +155,7 @@
 		{
 			ModDeleteModal.Show = false;
 			ModDeleteModal.Sent = true;
-			await ModService.DeletePostAsync(PlayerPost.Id ?? new(), parametersModel.Reason);
+			await ModClient.DeletePostAsync(PlayerPost.Id ?? new(), parametersModel.Reason);
 
 		}
 	}

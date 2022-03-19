@@ -12,6 +12,7 @@ using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 using WowsKarma.Web.Services;
+using WowsKarma.Web.Services.Api;
 using WowsKarma.Web.Services.Authentication;
 
 namespace WowsKarma.Web
@@ -85,7 +86,7 @@ namespace WowsKarma.Web
 
 		public static StreamContent AddReplayFile(this MultipartFormDataContent form, IBrowserFile replayFile, CancellationToken ct = default)
 		{
-			StreamContent fileContent = new(replayFile.OpenReadStream(ReplayService.MaxReplayFileSize, ct));
+			StreamContent fileContent = new(replayFile.OpenReadStream(ReplayClient.MaxReplayFileSize, ct));
 			fileContent.Headers.ContentDisposition = new("form-data")
 			{
 				Name = "replay",

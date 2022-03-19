@@ -2,9 +2,10 @@
 @inherits ComponentBaseAuth
 
 @using WowsKarma.Web.Pages.Replays
+@using WowsKarma.Web.Services.Api
 
-@inject PostService PostService
-@inject ModService ModService
+@inject PostClient PostClient
+@inject ModClient ModClient
 @inject NavigationManager NavigationManager
 
 @if (!Loaded)
@@ -139,11 +140,11 @@ else
 		_replayChatOuterBreaker = new();
 		_replayRosterOuterBreaker = new();
 		
-		post = await PostService.FetchPostAsync(Id);
+		post = await PostClient.FetchPostAsync(Id);
 
 		if (post is not null && post.ModLocked)
 		{
-			lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id)).LastOrDefault();
+			lastModAction = (await ModClient.GetPostModActionsAsync((Guid)post.Id)).LastOrDefault();
 		}
 
 		Loaded = true;
@@ -155,7 +156,7 @@ else
 	private async Task EditorModalSubmit()
 	{
 		showEditorModal = false;
-		lastModAction = (await ModService.GetPostModActionsAsync((Guid)post.Id))?.LastOrDefault();
+		lastModAction = (await ModClient.GetPostModActionsAsync((Guid)post.Id))?.LastOrDefault();
 	}
 
 	private void DeleteModalInit() => showDeleteModal = true;
@@ -164,7 +165,7 @@ else
 	private async Task DeleteModalSubmitAsync()
 	{
 		showDeleteModal = false;
-		await PostService.DeletePostAsync(Id);
+		await PostClient.DeletePostAsync(Id);
 		NavigationManager.NavigateTo("/");
 	}
 }

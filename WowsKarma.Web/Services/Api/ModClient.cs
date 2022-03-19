@@ -1,45 +1,41 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 using static WowsKarma.Common.Utilities;
 
-namespace WowsKarma.Web.Services
+namespace WowsKarma.Web.Services.Api;
+
+public class ModClient : ApiClientBase
 {
-	public class ModService : ApiClientBase
+	private const string RequestUri = "mod/action";
+
+	public ModClient(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
+
+	public async Task<IEnumerable<PostModActionDTO>> GetPostModActionsAsync(Guid postId)
 	{
-		private const string RequestUri = "mod/action";
+		HttpRequestMessage request = new(HttpMethod.Get, $"{RequestUri}/list{BuildQuery(("postId", postId.ToString()))}");
+		HttpResponseMessage response = await Client.SendAsync(request);
+		await EnsureSuccessfulResponseAsync(response);
 
-		public ModService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
+		return response.StatusCode is not System.Net.HttpStatusCode.NoContent
+			? await response.Content.ReadFromJsonAsync<PostModActionDTO[]>(SerializerOptions)
+			: null;
+	}
 
-		public async Task<IEnumerable<PostModActionDTO>> GetPostModActionsAsync(Guid postId)
+	public async Task DeletePostAsync(Guid postId, string reason)
+	{
+
+		HttpRequestMessage request = new(HttpMethod.Post, RequestUri);
+		request.Content = JsonContent.Create(new PostModActionDTO
 		{
-			HttpRequestMessage request = new(HttpMethod.Get, $"{RequestUri}/list{BuildQuery(("postId", postId.ToString()))}");
-			HttpResponseMessage response = await Client.SendAsync(request);
-			response.EnsureSuccessStatusCode();
+			ActionType = ModActionType.Deletion,
+			PostId = postId,
+			Reason = reason
+		}, null, SerializerOptions);
 
-			return response.StatusCode is not System.Net.HttpStatusCode.NoContent
-				? await response.Content.ReadFromJsonAsync<PostModActionDTO[]>(SerializerOptions)
-				: null;
-		}
-
-		public async Task DeletePostAsync(Guid postId, string reason)
-		{
-
-			HttpRequestMessage request = new(HttpMethod.Post, RequestUri);
-			request.Content = JsonContent.Create(new PostModActionDTO
-				{
-					ActionType = ModActionType.Deletion,
-					PostId = postId,
-					Reason = reason
-				}, null, SerializerOptions);
-
-			HttpResponseMessage response = await Client.SendAsync(request);
-			response.EnsureSuccessStatusCode();
-		}
+		HttpResponseMessage response = await Client.SendAsync(request);
+		await EnsureSuccessfulResponseAsync(response);
 	}
 }

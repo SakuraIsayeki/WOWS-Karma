@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace WowsKarma.Web.Services.Api;
 
-public class ReplayService : ApiClientBase
+public class ReplayClient : ApiClientBase
 {
 	public const string EndpointCategory = "replay";
 	public const long MaxReplayFileSize = 5242880;
 
-	public ReplayService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
+	public ReplayClient(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
 
 	public async Task SubmitNewReplayAsync(Guid postId, IBrowserFile browserFile, CancellationToken ct)
 	{
@@ -24,6 +24,6 @@ public class ReplayService : ApiClientBase
 
 
 		using HttpResponseMessage response = await Client.SendAsync(request, ct);
-		response.EnsureSuccessStatusCode();
+		await EnsureSuccessfulResponseAsync(response);
 	}
 }

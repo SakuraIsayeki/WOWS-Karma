@@ -16,6 +16,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.Diagnostics;
 using Nodsoft.Wargaming.Api.Client;
 using Nodsoft.Wargaming.Api.Client.Clients;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
@@ -52,7 +53,13 @@ namespace WowsKarma.Api
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers();
-			
+
+			services.AddExceptionHandler(
+				options =>
+				{
+					options.ExceptionHandlingPath = "/error";
+					options.AllowStatusCode404Response = true;
+				});
 			
 			services.AddSignalR()
 				.AddNewtonsoftJsonProtocol(options =>
@@ -228,13 +235,10 @@ namespace WowsKarma.Api
 				c.SwaggerEndpoint($"/swagger/{DisplayVersion}/swagger.json", $"WOWS Karma API v{DisplayVersion}");
 			});
 
-			if (env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-			}
+			app.UseExceptionHandler();
 
 			app.UseRouting();
-
+			
 
 			IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(x => IPAddress.Parse(x));
 

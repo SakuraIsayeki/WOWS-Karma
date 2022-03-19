@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Web.Services;
 
@@ -16,13 +17,15 @@ public abstract class HttpServiceBase : IDisposable
 	protected IHttpContextAccessor HttpContextAccessor { get; init; }
 	protected static JsonSerializerOptions SerializerOptions => Common.Utilities.ApiSerializerOptions;
 	
-	public HttpServiceBase(IHttpClientFactory httpClientFactory, string httpClientName, IHttpContextAccessor contextAccessor)
+	public HttpServiceBase(HttpClient client, IHttpContextAccessor contextAccessor)
 	{
-		Client = httpClientName is null ? httpClientFactory.CreateClient() : httpClientFactory.CreateClient(httpClientName);
+		Client = client;
 		Client.DefaultRequestHeaders.Authorization = contextAccessor.HttpContext.GenerateAuthenticationHeader();
 
 		HttpContextAccessor = contextAccessor;
 	}
+	
+	
 
 	public void Dispose()
 	{

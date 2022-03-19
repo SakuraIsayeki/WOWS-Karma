@@ -10,11 +10,11 @@ using static WowsKarma.Common.Utilities;
 
 namespace WowsKarma.Web.Services
 {
-	public class ModService : HttpServiceBase
+	public class ModService : ApiClientBase
 	{
 		private const string RequestUri = "mod/action";
 
-		public ModService(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor) : base(httpClientFactory, null, httpContextAccessor) { }
+		public ModService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
 
 		public async Task<IEnumerable<PostModActionDTO>> GetPostModActionsAsync(Guid postId)
 		{

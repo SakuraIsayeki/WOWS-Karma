@@ -1,18 +1,16 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http;
 
+namespace WowsKarma.Web.Services.Api;
 
-
-namespace WowsKarma.Web.Services;
-
-public class ReplayService : HttpServiceBase
+public class ReplayService : ApiClientBase
 {
 	public const string EndpointCategory = "replay";
 	public const long MaxReplayFileSize = 5242880;
 
-	public ReplayService(IHttpClientFactory clientfactory, IHttpContextAccessor contextAccessor) : base(clientfactory, null, contextAccessor) { }
+	public ReplayService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
 
 	public async Task SubmitNewReplayAsync(Guid postId, IBrowserFile browserFile, CancellationToken ct)
 	{

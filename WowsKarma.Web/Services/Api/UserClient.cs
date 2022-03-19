@@ -1,20 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using WowsKarma.Common.Models.DTOs;
-using static WowsKarma.Web.Utilities;
 
 
-namespace WowsKarma.Web.Services;
+namespace WowsKarma.Web.Services.Api;
 
-public class UserService : HttpServiceBase
+public class UserService : ApiClientBase
 {
 	public const string authEndpointCategory = "auth";
 	public const string profileEndpointCategory = "profile";
 
-	public UserService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor) : base(httpClientFactory, null, contextAccessor) { }
+	public UserService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
 
 	public async Task<UserProfileFlagsDTO> GetUserProfileFlagsAsync(uint id)
 	{

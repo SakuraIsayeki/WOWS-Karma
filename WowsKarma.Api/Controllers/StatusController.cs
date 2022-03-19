@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 
@@ -21,16 +22,21 @@ namespace WowsKarma.Api.Controllers
 		[Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
 		public IActionResult HandleError()
 		{
-			return StatusCode(500, HttpContext.Features.Get<IExceptionHandlerFeature>() is { } exceptionHandlerFeature
-				? Problem(
-					detail: exceptionHandlerFeature.Error.StackTrace, 
-					instance: exceptionHandlerFeature.Path,
+			if (HttpContext.Features.Get<IExceptionHandlerFeature>() is { Error: not null } exceptionHandlerFeature)
+			{
+				string target = HttpContext.Features.Get<IHttpRequestFeature>()?.RawTarget;
+				Uri fullPath = new UriBuilder(Request.Scheme, Request.Host.Host, Request.Host.Port ?? 80, exceptionHandlerFeature.Path).Uri;
+				
+				return Problem(
+					detail: exceptionHandlerFeature.Error.StackTrace,
+					instance: fullPath.ToString(),
 					title: exceptionHandlerFeature.Error.Message,
 					statusCode: StatusCodes.Status500InternalServerError,
-					type: exceptionHandlerFeature.Error.GetType().ToString())
-				
-				: Problem(statusCode: StatusCodes.Status500InternalServerError));
-				
+					type: exceptionHandlerFeature.Error.GetType().ToString()
+				);
+			}
+
+			return Problem(statusCode: StatusCodes.Status500InternalServerError);
 		}
 	}
 }

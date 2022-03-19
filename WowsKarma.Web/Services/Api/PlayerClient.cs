@@ -9,14 +9,14 @@ using static WowsKarma.Web.Utilities;
 
 namespace WowsKarma.Web.Services
 {
-	public class PlayerService : HttpServiceBase
+	public class PlayerService : ApiClientBase
 	{
 		public const string playerEndpointCategory = "player";
 		public const string profileEndpointCategory = "profile";
 
 
 
-		public PlayerService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor) : base(httpClientFactory, null, contextAccessor) { }
+		public PlayerService(HttpClient httpClient, IHttpContextAccessor contextAccessor) : base(httpClient, contextAccessor) { }
 
 		public async Task<IEnumerable<AccountListingDTO>> SearchPlayersAsync(string search)
 		{

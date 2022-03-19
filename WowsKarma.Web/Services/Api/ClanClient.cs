@@ -9,7 +9,7 @@ namespace WowsKarma.Web.Services;
 
 public class ClanService : HttpServiceBase
 {
-	public ClanService(IHttpClientFactory httpClientFactory, IHttpContextAccessor contextAccessor) : base(httpClientFactory, null, contextAccessor) { }
+	public ClanService(HttpClient client, IHttpContextAccessor contextAccessor) : base(client, contextAccessor) { }
 
 	public async Task<IEnumerable<ClanListingDTO>> SearchClansAsync(string search, ushort results = 50)
 	{

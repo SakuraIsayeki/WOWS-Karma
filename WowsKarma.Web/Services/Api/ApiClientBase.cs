@@ -56,7 +56,7 @@ public abstract class ApiClientBase : IDisposable
 			}
 			catch
 			{
-				await EnsureSuccessfulResponseAsync(response);
+				response.EnsureSuccessStatusCode();
 			}
 
 			throw new ApiErrorResponseException(apiError);

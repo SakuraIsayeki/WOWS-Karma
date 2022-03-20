@@ -1,6 +1,6 @@
 ﻿<component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Web - Push to Gateway" type="DotNetFolderPublish" factoryName="Publish to folder">
-    <riderPublish configuration="Release" platform="Any CPU" ready_to_run="true" runtime="linux-x64" target_folder="Z:/opt/wows-karma/web" target_framework="net6.0" uuid_high="-4369901299116324292" uuid_low="-5153415337395562298" />
+    <riderPublish configuration="Release" platform="Any CPU" ready_to_run="true" runtime="linux-x64" target_folder="Z:/opt/wows-karma/web" target_framework="net6.0" uuid_high="7339432143194833711" uuid_low="-5233259427462800874" />
     <method v="2" />
   </configuration>
 </component>

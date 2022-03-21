@@ -100,7 +100,7 @@ namespace WowsKarma.Web
 			services.AddHostedService<AuthCacheService>();
 			services.AddSingleton<AuthCacheService>();
 			services.AddSingleton<JwtSecurityTokenHandler>();
-			services.AddSingleton<PageContentLoader>();
+			services.AddSingleton<FileContentLoader>();
 
 			services.AddScoped<PlayerClient>();
 			services.AddScoped<UserClient>();

@@ -58,7 +58,7 @@ namespace WowsKarma.Web.Services
 			// Try to obtain the file contents from the cache.
 			if ((fileContent = await cache.GetStringAsync(filePath, cancellationToken)) is not null)
 			{
-				logger.LogDebug("Fetched content for {path} from cache.", filePath);
+				logger.LogDebug("Fetched content for {Path} from cache.", filePath);
 				return fileContent;
 			}
 
@@ -69,13 +69,13 @@ namespace WowsKarma.Web.Services
 				// Obtain a change token from the file provider whose
 				// callback is triggered when the file is modified.
 				IChangeToken changeToken = fileProvider.Watch(fileName);
-				changeToken.RegisterChangeCallback(async (state) => await TriggerCacheEvictionAsync(state), filePath);
+				changeToken.RegisterChangeCallback(TriggerCacheEviction, filePath);
 
 				// Put the file contents into the cache.
 				await cache.SetStringAsync(filePath, fileContent, cancellationToken);
 				tokens.Add(filePath, changeToken);
 
-				logger.LogDebug("Fetched content for {path} from file.", filePath);
+				logger.LogDebug("Fetched content for {Path} from file.", filePath);
 				return fileContent;
 			}
 
@@ -91,9 +91,9 @@ namespace WowsKarma.Web.Services
 					using StreamReader fileStreamReader = File.OpenText(filePath);
 					return await fileStreamReader.ReadToEndAsync();
 				}
-				catch (IOException ex)
+				catch (IOException e)
 				{
-					if (runCount is 4 || ex.HResult is not -2147024864)
+					if (e.HResult is not -2147024864)
 					{
 						throw;
 					}
@@ -107,15 +107,15 @@ namespace WowsKarma.Web.Services
 			return null;
 		}
 
-		private async Task TriggerCacheEvictionAsync(object state)
+		private void TriggerCacheEviction(object state)
 		{
 			string filePath = state as string;
 
 			tokens.Remove(filePath);
-			await cache.RemoveAsync(filePath);
-			logger.LogInformation("Evicted file {file} from cache.", filePath);
+			cache.Remove(filePath);
+			logger.LogInformation("Evicted file {File} from cache.", filePath);
 
-			OnCacheEviction.Invoke(this, filePath);
+			OnCacheEviction?.Invoke(this, filePath);
 		}
 	}
 }

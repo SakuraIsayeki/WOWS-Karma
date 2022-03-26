@@ -12,19 +12,19 @@ using Microsoft.Extensions.Primitives;
 
 namespace WowsKarma.Web.Services
 {
-	public class PageContentLoader
+	public class FileContentLoader
 	{
 		public const string WebRootPageAssetsPath = "assets";
 
 		public event EventHandler<string> OnCacheEviction;
 
-		private readonly ILogger<PageContentLoader> logger;
+		private readonly ILogger<FileContentLoader> logger;
 		private readonly IDistributedCache cache;
 		private readonly IFileProvider fileProvider;
 
 		private readonly Dictionary<string, IChangeToken> tokens = new();
 
-		public PageContentLoader(ILogger<PageContentLoader> logger, IWebHostEnvironment env, IDistributedCache cache)
+		public FileContentLoader(ILogger<FileContentLoader> logger, IWebHostEnvironment env, IDistributedCache cache)
 		{
 			this.logger = logger;
 			this.cache = cache;

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "outFile": "./wwwroot/js/site.js",
+    "module": "system",
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5",
+    "moduleResolution": "node",
+    "paths": {
+      "@lib/*": [ "./wwwroot/lib/*" ],
+      "@types/*": [ "./wwwroot/lib/types/*" ],
+      "jquery/*": [ "./wwwroot/lib/jquery/*" ]
+    },
+    "typeRoots": ["./wwwroot/lib/types"]
+  },
+  "exclude": [
+    "node_modules",
+    "wwwroot"
+  ],
+  "compileOnSave": true
+}

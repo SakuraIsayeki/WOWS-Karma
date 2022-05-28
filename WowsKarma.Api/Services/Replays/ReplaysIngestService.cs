@@ -16,10 +16,12 @@ namespace WowsKarma.Api.Services.Replays;
 public class ReplaysIngestService
 {
 	public const string ReplayBlobContainer = "replays";
+	public const string SecurityBlobContainer = "rce-replays";
 	public const int MaxReplaySize = 5242880;
 
 	private readonly BlobServiceClient _serviceClient;
-	private readonly BlobContainerClient _containerClient;
+	private readonly BlobContainerClient _containerClient; // Container for stanard replays
+	private readonly BlobContainerClient _securityContainerClient; // Container for infected replays
 	private readonly ILogger<ReplaysIngestService> _logger;
 	private readonly ApiDbContext _context;
 	private readonly ReplaysProcessService _processService;
@@ -29,6 +31,7 @@ public class ReplaysIngestService
 		string connectionString = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:Azure:Storage:ConnectionString"];
 		_serviceClient = new(connectionString);
 		_containerClient = _serviceClient.GetBlobContainerClient(ReplayBlobContainer);
+		_securityContainerClient = _serviceClient.GetBlobContainerClient(SecurityBlobContainer);
 		_logger = logger;
 		_context = context;
 		_processService = processService;
@@ -97,6 +100,13 @@ public class ReplaysIngestService
 		return replay;
 	}
 
+	internal async Task IngestRceFileAsync(IFormFile replayFile)
+	{
+		string blobName = $"{Guid.NewGuid():N}-{replayFile.FileName}";
+		await _securityContainerClient.UploadBlobAsync(blobName, replayFile.OpenReadStream());
+		_logger.LogInformation("Ingested RCE file {blobName}. Link: {Uri}", blobName, _securityContainerClient.GetBlobClient(blobName).Uri);
+	}
+	
 	public async Task<MemoryStream> FetchReplayFileAsync(Guid replayId, CancellationToken ct)
 	{
 		Replay replay = await _context.Replays.FindAsync(new object[] { replayId }, cancellationToken: ct)

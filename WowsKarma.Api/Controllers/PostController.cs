@@ -1,10 +1,13 @@
+using System.Security;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 using InvalidReplayException = WowsKarma.Api.Infrastructure.Exceptions.InvalidReplayException;
 
@@ -17,11 +20,13 @@ namespace WowsKarma.Api.Controllers
 	{
 		private readonly PlayerService playerService;
 		private readonly PostService postService;
+		private readonly ILogger<PostController> _logger;
 
-		public PostController(PlayerService playerService, PostService postService)
+		public PostController(PlayerService playerService, PostService postService, ILogger<PostController> logger)
 		{
 			this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
 			this.postService = postService ?? throw new ArgumentNullException(nameof(postService));
+			_logger = logger;
 		}
 
 		/// <summary>
@@ -139,6 +144,7 @@ namespace WowsKarma.Api.Controllers
 		[ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(422), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> CreatePost(
 			[FromForm] string postDto, 
+			[FromServices] ReplaysIngestService replaysIngestService,
 			[FromForm] IFormFile replay = null, 
 			[FromQuery] bool ignoreChecks = false)
 		{
@@ -197,13 +203,23 @@ namespace WowsKarma.Api.Controllers
 				Post created = await postService.CreatePostAsync(post, replay, ignoreChecks);
 				return StatusCode(201, created.Id);
 			}
-			catch (InvalidReplayException e)
+			catch (ArgumentException)
 			{
-				return UnprocessableEntity(e);
+				return BadRequest();
 			}
-			catch (ArgumentException e)
+			
+			catch (InvalidReplayException e) when (e.InnerException is Nodsoft.WowsReplaysUnpack.Infrastructure.Exceptions.InvalidReplayException)
 			{
-				return BadRequest(e);
+				return UnprocessableEntity("Invalid replay.");
+			}
+			// Handle InvalidReplayException when the Inner exception is a SecurityException and its Data contains an exploit with value "CVE-2022-31265".
+			catch (InvalidReplayException e) when (e.InnerException is SecurityException se && se.Data["exploit"] is "CVE-2022-31265")
+			{
+				// Log this exception, and store the replay with the RCE the samples.
+				_logger.LogWarning(se, "Replay upload failed for post author {author} due to CVE-2022-31265 exploit detection.", post.Author.Id);
+				await replaysIngestService.IngestRceFileAsync(replay);
+
+				throw se;
 			}
 		}
 

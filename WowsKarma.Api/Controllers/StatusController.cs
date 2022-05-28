@@ -24,7 +24,6 @@ namespace WowsKarma.Api.Controllers
 		{
 			if (HttpContext.Features.Get<IExceptionHandlerFeature>() is { Error: not null } exceptionHandlerFeature)
 			{
-				string target = HttpContext.Features.Get<IHttpRequestFeature>()?.RawTarget;
 				Uri fullPath = new UriBuilder(Request.Scheme, Request.Host.Host, Request.Host.Port ?? 80, exceptionHandlerFeature.Path).Uri;
 				
 				return Problem(
@@ -34,6 +33,8 @@ namespace WowsKarma.Api.Controllers
 					statusCode: StatusCodes.Status500InternalServerError,
 					type: exceptionHandlerFeature.Error.GetType().ToString()
 				);
+				
+				
 			}
 
 			return Problem(statusCode: StatusCodes.Status500InternalServerError);

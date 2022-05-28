@@ -49,7 +49,7 @@ namespace WowsKarma.Api.Middlewares
 		}
 
 		private static bool LogException(HttpContext httpContext, double elapsedMs, Exception ex)
-		{
+			{
 			LogForErrorContext(httpContext).Error(ex, MessageTemplate, httpContext.Request.Protocol, httpContext.Request.Method, GetPath(httpContext), GetRemoteUser(httpContext), 500, elapsedMs);
 
 			return false;
@@ -73,6 +73,6 @@ namespace WowsKarma.Api.Middlewares
 
 		private static string GetPath(HttpContext context) => context.Features.Get<IHttpRequestFeature>()?.RawTarget ?? context.Request.Path.ToString();
 
-		private static string GetRemoteUser(HttpContext context) => context.User?.FindFirstValue(ClaimTypes.Name) ?? context.Connection?.RemoteIpAddress?.ToString() ?? "Unknown";
+		private static string GetRemoteUser(HttpContext context) => context.User?.FindFirstValue(ClaimTypes.Name) ?? context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
 	}
 }

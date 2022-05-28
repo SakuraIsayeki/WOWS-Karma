@@ -192,7 +192,7 @@ namespace WowsKarma.Api.Services
 				Account = player,
 				AccountId = player.Id,
 				Post = post,
-				PostId = post.Id,
+				PostId = post.Id
 			});
 		}
 

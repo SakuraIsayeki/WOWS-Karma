@@ -57,6 +57,7 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="*.ts" />
+    <TypeScriptCompile Remove="wwwroot/lib/**" />
   </ItemGroup>
 
   <ItemGroup>

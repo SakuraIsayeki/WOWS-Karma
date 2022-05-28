@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
@@ -19,12 +21,14 @@ public class ReplayController : ControllerBase
 	private readonly ReplaysIngestService _ingestService;
 	private readonly ReplaysProcessService _processService;
 	private readonly PostService _postService;
+	private readonly ILogger<ReplayController> _logger;
 
-	public ReplayController(ReplaysIngestService ingestService, ReplaysProcessService processService, PostService postService)
+	public ReplayController(ReplaysIngestService ingestService, ReplaysProcessService processService, PostService postService, ILogger<ReplayController> logger)
 	{
 		_ingestService = ingestService;
 		_processService = processService;
 		_postService = postService;
+		_logger = logger;
 	}
 
 	/// <summary>
@@ -38,7 +42,7 @@ public class ReplayController : ControllerBase
 	[HttpPost("{postId:guid}"), Authorize, RequestSizeLimit(ReplaysIngestService.MaxReplaySize), ProducesResponseType(201)]
 	public async Task<IActionResult> UploadReplayAsync(Guid postId, IFormFile replay, CancellationToken ct, [FromQuery] bool ignoreChecks = false)
 	{
-		if (_postService.GetPost(postId) is not Post current)
+		if (_postService.GetPost(postId) is not { } current)
 		{
 			return StatusCode(404, $"No post with GUID {postId} found.");
 		}
@@ -71,6 +75,14 @@ public class ReplayController : ControllerBase
 		catch (InvalidReplayException e)
 		{
 			return BadRequest(e);
+		}
+		// Handle security exception, related to CVE-2022-31265.
+		catch (SecurityException se) when (se.Data["exploit"] is "CVE-2022-31265")
+		{
+			// Log this exception, and store the replay with the RCE the samples.
+			_logger.LogWarning(se, "Replay upload failed due to CVE-2022-31265 exploit detection.");
+			await _ingestService.IngestRceFileAsync(replay);
+			return BadRequest(se);
 		}
 	}
 

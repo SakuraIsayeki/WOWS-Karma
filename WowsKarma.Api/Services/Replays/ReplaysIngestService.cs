@@ -46,7 +46,7 @@ public class ReplaysIngestService
 			ChatMessages = replay.ChatMessages.Adapt<IEnumerable<ReplayChatMessageDTO>>()
 				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }),
 			Players = replay.Players.Adapt<IEnumerable<ReplayPlayerDTO>>(),
-			DownloadUri = (await GenerateReplayDownloadLinkAsync(id)).ToString(),
+			DownloadUri = null //(await GenerateReplayDownloadLinkAsync(id)).ToString(),
 		};
 	}
 

@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Security;
 using System.Threading;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
+using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs.Replays;
 
@@ -145,6 +147,7 @@ public class ReplaysIngestService
 	/// 		The replay being reprocessed.
 	/// 		Its ID and Blobname will be used to match the replay on Azure storage.
 	///  </param>
+	/// 
 	///  <param name="ct"></param>
 	public async Task ReprocessReplayAsync(Replay replay, CancellationToken ct)
 	{
@@ -152,7 +155,19 @@ public class ReplaysIngestService
 		await _containerClient.GetBlobClient(replay.BlobName).DownloadToAsync(ms, ct);
 		ms.Position = 0;
 
-		await _processService.ProcessReplayAsync(replay, ms, ct);
+		try
+		{
+			await _processService.ProcessReplayAsync(replay, ms, ct);
+		}
+		// Catch any CVE-2022-31265 related exceptions and log them.
+		catch (InvalidReplayException e) when (e.InnerException is SecurityException se && se.Data["exploit"] is "CVE-2022-31265")
+		{
+			_logger.LogWarning("CVE-2022-31265 exploit detected in replay {replayId}. Please delete both post and replay from the platform at once.", replay.Id);
+		}
+		catch (Exception e)
+		{
+			_logger.LogWarning(e, "Failed to reprocess replay {replayId}.", replay.Id);
+		}
 	}
 
 	/// <summary>

@@ -87,13 +87,41 @@ public class ReplayController : ControllerBase
 	}
 
 	/// <summary>
-	/// Triggers reprocessing on a replay (Usable only by Administrators)
+	/// Triggers reprocessing on all replays within the specified date/time range (Usable only by Administrators)
+	/// </summary>
+	/// <param name="start">Start of date/time range</param>
+	/// <param name="end">End of date/time range</param>
+	/// <returns></returns>
+	[HttpPatch("reprocess/all"), Authorize(Roles = ApiRoles.Administrator)]
+	public async Task<IActionResult> ReprocessPostsAsync(DateTime start = default, DateTime end = default, CancellationToken ct = default)
+	{
+		if (start == default)
+		{
+			start = DateTime.UnixEpoch;
+		}
+
+		if (end == default)
+		{
+			end = DateTime.UtcNow;
+		}
+		
+		await _ingestService.ReprocessAllReplaysAsync(start.ToUniversalTime(), end.ToUniversalTime(), ct);
+		return StatusCode(200);
+	}
+	
+	/// <summary>
+	/// Triggers reporessing on a replay (Usable only by Administrators)
 	/// </summary>
 	/// <returns></returns>
-	[HttpPatch("reprocess"), Authorize(Roles = ApiRoles.Administrator)]
-	public async Task<IActionResult> ReprocessPostsAsync(CancellationToken ct)
+	[HttpPatch("reprocess/{replayId:guid}"), Authorize(Roles = ApiRoles.Administrator)]
+	public async Task<IActionResult> ReprocessReplayAsync(Guid replayId, CancellationToken ct = default)
 	{
-		await _ingestService.ReprocessAllReplaysAsync(ct);
+		if (_ingestService.GetReplay(replayId) is not { } replay)
+		{
+			return StatusCode(404, $"No replay with GUID {replayId} found.");
+		}
+
+		await _ingestService.ReprocessReplayAsync(replay, ct);
 		return StatusCode(200);
 	}
 }

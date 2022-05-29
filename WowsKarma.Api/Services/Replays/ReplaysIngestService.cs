@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Security;
 using System.Threading;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
+using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs.Replays;
 
@@ -136,32 +138,79 @@ public class ReplaysIngestService
 	}
 
 
-	public async Task ReprocessAllReplaysAsync(CancellationToken ct)
+	///  <summary>
+	/// 		Reprocesses a replay file.
+	/// 		This causes a replay to be downloaded from Azure storage and processed again.
+	///  </summary>
+	///  
+	///  <param name="replay">
+	/// 		The replay being reprocessed.
+	/// 		Its ID and Blobname will be used to match the replay on Azure storage.
+	///  </param>
+	/// 
+	///  <param name="ct"></param>
+	public async Task ReprocessReplayAsync(Replay replay, CancellationToken ct)
 	{
-		_logger.LogWarning("Starting reprocess of all replays...");
+		await using MemoryStream ms = new();
+		await _containerClient.GetBlobClient(replay.BlobName).DownloadToAsync(ms, ct);
+		ms.Position = 0;
 
-		List<Replay> replays = await _context.Replays.Select(r => new Replay
+		try
 		{
-			Id = r.Id,
-			PostId = r.PostId,
-			BlobName = r.BlobName
-		}).ToListAsync(ct);
+			await _processService.ProcessReplayAsync(replay, ms, ct);
+		}
+		// Catch any CVE-2022-31265 related exceptions and log them.
+		catch (InvalidReplayException e) when (e.InnerException is SecurityException se && se.Data["exploit"] is "CVE-2022-31265")
+		{
+			_logger.LogWarning("CVE-2022-31265 exploit detected in replay {replayId}. Please delete both post and replay from the platform at once.", replay.Id);
+		}
+		catch (Exception e)
+		{
+			_logger.LogWarning(e, "Failed to reprocess replay {replayId}.", replay.Id);
+		}
+	}
 
+	/// <summary>
+	///		Reprocesses the replay file for the specified replay ID.
+	///		This causes a replay to be downloaded from Azure storage and processed again.
+	/// </summary>
+	/// 
+	/// <param name="replayId">The ID of the replay being reprocessed</param>
+	/// <param name="ct"></param>
+	/// <exception cref="ArgumentException">Thrown when no replay was found.</exception>
+	public async Task ReprocessReplayAsync(Guid replayId, CancellationToken ct)
+	{
+		Replay replay = await _context.Replays.FindAsync(new object[] { replayId }, cancellationToken: ct) 
+			?? throw new ArgumentException("No replay was found for specified GUID.", nameof(replayId));
+		
+		await ReprocessReplayAsync(replay, ct);
+		await _context.SaveChangesAsync(ct);
+	}
+	
+	/// <summary>
+	///		Reprocesses all replays in the database submitted between the specified dates.
+	///		This causes all corresponding replays to be downloaded from Azure storage and processed again.
+	/// </summary>
+	/// 
+	/// <param name="start">Start of time range to select replays from</param>
+	/// <param name="end">End of time range to select replays from</param>
+	public async Task ReprocessAllReplaysAsync(DateTime? start, DateTime? end, CancellationToken ct)
+	{
+		_logger.LogWarning("Started reprocessing all replays between {start:g} and {end:g}", start, end);
+
+		List<Replay> replays = await _context.Posts.Include(p => p.Replay)
+			.Where(r => r.Replay != null && r.CreatedAt >= start && r.CreatedAt <= end)
+			.Select(r => new Replay
+			{
+				Id = r.Replay.Id,
+				PostId = r.Replay.PostId,
+				BlobName = r.Replay.BlobName
+			}).ToListAsync(ct);
+		
 		_logger.LogWarning("Database readout complete. {count} replays will be reprocessed.", replays.Count);
 
-		foreach (Replay replayStub in replays)
-		{
-			if (ct.IsCancellationRequested)
-			{
-				break;
-			}
-
-			await using MemoryStream ms = new();
-			await _containerClient.GetBlobClient(replayStub.BlobName).DownloadToAsync(ms, ct);
-			ms.Position = 0;
-
-			_processService.ProcessReplayAsync(replayStub, ms, ct);
-		}
+		// Process each replay in parallel.
+		await Task.WhenAll(replays.Select(r => ReprocessReplayAsync(r, ct)));
 
 		_logger.LogWarning("Finished file reprocessing of {count} replays. Saving to database...", replays.Count);
 

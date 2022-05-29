@@ -59,7 +59,10 @@ public class ReplaysProcessService
 				EntityId = m.EntityId,
 				MessageContent = m.MessageContent,
 				MessageGroup = m.MessageGroup,
-				PlayerId = replay.Players.FirstOrDefault(p => p.AvatarId == m.EntityId).AccountId
+				
+				// Past 0.11.4, old Player AvatarId was moved to Id
+				PlayerId = replay.Players.FirstOrDefault(p => p.Id == m.EntityId).AccountId is not 0 and var playerId ? playerId 
+					: replay.Players.FirstOrDefault(p => p.AvatarId == m.EntityId).AccountId
 			});
 
 			return Task.FromResult(replay);

@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OpenId" Version="6.0.0" />
-    <PackageReference Include="LibSassBuilder" Version="2.0.1" />
+    <PackageReference Include="AspNetCore.SassCompiler" Version="1.52.1.2" />
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web.Extensions" Version="5.0.0-preview9.20513.1" />
@@ -62,6 +62,7 @@
 
   <ItemGroup>
     <Content Remove="compilerconfig.json" />
+    <Content Remove="sasscompiler.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,6 +71,7 @@
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
+    <None Include="sasscompiler.json" />
     <None Update="Pages\Clans\ClanMetricDisplay.razor.scss">
       <DependentUpon>ClanMetricDisplay.razor</DependentUpon>
     </None>

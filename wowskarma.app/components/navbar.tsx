@@ -30,8 +30,7 @@ export default function Navbar() {
                         </ul>
                     </div>
 
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#navbarNavContent">
+                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavContent">
                         <span className="navbar-toggler-icon"></span>
                     </button>
                 </div>

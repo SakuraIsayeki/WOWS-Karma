@@ -107,6 +107,10 @@ namespace WowsKarma.Web
 			services.AddScoped<ModClient>();
 			services.AddScoped<ReplayClient>();
 			services.AddScoped<ClanService>();
+			
+#if DEBUG
+			services.AddSassCompiler();
+#endif
 		}
 
 

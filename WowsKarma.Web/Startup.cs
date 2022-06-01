@@ -89,7 +89,6 @@ namespace WowsKarma.Web
 				.AddScheme<AuthenticationSchemeOptions, ApiTokenAuthenticationHandler>(ApiTokenAuthenticationHandler.AuthenticationScheme, "API Token", _ => { });
 
 			services.AddAuthorizationCore();
-			services.AddHttpContextAccessor();
 
 			services.AddResponseCompression(opts =>
 			{

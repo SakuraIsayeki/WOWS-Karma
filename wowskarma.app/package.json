@@ -10,6 +10,7 @@
     "genversion": "genversion -e version.js"
   },
   "dependencies": {
+    "bootstrap": "^5.1.3",
     "bootstrap-icons": "^1.8.3",
     "bootswatch": "^5.1.3",
     "next": "12.1.6",

@@ -3,7 +3,7 @@ import {version as appVersion} from "../version";
 import {container} from "tsyringe";
 import {ApiRegion} from "../modules/api/apiRegion";
 
-const Footer = function (){
+const Footer = function () {
     return (
         <footer className="footer text-muted mt-5">
             <div className="container">

@@ -1,10 +1,10 @@
-import '../styles/app.scss'
-import 'bootswatch/dist/darkly/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.scss'
+import "../styles/app.scss"
+import "bootswatch/dist/darkly/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.scss"
 
-import type {AppProps} from 'next/app'
+import "reflect-metadata";
+import type {AppProps} from "next/app"
 import Layout from "../components/layout";
-import 'reflect-metadata';
 import {getApiRegion} from "../modules/config/envConfig";
 import {container} from "tsyringe";
 import {ApiRegion} from "../modules/api/apiRegion";

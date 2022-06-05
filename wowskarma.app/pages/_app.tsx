@@ -4,10 +4,11 @@ import "bootstrap-icons/font/bootstrap-icons.scss";
 import "reflect-metadata";
 import type {AppProps} from "next/app";
 import type {ApiRegion} from "../modules/api/apiRegion";
-import Layout from "../components/layout";
+import Layout from "../components/Layout";
 import {getApiRegion} from "../modules/config/envConfig";
 import {container} from "tsyringe";
 import {getApiHost} from "../modules/api/apiClientBase";
+import {SWRConfig} from "swr";
 
 
 function App({Component, pageProps}: AppProps) {
@@ -20,7 +21,9 @@ function App({Component, pageProps}: AppProps) {
 
     return (
         <Layout {...pageProps}>
-            <Component {...pageProps} />
+            <SWRConfig value={{ provider: () => new Map() }}>
+                <Component {...pageProps} />
+            </SWRConfig>
         </Layout>
     )
 }

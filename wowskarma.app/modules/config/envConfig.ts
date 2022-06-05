@@ -1,5 +1,6 @@
 import {ApiRegion} from "../api/apiRegion";
 
+
 /**
  * Defines a regular expression for matching the subdomain of wows-karma.com, based on the API region.
  * It also matches the TLD, used by EU region.
@@ -44,4 +45,18 @@ export function getApiRegionFromLocation(): ApiRegion | undefined {
     }
 
     return getApiRegion(window.location.host);
+}
+
+/**
+ * Gets an environment variable from the process.
+ * @param envVar Name of the environment variable to get.
+ */
+export function getEnvironmentVariable(envVar: string): string {
+    const unvalidatedEnvironmentVariable = process.env[envVar];
+
+    if (!unvalidatedEnvironmentVariable) {
+        throw new Error(`Couldn't find environment variable: ${envVar}`);
+    } else {
+        return unvalidatedEnvironmentVariable;
+    }
 }

@@ -21,8 +21,8 @@ export default function Navbar() {
 
                     <ul className="navbar-nav flex-grow 0">
                         <li className="nav-item ml-3 msl-5">
-                            <button className="btn btn-link text-light" onClick="setTheme()">
-                                <i className="bi bi-moon" id="icon-theme-selector" onLoad="getThemeSelectorIcon()"></i>
+                            <button className="btn btn-link text-light">
+                                <i className="bi bi-moon" id="icon-theme-selector"></i>
                             </button>
                         </li>
                     </ul>

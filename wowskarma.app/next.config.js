@@ -2,20 +2,9 @@
  *  @type {import('next').NextConfig}
  */
 
-const {
-    PHASE_DEVELOPMENT_SERVER,
-    PHASE_PRODUCTION_BUILD,
-} = require('next/constants')
-
-module.exports = (phase) => {
-    // when started in development mode `next dev` or `npm run dev` regardless of the value of STAGING environmental variable
-    const isDev = phase === PHASE_DEVELOPMENT_SERVER
-    // when `next build` or `npm run build` is used
-    const isProd = phase === PHASE_PRODUCTION_BUILD
-
-    console.log(`isDev:${isDev}  isProd:${isProd}`)
-
-    const env = {
+module.exports = {
+    /*
+    const publicRuntimeConfig = {
         API_HOST: isDev ? {
             EU: 'http://localhost:5010/',
             NA: 'http://localhost:5010/',
@@ -39,10 +28,25 @@ module.exports = (phase) => {
 
         APPLICATION_INSIGHTS_CONNECTION_STRING: 'InstrumentationKey=98350f18-923b-47ef-a219-57da9f5e6de4;IngestionEndpoint=https://francecentral-0.in.applicationinsights.azure.com/'
     }
+    */
 
-    return {
-        env,
-        useStrict: true,
-        disablePoweredByHeader: true
-    }
+
+    env: {
+        API_HOST_EU: process.env.NEXT_PUBLIC_API_HOST_EU,
+        API_HOST_NA: process.env.NEXT_PUBLIC_API_HOST_NA,
+        API_HOST_CIS: process.env.NEXT_PUBLIC_API_HOST_CIS,
+        API_HOST_SEA: process.env.NEXT_PUBLIC_API_HOST_SEA,
+
+        COOKIE_NAME_EU: process.env.NEXT_PUBLIC_COOKIE_NAME_EU,
+        COOKIE_NAME_NA: process.env.NEXT_PUBLIC_COOKIE_NAME_NA,
+        COOKIE_NAME_CIS: process.env.NEXT_PUBLIC_COOKIE_NAME_CIS,
+        COOKIE_NAME_SEA: process.env.NEXT_PUBLIC_COOKIE_NAME_SEA,
+
+        COOKIE_DOMAIN: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
+
+        APPLICATION_INSIGHTS_CONNECTION_STRING: process.env.NEXT_PUBLIC_APPLICATION_INSIGHTS_CONNECTION_STRING
+    },
+
+    useStrict: true,
+    disablePoweredByHeader: true
 }

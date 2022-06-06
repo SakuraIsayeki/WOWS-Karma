@@ -1,5 +1,5 @@
-import {ApiClientBase} from "./apiClientBase";
-import {PlayerListing} from "../../models/playerListing";
+import {ApiClientBase} from "./ApiClientBase";
+import {PlayerListing} from "../../models/PlayerListing";
 import {autoInjectable, inject} from "tsyringe";
 
 /**

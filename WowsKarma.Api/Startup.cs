@@ -238,13 +238,21 @@ namespace WowsKarma.Api
 			app.UseExceptionHandler();
 
 			app.UseRouting();
-			
-			// Allow CORS
+
+			string[] origins = Configuration.GetSection("Cors:Origins")?.Get<string[]>() ?? Array.Empty<string>();
+			string[] headers = Configuration.GetSection("Cors:Headers")?.Get<string[]>() ?? Array.Empty<string>();
+
+			// Allow CORS (permissive)
 			app.UseCors(builder =>
 			{
-				builder.AllowAnyOrigin()
+				builder.SetIsOriginAllowed(_ => true); // Allow all origins
+
+				builder //.WithOrigins(origins)
 					.AllowAnyHeader()
 					.AllowAnyMethod();
+
+				builder.AllowCredentials();
+				
 			});
 
 			IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToArray();

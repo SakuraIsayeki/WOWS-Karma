@@ -1,4 +1,4 @@
-import {ApiRegion} from "./apiRegion";
+import {ApiRegion} from "./ApiRegion";
 import {container, inject} from "tsyringe";
 import getConfig from "next/config"
 import {getEnvironmentVariable} from "../config/envConfig";

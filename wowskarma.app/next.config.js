@@ -3,6 +3,22 @@
  */
 
 module.exports = {
+    target: 'serverless',
+
+    async rewrites() {
+        return [
+            // Rewrite everything to `pages/index`
+            {
+                source: "/:any*",
+                destination: "/"
+            }
+        ];
+    },
+
+    experimental: {
+        outputStandalone: true
+    },
+
     /*
     const publicRuntimeConfig = {
         API_HOST: isDev ? {

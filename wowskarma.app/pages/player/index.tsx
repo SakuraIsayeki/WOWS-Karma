@@ -1,8 +1,8 @@
 import type { NextPage } from "next";
 import {FormEvent, useState} from "react";
 import {container} from "tsyringe";
-import {PlayerClient} from "../../modules/api/playerClient";
-import {PlayerListing} from "../../models/playerListing";
+import {PlayerClient} from "../../modules/api/PlayerClient";
+import {PlayerListing} from "../../models/PlayerListing";
 import PlayerSearchResults from "../../components/player/PlayerSearchResults";
 
 
@@ -33,9 +33,11 @@ export const Index: NextPage = () => {
                 </form>
             </div>
 
-            <div className="mx-3 my-5">
-                <PlayerSearchResults display={submitted} username={username} />
-            </div>
+            {
+                submitted && <div className="mx-3 my-5">
+                    <PlayerSearchResults username={username} />
+                </div>
+            }
         </>
     )
 }

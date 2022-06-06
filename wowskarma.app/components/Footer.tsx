@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {version as appVersion} from "../version";
 import {container} from "tsyringe";
-import {ApiRegion} from "../modules/api/apiRegion";
+import {ApiRegion} from "../modules/api/ApiRegion";
 
 const Footer = function () {
     return (
@@ -17,7 +17,7 @@ const Footer = function () {
                         <div>
                             <ul className="list-inline">
                                 {getFooterLink("/guidelines", "Guidelines")}
-                                {/* API Link goes here */}
+                                {getFooterLink(new URL("/swagger", container.resolve<URL>("apiHost")).href, "API")}
                                 {getFooterLink("https://github.com/SakuraIsayeki/WoWS-Karma", "GitHub")}
                                 {getFooterLink("https://discord.gg/PrW9dtzK9K", "Discord")}
                             </ul>

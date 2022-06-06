@@ -1,4 +1,4 @@
-import {ApiRegion} from "../api/apiRegion";
+import {ApiRegion} from "../api/ApiRegion";
 
 
 /**

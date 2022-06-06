@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NavLogin from "./NavLogin";
 
 export default function Navbar() {
     return(
@@ -20,6 +21,8 @@ export default function Navbar() {
                     </ul>
 
                     <ul className="navbar-nav flex-grow 0">
+                        <NavLogin />
+
                         <li className="nav-item ml-3 msl-5">
                             <button className="btn btn-link text-light">
                                 <i className="bi bi-moon" id="icon-theme-selector"></i>

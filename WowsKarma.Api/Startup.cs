@@ -240,7 +240,7 @@ namespace WowsKarma.Api
 			app.UseRouting();
 			
 
-			IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(x => IPAddress.Parse(x));
+			IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse);
 
 			// Nginx configuration step
 			ForwardedHeadersOptions forwardedHeadersOptions = new()

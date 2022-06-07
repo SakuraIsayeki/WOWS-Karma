@@ -140,7 +140,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="422">Attached replay is invalid.</response>
 		/// <response code="403">Restrictions are in effect for one of the targeted accounts.</response>
 		/// <response code="404">One of the targeted accounts was not found.</response>
-		[HttpPost, Authorize]
+		[HttpPost, Authorize(RequireNoPlatformBans)]
 		[ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(422), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> CreatePost(
 			[FromForm] string postDto, 
@@ -182,11 +182,7 @@ namespace WowsKarma.Api.Controllers
 				{
 					return StatusCode(403, "Author is not authorized to post on behalf of other users.");
 				}
-
-				if (author.IsBanned())
-				{
-					return StatusCode(403, "Post Author was banned from posting on this platform.");
-				}
+				
 				if (author.OptedOut)
 				{
 					return StatusCode(403, "Post Author has opted-out from using this platform.");
@@ -232,7 +228,8 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="400">Post contents validation has failed.</response>
 		/// <response code="403">Restrictions are in effect for the existing post.</response>
 		/// <response code="404">Targeted post was not found.</response>
-		[HttpPut, Authorize, ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
+		[HttpPut, Authorize(RequireNoPlatformBans)]
+		[ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{
 			if (postService.GetPost(post.Id ?? default) is not Post current)
@@ -278,10 +275,11 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="205">Post was successfuly deleted.</response>
 		/// <response code="403">Restrictions are in effect for the existing post.</response>
 		/// <response code="404">Targeted post was not found.</response>
-		[HttpDelete("{postId:guid}"), Authorize, ProducesResponseType(205), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
+		[HttpDelete("{postId:guid}"), Authorize(RequireNoPlatformBans)]
+		[ProducesResponseType(205), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> DeletePost(Guid postId, [FromQuery] bool ignoreChecks = false)
 		{
-			if (postService.GetPost(postId) is not Post post)
+			if (postService.GetPost(postId) is not { } post)
 			{
 				return StatusCode(404, $"No post with ID {postId} found.");
 			}

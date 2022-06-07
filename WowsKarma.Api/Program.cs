@@ -65,7 +65,8 @@ namespace WowsKarma.Api
 					{
 						config.SetBasePath(Directory.GetCurrentDirectory());
 						config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-							  .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+							  .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+							  .AddUserSecrets<Program>(optional: true, reloadOnChange: true);
 						config.AddEnvironmentVariables();
 						config.AddCommandLine(args);
 					});

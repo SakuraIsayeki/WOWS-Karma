@@ -1,0 +1,12 @@
+{
+  "SourceFolder": "wwwroot/css",
+  "TargetFolder": "wwwroot/css",
+  "Arguments": "--style=compressed --no-source-map",
+  "GenerateScopedCss": true,
+  "ScopedCssFolders": [
+    "Views",
+    "Pages",
+    "Shared",
+    "Components"
+  ]
+}

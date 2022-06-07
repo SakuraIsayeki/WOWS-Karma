@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "wowskarma.app": {
+    "wowskarma-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "wowskarma.app:build:production"
+              "browserTarget": "wowskarma-app:build:production"
             },
             "development": {
-              "browserTarget": "wowskarma.app:build:development"
+              "browserTarget": "wowskarma-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "wowskarma.app:build"
+            "browserTarget": "wowskarma-app:build"
           }
         },
         "test": {
@@ -108,6 +108,7 @@
     }
   },
   "cli": {
-    "analytics": "48140d23-6cc8-4acd-b441-3657be361e05"
+    "analytics": "48140d23-6cc8-4acd-b441-3657be361e05",
+    "packageManager": "pnpm"
   }
 }

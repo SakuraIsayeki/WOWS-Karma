@@ -3,7 +3,25 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+
+  apiHost: {
+    EU: "http://localhost:5010/api/",
+    NA: "http://localhost:5010/api/",
+    CIS: "http://localhost:5010/api/",
+    SEA: "http://localhost:5010/api/",
+  },
+
+  cookies: {
+    domain: "localhost",
+
+    name: {
+      EU: "Auth_EU",
+      NA: "Auth_NA",
+      CIS: "Auth_CIS",
+      SEA: "Auth_SEA"
+    }
+  }
 };
 
 /*

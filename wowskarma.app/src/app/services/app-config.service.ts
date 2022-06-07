@@ -30,14 +30,27 @@ export class AppConfigService {
    * @param defaultRegion The default region to use if the region cannot be extracted.
    * @returns The API region.
    */
-  static getApiRegion(url: URL | string, defaultRegion: ApiRegion = ApiRegion.EU): ApiRegion {
+  static getApiRegion(url: URL | string, defaultRegion: ApiRegion | undefined = ApiRegion.EU): ApiRegion {
     const host : string = url instanceof URL ? url.host : url;
 
     // Match the host against the regex.
-    const match = REGEX_API_SUBDOMAIN.exec(host);
+    const output = REGEX_API_SUBDOMAIN.exec(host)?.groups?.['region'];
 
-    // Return the region if matched, otherwise the default region.
-    return ApiRegion[(match?.groups?.['region'] ?? defaultRegion) as keyof typeof ApiRegion];
+    // Match the subdomain against the enum,
+    // making sure of noting discrepancies (for example "asia" => "SEA").
+    switch (output) {
+      case "eu":
+        return ApiRegion.EU;
+      case "na":
+        return ApiRegion.NA;
+      case "ru":
+        return ApiRegion.CIS;
+      case "asia":
+        return ApiRegion.SEA;
+
+      default:
+        return defaultRegion ?? undefined;
+    }
   }
 
   /**
@@ -68,5 +81,5 @@ export class AppConfigService {
  * @constant
  * @see https://regex101.com/r/XjyrMT/2
  */
-const REGEX_API_SUBDOMAIN = /(?:|(?<region>|NA|RU|ASIA)\.)wows-karma\.com(?:\/.*)?$/gim;
+const REGEX_API_SUBDOMAIN = /(?:|(?<region>|na|ru|asia)\.)wows-karma\.com(?:\/.*)?$/gim;
 

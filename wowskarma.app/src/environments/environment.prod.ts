@@ -2,10 +2,10 @@ export const environment = {
   production: true,
 
   apiHost: {
-    EU: "https://api.wows-karma.com/api/",
-    NA: "https://api.na.wows-karma.com/api/",
-    CIS: "https://api.ru.wows-karma.com/api/",
-    SEA: "https://api.asia.wows-karma.com/api/",
+    EU: "https://api.wows-karma.com",
+    NA: "https://api.na.wows-karma.com",
+    CIS: "https://api.ru.wows-karma.com",
+    SEA: "https://api.asia.wows-karma.com",
   },
 
   cookies: {

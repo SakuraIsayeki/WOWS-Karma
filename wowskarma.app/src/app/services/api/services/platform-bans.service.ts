@@ -256,7 +256,6 @@ export class PlatformBansService extends BaseService {
     /**
      * ID of Platform Ban to revert.
      */
-    id?: string;
     id: string;
   }): Observable<StrictHttpResponse<void>> {
 
@@ -292,7 +291,6 @@ export class PlatformBansService extends BaseService {
     /**
      * ID of Platform Ban to revert.
      */
-    id?: string;
     id: string;
   }): Observable<void> {
 

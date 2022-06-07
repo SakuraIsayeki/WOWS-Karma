@@ -1,0 +1,27 @@
+<div class="col-md-6">
+  <h1 class="mb-3">Search Players</h1>
+
+  <form [formGroup]="search">
+    <div class="input-group">
+      <input id="username" type="text" class="form-control" formControlName="username" placeholder="Username" required minlength="3" />
+    </div>
+  </form>
+</div>
+
+<div class="mx-3 my-5" >
+  <h4 class="text-info my-5" *ngIf="loading$ | async">Searching...</h4>
+
+  <ng-container *ngIf="result$ | async as result">
+    <h4 class="text-info my-5" *ngIf="result.length > 0 else noResults">Results</h4>
+
+    <ng-template #noResults>
+      <h4 class="text-danger my-5" >No results found</h4>
+    </ng-template>
+  </ng-container>
+
+  <ul>
+    <li *ngFor="let item of result$ | async">
+      <a [routerLink]="['/player', item.id + ',' + item.username ]">{{ item.username }}</a>
+    </li>
+  </ul>
+</div>

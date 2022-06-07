@@ -6,10 +6,10 @@ export const environment = {
   production: false,
 
   apiHost: {
-    EU: "http://localhost:5010/api/",
-    NA: "http://localhost:5010/api/",
-    CIS: "http://localhost:5010/api/",
-    SEA: "http://localhost:5010/api/",
+    EU: "http://localhost:5010",
+    NA: "http://localhost:5010",
+    CIS: "http://localhost:5010",
+    SEA: "http://localhost:5010",
   },
 
   cookies: {

@@ -8,5 +8,9 @@ global using System.Linq;
 global using System.Threading.Tasks;
 
 global using WowsKarma.Api.Data.Models;
+global using static WowsKarma.Api.Infrastructure.Authorization.AuthorizationPolicies;
+	
 global using WowsKarma.Common.Models;
 global using WowsKarma.Common.Models.DTOs;
+
+

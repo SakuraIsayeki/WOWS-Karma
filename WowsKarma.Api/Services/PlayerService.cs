@@ -47,8 +47,7 @@ namespace WowsKarma.Api.Services
 
 			if (includeRelated)
 			{
-				_context.Players
-					.Include(p => p.PlatformBans);
+				dbPlayers = dbPlayers.Include(p => p.PlatformBans);
 			}
 
 			if (includeClanInfo)

@@ -23,6 +23,7 @@ using Nodsoft.Wargaming.Api.Client.Clients.Wows;
 using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Hubs;
+using WowsKarma.Api.Infrastructure.Authorization;
 using WowsKarma.Api.Infrastructure.Telemetry;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
@@ -103,6 +104,15 @@ namespace WowsKarma.Api
 						};
 					});
 
+			services.AddAuthorization(options =>
+			{
+				options.AddPolicy(AuthorizationPolicies.RequireNoPlatformBans, policy =>
+				{
+					policy.Requirements.Add(new PlatformBanRequirement());
+				});
+			});
+			
+			
 			services.AddSwaggerGen(options =>
 			{
 				options.SwaggerDoc(DisplayVersion, new OpenApiInfo

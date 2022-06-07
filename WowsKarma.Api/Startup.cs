@@ -239,8 +239,18 @@ namespace WowsKarma.Api
 
 			app.UseRouting();
 			
+			// Allow CORS (permissive)
+			app.UseCors(builder =>
+			{
+				builder.SetIsOriginAllowed(_ => true); // Allow all origins
 
-			IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse);
+				builder.AllowAnyHeader()
+					.AllowAnyMethod();
+
+				builder.AllowCredentials();
+			});
+
+			IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToArray();
 
 			// Nginx configuration step
 			ForwardedHeadersOptions forwardedHeadersOptions = new()
@@ -248,7 +258,7 @@ namespace WowsKarma.Api
 				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 			};
 
-			if (allowedProxies is not null && allowedProxies.Any())
+			if (allowedProxies is { Length: not 0 })
 			{
 				forwardedHeadersOptions.KnownProxies.Clear();
 

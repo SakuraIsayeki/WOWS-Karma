@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { BehaviorSubject, debounceTime, distinctUntilChanged, switchMap, tap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -8,6 +8,7 @@ import { PlayerService } from "../../../services/api/services";
   selector: "app-search",
   templateUrl: "./search.component.html",
   styleUrls: ["./search.component.scss"],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchComponent implements OnInit {
   search = new FormGroup({
@@ -21,9 +22,12 @@ export class SearchComponent implements OnInit {
     map(s => s.username),
     debounceTime(300),
     distinctUntilChanged(),
-    tap(() => this.loading$.next(true)),
-    switchMap(username => this.playerService.apiPlayerSearchQueryGet$Json({ query: username! })),
-    tap(() => this.loading$.next(false), () => this.loading$.next(false))
+    tap(() => this.loading$.next(true)), // Set loading to true when the search form value changes.
+    switchMap(username => this.playerService.apiPlayerSearchQueryGet$Json({ query: username! })), // Get the search results
+    tap({
+      next: () => this.loading$.next(false), // Set loading to false when the search results are received.
+      error: () => this.loading$.next(false) // Set loading to false on error.
+    })
   );
 
 

@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { BehaviorSubject, debounceTime, distinctUntilChanged, switchMap, tap } from "rxjs";
+import { BehaviorSubject, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from "rxjs";
 import { map } from "rxjs/operators";
 import { PlayerService } from "../../../services/api/services";
+import { filterNotNull, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
 
 @Component({
   selector: "app-search",
@@ -19,15 +20,13 @@ export class SearchComponent implements OnInit {
 
   // Gets an Observable to detect when the search form value changes.
   result$ = this.search.valueChanges.pipe(
-    map(s => s.username),
+    map(s => s.username), // Select the username field
     debounceTime(300),
     distinctUntilChanged(),
+    filterNotNull(),
     tap(() => this.loading$.next(true)), // Set loading to true when the search form value changes.
-    switchMap(username => this.playerService.apiPlayerSearchQueryGet$Json({ query: username! })), // Get the search results
-    tap({
-      next: () => this.loading$.next(false), // Set loading to false when the search results are received.
-      error: () => this.loading$.next(false) // Set loading to false on error.
-    })
+    switchMapCatchError(query => this.playerService.apiPlayerSearchQueryGet$Json({ query })), // Get the search results
+    tapAny(() => () => this.loading$.next(false)) // Sets loading to false when the search results are received, regardless of whether the search was successful or not.
   );
 
 

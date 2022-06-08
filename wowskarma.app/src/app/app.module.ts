@@ -8,10 +8,13 @@ import { IndexComponent } from "./pages/index/index.component";
 import { NotFoundComponent } from "./pages/not-found/not-found.component";
 import { SearchComponent } from "./pages/player/search/search.component";
 import { ApiModule } from "./services/api/api.module";
+import { AppInitService } from "./services/app-init.service";
+import { AppInitGuard } from "./services/guards/app-init.guard";
 import { ErrorInterceptor } from "./services/interceptors/error.interceptor";
 import { FooterComponent } from "./shared/layout/footer.component";
 import { LayoutComponent } from "./shared/layout/layout.component";
 import { NavbarComponent } from "./shared/layout/navbar.component";
+import { AppWrapperComponent } from './app-wrapper.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +25,7 @@ import { NavbarComponent } from "./shared/layout/navbar.component";
     IndexComponent,
     NotFoundComponent,
     SearchComponent,
+    AppWrapperComponent,
   ],
   imports: [
     BrowserModule,
@@ -32,9 +36,11 @@ import { NavbarComponent } from "./shared/layout/navbar.component";
     ApiModule,
   ],
   providers: [
+    AppInitService,
+    AppInitGuard,
     { provide: HTTP_INTERCEPTORS, multi: true, useClass: ErrorInterceptor },
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [AppWrapperComponent],
 })
 export class AppModule {
 }

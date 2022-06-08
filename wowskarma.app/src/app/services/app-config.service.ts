@@ -13,7 +13,7 @@ export class AppConfigService {
   /**
    * Current region covered by the application.
    */
-  public currentRegion: ApiRegion = this.getApiRegionFromLocation() as ApiRegion;
+  public currentRegion: ApiRegion = AppConfigService.getApiRegionFromLocation() as ApiRegion;
 
   /**
    * Current application version.
@@ -62,7 +62,7 @@ export class AppConfigService {
    * @see {@link getApiRegion}
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Location}
    * */
-  getApiRegionFromLocation(): ApiRegion | undefined {
+  static getApiRegionFromLocation(): ApiRegion | undefined {
     // Wait for the browser's location to be available.
 
     if (typeof window?.location === "undefined" ) {

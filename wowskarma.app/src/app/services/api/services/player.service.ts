@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
+import { PlayerProfileDto } from "../models/player-profile-dto";
 import { StrictHttpResponse } from '../strict-http-response';
 import { RequestBuilder } from '../request-builder';
 import { Observable } from 'rxjs';
@@ -173,7 +174,7 @@ export class PlayerService extends BaseService {
      * Include clan membership info while fetching player profile.
      */
     includeClanInfo?: boolean;
-  }): Observable<StrictHttpResponse<PlayerClanProfileDto>> {
+  }): Observable<StrictHttpResponse<PlayerProfileDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerIdGetPath, 'get');
     if (params) {
@@ -187,7 +188,7 @@ export class PlayerService extends BaseService {
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
-        return r as StrictHttpResponse<PlayerClanProfileDto>;
+        return r as StrictHttpResponse<PlayerProfileDto>;
       })
     );
   }
@@ -213,10 +214,10 @@ export class PlayerService extends BaseService {
      * Include clan membership info while fetching player profile.
      */
     includeClanInfo?: boolean;
-  }): Observable<PlayerClanProfileDto> {
+  }): Observable<PlayerProfileDto> {
 
     return this.apiPlayerIdGet$Plain$Response(params).pipe(
-      map((r: StrictHttpResponse<PlayerClanProfileDto>) => r.body as PlayerClanProfileDto)
+      map((r: StrictHttpResponse<PlayerProfileDto>) => r.body as PlayerProfileDto)
     );
   }
 
@@ -241,7 +242,7 @@ export class PlayerService extends BaseService {
      * Include clan membership info while fetching player profile.
      */
     includeClanInfo?: boolean;
-  }): Observable<StrictHttpResponse<PlayerClanProfileDto>> {
+  }): Observable<StrictHttpResponse<PlayerProfileDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerIdGetPath, 'get');
     if (params) {
@@ -255,7 +256,7 @@ export class PlayerService extends BaseService {
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
-        return r as StrictHttpResponse<PlayerClanProfileDto>;
+        return r as StrictHttpResponse<PlayerProfileDto>;
       })
     );
   }
@@ -281,10 +282,10 @@ export class PlayerService extends BaseService {
      * Include clan membership info while fetching player profile.
      */
     includeClanInfo?: boolean;
-  }): Observable<PlayerClanProfileDto> {
+  }): Observable<PlayerProfileDto> {
 
     return this.apiPlayerIdGet$Json$Response(params).pipe(
-      map((r: StrictHttpResponse<PlayerClanProfileDto>) => r.body as PlayerClanProfileDto)
+      map((r: StrictHttpResponse<PlayerProfileDto>) => r.body as PlayerProfileDto)
     );
   }
 

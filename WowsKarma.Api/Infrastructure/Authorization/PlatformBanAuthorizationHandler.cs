@@ -21,6 +21,8 @@ public class PlatformBanAuthorizationHandler : AuthorizationHandler<PlatformBanR
 	
 	protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PlatformBanRequirement requirement)
 	{
+		_logger.LogDebug("Evaluating platform ban requirement");
+		
 		// Parse the user's account ID from the auth context
 		if (!uint.TryParse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out uint userId))
 		{
@@ -40,6 +42,7 @@ public class PlatformBanAuthorizationHandler : AuthorizationHandler<PlatformBanR
 		if (activePlatformBan || user is { PostsBanned: true })
 		{
 			context.Fail(new(this, "User is banned from the platform."));
+			return;
 		}
 		
 		// If we got here, the user is not banned

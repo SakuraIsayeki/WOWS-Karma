@@ -16,6 +16,8 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Nodsoft.Wargaming.Api.Client;
 using Nodsoft.Wargaming.Api.Client.Clients;
@@ -224,6 +226,8 @@ namespace WowsKarma.Api
 			services.AddScoped<NotificationService>();
 			services.AddScoped<ReplaysIngestService>();
 			services.AddScoped<ReplaysProcessService>();
+
+			services.AddScoped<IAuthorizationHandler, PlatformBanAuthorizationHandler>();
 
 			services.AddApplicationInsightsTelemetryProcessor<HubTelemetryFilter>();
 

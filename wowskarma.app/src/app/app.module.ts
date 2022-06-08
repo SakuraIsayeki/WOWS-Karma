@@ -15,6 +15,7 @@ import { FooterComponent } from "./shared/layout/footer.component";
 import { LayoutComponent } from "./shared/layout/layout.component";
 import { NavbarComponent } from "./shared/layout/navbar.component";
 import { AppWrapperComponent } from './app-wrapper.component';
+import { ProfileComponent } from './pages/player/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { AppWrapperComponent } from './app-wrapper.component';
     NotFoundComponent,
     SearchComponent,
     AppWrapperComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,

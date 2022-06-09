@@ -1,0 +1,19 @@
+<div class="my-3">
+
+</div>
+
+<div class="list-group">
+  <a *ngFor="let msg of (messages$ | async)" class="list-group-item list-group-item-action">
+    <div class="d-flex w-100 justify-content-between">
+      <div>
+        <b class="mb-1"><a [routerLink]="['/player', msg.playerId + ',' + msg.username]">{{msg.username}}</a></b>
+        <span *ngIf="msg.playerId == (authorId$ | async)" class="text-muted small fst-italic ms-4">(Author)</span>
+        <span *ngIf="msg.playerId == (playerId$ | async)" class="text-muted small fst-italic ms-4">(Player)</span>
+      </div>
+
+
+    </div>
+
+    <p class="mb-1 text-break">{{msg.messageContent}}</p>
+  </a>
+</div>

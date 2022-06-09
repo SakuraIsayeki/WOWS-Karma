@@ -8,7 +8,6 @@ import { filterNotNull, switchMapCatchError, tapAny } from "../../../shared/rxjs
 @Component({
   selector: "app-search",
   templateUrl: "./search.component.html",
-  styleUrls: ["./search.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchComponent implements OnInit {
@@ -26,7 +25,7 @@ export class SearchComponent implements OnInit {
     filterNotNull(),
     tap(() => this.loading$.next(true)), // Set loading to true when the search form value changes.
     switchMapCatchError(query => this.playerService.apiPlayerSearchQueryGet$Json({ query })), // Get the search results
-    tapAny(() => () => this.loading$.next(false)) // Sets loading to false when the search results are received, regardless of whether the search was successful or not.
+    tapAny(() => this.loading$.next(false)) // Sets loading to false when the search results are received, regardless of whether the search was successful or not.
   );
 
 

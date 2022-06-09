@@ -1,5 +1,15 @@
 import { ActivatedRoute } from "@angular/router";
-import { catchError, distinctUntilChanged, Observable, ObservableInput, of, shareReplay, switchMap, tap } from "rxjs";
+import {
+  BehaviorSubject,
+  catchError,
+  distinctUntilChanged,
+  Observable,
+  ObservableInput,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+} from "rxjs";
 import { filter, map } from "rxjs/operators";
 
 /**
@@ -49,17 +59,17 @@ export function tapAny<T>(func: () => void): (source$: Observable<T>) => Observa
   return (source$: Observable<T>) => source$.pipe(tap({
     next: () => func(),
     error: () => func(),
-    complete: () => func()
+    complete: () => func(),
   }));
 }
 
 export function routeParam(route: ActivatedRoute, name?: string) {
-  name = name ?? 'id';
+  name = name ?? "id";
   return route.params.pipe(map(params => params[name!] as string | undefined), distinctUntilChanged());
 }
 
 export function routeParamInt(route: ActivatedRoute, name?: string) {
-  name = name ?? 'id';
+  name = name ?? "id";
   return route.params.pipe(map(params => {
     const intParam = +params[name!];
     return isNaN(intParam) ? null : intParam;
@@ -68,4 +78,38 @@ export function routeParamInt(route: ActivatedRoute, name?: string) {
 
 export function routeParamIntNotNull(route: ActivatedRoute, name?: string) {
   return routeParamInt(route, name).pipe(filterNotNull());
+}
+
+
+/**
+ * Defines a decorator for an Input component property.
+ */
+export function InputObservable() {
+  return function (target: any, key: string) {
+    const subjects = new WeakMap<object, BehaviorSubject<any>>();
+    const backingFields = new WeakMap<object, any>();
+
+    Object.defineProperty(target, key, {
+      configurable: false,
+      get() {
+        return backingFields.get(this);
+      },
+      set(value) {
+        backingFields.set(this, value);
+        subjects.get(this)?.next(value);
+      },
+    });
+
+    Object.defineProperty(target, key + "$", {
+      configurable: false,
+      get() {
+        let subject = subjects.get(this);
+        if (!subject) {
+          subject = new BehaviorSubject<any>(backingFields.get(this));
+          subjects.set(this, subject);
+        }
+        return subject.asObservable();
+      },
+    });
+  };
 }

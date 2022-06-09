@@ -6,8 +6,11 @@
  *  - `success` if the karma value is positive.
  *  - `danger` if the karma value is negative.
  *  - `warning` if the karma value is zero.
- */ import { ApiRegion } from "../models/ApiRegion";
+ */
+import { ApiRegion } from "../models/ApiRegion";
+import { PostFlairs } from "./api/models/post-flairs";
 import { AppConfigService } from "./app-config.service";
+import { countBalance, parseFlairsEnum } from "./metricsHelpers";
 
 export function getKarmaColor(karma: number): "success" | "danger" | "warning" {
   if (karma > 0) {
@@ -21,8 +24,7 @@ export function getKarmaColor(karma: number): "success" | "danger" | "warning" {
 
 /**
  * Gets the link to a player's profile on wows-numbers.com.
- * @param id
- * @param name
+ * @param playerIdNamePair The player's ID and username.
  * @returns The link to the player's profile.
  * @see https://wows-numbers.com
  */
@@ -41,3 +43,27 @@ export function getWowsNumbersPlayerLink({ id, username }: { id: number; usernam
       return undefined;
   }
 }
+
+/**
+ * Gets the border color of a post, based on its flairs
+ * @param post The post flairs
+ * @returns The border color of the post
+ */
+export function getPostBorderColor({ flairs }: { flairs: PostFlairs | undefined }) {
+  return getKarmaColor(countBalance(parseFlairsEnum(flairs ?? 0x00)));
+}
+
+/**
+ * Sorts objects by their creation date/time.
+ */
+export function sortByCreationDate(
+  a: { createdAt?: Date | string | null },
+  b: { createdAt?: Date | string | null },
+  reverse = false,
+) {
+
+  const aDate = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt ?? "");
+  const bDate = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt ?? "");
+  return reverse ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+}
+

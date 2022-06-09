@@ -5,6 +5,7 @@ import { IndexComponent } from "./pages/index/index.component";
 import { NotFoundComponent } from "./pages/not-found/not-found.component";
 import { ProfileComponent } from "./pages/player/profile/profile.component";
 import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";
+import { ViewPostComponent } from "./pages/post/view/view-post.component";
 import { AppInitGuard } from "./services/guards/app-init.guard";
 import { LayoutComponent } from "./shared/layout/layout.component";
 
@@ -21,6 +22,7 @@ const routes: Routes = [
         children: [
           { path: "player", component: PlayerSearchComponent },
           { path: "player/:idNamePair", component: ProfileComponent },
+          { path: "posts/view/:postId", component: ViewPostComponent },
           { path: "", component: IndexComponent },
 
           // Last route. Spawn a 404 page.

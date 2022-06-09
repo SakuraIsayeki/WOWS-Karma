@@ -9,7 +9,6 @@ import { routeParam, shareReplayRefCount, switchMapCatchError } from "../../../s
 
 @Component({
   templateUrl: "./profile.component.html",
-  styleUrls: ["./profile.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
@@ -27,7 +26,6 @@ export class ProfileComponent implements OnInit {
 
   currentTab = "received";
   currentTab$ = this.profile$.pipe(tap(profile => profile?.optedOut ? "received" : "sent"));
-
 
   constructor(private route: ActivatedRoute, private playerService: PlayerService) {
   }

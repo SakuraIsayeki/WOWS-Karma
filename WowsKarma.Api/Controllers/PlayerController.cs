@@ -43,7 +43,7 @@ namespace WowsKarma.Api.Controllers
 		/// <param name="includeClanInfo">Include clan membership info while fetching player profile.</param>
 		/// <response code="200">Returns player profile</response>
 		/// <response code="204">No profile found</response>
-		[HttpGet("{id}"), ProducesResponseType(typeof(PlayerClanProfileDTO), 200), ProducesResponseType(204)]
+		[HttpGet("{id}"), ProducesResponseType(typeof(PlayerProfileDTO), 200), ProducesResponseType(204)]
 		public async Task<IActionResult> GetAccount(uint id, bool includeClanInfo = true)
 		{
 			if (id is 0)

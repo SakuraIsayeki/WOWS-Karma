@@ -1,11 +1,11 @@
-<ng-template #loading>LOADING</ng-template>
+<ng-template #loading><h3 class="text-info">Loading...</h3></ng-template>
 
 <ng-container *ngIf="profile$ | async as profile else loading">
   <div class="text-center mb-5">
     <h1>
-      <ng-container *ngIf="profile.clan?.clanInfo as clan">
-        <a [style.color]="clan.leagueColor" href="/clan/{{clan.id}},{{clan.tag}}-{{clan.name}}">[{{clan.tag}}]</a>
-      </ng-container>
+      <a *ngIf="profile.clan?.clanInfo as clan"
+         [style.color]="clan.leagueColor | colorHex"
+         [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name ]">[{{clan.tag}}]</a>
 
       <span class="mx-3">{{profile.username}}</span>
 
@@ -82,26 +82,31 @@
         </div>
       </ng-container>
     </div>
+  </div>
 
-    <hr class="m-3">
+  <div class="row my-4 justify-content-between">
+    <div class="col-auto">
+      <h2 class="mx-5">Posts</h2>
+    </div>
 
-    <div class="row my-4 justify-content-between">
-      <div class="col-auto">
-        <h2 class="mx-5">Posts</h2>
-      </div>
+    <div class="col">
+      <nav class="nav nav-pills nav-justified">
+        <button *ngIf="!profile.optedOut" class="nav-item nav-link" [class.active]="currentTab == 'received'"
+                (click)="currentTab = 'received'">Received
+        </button>
 
-      <div class="col">
-        <nav class="nav nav-pills nav-justified">
-          <button *ngIf="!profile.optedOut" class="nav-item nav-link" [ngClass]="{'active': currentTab === 'received'}"
-                  (click)="currentTab = 'received'">Received
-          </button>
-
-          <button class="nav-item nav-link" [ngClass]="{'active': currentTab === 'sent'}"
-                  (click)="currentTab = 'sent'">Sent
-          </button>
-        </nav>
-      </div>
+        <button class="nav-item nav-link" [class.active]="currentTab == 'sent'"
+                (click)="currentTab = 'sent'">Sent
+        </button>
+      </nav>
     </div>
   </div>
-</ng-container>
 
+  <ng-container *ngIf="currentTab === 'received'">
+    <app-posts-received [userId]="profile.id!"></app-posts-received>
+  </ng-container>
+
+  <ng-container *ngIf="currentTab === 'sent'">
+    <app-posts-sent [userId]="profile.id!"></app-posts-sent>
+  </ng-container>
+</ng-container>

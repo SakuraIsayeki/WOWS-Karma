@@ -1,11 +1,15 @@
 /* tslint:disable */
 /* eslint-disable */
+
 export enum PostFlairs {
-  $0 = 0,
-  $1 = 1,
-  $2 = 2,
-  $4 = 4,
-  $8 = 8,
-  $16 = 16,
-  $32 = 32
+  Neutral = 0x00,
+
+  PerformanceGood = 0x01,
+  PerformanceBad = 0x02,
+
+  TeamplayGood = 0x04,
+  TeamPlayBad = 0x08,
+
+  CourtesyGood = 0x10,
+  CourtesyBad = 0x20,
 }

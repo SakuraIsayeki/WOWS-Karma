@@ -1,0 +1,9 @@
+<ng-container *ngFor="let flair of parseFlairsEnum(flairsEnum ?? 0); index as i;">
+  <small *ngIf="flair !== null as f" class="my-0 text-{{f ? 'success' : 'danger'}}">
+    {{f ? "+" : "-"}} {{flairNames[i]}}
+  </small>
+
+  <br />
+</ng-container>
+
+

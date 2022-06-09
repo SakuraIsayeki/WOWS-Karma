@@ -7,6 +7,7 @@ import { ProfileComponent } from "./pages/player/profile/profile.component";
 import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";
 import { ViewPostComponent } from "./pages/post/view/view-post.component";
 import { AppInitGuard } from "./services/guards/app-init.guard";
+import { AuthGuard } from "./services/guards/auth.guard";
 import { LayoutComponent } from "./shared/layout/layout.component";
 
 const routes: Routes = [
@@ -19,10 +20,12 @@ const routes: Routes = [
       {
         path: "",
         component: LayoutComponent,
+
         children: [
           { path: "player", component: PlayerSearchComponent },
           { path: "player/:idNamePair", component: ProfileComponent },
           { path: "posts/view/:postId", component: ViewPostComponent },
+          { path: "profile", component: ProfileComponent, canActivate: [AuthGuard], /* data: { roles: ["role1"] } */ },
           { path: "", component: IndexComponent },
 
           // Last route. Spawn a 404 page.

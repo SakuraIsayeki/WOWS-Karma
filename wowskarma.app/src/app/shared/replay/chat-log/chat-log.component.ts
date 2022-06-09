@@ -25,7 +25,6 @@ export class ChatLogComponent {
   public playerId!: number;
   public playerId$!: Observable<number>;
 
-  messages = this.replay.chatMessages;
   public messages$ = this.replay$.pipe(
     map(replay => replay.chatMessages),
   );

@@ -16,6 +16,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics;
 using Nodsoft.Wargaming.Api.Client;
 using Nodsoft.Wargaming.Api.Client.Clients;
@@ -27,6 +28,7 @@ using WowsKarma.Api.Infrastructure.Telemetry;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
+using WowsKarma.Api.Services.Authentication.Cookie;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Api.Services.Replays;
@@ -36,6 +38,8 @@ namespace WowsKarma.Api
 {
 	public class Startup
 	{
+		public const string CommonAuthenticationScheme = "WowsKarma";
+		
 		public static Region ApiRegion { get; private set; }
 		public static string DisplayVersion { get; private set; }
 		public IConfiguration Configuration { get; }
@@ -69,9 +73,8 @@ namespace WowsKarma.Api
 				.AddMessagePackProtocol();
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-
-				// Adding Jwt Bearer
-				.AddScheme<JwtBearerOptions, JwtAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme,
+				// Add JWT Bearer Authentication
+				.AddScheme<JwtBearerOptions, ForwardCookieAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme,
 					options =>
 					{
 						options.SaveToken = true;
@@ -85,7 +88,7 @@ namespace WowsKarma.Api
 							IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
 						};
 
-						options.Events = new JwtBearerEvents
+						options.Events = new()
 						{
 							OnMessageReceived = context =>
 							{
@@ -101,7 +104,10 @@ namespace WowsKarma.Api
 								return Task.CompletedTask;
 							}
 						};
-					});
+					}
+				);
+
+
 
 			services.AddSwaggerGen(options =>
 			{

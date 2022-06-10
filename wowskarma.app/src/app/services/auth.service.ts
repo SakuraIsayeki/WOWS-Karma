@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { CookieService } from "ngx-cookie-service";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, pipe, switchMap } from "rxjs";
 import { environment } from "../../environments/environment";
 import { AuthModel } from "../models/AuthModel";
 import { AppConfigService } from "./app-config.service";
+import { AuthService as ApiAuthService } from "./api/services/auth.service";
 
 declare type JwtParsed =
   { [key: string]: string }
@@ -20,19 +20,21 @@ export class AuthService {
 
   constructor(
     private appConfigService: AppConfigService,
-    private cookieService: CookieService,
+    private apiAuthService: ApiAuthService,
   ) {
-    this.load().then(() => { /* Nothing done here */ });
+    this.load().then(() => {
+      /* Nothing done here */
+    });
   }
 
-  get isAuthenticated() {
-    return this.jwtObject != null;
+  get isAuthenticated(): boolean {
+    return this.userInfo$.value != null;
   }
 
   async load() {
-    const cookieName = environment.cookies.name[this.appConfigService.currentRegion]
+    const cookieName = environment.cookies.name[this.appConfigService.currentRegion];
     const cookie = getCookie(cookieName);
-    let authData;
+    let authData: AuthModel | null = null;
 
     if (cookie) {
       const jwt = parseJwt(cookie);
@@ -46,18 +48,31 @@ export class AuthService {
       };
 
       console.log("Loaded Authentication data:", authData);
+
+      // Send a HEAD request to the Auth endpoint on API, to check if the token is still valid.
+      // If it is, we can then assert the user is authenticated.
+      // If it is not, we can then logout.
+      this.apiAuthService.apiAuthHead().subscribe({
+        next: () => {
+          this.userInfo$.next(authData);
+          this.isLoaded$.next(true);
+        },
+        error: (error) => {
+          // Authentication failed.
+          if (error.status === 401 || error.status === 403) {
+            this.userInfo$.next(null);
+          }
+          // Something else went wrong.
+          else {
+            console.error(error);
+          }
+          this.isLoaded$.next(true);
+        }
+      });
     }
-    else {
+     else {
       console.log("No authentication cookie found.");
     }
-
-
-    console.debug(authData);
-
-    this.jwtObject = null; // TODO: Assign from token
-    this.userInfo$.next(authData ?? null);
-    this.isLoaded$.next(true);
-    // this.userInfo$.value
   }
 
 

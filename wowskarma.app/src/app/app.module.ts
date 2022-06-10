@@ -15,12 +15,13 @@ import { AppConfigService } from "./services/app-config.service";
 import { AppInitService } from "./services/app-init.service";
 import { AppInitGuard } from "./services/guards/app-init.guard";
 import { AuthGuard } from "./services/guards/auth.guard";
+import { AuthenticationInterceptor } from "./services/interceptors/authentication-interceptor.service";
 import { ErrorInterceptor } from "./services/interceptors/error.interceptor";
 import { ColorHexPipe } from "./services/pipes/colorHex.pipe";
 import { SafeStylePipe } from "./services/pipes/safe-style.pipe";
-import { FooterComponent } from "./shared/layout/footer.component";
+import { FooterComponent } from "./shared/layout/footer/footer.component";
 import { LayoutComponent } from "./shared/layout/layout.component";
-import { NavbarComponent } from "./shared/layout/navbar.component";
+import { NavbarComponent } from "./shared/layout/navbar/navbar.component";
 import { FlairMarkupsComponent } from "./shared/post/flair-markup/flair-markups.component";
 import { PostComponent } from "./shared/post/post.component";
 import { PostsReceivedComponent } from './shared/player/profile/posts-received/posts-received.component';
@@ -66,7 +67,7 @@ import { AuthService } from './services/auth.service';
     AppInitService,
     AppInitGuard,
     AuthGuard,
-    CookieService,
+    { provide: HTTP_INTERCEPTORS, multi: true, useClass: AuthenticationInterceptor },
     { provide: HTTP_INTERCEPTORS, multi: true, useClass: ErrorInterceptor },
   ],
   bootstrap: [AppWrapperComponent],

@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from "@angular/core";
-import { ApiRegion } from "../../models/ApiRegion";
-import { AppConfigService } from "../../services/app-config.service";
+import { ApiRegion } from "../../../models/ApiRegion";
+import { AppConfigService } from "../../../services/app-config.service";
 
 @Component({
   selector: "app-footer",

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
@@ -61,7 +62,8 @@ public class AuthController : ControllerBase
 			return StatusCode(403);
 		}
 
-		JwtSecurityToken token = await userService.CreateTokenAsync(WargamingIdentity.FromUri(new(Request.Query["openid.identity"].FirstOrDefault())));
+		JwtSecurityToken token = await userService.CreateTokenAsync(WargamingIdentity.FromUri(new(Request.Query["openid.identity"].FirstOrDefault()
+			?? throw new BadHttpRequestException("Missing OpenID identity"))));
 
 		Response.Cookies.Append(
 			config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieName"],

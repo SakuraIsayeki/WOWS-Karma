@@ -13,7 +13,7 @@
 
   <div class="row gx-2 gy-3">
     <div class="col-lg-4 col-md-6" *ngFor="let p of posts.sort(sortByLastCreated)">
-      <app-post [post]="p" [postDisplayType]="'received'"></app-post>
+      <app-post [post]="p" [postDisplayType]="'sent'"></app-post>
     </div>
   </div>
 </ng-container>

@@ -2,10 +2,10 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from "@angular/common/http";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
-import { CookieService } from "ngx-cookie-service";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppWrapperComponent } from "./app-wrapper.component";
 import { AppComponent } from "./app.component";
+import { LogoutComponent } from "./pages/auth/logout.component";
 import { IndexComponent } from "./pages/index/index.component";
 import { NotFoundComponent } from "./pages/not-found/not-found.component";
 import { ProfileComponent } from "./pages/player/profile/profile.component";
@@ -30,6 +30,8 @@ import { ViewPostComponent } from './pages/post/view/view-post.component';
 import { TeamRosterComponent } from './shared/replay/team-roster/team-roster.component';
 import { ChatLogComponent } from './shared/replay/chat-log/chat-log.component';
 import { AuthService } from './services/auth.service';
+import { NavAuthComponent } from './shared/layout/navbar/nav-auth/nav-auth.component';
+import { LoginComponent } from './pages/auth/login.component';
 
 @NgModule({
   declarations: [
@@ -50,8 +52,10 @@ import { AuthService } from './services/auth.service';
     PostsSentComponent,
     ViewPostComponent,
     TeamRosterComponent,
-    ChatLogComponent
-
+    ChatLogComponent,
+    NavAuthComponent,
+    LoginComponent,
+    LogoutComponent
   ],
   imports: [
     BrowserModule,

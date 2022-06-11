@@ -1,8 +1,11 @@
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, pipe, switchMap } from "rxjs";
+import { BehaviorSubject, pipe, switchMap, tap } from "rxjs";
 import { map } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { AuthModel } from "../models/AuthModel";
+import { filterNotNull } from "../shared/rxjs-operators";
+import { UserProfileFlagsDto } from "./api/models/user-profile-flags-dto";
+import { ProfileService } from "./api/services/profile.service";
 import { AppConfigService } from "./app-config.service";
 import { AuthService as ApiAuthService } from "./api/services/auth.service";
 
@@ -12,16 +15,23 @@ declare type JwtParsed =
 
 @Injectable()
 export class AuthService {
+  /**
+   * Defines if authentication was resolved.
+   */
   isLoaded$ = new BehaviorSubject<boolean>(false);
+  /**
+   * Provides information about the currently authenticated user.
+   */
   userInfo$ = new BehaviorSubject<AuthModel | null>(null);
   /**
-   * Holds the JWT object with information parsed from token.
+   * Returns the {@link UserProfileFlagsDto} for the currently logged-in user.
    */
-  jwtObject: any;
+  currentProfileFlags$ = new BehaviorSubject<UserProfileFlagsDto | null>(null);
 
   constructor(
     private appConfigService: AppConfigService,
     private apiAuthService: ApiAuthService,
+    private profileService: ProfileService
   ) {
     this.load().then(() => {
       /* Nothing done here */
@@ -57,6 +67,14 @@ export class AuthService {
         next: () => {
           this.userInfo$.next(authData);
           this.isLoaded$.next(true);
+
+          // Get the profile flags for the user.
+          this.profileService.apiProfileIdGet$Json(authData!).subscribe({
+            next: profileFlags => {
+              console.debug("Loaded profile flags:", profileFlags);
+              this.currentProfileFlags$.next(profileFlags);
+            }
+          });
         },
         error: (error) => {
           // Authentication failed.
@@ -74,6 +92,15 @@ export class AuthService {
      else {
       console.log("No authentication cookie found.");
     }
+
+    this.isLoaded$.subscribe(loaded => {
+      this.userInfo$.pipe(
+        filterNotNull(),
+        tap(userInfo => {
+
+        })
+      )
+    })
   }
 
   public static IsInRole(user: AuthModel | null, role: string) {

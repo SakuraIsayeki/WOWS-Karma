@@ -92,3 +92,23 @@ body {
   width: 3rem;
   padding: 0.5rem;
 }
+
+
+/* Custom page CSS
+-------------------------------------------------- */
+
+
+
+
+$body-color: #1a1a1a;
+body {
+  background-color: $body-color;
+  color: #fff;
+}
+
+
+.bg-dark-acrylic {
+  background-color: rgba(17, 17, 17, 0.6);
+  -webkit-backdrop-filter: blur(50px);
+  backdrop-filter: blur(50px);
+}

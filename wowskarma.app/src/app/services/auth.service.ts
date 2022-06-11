@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, pipe, switchMap } from "rxjs";
+import { map } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { AuthModel } from "../models/AuthModel";
 import { AppConfigService } from "./app-config.service";
@@ -7,7 +8,7 @@ import { AuthService as ApiAuthService } from "./api/services/auth.service";
 
 declare type JwtParsed =
   { [key: string]: string }
-  & { "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role": string[] }
+  & { "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string[] }
 
 @Injectable()
 export class AuthService {
@@ -43,7 +44,7 @@ export class AuthService {
       authData = {
         id: parseInt(jwt["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]),
         username: jwt["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-        roles: jwt["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"],
+        roles: jwt["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
         expiration: new Date(jwt["exp"]),
       };
 
@@ -75,11 +76,19 @@ export class AuthService {
     }
   }
 
+  public static IsInRole(user: AuthModel | null, role: string) {
+    return user?.roles?.includes(role) ?? false;
+  }
 
   public isInRole(role: string) {
     return this.userInfo$.value?.roles?.includes(role) ?? false;
   }
 
+  public isInRole$(role: string) {
+    return this.userInfo$.pipe(
+      map(userInfo => userInfo?.roles?.includes(role) ?? false)
+    );
+  }
 }
 
 function parseJwt(token: string): JwtParsed {

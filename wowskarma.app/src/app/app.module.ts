@@ -32,6 +32,7 @@ import { ChatLogComponent } from './shared/replay/chat-log/chat-log.component';
 import { AuthService } from './services/auth.service';
 import { NavAuthComponent } from './shared/layout/navbar/nav-auth/nav-auth.component';
 import { LoginComponent } from './pages/auth/login.component';
+import { PostListComponent } from './pages/post/list/post-list.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { LoginComponent } from './pages/auth/login.component';
     ChatLogComponent,
     NavAuthComponent,
     LoginComponent,
-    LogoutComponent
+    LogoutComponent,
+    PostListComponent
   ],
   imports: [
     BrowserModule,

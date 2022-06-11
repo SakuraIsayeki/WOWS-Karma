@@ -10,7 +10,7 @@ import { filterNotNull, switchMapCatchError, tapAny } from "../../../shared/rxjs
   templateUrl: "./search.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SearchComponent implements OnInit {
+export class SearchComponent {
   search = new FormGroup({
     username: new FormControl(""),
   });
@@ -32,11 +32,6 @@ export class SearchComponent implements OnInit {
   constructor(
     public playerService: PlayerService,
   ) { }
-
-  ngOnInit(): void {
-
-
-  }
 
   /*
   onSubmit() {

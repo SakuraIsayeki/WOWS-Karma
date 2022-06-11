@@ -1,11 +1,11 @@
 import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
-  catchError,
+  catchError, concat,
   distinctUntilChanged,
   Observable,
-  ObservableInput,
-  of,
+  ObservableInput, ObservedValueOf,
+  of, OperatorFunction,
   shareReplay,
   switchMap,
   tap,
@@ -49,6 +49,13 @@ export function shareReplayRefCount<T>(bufferSize: number): (source$: Observable
  */
 export function filterNotNull<T>(): (source$: Observable<T>) => Observable<NonNullable<T>> {
   return (source$: Observable<T>) => source$.pipe(filter(v => v != null)) as Observable<NonNullable<T>>;
+}
+
+/**
+ * Checks whether the given value is not null or undefined, and returns the observable in its non-partial type.
+ */
+export function filterPartials<T>(): (source$: Observable<Partial<T>>) => Observable<T> {
+  return (source$: Observable<Partial<T>>) => source$.pipe(filter(v => v != null)) as Observable<T>;
 }
 
 /**
@@ -112,4 +119,8 @@ export function InputObservable() {
       },
     });
   };
+}
+
+export function startFrom<T, O extends ObservableInput<any>>(start: O): OperatorFunction<T, T | ObservedValueOf<O>> {
+  return (source: Observable<T>) => concat(start, source)
 }

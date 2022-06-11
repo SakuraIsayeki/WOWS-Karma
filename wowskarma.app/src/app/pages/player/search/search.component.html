@@ -14,7 +14,6 @@
   <ng-container *ngIf="result$ | async as result">
     <h4 class="text-success mb-3" *ngIf="result.length > 0 else noResults">Found {{result.length}} Account(s) :</h4>
 
-
     <ng-template #noResults>
       <h4 class="text-warning my-5">No results found</h4>
     </ng-template>

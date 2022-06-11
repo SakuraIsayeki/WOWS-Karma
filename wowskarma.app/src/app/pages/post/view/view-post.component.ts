@@ -9,9 +9,9 @@ import { routeParam, shareReplayRefCount, switchMapCatchError } from "../../../s
 })
 export class ViewPostComponent {
 // Get the "ID,username" from the route params.
-  post$ = routeParam(this.route, "postId")
-    .pipe(switchMapCatchError((postId) =>
-        this.postService.apiPostPostIdGet$Json({ postId: postId as string })),
+  post$ = routeParam(this.route)
+    .pipe(switchMapCatchError((id) =>
+        this.postService.apiPostPostIdGet$Json({ postId: id! })),
       shareReplayRefCount(1));
 
   constructor(private route: ActivatedRoute, private postService: PostService) {

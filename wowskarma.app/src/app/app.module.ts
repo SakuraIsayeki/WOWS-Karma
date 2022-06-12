@@ -33,6 +33,7 @@ import { AuthService } from './services/auth.service';
 import { NavAuthComponent } from './shared/layout/navbar/nav-auth/nav-auth.component';
 import { LoginComponent } from './pages/auth/login.component';
 import { PostListComponent } from './pages/post/list/post-list.component';
+import { PostEditorComponent } from './shared/modals/create-post/post-editor.component';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,8 @@ import { PostListComponent } from './pages/post/list/post-list.component';
     NavAuthComponent,
     LoginComponent,
     LogoutComponent,
-    PostListComponent
+    PostListComponent,
+    PostEditorComponent
   ],
   imports: [
     BrowserModule,

@@ -66,7 +66,6 @@ export class AuthService {
       this.apiAuthService.apiAuthHead().subscribe({
         next: () => {
           this.userInfo$.next(authData);
-          this.isLoaded$.next(true);
 
           // Get the profile flags for the user.
           this.profileService.apiProfileIdGet$Json(authData!).subscribe({
@@ -75,6 +74,8 @@ export class AuthService {
               this.currentProfileFlags$.next(profileFlags);
             }
           });
+
+          this.isLoaded$.next(true);
         },
         error: (error) => {
           // Authentication failed.

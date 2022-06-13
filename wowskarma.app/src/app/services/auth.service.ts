@@ -26,7 +26,7 @@ export class AuthService {
   /**
    * Returns the {@link UserProfileFlagsDto} for the currently logged-in user.
    */
-  currentProfileFlags$ = new BehaviorSubject<UserProfileFlagsDto | null>(null);
+  profileFlags$ = new BehaviorSubject<UserProfileFlagsDto | null>(null);
 
   constructor(
     private appConfigService: AppConfigService,
@@ -39,7 +39,7 @@ export class AuthService {
   }
 
   get isAuthenticated(): boolean {
-    return this.userInfo$.value != null;
+    return this.userInfo$.value !== null;
   }
 
   async load() {
@@ -71,7 +71,7 @@ export class AuthService {
           this.profileService.apiProfileIdGet$Json(authData!).subscribe({
             next: profileFlags => {
               console.debug("Loaded profile flags:", profileFlags);
-              this.currentProfileFlags$.next(profileFlags);
+              this.profileFlags$.next(profileFlags);
             }
           });
 
@@ -93,15 +93,6 @@ export class AuthService {
      else {
       console.log("No authentication cookie found.");
     }
-
-    this.isLoaded$.subscribe(loaded => {
-      this.userInfo$.pipe(
-        filterNotNull(),
-        tap(userInfo => {
-
-        })
-      )
-    })
   }
 
   public static IsInRole(user: AuthModel | null, role: string) {

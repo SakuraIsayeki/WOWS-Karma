@@ -46,7 +46,7 @@
     </div>
 
     <div class="card-footer">
-      <div class="blockquote-footer my-1">
+      <p class="blockquote-footer my-1">
         <ng-container *ngIf="postDisplayType === 'received'">
           From
           <a *ngIf="post?.author?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
@@ -64,6 +64,17 @@
         </ng-container>
 
         {{post?.createdAt | date:'medium'}}
+      </p>
+
+      <div class="d-flex flex-row my-1 gap-2">
+        <div class="d-flex flex-row gap-1" *ngIf="canEdit">
+          <button class="btn btn-warning btn-sm" (click)="openEditor()">Edit</button>
+          <button class="btn btn-danger btn-sm">Delete</button>
+        </div>
+
+        <div class="d-flex flex-row gap-1" *ngIf="this.authService.isInRole('mod')">
+          <button class="btn btn-outline-danger btn-sm">Mod Delete</button>
+        </div>
       </div>
     </div>
   </div>

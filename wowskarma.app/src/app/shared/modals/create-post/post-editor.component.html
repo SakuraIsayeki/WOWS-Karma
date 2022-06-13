@@ -1,0 +1,102 @@
+<div class="modal-header gap-3 px-3">
+    <h4 class="modal-title">{{post.id ? "Edit" : "Create"}} Post</h4>
+    <div *ngIf="post.id" class="d-none d-xl-inline small text-center text-muted">
+        <span class="me-3">ID :</span>
+        <span class="mb-0 font-monospace">{{post.id}}</span>
+    </div>
+    <div>
+        <button type="button" class="btn-close mx-3" aria-label="Close" (click)="this.modal.close()"></button>
+    </div>
+</div>
+
+<form ngForm (ngSubmit)="onSubmit()">
+    <div class="modal-body px-3">
+
+        <div class="form-group mb-3">
+            <label for="title" class="mb-2">Title</label>
+            <input type="text" id="title" required minlength="5" maxlength="60" class="form-control" [(ngModel)]="post.title" name="title">
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="content" class="mb-2">Content</label>
+            <textarea id="content" required minlength="50" maxlength="2000" [(ngModel)]="post.content" name="content"
+                      class="form-control" style="height:10rem; min-height:100px;">
+            </textarea>
+        </div>
+    </div>
+
+    <div class="modal-body px-3">
+        <div class="row">
+            <div class="col-md-7 col-xl-6 form-group" id="post-flairs">
+                <h4 class="mb-2">Flairs</h4>
+
+                <dl class="row align-content-center" id="flairs-selector">
+                    <dd class="col-lg-6 col-8 btn-group mr-2" role="group">
+                        <input [value]="false" class="btn-check" [(ngModel)]="post.parsedFlairs.performance" id="performance-negative"
+                               name="performance-negative" type="radio">
+                        <label class="btn btn-outline-danger" for="performance-negative">Negative</label>
+
+                        <input [value]="null" class="btn-check" [(ngModel)]="post.parsedFlairs.performance" id="performance-neutral" name="performance-neutral"
+                               type="radio" checked>
+                        <label class="btn btn-outline-warning" for="performance-neutral">Neutral</label>
+
+                        <input [value]="true" class="btn-check" [(ngModel)]="post.parsedFlairs.performance" id="performance-positive"
+                               name="performance-positive" type="radio">
+                        <label class="btn btn-outline-success" for="performance-positive">Positive</label>
+                    </dd>
+                    <dt class="col"><h5 class="my-0">Performance</h5></dt>
+
+                    <dd class="col-lg-6 col-8 btn-group mr-2" role="group">
+                        <input [value]="false" class="btn-check" [(ngModel)]="post.parsedFlairs.teamplay" id="teamplay-negative" name="teamplay-negative"
+                               type="radio">
+                        <label class="btn btn-outline-danger" for="teamplay-negative">Negative</label>
+
+                        <input [value]="null" class="btn-check" [(ngModel)]="post.parsedFlairs.teamplay" id="teamplay-neutral" name="teamplay-neutral"
+                               type="radio" checked>
+                        <label class="btn btn-outline-warning" for="teamplay-neutral">Neutral</label>
+
+                        <input [value]="true" class="btn-check" [(ngModel)]="post.parsedFlairs.teamplay" id="teamplay-positive" name="teamplay-positive"
+                               type="radio">
+                        <label class="btn btn-outline-success" for="teamplay-positive">Positive</label>
+                    </dd>
+                    <dt class="col"><h5 class="my-0">Teamplay</h5></dt>
+
+                    <dd class="col-lg-6 col-8 btn-group mr-2" role="group">
+                        <input [value]="false" class="btn-check" [(ngModel)]="post.parsedFlairs.courtesy" id="courtesy-negative" name="courtesy-negative"
+                               type="radio">
+                        <label class="btn btn-outline-danger" for="courtesy-negative">Negative</label>
+
+                        <input [value]="null" class="btn-check" [(ngModel)]="post.parsedFlairs.courtesy" id="courtesy-neutral" name="courtesy-neutral"
+                               type="radio" checked>
+                        <label class="btn btn-outline-warning" for="courtesy-neutral">Neutral</label>
+
+                        <input [value]="true" class="btn-check" [(ngModel)]="post.parsedFlairs.courtesy" id="courtesy-positive" name="courtesy-positive"
+                               type="radio">
+                        <label class="btn btn-outline-success" for="courtesy-positive">Positive</label>
+                    </dd>
+                    <dt class="col"><h5 class="my-0">Courtesy</h5></dt>
+                </dl>
+            </div>
+
+            <div class="col" id="replay-upload">
+                <h4 class="mb-2">Replay File</h4>
+                <input name="replay-file" type="file" class="form-control" accept=".wowsreplay" (change)="handleFileInput($event)">
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer d-flex flex-column flex-md-row justify-content-between align-content-center">
+        <div class="form-check mx-3 mb-3 mb-lg-0">
+            <input [(ngModel)]="post.guidelinesAccepted" name="accept-guidelines" id="accept-guidelines" class="form-check-input" type="checkbox">
+
+            <label class="form-check-label">
+                I hereby affirm to have read and followed the <a [routerLink]="'/guidelines'" target="_blank">Posting Guidelines</a>.
+            </label>
+        </div>
+
+        <div class="d-flex gap-2 flex-md-row flex-row-reverse">
+            <button type="button" class="btn btn-danger px-3" (click)="modal.close()">Cancel</button>
+            <button type="submit" class="btn btn-success px-4" value="Create" [disabled]="!post.guidelinesAccepted">Create</button>
+        </div>
+    </div>
+</form>

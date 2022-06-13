@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export enum PostFlairs {
+export const enum PostFlairs {
   Neutral = 0x00,
 
   PerformanceGood = 0x01,

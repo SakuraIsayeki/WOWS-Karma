@@ -3,6 +3,9 @@
  */
 import { PostFlairs } from "./api/models/post-flairs";
 
+
+export type PostFlairsParsed = [boolean | null, boolean | null, boolean | null];
+
 /**
  * Returns a nullable boolean indicating whether the post has specified flair,
  * and if so, whether it is positive or negative.
@@ -45,7 +48,7 @@ function removeConflictingFlairs(flairs: PostFlairs, positive: PostFlairs, negat
  * @returns A signed integer indicating the number of positive and negative flairs.
  * @see https://github.com/SakuraIsayeki/WOWS-Karma/blob/main/WowsKarma.Common/Models/PostFlairs.cs
  */
-export function countBalance([performance, teamplay, courtesy]: [boolean | null, boolean | null, boolean | null]): number {
+export function countBalance([performance, teamplay, courtesy]: PostFlairsParsed): number {
   let balance = 0;
 
   for (const value of [performance, teamplay, courtesy]) {
@@ -65,7 +68,7 @@ export function countBalance([performance, teamplay, courtesy]: [boolean | null,
  * @returns An array of nullable booleans indicating the presence of positive and negative flairs.
  * @see https://github.com/SakuraIsayeki/WOWS-Karma/blob/main/WowsKarma.Common/Models/PostFlairs.cs
  */
-export function parseFlairsEnum(flairs: PostFlairs | null): [boolean | null, boolean | null, boolean | null] {
+export function parseFlairsEnum(flairs: PostFlairs | number | null): PostFlairsParsed {
   if (flairs == null) {
     return [null, null, null];
   }
@@ -83,7 +86,7 @@ export function parseFlairsEnum(flairs: PostFlairs | null): [boolean | null, boo
  * @returns The post flairs, in integer (enum flags) form.
  * @see https://github.com/SakuraIsayeki/WOWS-Karma/blob/main/WowsKarma.Common/Models/PostFlairs.cs
  */
-export function toEnum(flairs: [boolean | null, boolean | null, boolean | null]): PostFlairs {
+export function toEnum(flairs: PostFlairsParsed): PostFlairs {
   let flairsEnum = 0;
 
   if (flairs[0] === true) {
@@ -118,4 +121,28 @@ export function sanitizeFlags(flairs: PostFlairs) {
   flairs = removeConflictingFlairs(flairs, PostFlairs.TeamplayGood, PostFlairs.TeamPlayBad);
   flairs = removeConflictingFlairs(flairs, PostFlairs.CourtesyGood, PostFlairs.CourtesyBad);
   return flairs;
+}
+
+const isPowerOfTwo = (x: number): boolean => {
+  return x != 0 && (x & (x - 1)) === 0;
+};
+
+export function getEnumFlags<O extends object, K extends O[keyof O] = O[keyof O]>(obj: O): K[] {
+  const isFlag = (arg: string | number | K): arg is K => {
+    const nArg = Number(arg);
+    const isNumber = !Number.isNaN(nArg);
+    return isNumber && isPowerOfTwo(nArg);
+  };
+
+  const enumFlags: K[] = [];
+
+  Object.keys(obj).forEach(key => {
+    const nKey = Number(key);
+
+    if (isFlag(nKey)) {
+      enumFlags.push(nKey);
+    }
+  });
+
+  return enumFlags;
 }

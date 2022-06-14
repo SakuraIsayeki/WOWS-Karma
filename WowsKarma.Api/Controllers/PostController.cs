@@ -145,14 +145,14 @@ namespace WowsKarma.Api.Controllers
 		public async Task<IActionResult> CreatePost(
 			[FromForm] string postDto, 
 			[FromServices] ReplaysIngestService replaysIngestService,
-			[FromForm] IFormFile replay = null, 
+			IFormFile replay = null, 
 			[FromQuery] bool ignoreChecks = false)
 		{
             PlayerPostDTO post;
 			
             try
 			{
-				post = JsonSerializer.Deserialize<PlayerPostDTO>(postDto);
+				post = JsonSerializer.Deserialize<PlayerPostDTO>(postDto, Common.Utilities.ApiSerializerOptions);
 			}
 			catch (Exception e)
 			{

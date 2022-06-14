@@ -111,20 +111,20 @@ namespace WowsKarma.Api
 
 			services.AddSwaggerGen(options =>
 			{
-				options.SwaggerDoc(DisplayVersion, new OpenApiInfo
+				options.SwaggerDoc(DisplayVersion, new()
 				{
 					Version = DisplayVersion,
 					Title = $"WOWS Karma API ({ApiRegion.ToRegionString()})",
-					Contact = new OpenApiContact
+					Contact = new()
 					{
 						Name = "Sakura Isayeki",
 						Email = "sakura.isayeki@nodsoft.net",
-						Url = new Uri("https://github.com/SakuraIsayeki"),
+						Url = new("https://github.com/SakuraIsayeki"),
 					},
-					License = new OpenApiLicense
+					License = new()
 					{
 						Name = "GNU-GPL v3",
-						Url = new Uri("https://github.com/SakuraIsayeki/WoWS-Karma/blob/main/LICENSE"),
+						Url = new("https://github.com/SakuraIsayeki/WoWS-Karma/blob/main/LICENSE"),
 					}
 				});
 
@@ -134,7 +134,7 @@ namespace WowsKarma.Api
 				options.IncludeXmlComments(xmlPath);
 
 				// Bearer token authentication
-				options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+				options.AddSecurityDefinition("jwt_auth", new()
 				{
 					Name = "bearer",
 					BearerFormat = "JWT",
@@ -154,7 +154,7 @@ namespace WowsKarma.Api
 					}
 				};
 
-				options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+				options.AddSecurityRequirement(new()
 				{
 					{ securityScheme, Array.Empty<string>() },
 				});

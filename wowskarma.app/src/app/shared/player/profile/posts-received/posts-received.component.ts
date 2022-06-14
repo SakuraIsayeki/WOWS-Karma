@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject, combineLatestWith, Observable, shareReplay, tap } from "rxjs";
+import { BehaviorSubject, combineLatest, combineLatestWith, Observable, shareReplay, tap } from "rxjs";
 import { map } from "rxjs/operators";
 import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
 import { PostService } from "../../../../services/api/services/post.service";
@@ -9,13 +9,32 @@ import { sortByCreationDate } from "../../../../services/helpers";
 import { PostEditorComponent } from "../../../modals/create-post/post-editor.component";
 import { InputObservable, switchMapCatchError, tapAny } from "../../../rxjs-operators";
 
+
 @Component({
     selector: "app-posts-received",
     templateUrl: "./posts-received.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class PostsReceivedComponent {
+    @ViewChild("createPostButton")
+    buttonTemplate!: TemplateRef<any>;
+
+    @ViewChild("selfPost")
+    selfPostTemplate!: TemplateRef<any>;
+
+    @ViewChild("notAuthenticated")
+    notAuthenticatedTemplate!: TemplateRef<any>;
+
+    @ViewChild("optedOut")
+    optedOutTemplate!: TemplateRef<any>;
+
+    @ViewChild("platformBanned")
+    bannedTemplate!: TemplateRef<any>;
+
+    @ViewChild("postsCooldown")
+    cooldownTemplate!: TemplateRef<any>;
+
+
     @Input()
     @InputObservable()
     userId!: number;
@@ -31,45 +50,59 @@ export class PostsReceivedComponent {
         shareReplay(1),
     );
 
+    userCooldownStatus$ = this.authService.userInfo$.pipe(
+        combineLatestWith(this.receivedPosts$),
+        map(([userInfo, posts]) => {
+            // Get all posts made by current user, ordered by creation date (newest first).
+            const currentUserPosts = posts?.filter(p => p.author?.id == userInfo?.id)?.sort(this.sortByLastCreated)
+
+            if (currentUserPosts?.length != 0) {
+                // Get the last post made by current user.
+                const lastPost = currentUserPosts![0];
+                // Get the post's creation date, add 24 hours to it, check if it's in the future.
+                const lastPostCreationDate = new Date(lastPost.createdAt!);
+                const in24hrs = new Date(lastPostCreationDate.getTime() + 24 * 60 * 60 * 1000);
+
+                return { status: in24hrs > new Date(Date.now()), cooldown: in24hrs };
+            }
+
+            return { status: false, cooldown: null };
+        }));
+
+    showState$: Observable<{ template: TemplateRef<any>, context?: any }> = combineLatest([
+        this.authService.userInfo$,
+        this.authService.profileFlags$,
+        this.userCooldownStatus$,
+    ]).pipe(map(([userInfo, profileFlags, cooldown]) => {
+        // Check for user authentication.
+        if (!userInfo) {
+            return { template: this.notAuthenticatedTemplate };
+        }
+
+        // Check for user opted out.
+        if (profileFlags?.optedOut) {
+            return { template: this.optedOutTemplate };
+        }
+
+        // Check for user platform ban.
+        if (profileFlags?.postsBanned) {
+            return { template: this.bannedTemplate };
+        }
+
+        // Check if same user.
+        if (this.userId == userInfo?.id) {
+            return { template: this.selfPostTemplate };
+        }
+
+        // Check for posts cooldown.
+        if (cooldown.status === true) {
+            return { template: this.cooldownTemplate, context: { until: cooldown.cooldown } };
+        }
+
+        return { template: this.buttonTemplate };
+    }));
+
     constructor(private postService: PostService, public authService: AuthService, private modalService: NgbModal) { }
-
-    get isAuthenticated() {
-        return this.authService.isAuthenticated;
-    }
-
-    get isUserPlatformBanned$() {
-        return this.authService.profileFlags$.pipe(
-            map(profileFlags => profileFlags?.postsBanned ?? false),
-            shareReplay(1),
-        );
-    }
-
-    get isSameUser$() {
-        return this.authService.userInfo$.pipe(
-            map(userInfo => userInfo?.id !== null && userInfo?.id === this.userId),
-        );
-    }
-
-    get isUserOnCooldown$() {
-        return this.authService.userInfo$.pipe(
-            combineLatestWith(this.receivedPosts$),
-            map(([userInfo, posts]) => {
-                // Get all posts made by current user, ordered by creation date (newest first).
-                const currentUserPosts = posts?.filter(p => p.author?.id == userInfo?.id)?.sort(this.sortByLastCreated);
-
-                if (currentUserPosts?.length != 0) {
-                    // Get the last post made by current user.
-                    const lastPost = currentUserPosts![currentUserPosts!.length - 1];
-                    // Get the post's creation date, add 24 hours to it, check if it's in the future.
-                    const lastPostCreationDate = new Date(lastPost.createdAt!);
-                    const in24hrs = new Date(lastPostCreationDate.getTime() + 24 * 60 * 60 * 1000);
-
-                    return { status: in24hrs > new Date(Date.now()), cooldown: in24hrs };
-                }
-
-                return { status: false, cooldown: null };
-            }));
-    }
 
     get hasUserOptedOut$() {
         return this.authService.profileFlags$.pipe(
@@ -83,7 +116,11 @@ export class PostsReceivedComponent {
     }
 
     openEditor() {
-        PostEditorComponent.OpenEditor(this.modalService, {});
+        const modal = PostEditorComponent.OpenEditor(this.modalService, {});
+        combineLatest([this.userId$, this.authService.userInfo$]).subscribe(([userId, userInfo]) => {
+            modal.componentInstance.post.player = { id: userId };
+            modal.componentInstance.post.author = { id: userInfo?.id };
+        });
     }
 
     getCurrentLocation() {

@@ -1,3 +1,4 @@
+import { AbstractControl, FormArray, FormControl, FormGroup } from "@angular/forms";
 import { ApiRegion } from "../models/ApiRegion";
 import { PostFlairs } from "./api/models/post-flairs";
 import { AppConfigService } from "./app-config.service";
@@ -65,4 +66,58 @@ export function sortByCreationDate(
     const aDate = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt ?? "");
     const bDate = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt ?? "");
     return reverse ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+}
+
+/**
+ * Returns a human-readable string representation of a number of bytes.
+ * @param bytes The number of bytes.
+ * @param decimals The number of decimals to show past the decimal point.
+ * @returns A human-readable string representation of the number of bytes.
+ * @see https://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript
+ **/
+export function formatBytesSize(bytes: number, decimals = 2) {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+}
+
+export function markTouchedDirtyAndValidate(control: AbstractControl | null | undefined, onlySelf: boolean = true, updateValidity: boolean = true): void {
+    if (control instanceof FormControl) {
+        (control as FormControl).markAsTouched({ onlySelf });
+        (control as FormControl).markAsDirty({ onlySelf });
+        if (updateValidity) {
+            (control as FormControl).updateValueAndValidity({ onlySelf, emitEvent: true });
+        }
+    } else if (control instanceof FormArray) {
+        const formArray = control as FormArray;
+
+        for (let i = 0; i < formArray.length; i++) {
+            markTouchedDirtyAndValidate(formArray.at(i), onlySelf, updateValidity);
+        }
+        formArray.markAsTouched({ onlySelf });
+        formArray.markAsDirty({ onlySelf });
+        if (updateValidity) {
+            formArray.updateValueAndValidity({ onlySelf, emitEvent: true });
+        }
+    } else if (control instanceof FormGroup) {
+        const formGroup = control as FormGroup;
+
+        Object.keys(formGroup.controls).forEach(key => {
+            const subControl = formGroup.get(key);
+
+            markTouchedDirtyAndValidate(subControl!, onlySelf, updateValidity);
+        });
+
+        formGroup.markAsTouched({ onlySelf });
+        formGroup.markAsDirty({ onlySelf });
+        if (updateValidity) {
+            formGroup.updateValueAndValidity({ onlySelf, emitEvent: true });
+        }
+    }
 }

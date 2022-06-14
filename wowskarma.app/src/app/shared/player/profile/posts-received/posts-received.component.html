@@ -1,29 +1,7 @@
 <ng-container *ngIf="receivedPosts$ | async as posts else noPosts">
-    <!--
-    <div class="my-3" [ngSwitch]="this">
-        <div *ngSwitchCase="!isAuthenticated" [ngTemplateOutlet]="notAuthenticated"></div>
-        <div *ngSwitchCase="isSameUser$ | async" [ngTemplateOutlet]="selfPost"></div>
-        <div *ngSwitchCase="isUserPlatformBanned$ | async" [ngTemplateOutlet]="platformBanned"></div>
-        <div *ngSwitchCase="isUserOnCooldown$ | async as cooldown" [ngTemplateOutlet]="postsCooldown"></div>
-
-        <div *ngSwitchDefault>
-            <button class="btn btn-success px-4" (click)="openEditor()">New Post</button>
-        </div>
+    <div class="ms-xl-2 m-4" *ngIf="showState$ | async as state">
+        <ng-container [ngTemplateOutlet]="state.template" [ngTemplateOutletContext]="state.context"></ng-container>
     </div>
-    -->
-
-    <div class="mb-5">
-        <ng-container *ngIf="isAuthenticated === true else notAuthenticated">
-            <ng-container *ngIf="(isUserPlatformBanned$ | async) === false else platformBanned">
-                <ng-container *ngIf="(isSameUser$ | async) === false else selfPost">
-                    <ng-container *ngIf="isUserOnCooldown$ | async as cooldown else postsCooldown">
-                        <button class="btn btn-success px-4" (click)="openEditor()">New Post</button>
-                    </ng-container>
-                </ng-container>
-            </ng-container>
-        </ng-container>
-    </div>
-
 
     <div class="row gx-2 gy-3">
         <div class="col-lg-4 col-md-6" *ngFor="let p of posts.sort(sortByLastCreated)">
@@ -38,6 +16,10 @@
 
 <ng-template #loading>
     <h3 class="text-info">Loading...</h3>
+</ng-template>
+
+<ng-template #createPostButton>
+    <button class="btn btn-success px-4" (click)="openEditor()">New Post</button>
 </ng-template>
 
 <ng-template #noPosts>
@@ -64,7 +46,7 @@
     <h5 class="text-danger">You have opted out of WOWS Karma.</h5>
 </ng-template>
 
-<ng-template #postsCooldown let-cooldown>
-    <h5 class="text-info">You must wait before posting again.</h5>
+<ng-template #postsCooldown let-until="until">
+    <h5 class="text-info">You must wait until {{until | date:"medium"}} before posting again.</h5>
 </ng-template>
 

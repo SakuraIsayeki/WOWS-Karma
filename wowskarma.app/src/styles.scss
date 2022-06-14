@@ -116,3 +116,13 @@ body {
   -webkit-backdrop-filter: blur(50px);
   backdrop-filter: blur(50px);
 }
+
+/* Validation
+-------------------------------------------------- */
+.valid.modified:not([type=checkbox]) {
+  outline: 2px solid #26b050;
+}
+
+.invalid {
+  outline: 2px solid red;
+}

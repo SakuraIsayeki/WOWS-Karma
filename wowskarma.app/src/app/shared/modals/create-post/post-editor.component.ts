@@ -21,7 +21,7 @@ export class PostEditorComponent {
     @Input() modal!: NgbModalRef;
 
     form = new FormGroup({
-        //id: new FormControl(""),
+        id: new FormControl(""),
         title: new FormControl("", Validators.compose([Validators.required, Validators.minLength(5), Validators.maxLength(60)])),
         content: new FormControl("", Validators.compose([Validators.required, Validators.minLength(50), Validators.maxLength(500)])),
         parsedFlairs: new FormGroup({

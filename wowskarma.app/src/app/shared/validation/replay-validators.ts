@@ -1,10 +1,11 @@
 import { AbstractControl, ValidationErrors } from "@angular/forms";
 
-/*
- * FIXME: Faulty file input validation.
- */
 
 export const replayFileValid = (control: AbstractControl<File | undefined, File | undefined>): ValidationErrors | null => {
+    /*
+     * FIXME: Faulty file input validation.
+     */
+
     let error: any = {};
     const replayFile = control.parent?.get("replayFile");
 
@@ -37,7 +38,7 @@ export const requireReplay = (control: AbstractControl<File | undefined, File | 
     const replayFile = control.parent?.get("replayFile");
 
     // If the flairs are set, and the post is being created, then the replay file is required.
-    if (flairs && !id?.value && (flairs.value.performance || flairs.value.teamplay || flairs.value.courtesy) ) {
+    if (flairs && !id?.value && (flairs.value.performance || flairs.value.teamplay || flairs.value.courtesy)) {
         // Replay is required. Check for it.
         if (!replayFile?.value) {
             error.replayFile = { required: true };

@@ -7,10 +7,11 @@ import { AppWrapperComponent } from "./app-wrapper.component";
 import { AppComponent } from "./app.component";
 import { LoginComponent } from "./pages/auth/login.component";
 import { LogoutComponent } from "./pages/auth/logout.component";
+import { SearchComponent as ClanSearchComponent } from "./pages/clan/search/search.component";
 import { IndexComponent } from "./pages/index/index.component";
 import { NotFoundComponent } from "./pages/not-found/not-found.component";
 import { ProfileComponent } from "./pages/player/profile/profile.component";
-import { SearchComponent } from "./pages/player/search/search.component";
+import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";
 import { PostListComponent } from "./pages/post/list/post-list.component";
 import { ViewPostComponent } from "./pages/post/view/view-post.component";
 import { ApiModule } from "./services/api/api.module";
@@ -46,7 +47,7 @@ import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.com
         FooterComponent,
         IndexComponent,
         NotFoundComponent,
-        SearchComponent,
+        PlayerSearchComponent,
         AppWrapperComponent,
         ProfileComponent,
         SafeStylePipe,
@@ -66,6 +67,7 @@ import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.com
         ControlExtensionsDirective,
         FormErrorsComponent,
         FormErrorsPipe,
+        ClanSearchComponent
     ],
     imports: [
         BrowserModule,

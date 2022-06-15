@@ -3,6 +3,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { AppComponent } from "./app.component";
 import { LoginComponent } from "./pages/auth/login.component";
 import { LogoutComponent } from "./pages/auth/logout.component";
+import { SearchComponent as ClanSearchComponent } from "./pages/clan/search/search.component";
 import { IndexComponent } from "./pages/index/index.component";
 import { NotFoundComponent } from "./pages/not-found/not-found.component";
 import { ProfileComponent } from "./pages/player/profile/profile.component";
@@ -14,50 +15,57 @@ import { AuthGuard } from "./services/guards/auth.guard";
 import { LayoutComponent } from "./shared/layout/layout.component";
 
 const routes: Routes = [
-  // Set defaults for the app.
-  {
-    path: "",
-    component: AppComponent,
-    canActivate: [AppInitGuard],
-    children: [
-      {
+    // Set defaults for the app.
+    {
         path: "",
-        component: LayoutComponent,
-
+        component: AppComponent,
+        canActivate: [AppInitGuard],
         children: [
-          // Players
-          {
-            path: "player", children: [
-              { path: "", component: PlayerSearchComponent },
-              { path: ":idNamePair", component: ProfileComponent },
-            ],
-          },
+            {
+                path: "",
+                component: LayoutComponent,
 
-          // Posts
-          {
-            path: "posts", children: [
-              { path: "", component: PostListComponent },
-              { path: ":id", component: ViewPostComponent },
-              { path: "view/:id", redirectTo: ":id" },
-            ],
-          },
+                children: [
+                    // Players
+                    {
+                        path: "player", children: [
+                            { path: "", component: PlayerSearchComponent },
+                            { path: ":idNamePair", component: ProfileComponent },
+                        ],
+                    },
 
-          { path: "login", component: LoginComponent },
-          { path: "logout", component: LogoutComponent },
-          { path: "settings", component: ProfileComponent, canActivate: [AuthGuard] /* data: { roles: ["role1"] } */ },
-          { path: "", component: IndexComponent },
+                    // Posts
+                    {
+                        path: "posts", children: [
+                            { path: "", component: PostListComponent },
+                            { path: ":id", component: ViewPostComponent },
+                            { path: "view/:id", redirectTo: ":id" },
+                        ],
+                    },
 
-          // Last route. Spawn a 404 page.
-          { path: "**", component: NotFoundComponent },
+                    // Clans
+                    {
+                        path: "clan", children: [
+                            { path: "", component: ClanSearchComponent },
+                        ],
+                    },
+
+                    { path: "login", component: LoginComponent },
+                    { path: "logout", component: LogoutComponent },
+                    { path: "settings", component: ProfileComponent, canActivate: [AuthGuard] /* data: { roles: ["role1"] } */ },
+                    { path: "", component: IndexComponent },
+
+                    // Last route. Spawn a 404 page.
+                    { path: "**", component: NotFoundComponent },
+                ],
+            },
         ],
-      },
-    ],
-  },
+    },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule],
 })
 export class AppRoutingModule {
 }

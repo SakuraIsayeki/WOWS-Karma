@@ -1,0 +1,123 @@
+<ng-container *ngIf="profile$ | async as clan else notFound">
+    <div class="row mb-5 clearfix">
+        <div class="col-xl-7 order-0">
+            <h1 id="clan-name" class="mb-5">
+                <span [style.color]="clan.leagueColor | colorHex">[{{clan.tag}}]</span><span class="mx-3">{{clan.name}}</span>
+                <sup class="text-{{getKarmaColor((totalMixedKarma$ | async)!)}}">{{totalMixedKarma$ | async}}</sup>
+            </h1>
+
+            <div class="my-5">
+                <hr/>
+                <p class="my-3" style="white-space: pre-line;">{{clan.description}}</p>
+                <hr/>
+            </div>
+        </div>
+
+        <div class="col-md-6 order-md-1 order-lg-5">
+            <dl class="row gy-1">
+                <dt class="col-sm-4">Clan ID</dt>
+                <dd class="col-sm-8">{{clan.id}}</dd>
+
+                <dt class="col-sm-4">Founded on</dt>
+                <dd class="col-sm-8">{{clan.createdAt | date:'d MMMM yyyy'}}</dd>
+
+                <dt class="col-sm-4">Members count</dt>
+                <dd class="col-sm-8">{{clan.members?.length ?? 'N/A'}}</dd>
+
+                <dt class="col-sm-4">Statistics</dt>
+                <dd class="col-sm-8"><a [href]="getWowsNumbersClanLink(clan)" target="_blank">View on <b>wows-numbers.com</b></a></dd>
+            </dl>
+        </div>
+
+        <div *ngIf="clanCombinedMetrics$ | async as clanMetrics" class="col-lg-5 col-md-6 order-md-5 order-lg-1 float-lg-end text-center">
+            <h2>Clan Metrics</h2>
+
+            <div class="row justify-content-center my-5">
+                <div class="col">
+                    <ng-container [ngTemplateOutlet]="metrics"
+                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['game'], name: 'In-Game Karma' }"></ng-container>
+                </div>
+
+                <div class="col">
+                    <ng-container [ngTemplateOutlet]="metrics"
+                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['platform'], name: 'Platform Karma' }"></ng-container>
+                </div>
+            </div>
+
+            <div class="row justify-content-center my-5">
+                <div class="col">
+                    <ng-container [ngTemplateOutlet]="metrics"
+                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['performance'], name: 'Performance' }"></ng-container>
+                </div>
+
+                <div class="col">
+                    <ng-container [ngTemplateOutlet]="metrics"
+                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['teamplay'], name: 'Teamplay' }"></ng-container>
+                </div>
+
+                <div class="col">
+                    <ng-container [ngTemplateOutlet]="metrics"
+                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['courtesy'], name: 'Courtesy' }"></ng-container>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-responsive table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Account Created</th>
+                <th>Joined Clan</th>
+                <th>Game Karma</th>
+                <th>Platform Karma</th>
+                <th>Performance</th>
+                <th>Teamplay</th>
+                <th>Courtesy</th>
+                <th>Last Battle</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let member of clan.members!.sort(sortByRankThenJoinDate)">
+                <td>WIP</td>
+                <td><a [routerLink]="['/player', member.id + ',' + member.username]">{{member.username}}</a></td>
+                <td class="small">{{member.wgAccountCreatedAt | date:"short"}}</td>
+                <td class="small">{{member.clan!.joinedClanAt | date:"short"}}</td>
+                <td class="lead text-{{getKarmaColor(member.gameKarma!)}}">{{member.gameKarma}}</td>
+                <td class="lead text-{{getKarmaColor(member.siteKarma!)}}">{{member.siteKarma}}</td>
+                <td class="lead text-{{getKarmaColor(member.ratingPerformance!)}}">{{member.ratingPerformance}}</td>
+                <td class="lead text-{{getKarmaColor(member.ratingTeamplay!)}}">{{member.ratingTeamplay}}</td>
+                <td class="lead text-{{getKarmaColor(member.ratingCourtesy!)}}">{{member.ratingCourtesy}}</td>
+                <td class="small">{{member.lastBattleTime | date:"short"}}</td>
+            </tr>
+        </tbody>
+    </table>
+</ng-container>
+
+<ng-template #notFound>
+    <h3>Clan not found.</h3>
+</ng-template>
+
+<ng-template #metrics let-name="name" let-metrics="metrics">
+    <ng-container *ngIf="metrics else noMetrics">
+        <h2 class="my-3 metrics-display">
+            <span title="Total" class="text-{{getKarmaColor(metrics.total)}}">{{metrics.total}}</span>
+
+            <span class="sup-sub">
+                <sup title="Most" class="text-{{getKarmaColor(metrics.max)}}">{{metrics.max}}</sup>
+                <sub title="Least" class="text-{{getKarmaColor(metrics.min)}}">{{metrics.min}}</sub>
+            </span>
+        </h2>
+
+        <h4>{{name}}</h4>
+    </ng-container>
+
+    <ng-template #noMetrics>
+        <div class="alert alert-warning">
+            <h2 class="my-3 text-danger">N/A</h2>
+            <h4>{{name}}</h4>
+        </div>
+    </ng-template>
+</ng-template>

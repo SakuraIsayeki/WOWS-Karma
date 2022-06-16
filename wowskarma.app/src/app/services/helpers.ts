@@ -46,6 +46,28 @@ export function getWowsNumbersPlayerLink({ id, username }: { id: number; usernam
 }
 
 /**
+ * Gets the link to a clan's profile on wows-numbers.com.
+ * @param clanInfo The clan's ID, tag, and name.
+ * @returns The link to the clan's profile.
+ * @see https://wows-numbers.com
+ */
+export function getWowsNumbersClanLink({ id, tag, name }: { id: number; tag: string; name: string }): string | undefined {
+    // Get the base site URL, specific to the ApiRegion.
+    switch (AppConfigService.getApiRegionFromLocation()) {
+        case ApiRegion.EU:
+            return `https://wows-numbers.com/clan/${id},${tag}-${name}`;
+        case ApiRegion.NA:
+            return `https://na.wows-numbers.com/clan/${id},${tag}-${name}`;
+        case ApiRegion.CIS:
+            return `https://ru.wows-numbers.com/clan/${id},${tag}-${name}`;
+        case ApiRegion.SEA:
+            return `https://asia.wows-numbers.com/clan/${id},${tag}-${name}`;
+        default:
+            return undefined;
+    }
+}
+
+/**
  * Gets the border color of a post, based on its flairs
  * @param post The post flairs
  * @returns The border color of the post

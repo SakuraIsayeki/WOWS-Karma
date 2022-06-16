@@ -5,15 +5,13 @@
     <h1>
       <a *ngIf="profile.clan?.clanInfo as clan"
          [style.color]="clan.leagueColor | colorHex"
-         [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name ]">[{{clan.tag}}]</a>
+         [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
 
       <span class="mx-3">{{profile.username}}</span>
 
       <ng-container *ngIf="profileTotalKarma$ | async as profileTotalKarma">
         <sup class="text-{{getKarmaColor(profileTotalKarma)}}">{{profileTotalKarma}}</sup>
       </ng-container>
-
-
     </h1>
   </div>
 

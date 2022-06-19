@@ -43,7 +43,11 @@ export class ProfileComponent {
     }
 
     sortByRankThenJoinDate(a: RankAndJoinDateComparisonInput, b: RankAndJoinDateComparisonInput): number {
-        return (a!.clan!.clanMemberRole! < b!.clan!.clanMemberRole!) ? -1 : new Date(a!.joinDate!) < new Date(b!.joinDate!) ? -1 : 1;
+        return (a.clan!.clanMemberRole! < b.clan!.clanMemberRole!)
+            ? -1
+            : new Date(a.joinDate!) < new Date(b.joinDate!)
+                ? -1
+                : 1;
     }
 
     getWowsNumbersClanLink({ id, tag, name }: ClanListingDto): string | undefined {

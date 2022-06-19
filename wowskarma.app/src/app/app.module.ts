@@ -39,6 +39,7 @@ import { FlairMarkupsComponent } from "./shared/post/flair-markup/flair-markups.
 import { PostComponent } from "./shared/post/post.component";
 import { ChatLogComponent } from "./shared/replay/chat-log/chat-log.component";
 import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.component";
+import { SettingsComponent } from './pages/settings/settings.component';
 
 @NgModule({
     declarations: [
@@ -70,6 +71,7 @@ import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.com
         FormErrorsPipe,
         ClanSearchComponent,
         ClanProfileComponent,
+        SettingsComponent,
 
     ],
     imports: [

@@ -97,8 +97,14 @@ export function sortByCreationDate(
  * @returns A human-readable string representation of the number of bytes.
  * @see https://stackoverflow.com/questions/15900485/correct-way-to-convert-size-in-bytes-to-kb-mb-gb-in-javascript
  **/
-export function formatBytesSize(bytes: number, decimals = 2) {
-    if (bytes === 0) return "0 Bytes";
+export function formatBytesSize(bytes: number | undefined | null, decimals = 2) {
+    if (bytes === undefined || bytes === null) {
+        return "Unknown size";
+    }
+
+    if (bytes === 0) {
+        return "0 Bytes";
+    }
 
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;
@@ -109,15 +115,20 @@ export function formatBytesSize(bytes: number, decimals = 2) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
-export function markTouchedDirtyAndValidate(control: AbstractControl | null | undefined, onlySelf: boolean = true, updateValidity: boolean = true): void {
-    if (control instanceof FormControl) {
-        (control as FormControl).markAsTouched({ onlySelf });
-        (control as FormControl).markAsDirty({ onlySelf });
+export function markTouchedDirtyAndValidate(
+    ctrl: AbstractControl | null | undefined,
+    onlySelf: boolean = true,
+    updateValidity: boolean = true,
+): void {
+    if (ctrl instanceof FormControl) {
+        ctrl.markAsTouched({ onlySelf });
+        ctrl.markAsDirty({ onlySelf });
+
         if (updateValidity) {
-            (control as FormControl).updateValueAndValidity({ onlySelf, emitEvent: true });
+            ctrl.updateValueAndValidity({ onlySelf, emitEvent: true });
         }
-    } else if (control instanceof FormArray) {
-        const formArray = control as FormArray;
+    } else if (ctrl instanceof FormArray) {
+        const formArray = ctrl;
 
         for (let i = 0; i < formArray.length; i++) {
             markTouchedDirtyAndValidate(formArray.at(i), onlySelf, updateValidity);
@@ -127,13 +138,13 @@ export function markTouchedDirtyAndValidate(control: AbstractControl | null | un
         if (updateValidity) {
             formArray.updateValueAndValidity({ onlySelf, emitEvent: true });
         }
-    } else if (control instanceof FormGroup) {
-        const formGroup = control as FormGroup;
+    } else if (ctrl instanceof FormGroup) {
+        const formGroup = ctrl;
 
         Object.keys(formGroup.controls).forEach(key => {
             const subControl = formGroup.get(key);
 
-            markTouchedDirtyAndValidate(subControl!, onlySelf, updateValidity);
+            markTouchedDirtyAndValidate(subControl, onlySelf, updateValidity);
         });
 
         formGroup.markAsTouched({ onlySelf });

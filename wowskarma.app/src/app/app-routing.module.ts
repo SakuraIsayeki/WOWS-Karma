@@ -11,6 +11,7 @@ import { ProfileComponent as PlayerProfileComponent } from "./pages/player/profi
 import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";
 import { PostListComponent } from "./pages/post/list/post-list.component";
 import { ViewPostComponent } from "./pages/post/view/view-post.component";
+import { SettingsComponent } from "./pages/settings/settings.component";
 import { AppInitGuard } from "./services/guards/app-init.guard";
 import { AuthGuard } from "./services/guards/auth.guard";
 import { LayoutComponent } from "./shared/layout/layout.component";
@@ -54,7 +55,7 @@ const routes: Routes = [
 
                     { path: "login", component: LoginComponent },
                     { path: "logout", component: LogoutComponent },
-                    { path: "settings", component: NotFoundComponent, canActivate: [AuthGuard] /* data: { roles: ["role1"] } */ },
+                    { path: "settings", component: SettingsComponent, canActivate: [AuthGuard] /* data: { roles: ["role1"] } */ },
                     { path: "", component: IndexComponent },
 
                     // Last route. Spawn a 404 page.

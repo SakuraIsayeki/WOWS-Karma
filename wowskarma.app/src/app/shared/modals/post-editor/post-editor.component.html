@@ -15,7 +15,6 @@
         <div class="form-group mb-3">
             <div class="d-flex justify-content-between" #titleError>
                 <label for="content" class="mb-2">Title</label>
-
                 <form-errors [control]="form.controls.title"></form-errors>
             </div>
             <input type="text" id="title" class="form-control" [formControl]="form.controls.title" [formControlExtensions]="titleError" name="title">

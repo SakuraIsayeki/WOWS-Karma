@@ -32,7 +32,7 @@ import { FooterComponent } from "./shared/layout/footer/footer.component";
 import { LayoutComponent } from "./shared/layout/layout.component";
 import { NavAuthComponent } from "./shared/layout/navbar/nav-auth/nav-auth.component";
 import { NavbarComponent } from "./shared/layout/navbar/navbar.component";
-import { PostEditorComponent } from "./shared/modals/create-post/post-editor.component";
+import { PostEditorComponent } from "./shared/modals/post-editor/post-editor.component";
 import { PostsReceivedComponent } from "./shared/player/profile/posts-received/posts-received.component";
 import { PostsSentComponent } from "./shared/player/profile/posts-sent/posts-sent.component";
 import { FlairMarkupsComponent } from "./shared/post/flair-markup/flair-markups.component";
@@ -40,6 +40,8 @@ import { PostComponent } from "./shared/post/post.component";
 import { ChatLogComponent } from "./shared/replay/chat-log/chat-log.component";
 import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.component";
 import { SettingsComponent } from './pages/settings/settings.component';
+import { SeedTokenChangeComponent } from './shared/modals/seed-token-change/seed-token-change.component';
+import { PostDeleteComponent } from './shared/modals/post-delete/post-delete.component';
 
 @NgModule({
     declarations: [
@@ -72,6 +74,8 @@ import { SettingsComponent } from './pages/settings/settings.component';
         ClanSearchComponent,
         ClanProfileComponent,
         SettingsComponent,
+        SeedTokenChangeComponent,
+        PostDeleteComponent,
 
     ],
     imports: [

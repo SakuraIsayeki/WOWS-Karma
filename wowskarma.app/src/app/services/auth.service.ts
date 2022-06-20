@@ -60,11 +60,14 @@ export class AuthService {
             console.debug("JWT:", jwt);
             this.authToken$.next(cookie);
 
+            const date = new Date(Date.UTC(1970, 0, 1)); // UNIX Epoch
+            date.setSeconds(parseInt(jwt["exp"]));
+
             authData = {
                 id: parseInt(jwt["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]),
                 username: jwt["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
                 roles: jwt["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
-                expiration: new Date(jwt["exp"]),
+                expiration: date,
             };
 
             console.log("Loaded Authentication data:", authData);

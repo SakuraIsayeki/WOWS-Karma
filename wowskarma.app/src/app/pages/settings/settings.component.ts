@@ -1,39 +1,45 @@
-import 'src/app/services/extensions';
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
-import { BehaviorSubject, tap } from "rxjs";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { BehaviorSubject } from "rxjs";
 import { map } from "rxjs/operators";
-import { UserProfileFlagsDto } from "../../services/api/models/user-profile-flags-dto";
+import "src/app/services/extensions";
 import { ProfileService } from "../../services/api/services/profile.service";
 import { AuthService } from "../../services/auth.service";
+import { SeedTokenChangeComponent } from "../../shared/modals/seed-token-change/seed-token-change.component";
 
 @Component({
-    selector: "app-settings",
     templateUrl: "./settings.component.html",
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.Default,
 })
-export class SettingsComponent implements OnInit {
-    currentUserProfile$ = this.authService.profileFlags$;
+export class SettingsComponent {
     changesSaved$ = new BehaviorSubject(false);
     copiedTokenToClipboard$ = new BehaviorSubject(false);
-    optOutOnCooldown$ = this.currentUserProfile$.pipe(
+    optOutOnCooldown$ = this.authService.profileFlags$.pipe(
         map((profileFlags) => {
             // Check if the user is opted out and if they are on cooldown (1 Week after opting out)
             const cooldownEnd = new Date(profileFlags?.optOutChanged!)?.addDays(7);
             const isOnCooldown = (profileFlags?.optedOut && cooldownEnd && cooldownEnd > new Date(Date.now())) ?? false;
             return { isOnCooldown, cooldownEnd };
-        })
+        }),
     );
 
     form = this.formBuilder.nonNullable.group({
         id: 0,
-        optedOut: false
+        optedOut: false,
     });
 
-    constructor(public authService: AuthService, private profileService: ProfileService, private formBuilder: FormBuilder) { }
-
-    ngOnInit(): void {
-        throw new Error('Method not implemented.');
+    constructor(
+        public authService: AuthService,
+        private profileService: ProfileService,
+        private formBuilder: FormBuilder,
+        private modalService: NgbModal,
+    ) {
+        this.authService.profileFlags$.subscribe((profileFlags) => {
+            if (profileFlags) {
+                this.form.patchValue(profileFlags);
+            }
+        });
     }
 
     saveChanges() {
@@ -42,14 +48,18 @@ export class SettingsComponent implements OnInit {
         });
     }
 
-    copyTokenToClipboard() {
-        this.authService.authToken$.pipe(
-            tap(async (token) => {
-                if (token) {
-                    await window.navigator.clipboard.writeText(token);
-                    this.copiedTokenToClipboard$.next(true);
-                }
-            })
-        );
+    async copyTokenToClipboard() {
+        await window.navigator.clipboard.writeText(this.authService.authToken$.value!)
+            .then(() => {
+                this.copiedTokenToClipboard$.next(true);
+            });
+    }
+
+    openResetSeedModal() {
+        return SeedTokenChangeComponent.OpenModal(this.modalService);
+    }
+
+    toDateObject(dateNumber: number) {
+        return new Date(dateNumber);
     }
 }

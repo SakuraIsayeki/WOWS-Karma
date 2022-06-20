@@ -3,7 +3,8 @@ import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { PlayerPostDto } from "../../services/api/models/player-post-dto";
 import { AuthService } from "../../services/auth.service";
 import { getPostBorderColor } from "../../services/helpers";
-import { PostEditorComponent } from "../modals/create-post/post-editor.component";
+import { PostDeleteComponent } from "../modals/post-delete/post-delete.component";
+import { PostEditorComponent } from "../modals/post-editor/post-editor.component";
 
 @Component({
     selector: "app-post",
@@ -32,8 +33,10 @@ export class PostComponent {
     }
 
     openEditor() {
-        const modalRef = PostEditorComponent.OpenEditor(this.modalService, this.post!);
-        modalRef.componentInstance.post = this.post;
-        return modalRef;
+        return PostEditorComponent.OpenEditor(this.modalService, this.post!);
+    }
+
+    openDeleteModal() {
+        return PostDeleteComponent.OpenModal(this.modalService, this.post!);
     }
 }

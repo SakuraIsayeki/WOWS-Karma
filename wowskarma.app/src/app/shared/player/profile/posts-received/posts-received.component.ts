@@ -6,7 +6,7 @@ import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
 import { PostService } from "../../../../services/api/services/post.service";
 import { AuthService } from "../../../../services/auth.service";
 import { sortByCreationDate } from "../../../../services/helpers";
-import { PostEditorComponent } from "../../../modals/create-post/post-editor.component";
+import { PostEditorComponent } from "../../../modals/post-editor/post-editor.component";
 import { InputObservable, switchMapCatchError, tapAny } from "../../../rxjs-operators";
 
 

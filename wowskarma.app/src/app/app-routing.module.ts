@@ -30,7 +30,9 @@ const routes: Routes = [
                 children: [
                     // Players
                     {
-                        path: "player", children: [
+                        path: "player",
+
+                        children: [
                             { path: "", component: PlayerSearchComponent },
                             { path: ":idNamePair", component: PlayerProfileComponent },
                         ],
@@ -38,7 +40,9 @@ const routes: Routes = [
 
                     // Posts
                     {
-                        path: "posts", children: [
+                        path: "posts",
+
+                        children: [
                             { path: "", component: PostListComponent },
                             { path: ":id", component: ViewPostComponent },
                             { path: "view/:id", redirectTo: ":id" },
@@ -47,7 +51,9 @@ const routes: Routes = [
 
                     // Clans
                     {
-                        path: "clan", children: [
+                        path: "clan",
+
+                        children: [
                             { path: "", component: ClanSearchComponent },
                             { path: ":idNamePair", component: ClanProfileComponent },
                         ],

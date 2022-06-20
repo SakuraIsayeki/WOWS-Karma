@@ -26,9 +26,9 @@ export class ProfileComponent {
     profileTotalKarma$ = this.profile$.pipe(map(profile => (profile?.gameKarma ?? 0) + (profile?.siteKarma ?? 0)));
 
     currentTab = "received";
-    currentTab$ = this.profile$.pipe(tap(profile => profile?.optedOut ? "received" : "sent"));
 
     constructor(private route: ActivatedRoute, private playerService: PlayerService) {
+        this.profile$.subscribe(profile => this.currentTab = profile?.optedOut ? "sent" : "received");
     }
 
     getKarmaColor(karma: number) {

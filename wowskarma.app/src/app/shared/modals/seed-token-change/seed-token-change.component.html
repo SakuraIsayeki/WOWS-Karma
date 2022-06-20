@@ -1,0 +1,16 @@
+<div class="modal-header">
+    <h4 class="modal-title text-danger">Confirm Seed Token Rotation</h4>
+</div>
+
+<div class="modal-body">
+    <p class="text-body">
+        Are you sure you want to rotate your seed token ? <br />
+        All devices will be logged-out of your account,
+        and any applications dependent on WOWS Karma authentication may break until you provide a new token.
+    </p>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary px-3" (click)="modal.close()">Cancel</button>
+    <button type="submit" class="btn btn-danger px-3" (click)="onSubmit()">Renew</button>
+</div>

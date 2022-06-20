@@ -1,110 +1,110 @@
 <ng-template #loading><h3 class="text-info">Loading...</h3></ng-template>
 
 <ng-container *ngIf="profile$ | async as profile else loading">
-  <div class="text-center mb-5">
-    <h1>
-      <a *ngIf="profile.clan?.clanInfo as clan"
-         [style.color]="clan.leagueColor | colorHex"
-         [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
+    <div class="text-center mb-5">
+        <h1>
+            <a *ngIf="profile.clan?.clanInfo as clan"
+               [style.color]="clan.leagueColor | colorHex"
+               [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
 
-      <span class="mx-3">{{profile.username}}</span>
+            <span class="mx-3">{{profile.username}}</span>
 
-      <ng-container *ngIf="profileTotalKarma$ | async as profileTotalKarma">
-        <sup class="text-{{getKarmaColor(profileTotalKarma)}}">{{profileTotalKarma}}</sup>
-      </ng-container>
-    </h1>
-  </div>
-
-  <div class="row justify-content-center text-center my-5">
-    <div class="col-4 m-4">
-      <h4>In-Game :</h4>
-      <h2 *ngIf="profile.wgHidden" class="text-danger">N/A</h2>
-      <h2 *ngIf="!profile.wgHidden" class="text-{{getKarmaColor(profile.gameKarma ?? 0)}}">{{profile.gameKarma!}}</h2>
+            <ng-container *ngIf="profileTotalKarma$ | async as profileTotalKarma">
+                <sup class="text-{{getKarmaColor(profileTotalKarma)}}">{{profileTotalKarma}}</sup>
+            </ng-container>
+        </h1>
     </div>
 
-    <div class="col-4 m-4">
-      <h4>Platform :</h4>
-      <h2 *ngIf="profile.optedOut" class="text-danger">N/A</h2>
-      <h2 *ngIf="!profile.optedOut" class="text-{{getKarmaColor(profile.siteKarma ?? 0)}}">{{profile.siteKarma!}}</h2>
-    </div>
-  </div>
-
-  <div class="row justify-content-between">
-    <div class="col-md-6 mb-3">
-      <h2 class="text-center mb-3">Info</h2>
-
-      <dl class="row g-2 my-3 mx-xl-3">
-        <dt class="col-sm-3">Account ID :</dt>
-        <dd class="col-sm-9">{{profile.id}}</dd>
-
-        <ng-template #profileHidden>
-          <h3 class="text-danger">Player Details Hidden</h3>
-        </ng-template>
-
-        <ng-container *ngIf="!profile.wgHidden else profileHidden">
-          <dt class="col-sm-3">Created :</dt>
-          <dd class="col-sm-9">{{profile.wgAccountCreatedAt | date:"medium"}}</dd>
-
-          <dt class="col-sm-3">Last Battle :</dt>
-          <dd class="col-sm-9">{{profile.lastBattleTime | date:"medium"}}</dd>
-
-          <dt class="col-sm-3">Statistics :</dt>
-          <dd class="col-sm-9">
-            <a href="{{getWowsNumbersPlayerLink(profile.id!, profile.username!)}}">View on wows-numbers.com</a>
-          </dd>
-        </ng-container>
-      </dl>
-    </div>
-
-    <div class="col-md-6 mb-3">
-      <ng-template #profileOptedOut>
-        <h3 class="text-danger">Player has opted out.</h3>
-      </ng-template>
-
-      <ng-container *ngIf="!profile.optedOut else profileOptedOut">
-        <h2 class="text-center mb-5">Ratings</h2>
-
-        <div class="row justify-content-around text-center">
-          <div class="col-4">
-            <h3 class="text-{{getKarmaColor(profile.ratingPerformance ?? 0)}}">{{profile.ratingPerformance}}</h3>
-            <h5>Performance</h5>
-          </div>
-          <div class="col-4">
-            <h3 class="text-{{getKarmaColor(profile.ratingTeamplay ?? 0)}}">{{profile.ratingTeamplay}}</h3>
-            <h5>Teamplay</h5>
-          </div>
-          <div class="col-4">
-            <h3 class="text-{{getKarmaColor(profile.ratingCourtesy ?? 0)}}">{{profile.ratingCourtesy}}</h3>
-            <h5>Courtesy</h5>
-          </div>
+    <div class="row justify-content-center text-center my-5">
+        <div class="col-4 m-4">
+            <h4>In-Game :</h4>
+            <h2 *ngIf="profile.wgHidden" class="text-danger">N/A</h2>
+            <h2 *ngIf="!profile.wgHidden" class="text-{{getKarmaColor(profile.gameKarma ?? 0)}}">{{profile.gameKarma!}}</h2>
         </div>
-      </ng-container>
+
+        <div class="col-4 m-4">
+            <h4>Platform :</h4>
+            <h2 *ngIf="profile.optedOut" class="text-danger">N/A</h2>
+            <h2 *ngIf="!profile.optedOut" class="text-{{getKarmaColor(profile.siteKarma ?? 0)}}">{{profile.siteKarma!}}</h2>
+        </div>
     </div>
-  </div>
 
-  <div class="row my-4 justify-content-between">
-    <div class="col-auto">
-      <h2 class="mx-5">Posts</h2>
+    <div class="row justify-content-between">
+        <div class="col-md-6 mb-3">
+            <h2 class="text-center mb-3">Info</h2>
+
+            <dl class="row g-2 my-3 mx-xl-3">
+                <dt class="col-sm-3">Account ID :</dt>
+                <dd class="col-sm-9">{{profile.id}}</dd>
+
+                <ng-template #profileHidden>
+                    <h3 class="text-danger">Player Details Hidden</h3>
+                </ng-template>
+
+                <ng-container *ngIf="!profile.wgHidden else profileHidden">
+                    <dt class="col-sm-3">Created :</dt>
+                    <dd class="col-sm-9">{{profile.wgAccountCreatedAt | date:"medium"}}</dd>
+
+                    <dt class="col-sm-3">Last Battle :</dt>
+                    <dd class="col-sm-9">{{profile.lastBattleTime | date:"medium"}}</dd>
+
+                    <dt class="col-sm-3">Statistics :</dt>
+                    <dd class="col-sm-9">
+                        <a href="{{getWowsNumbersPlayerLink(profile.id!, profile.username!)}}">View on wows-numbers.com</a>
+                    </dd>
+                </ng-container>
+            </dl>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <ng-template #profileOptedOut>
+                <h3 class="text-danger text-center">Player has opted out.</h3>
+            </ng-template>
+
+            <ng-container *ngIf="!profile.optedOut else profileOptedOut">
+                <h2 class="text-center mb-5">Ratings</h2>
+
+                <div class="row justify-content-around text-center">
+                    <div class="col-4">
+                        <h3 class="text-{{getKarmaColor(profile.ratingPerformance ?? 0)}}">{{profile.ratingPerformance}}</h3>
+                        <h5>Performance</h5>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-{{getKarmaColor(profile.ratingTeamplay ?? 0)}}">{{profile.ratingTeamplay}}</h3>
+                        <h5>Teamplay</h5>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-{{getKarmaColor(profile.ratingCourtesy ?? 0)}}">{{profile.ratingCourtesy}}</h3>
+                        <h5>Courtesy</h5>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
     </div>
 
-    <div class="col">
-      <nav class="nav nav-pills nav-justified">
-        <button *ngIf="!profile.optedOut" class="nav-item nav-link" [class.active]="currentTab == 'received'"
-                (click)="currentTab = 'received'">Received
-        </button>
+    <div class="row my-4 justify-content-between">
+        <div class="col-auto">
+            <h2 class="mx-5">Posts</h2>
+        </div>
 
-        <button class="nav-item nav-link" [class.active]="currentTab == 'sent'"
-                (click)="currentTab = 'sent'">Sent
-        </button>
-      </nav>
+        <div class="col">
+            <nav class="nav nav-pills nav-justified">
+                <button *ngIf="!profile.optedOut" class="nav-item nav-link" [class.active]="currentTab == 'received'"
+                        (click)="currentTab = 'received'">Received
+                </button>
+
+                <button class="nav-item nav-link" [class.active]="currentTab == 'sent'"
+                        (click)="currentTab = 'sent'">Sent
+                </button>
+            </nav>
+        </div>
     </div>
-  </div>
 
-  <ng-container *ngIf="currentTab === 'received'">
-    <app-posts-received [userId]="profile.id!"></app-posts-received>
-  </ng-container>
+    <ng-container *ngIf="currentTab === 'received'">
+        <app-posts-received [userId]="profile.id!"></app-posts-received>
+    </ng-container>
 
-  <ng-container *ngIf="currentTab === 'sent'">
-    <app-posts-sent [userId]="profile.id!"></app-posts-sent>
-  </ng-container>
+    <ng-container *ngIf="currentTab === 'sent'">
+        <app-posts-sent [userId]="profile.id!"></app-posts-sent>
+    </ng-container>
 </ng-container>

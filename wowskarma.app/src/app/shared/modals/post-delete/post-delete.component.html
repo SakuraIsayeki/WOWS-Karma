@@ -1,0 +1,15 @@
+<!-- Modal Header -->
+<div class="modal-header">
+    <h4 class="modal-title text-danger">Confirm Post Deletion</h4>
+</div>
+
+<!-- Modal body -->
+<div class="modal-body">
+    <p class="text-body">Are you sure you want to delete this post ?</p>
+</div>
+
+<!-- Modal footer -->
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="this.modal.close()">Cancel</button>
+    <button type="submit" class="btn btn-danger" (click)="onSubmit()">Delete</button>
+</div>

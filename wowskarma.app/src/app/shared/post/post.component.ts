@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { PlayerPostDto } from "../../services/api/models/player-post-dto";
 import { AuthService } from "../../services/auth.service";
 import { getPostBorderColor } from "../../services/helpers";
 import { PostDeleteComponent } from "../modals/post-delete/post-delete.component";
 import { PostEditorComponent } from "../modals/post-editor/post-editor.component";
+import { PostModDeleteComponent } from "../modals/post-mod-delete/post-mod-delete.component";
 
 @Component({
     selector: "app-post",
@@ -14,8 +15,6 @@ import { PostEditorComponent } from "../modals/post-editor/post-editor.component
     inputs: ["post", "postDisplayType"],
 
 })
-
-//TODO: Implement editor modals
 
 export class PostComponent {
     @Input() public post?: PlayerPostDto;
@@ -38,5 +37,9 @@ export class PostComponent {
 
     openDeleteModal() {
         return PostDeleteComponent.OpenModal(this.modalService, this.post!);
+    }
+
+    openModDeleteModal() {
+        return PostModDeleteComponent.OpenModal(this.modalService, this.post!);
     }
 }

@@ -115,6 +115,7 @@ export class PostEditorComponent {
                 (data) => {
                     console.debug("Created post", data);
                     this.modal.close();
+                    window.location.reload();
                 },
             );
         } else {
@@ -122,6 +123,7 @@ export class PostEditorComponent {
                 (data) => {
                     console.debug("Updated post", data);
                     this.modal.close();
+                    window.location.reload();
                 },
             );
         }

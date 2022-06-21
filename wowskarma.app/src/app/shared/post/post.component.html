@@ -73,7 +73,7 @@
         </div>
 
         <div class="d-flex flex-row gap-1" *ngIf="this.authService.isInRole('mod')">
-          <button class="btn btn-outline-danger btn-sm">Mod Delete</button>
+          <button class="btn btn-outline-danger btn-sm" (click)="openModDeleteModal()">Mod Delete</button>
         </div>
       </div>
     </div>

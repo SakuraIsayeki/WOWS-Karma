@@ -42,6 +42,7 @@ import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.com
 import { SettingsComponent } from './pages/settings/settings.component';
 import { SeedTokenChangeComponent } from './shared/modals/seed-token-change/seed-token-change.component';
 import { PostDeleteComponent } from './shared/modals/post-delete/post-delete.component';
+import { PostModDeleteComponent } from './shared/modals/post-mod-delete/post-mod-delete.component';
 
 @NgModule({
     declarations: [
@@ -76,6 +77,7 @@ import { PostDeleteComponent } from './shared/modals/post-delete/post-delete.com
         SettingsComponent,
         SeedTokenChangeComponent,
         PostDeleteComponent,
+        PostModDeleteComponent,
 
     ],
     imports: [

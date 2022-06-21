@@ -10,7 +10,7 @@
             <span class="mx-3">{{profile.username}}</span>
 
             <ng-container *ngIf="profileTotalKarma$ | async as profileTotalKarma">
-                <sup class="text-{{getKarmaColor(profileTotalKarma)}}">{{profileTotalKarma}}</sup>
+                <sup class="text-{{profileTotalKarma | karmaColor}}">{{profileTotalKarma}}</sup>
             </ng-container>
         </h1>
     </div>
@@ -19,13 +19,13 @@
         <div class="col-4 m-4">
             <h4>In-Game :</h4>
             <h2 *ngIf="profile.wgHidden" class="text-danger">N/A</h2>
-            <h2 *ngIf="!profile.wgHidden" class="text-{{getKarmaColor(profile.gameKarma ?? 0)}}">{{profile.gameKarma!}}</h2>
+            <h2 *ngIf="!profile.wgHidden" class="text-{{profile.gameKarma | karmaColor}}">{{profile.gameKarma!}}</h2>
         </div>
 
         <div class="col-4 m-4">
             <h4>Platform :</h4>
             <h2 *ngIf="profile.optedOut" class="text-danger">N/A</h2>
-            <h2 *ngIf="!profile.optedOut" class="text-{{getKarmaColor(profile.siteKarma ?? 0)}}">{{profile.siteKarma!}}</h2>
+            <h2 *ngIf="!profile.optedOut" class="text-{{profile.siteKarma | karmaColor}}">{{profile.siteKarma!}}</h2>
         </div>
     </div>
 
@@ -66,15 +66,15 @@
 
                 <div class="row justify-content-around text-center">
                     <div class="col-4">
-                        <h3 class="text-{{getKarmaColor(profile.ratingPerformance ?? 0)}}">{{profile.ratingPerformance}}</h3>
+                        <h3 class="text-{{profile.ratingPerformance | karmaColor}}">{{profile.ratingPerformance}}</h3>
                         <h5>Performance</h5>
                     </div>
                     <div class="col-4">
-                        <h3 class="text-{{getKarmaColor(profile.ratingTeamplay ?? 0)}}">{{profile.ratingTeamplay}}</h3>
+                        <h3 class="text-{{profile.ratingTeamplay | karmaColor}}">{{profile.ratingTeamplay}}</h3>
                         <h5>Teamplay</h5>
                     </div>
                     <div class="col-4">
-                        <h3 class="text-{{getKarmaColor(profile.ratingCourtesy ?? 0)}}">{{profile.ratingCourtesy}}</h3>
+                        <h3 class="text-{{profile.ratingCourtesy | karmaColor}}">{{profile.ratingCourtesy}}</h3>
                         <h5>Courtesy</h5>
                     </div>
                 </div>
@@ -82,29 +82,26 @@
         </div>
     </div>
 
-    <div class="row my-4 justify-content-between">
-        <div class="col-auto">
-            <h2 class="mx-5">Posts</h2>
+    <ng-container *ngIf="currentTab$ | async as currentTab">
+        <div class="row my-4 justify-content-between">
+            <div class="col-auto">
+                <h2 class="mx-5">Posts</h2>
+            </div>
+
+            <div class="col">
+                <nav class="nav nav-pills nav-justified">
+                    <button *ngIf="!profile.optedOut" class="nav-item nav-link" [class.active]="currentTab == 'received'"
+                            (click)="currentTabChanged$.next('received')">Received
+                    </button>
+
+                    <button class="nav-item nav-link" [class.active]="currentTab == 'sent'"
+                            (click)="currentTabChanged$.next('sent')">Sent
+                    </button>
+                </nav>
+            </div>
         </div>
 
-        <div class="col">
-            <nav class="nav nav-pills nav-justified">
-                <button *ngIf="!profile.optedOut" class="nav-item nav-link" [class.active]="currentTab == 'received'"
-                        (click)="currentTab = 'received'">Received
-                </button>
-
-                <button class="nav-item nav-link" [class.active]="currentTab == 'sent'"
-                        (click)="currentTab = 'sent'">Sent
-                </button>
-            </nav>
-        </div>
-    </div>
-
-    <ng-container *ngIf="currentTab === 'received'">
-        <app-posts-received [userId]="profile.id!"></app-posts-received>
-    </ng-container>
-
-    <ng-container *ngIf="currentTab === 'sent'">
-        <app-posts-sent [userId]="profile.id!"></app-posts-sent>
+        <app-posts-received *ngIf="currentTab === 'received'" [userId]="profile.id!"></app-posts-received>
+        <app-posts-sent *ngIf="currentTab === 'sent'" [userId]="profile.id!"></app-posts-sent>
     </ng-container>
 </ng-container>

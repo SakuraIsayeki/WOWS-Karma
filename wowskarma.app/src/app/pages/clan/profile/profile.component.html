@@ -3,7 +3,7 @@
         <div class="col-xl-7 order-0">
             <h1 id="clan-name" class="mb-5">
                 <span [style.color]="clan.leagueColor | colorHex">[{{clan.tag}}]</span><span class="mx-3">{{clan.name}}</span>
-                <sup class="text-{{getKarmaColor((totalMixedKarma$ | async)!)}}">{{totalMixedKarma$ | async}}</sup>
+                <sup class="text-{{totalMixedKarma$ | async | karmaColor}}">{{totalMixedKarma$ | async}}</sup>
             </h1>
 
             <div class="my-5">
@@ -85,11 +85,11 @@
                 <td><a [routerLink]="['/player', member.id + ',' + member.username]">{{member.username}}</a></td>
                 <td class="small">{{member.wgAccountCreatedAt | date:"short"}}</td>
                 <td class="small">{{member.clan!.joinedClanAt | date:"short"}}</td>
-                <td class="lead text-{{getKarmaColor(member.gameKarma!)}}">{{member.gameKarma}}</td>
-                <td class="lead text-{{getKarmaColor(member.siteKarma!)}}">{{member.siteKarma}}</td>
-                <td class="lead text-{{getKarmaColor(member.ratingPerformance!)}}">{{member.ratingPerformance}}</td>
-                <td class="lead text-{{getKarmaColor(member.ratingTeamplay!)}}">{{member.ratingTeamplay}}</td>
-                <td class="lead text-{{getKarmaColor(member.ratingCourtesy!)}}">{{member.ratingCourtesy}}</td>
+                <td class="lead text-{{member.gameKarma | karmaColor}}">{{member.gameKarma}}</td>
+                <td class="lead text-{{member.siteKarma | karmaColor}}">{{member.siteKarma}}</td>
+                <td class="lead text-{{member.ratingPerformance | karmaColor}}">{{member.ratingPerformance}}</td>
+                <td class="lead text-{{member.ratingTeamplay | karmaColor}}">{{member.ratingTeamplay}}</td>
+                <td class="lead text-{{member.ratingCourtesy | karmaColor}}">{{member.ratingCourtesy}}</td>
                 <td class="small">{{member.lastBattleTime | date:"short"}}</td>
             </tr>
         </tbody>
@@ -103,11 +103,11 @@
 <ng-template #metrics let-name="name" let-metrics="metrics">
     <ng-container *ngIf="metrics else noMetrics">
         <h2 class="my-3 metrics-display">
-            <span title="Total" class="text-{{getKarmaColor(metrics.total)}}">{{metrics.total}}</span>
+            <span title="Total" class="text-{{metrics.total | karmaColor}}">{{metrics.total}}</span>
 
             <span class="sup-sub">
-                <sup title="Most" class="text-{{getKarmaColor(metrics.max)}}">{{metrics.max}}</sup>
-                <sub title="Least" class="text-{{getKarmaColor(metrics.min)}}">{{metrics.min}}</sub>
+                <sup title="Most" class="text-{{metrics.max | karmaColor}}">{{metrics.max}}</sup>
+                <sub title="Least" class="text-{{metrics.min | karmaColor}}">{{metrics.min}}</sub>
             </span>
         </h2>
 

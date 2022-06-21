@@ -43,6 +43,7 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { SeedTokenChangeComponent } from './shared/modals/seed-token-change/seed-token-change.component';
 import { PostDeleteComponent } from './shared/modals/post-delete/post-delete.component';
 import { PostModDeleteComponent } from './shared/modals/post-mod-delete/post-mod-delete.component';
+import { KarmaColorPipe } from './services/pipes/karma-color.pipe';
 
 @NgModule({
     declarations: [
@@ -78,6 +79,7 @@ import { PostModDeleteComponent } from './shared/modals/post-mod-delete/post-mod
         SeedTokenChangeComponent,
         PostDeleteComponent,
         PostModDeleteComponent,
+        KarmaColorPipe,
 
     ],
     imports: [

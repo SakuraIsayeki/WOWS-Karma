@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs/operators";
-import { getKarmaColor, getWowsNumbersClanLink } from "src/app/services/helpers";
+import { getWowsNumbersClanLink } from "src/app/services/helpers";
 import { ClanListingDto } from "../../../services/api/models/clan-listing-dto";
 import { ClanRole } from "../../../services/api/models/clan-role";
 import { PlayerProfileDto } from "../../../services/api/models/player-profile-dto";
@@ -37,10 +37,6 @@ export class ProfileComponent {
     );
 
     constructor(private route: ActivatedRoute, private clanService: ClanService) { }
-
-    getKarmaColor(karma: number) {
-        return getKarmaColor(karma);
-    }
 
     sortByRankThenJoinDate(a: RankAndJoinDateComparisonInput, b: RankAndJoinDateComparisonInput): number {
         return (a.clan!.clanMemberRole! < b.clan!.clanMemberRole!)

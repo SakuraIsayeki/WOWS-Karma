@@ -27,10 +27,6 @@ export class PostComponent {
             && this.authService.userInfo$.value?.id === this.post?.author?.id;
     }
 
-    getPostBorderColor({ flairs }: PlayerPostDto) {
-        return getPostBorderColor({ flairs });
-    }
-
     openEditor() {
         return PostEditorComponent.OpenEditor(this.modalService, this.post!);
     }

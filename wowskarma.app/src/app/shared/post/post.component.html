@@ -11,7 +11,7 @@
     <a [routerLink]="['/player', post?.player?.id + ',' + post?.player?.username]">{{post?.player?.username}}</a>
   </p>
 
-  <div class="card post-card border-{{getPostBorderColor(post!)}}">
+  <div class="card post-card border-{{post!.flairs | karmaColor}}">
     <div class="card-header">
       <h5 class="my-2">{{post!.title}}</h5>
     </div>

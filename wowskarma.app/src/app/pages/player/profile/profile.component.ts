@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { tap } from "rxjs";
+import { merge, Subject } from "rxjs";
 import { map } from "rxjs/operators";
 import { PlayerService } from "../../../services/api/services/player.service";
-import { getKarmaColor, getWowsNumbersPlayerLink } from "../../../services/helpers";
+import { getWowsNumbersPlayerLink } from "../../../services/helpers";
 import { routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
 
 
@@ -25,14 +25,14 @@ export class ProfileComponent {
     // Observable profile$ must first successfully emit a profile before calculating the total karma.
     profileTotalKarma$ = this.profile$.pipe(map(profile => (profile?.gameKarma ?? 0) + (profile?.siteKarma ?? 0)));
 
-    currentTab = "received";
+    currentTabChanged$ = new Subject<"received" | "sent">();
+    currentTab$ = merge(
+        this.currentTabChanged$,
+        this.profile$.pipe(
+            map(profile => profile?.optedOut ? "sent" : "received")),
+    ).pipe(shareReplayRefCount(1));
 
     constructor(private route: ActivatedRoute, private playerService: PlayerService) {
-        this.profile$.subscribe(profile => this.currentTab = profile?.optedOut ? "sent" : "received");
-    }
-
-    getKarmaColor(karma: number) {
-        return getKarmaColor(karma);
     }
 
     getWowsNumbersPlayerLink(id: number, username: string): string | undefined {

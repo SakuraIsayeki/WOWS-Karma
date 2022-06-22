@@ -1,0 +1,9 @@
+export { AuthService } from './services/auth.service';
+export { ClanService } from './services/clan.service';
+export { ModActionService } from './services/mod-action.service';
+export { PlatformBansService } from './services/platform-bans.service';
+export { PlayerService } from './services/player.service';
+export { PostService } from './services/post.service';
+export { ProfileService } from './services/profile.service';
+export { ReplayService } from './services/replay.service';
+export { StatusService } from './services/status.service';

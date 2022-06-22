@@ -1,0 +1,18 @@
+<ul class="navbar-nav flex-grow-0 me-xl-3">
+  <ng-container *ngIf="authService.userInfo$ | async as user else unauthorized">
+    <li class="navbar-text text-light">Welcome, {{user.username}}.&emsp;</li>
+
+    <li class="nav-item">
+      <a class="nav-link text-white" [routerLink]="['/player', user.id +','+ user.username]">Profile</a>
+    </li>
+
+    <li class="nav-item"><a class="nav-link text-white" [routerLink]="['/settings']">Settings</a></li>
+    <li class="nav-item"><a class="nav-link text-white" [routerLink]="['/logout']">Logout</a></li>
+  </ng-container>
+
+  <ng-template #unauthorized>
+    <li class="nav-item">
+      <a class="nav-link text-white" [routerLink]="'/login'" [queryParams]="{redirectUri: (currentRelativePath$ | async)}">Login</a>
+    </li>
+  </ng-template>
+</ul>

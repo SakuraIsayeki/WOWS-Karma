@@ -1,0 +1,19 @@
+<ng-container *ngIf="loading$ | async">
+  <h3 class="text-info">Loading...</h3>
+</ng-container>
+
+<ng-template #noPosts>
+    <h3 class="text-warning">No posts found.</h3>
+</ng-template>
+
+<ng-container *ngIf="sentPosts$ | async as posts">
+  <ng-container *ngIf="posts.length > 0 else noPosts">
+
+  </ng-container>
+
+  <div class="row gx-2 gy-3">
+    <div class="col-lg-4 col-md-6" *ngFor="let p of posts.sort(sortByLastCreated)">
+      <app-post [post]="p" [postDisplayType]="'sent'"></app-post>
+    </div>
+  </div>
+</ng-container>

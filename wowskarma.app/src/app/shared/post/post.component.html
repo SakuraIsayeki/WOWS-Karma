@@ -1,0 +1,81 @@
+<div class="m-2 vstack" [id]=[post?.id]>
+  <p *ngIf="postDisplayType === 'neutral'" class="text-body">
+    <a *ngIf="post?.author?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
+       [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
+
+    <a [routerLink]="['/player', post?.author?.id + ',' + post?.author?.username]">{{post?.author?.username}}</a>
+    &gt;
+
+    <a *ngIf="post?.player?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
+       [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
+    <a [routerLink]="['/player', post?.player?.id + ',' + post?.player?.username]">{{post?.player?.username}}</a>
+  </p>
+
+  <div class="card post-card border-{{post!.flairs | karmaColor}}">
+    <div class="card-header">
+      <h5 class="my-2">{{post!.title}}</h5>
+    </div>
+
+    <div class="card-body">
+      <p class="card-text" style="white-space: pre-wrap;">{{post?.content}}</p>
+    </div>
+
+    <div class="card-body py-0 my-1" style="line-height:normal">
+      <div class="row justify-content-between align-items-end">
+        <div class="col-auto">
+          <flairs-markup [flairsEnum]="post?.flairs"></flairs-markup>
+        </div>
+
+        <div class="col-auto px-1">
+          <i *ngIf="post?.modLocked" class="bi bi-x-circle text-danger lead mx-1"></i>
+
+          <a *ngIf="post?.replayId !== null else noReplay" class="text-body"
+             [routerLink]="['/posts', 'view', post?.id]">
+            <i class="bi bi-camera-video text-success lead mx-1"></i>
+          </a>
+
+          <ng-template #noReplay>
+            <i class="bi bi-camera-video-off text-danger lead mx-1"></i>
+          </ng-template>
+
+          <a class="text-body" [routerLink]="['/posts', 'view', post?.id]">
+            <i class="bi bi-link-45deg lead"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <p class="blockquote-footer my-1">
+        <ng-container *ngIf="postDisplayType === 'received'">
+          From
+          <a *ngIf="post?.author?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
+             [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
+
+          <a [routerLink]="['/player', post?.author?.id + ',' + post?.author?.username]">{{post?.author?.username}}</a>
+        </ng-container>
+
+        <ng-container *ngIf="postDisplayType === 'sent'">
+          To
+          <a *ngIf="post?.player?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
+             [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
+
+          <a [routerLink]="['/player', post?.player?.id + ',' + post?.player?.username]">{{post?.player?.username}}</a>
+        </ng-container>
+
+        {{post?.createdAt | date:'medium'}}
+      </p>
+
+      <div class="d-flex flex-row my-1 gap-2">
+        <div class="d-flex flex-row gap-1" *ngIf="canEdit">
+          <button class="btn btn-warning btn-sm" (click)="openEditor()">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="openDeleteModal()">Delete</button>
+        </div>
+
+        <div class="d-flex flex-row gap-1" *ngIf="this.authService.isInRole('mod')">
+          <button class="btn btn-outline-danger btn-sm" (click)="openModDeleteModal()">Mod Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+.sup-sub {
+  display: inline-block;
+
+  sup, sub {
+    position: relative;
+    display: block;
+    font-size: 0.6em;
+    line-height: 0.5;
+  }
+
+  sub {
+    top: .3em;
+  }
+}
+
+.metrics-display {
+  span {
+    $x-spacing: 0.3rem;
+
+    margin-left: $x-spacing;
+    margin-right: $x-spacing;
+  }
+}

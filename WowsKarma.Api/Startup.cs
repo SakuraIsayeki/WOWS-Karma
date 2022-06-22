@@ -16,6 +16,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
@@ -30,6 +31,7 @@ using WowsKarma.Api.Infrastructure.Telemetry;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
+using WowsKarma.Api.Services.Authentication.Cookie;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Api.Services.Replays;
@@ -39,6 +41,8 @@ namespace WowsKarma.Api
 {
 	public class Startup
 	{
+		public const string CommonAuthenticationScheme = "WowsKarma";
+		
 		public static Region ApiRegion { get; private set; }
 		public static string DisplayVersion { get; private set; }
 		public IConfiguration Configuration { get; }
@@ -72,9 +76,8 @@ namespace WowsKarma.Api
 				.AddMessagePackProtocol();
 
 			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-
-				// Adding Jwt Bearer
-				.AddScheme<JwtBearerOptions, JwtAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme,
+				// Add JWT Bearer Authentication
+				.AddScheme<JwtBearerOptions, ForwardCookieAuthenticationHandler>(JwtBearerDefaults.AuthenticationScheme,
 					options =>
 					{
 						options.SaveToken = true;
@@ -88,7 +91,7 @@ namespace WowsKarma.Api
 							IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
 						};
 
-						options.Events = new JwtBearerEvents
+						options.Events = new()
 						{
 							OnMessageReceived = context =>
 							{
@@ -104,7 +107,10 @@ namespace WowsKarma.Api
 								return Task.CompletedTask;
 							}
 						};
-					});
+					}
+				);
+
+
 
 			services.AddAuthorization(options =>
 			{
@@ -117,20 +123,20 @@ namespace WowsKarma.Api
 			
 			services.AddSwaggerGen(options =>
 			{
-				options.SwaggerDoc(DisplayVersion, new OpenApiInfo
+				options.SwaggerDoc(DisplayVersion, new()
 				{
 					Version = DisplayVersion,
 					Title = $"WOWS Karma API ({ApiRegion.ToRegionString()})",
-					Contact = new OpenApiContact
+					Contact = new()
 					{
 						Name = "Sakura Isayeki",
 						Email = "sakura.isayeki@nodsoft.net",
-						Url = new Uri("https://github.com/SakuraIsayeki"),
+						Url = new("https://github.com/SakuraIsayeki"),
 					},
-					License = new OpenApiLicense
+					License = new()
 					{
 						Name = "GNU-GPL v3",
-						Url = new Uri("https://github.com/SakuraIsayeki/WoWS-Karma/blob/main/LICENSE"),
+						Url = new("https://github.com/SakuraIsayeki/WoWS-Karma/blob/main/LICENSE"),
 					}
 				});
 
@@ -140,7 +146,7 @@ namespace WowsKarma.Api
 				options.IncludeXmlComments(xmlPath);
 
 				// Bearer token authentication
-				options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+				options.AddSecurityDefinition("jwt_auth", new()
 				{
 					Name = "bearer",
 					BearerFormat = "JWT",
@@ -160,7 +166,7 @@ namespace WowsKarma.Api
 					}
 				};
 
-				options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+				options.AddSecurityRequirement(new()
 				{
 					{ securityScheme, Array.Empty<string>() },
 				});
@@ -253,8 +259,18 @@ namespace WowsKarma.Api
 
 			app.UseRouting();
 			
+			// Allow CORS (permissive)
+			app.UseCors(builder =>
+			{
+				builder.SetIsOriginAllowed(_ => true); // Allow all origins
 
-			IEnumerable<IPAddress> allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(x => IPAddress.Parse(x));
+				builder.AllowAnyHeader()
+					.AllowAnyMethod();
+
+				builder.AllowCredentials();
+			});
+
+			IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToArray();
 
 			// Nginx configuration step
 			ForwardedHeadersOptions forwardedHeadersOptions = new()
@@ -262,7 +278,7 @@ namespace WowsKarma.Api
 				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 			};
 
-			if (allowedProxies is not null && allowedProxies.Any())
+			if (allowedProxies is { Length: not 0 })
 			{
 				forwardedHeadersOptions.KnownProxies.Clear();
 

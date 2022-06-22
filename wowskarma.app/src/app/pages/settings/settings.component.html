@@ -1,0 +1,95 @@
+<h1 class="mb-5">Settings</h1>
+
+<ng-container *ngIf="this.authService.isLoaded$ | async else loading">
+    <ng-container *ngIf="this.authService.profileFlags$ | async as settings">
+        <form [formGroup]="form" (ngSubmit)="saveChanges()">
+            <h1 class="mb-5 text-danger">Danger Zone</h1>
+
+            <div class="row align-content-between mb-5">
+                <div class="col-md my-3">
+                    <h3 class="mb-3">Opt Out</h3>
+
+                    <p>
+                        Opting out of WOWS Karma publicly hides your on-site Metrics and Received posts. <br/>
+                        In counterpart, you will no longer be able to Post on other profiles, but your existing posts will still remain.
+                    </p>
+
+                    <p>Please note that a WOWS Karma opt-out is independent of your Wargaming account's visibility settings.</p>
+
+                    <ng-container *ngIf="optOutOnCooldown$ | async as optOutOnCooldown">
+                        <div class="form-check form-control-lg">
+                            <input type="checkbox" id="optedOut" name="optedOut" [formControl]="form.controls.optedOut" class="form-check-input"
+                                   [attr.disabled]="optOutOnCooldown.isOnCooldown === true">
+                            <label class="form-check-label lead text-danger" for="optedOut">Opt Out of WOWS Karma</label>
+                        </div>
+
+                        <p *ngIf="optOutOnCooldown.isOnCooldown === true" class="text-muted font-italic">
+                            Opt-Out change is currently on Cooldown. <br/>
+                            You may update this again, past {{optOutOnCooldown.cooldownEnd}}.
+                        </p>
+                    </ng-container>
+
+
+
+
+                </div>
+            </div>
+
+            <h3>Authentication</h3>
+
+            <div class="row align-content-between">
+                <div class="col-md my-4">
+                    <h4 class="my-3">Personal Token</h4>
+
+                    <p>
+                        This token is the base of access to WOWS Karma's API system.
+                        You can use it in conjunction with your apps to use certain authenticated HTTP methods.
+                    </p>
+
+                    <p>
+                        A token expires after a certain period of time, currently set to <b>8 days</b>. <br/>
+                        Your current token will expire on: <b>{{(authService.userInfo$ | async)?.expiration | date :"medium"}}</b>.
+                    </p>
+
+                    <div class="d-flex flex-row gap-3 my-3 align-items-center">
+                        <button type="button" class="btn btn-primary" (click)="copyTokenToClipboard()"><i class="bi bi-clipboard mr-2 me-2"></i>Copy Token
+                        </button>
+                        <p *ngIf="copiedTokenToClipboard$ | async" class="text-success font-italic my-0">Token copied to clipboard!</p>
+                    </div>
+
+                    <p class="text-warning">
+                        Be extra careful manipulating authentication settings, as your token is the key to your account on WOWS Karma.
+                        Please make sure to never reveal your token to an untrusted party.
+                    </p>
+                </div>
+
+                <div class="col-md my-4">
+                    <h4 class="my-3">Reset Seed</h4>
+
+                    <p>
+                        Resetting your seed has the effect of invalidating all issued tokens, and resetting all logged-in devices.
+                        You can use this in case you suspect your token has been compromised, allowing you to start on a new seed.
+                    </p>
+
+                    <button type="button" class="btn btn-danger my-3" (click)="openResetSeedModal()">
+                        <i class="bi bi-arrow-repeat mr-2 me-2"></i>
+                        Reset Seed
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex flex-row gap-5 align-items-center my-5">
+                <button type="submit" class="btn btn-success px-5">Save</button>
+
+                <p *ngIf="changesSaved$ | async" class="text-success my-0" role="alert">
+                    Your changes have been saved.
+                </p>
+            </div>
+
+        </form>
+    </ng-container>
+</ng-container>
+
+<ng-template #loading>
+    <h3 class="text-info">Loading...</h3>
+</ng-template>

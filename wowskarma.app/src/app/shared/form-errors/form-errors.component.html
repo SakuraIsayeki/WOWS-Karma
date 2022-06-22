@@ -1,0 +1,17 @@
+<ng-container *ngIf="control?.dirty">
+    <ng-container *ngIf="control?.errors as errors">
+        <small class="text-danger">
+            <ng-container *ngIf="errors['required']">This field is required.</ng-container>
+            <ng-container *ngIf="errors['minlength'] as e">The value must be at least {{e['requiredLength']}} characters long.</ng-container>
+            <ng-container *ngIf="errors['maxlength'] as e">The value must be at most {{e['requiredLength']}} characters long.</ng-container>
+            <ng-container *ngIf="errors['pattern']">The value doesn't follow the required pattern.</ng-container>
+
+            <ng-container *ngIf="errors['replayFile'] as re">
+                <ng-container *ngIf="re['required']">This field is required.</ng-container>
+                <ng-container *ngIf="re['maxsize'] as maxsize">The file size must be at most {{formatBytesSize(maxsize)}}.</ng-container>
+                <ng-container *ngIf="re['mimetype']">The format of the specified file is not supported.</ng-container>
+                <ng-container *ngIf="re['extension'] as extension">The file extension must be <span class="font-monospace">{{extension}}</span>.</ng-container>
+            </ng-container>
+        </small>
+    </ng-container>
+</ng-container>

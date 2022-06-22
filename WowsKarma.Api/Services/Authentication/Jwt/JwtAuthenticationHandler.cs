@@ -17,7 +17,7 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 			this.userService = userService;
 		}
 
-		protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
+		protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
 			AuthenticateResult baseResult = await base.HandleAuthenticateAsync();
 
@@ -31,7 +31,7 @@ namespace WowsKarma.Api.Services.Authentication.Jwt
 
 			try
 			{
-				if (new Guid(baseResult.Principal.FindFirstValue("seed")) is Guid seed
+				if (new Guid(baseResult.Principal.FindFirstValue("seed")) is var seed
 					&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
 				{
 					isValid = true;

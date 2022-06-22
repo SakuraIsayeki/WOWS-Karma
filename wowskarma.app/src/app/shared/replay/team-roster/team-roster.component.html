@@ -1,0 +1,33 @@
+<ng-container *ngIf="teams$ | async as teams">
+  <div class="my-3">
+    <ng-container *ngIf="(author$ | async) && (player$ | async) else notMet">
+      <ng-container *ngIf="(author$ | async)?.teamId === (player$ | async)?.teamId; then sameTeam; else differentTeam;"></ng-container>
+    </ng-container>
+
+    <ng-template #notMet><h5 class="text-danger">Players have not met in battle.</h5></ng-template>
+    <ng-template #sameTeam><h5 class="text-success">Players have met in the same team.</h5></ng-template>
+    <ng-template #differentTeam><h5 class="text-info">Players have met in different teams.</h5></ng-template>
+  </div>
+
+  <table aria-label="Teams Roster" class="table table-hover table-bordered bg-dark">
+    <thead>
+      <tr><th *ngFor="let t of teams; index as i;" class="p-3 lead">Team {{i}}</th></tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let x of createRange(getMaxPlayersInOneTeam(teams)); index as i;">
+        <ng-container *ngFor="let t of teams; index as j;">
+          <td *ngIf="teams[j][i] as player" class="p-3">
+            <a *ngIf="player.clanId != 0" class="me-2 text-white-50"
+               [routerLink]="['/clan', player.clanId + ',' + player.clanTag]">[{{player.clanTag}}]</a>
+
+            <a [routerLink]="['/player', player.accountId + ',' + player.name]">{{player.name}}</a>
+
+            <span *ngIf="player.id === (author$ | async)?.id" class="text-muted small fst-italic ms-4">(Author)</span>
+            <span *ngIf="player.id === (player$ | async)?.id" class="text-muted small fst-italic ms-4">(Player)</span>
+          </td>
+        </ng-container>
+      </tr>
+    </tbody>
+  </table>
+</ng-container>

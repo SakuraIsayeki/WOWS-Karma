@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
@@ -61,7 +62,8 @@ public class AuthController : ControllerBase
 			return StatusCode(403);
 		}
 
-		JwtSecurityToken token = await userService.CreateTokenAsync(WargamingIdentity.FromUri(new Uri(Request.Query["openid.identity"].FirstOrDefault())));
+		JwtSecurityToken token = await userService.CreateTokenAsync(WargamingIdentity.FromUri(new(Request.Query["openid.identity"].FirstOrDefault()
+			?? throw new BadHttpRequestException("Missing OpenID identity"))));
 
 		Response.Cookies.Append(
 			config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieName"],
@@ -69,12 +71,15 @@ public class AuthController : ControllerBase
 			new()
 			{
 				Domain = config[$"Api:{Startup.ApiRegion.ToRegionString()}:CookieDomain"],
-				HttpOnly = true,
+				HttpOnly = false,
 				IsEssential = true,
+#if RELEASE
+				Secure = true,	
+#endif
 				Expires = DateTime.UtcNow.AddDays(7)
 			});
 
-		return Request.Query["redirectUri"].FirstOrDefault() is string redirectUri
+		return Request.Query["redirectUri"].FirstOrDefault() is { } redirectUri
 			? Redirect(redirectUri)
 			: StatusCode(200);
 	}

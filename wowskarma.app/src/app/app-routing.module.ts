@@ -14,6 +14,7 @@ import { ViewPostComponent } from "./pages/post/view/view-post.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
 import { AppInitGuard } from "./services/guards/app-init.guard";
 import { AuthGuard } from "./services/guards/auth.guard";
+import { HtmlLoaderComponent } from "./shared/components/html-loader/html-loader.component";
 import { LayoutComponent } from "./shared/layout/layout.component";
 
 const routes: Routes = [
@@ -28,6 +29,8 @@ const routes: Routes = [
                 component: LayoutComponent,
 
                 children: [
+                    { path: "", component: HtmlLoaderComponent, data: { path: "/assets/indexcontent.html" } },
+
                     // Players
                     {
                         path: "player",
@@ -62,7 +65,8 @@ const routes: Routes = [
                     { path: "login", component: LoginComponent },
                     { path: "logout", component: LogoutComponent },
                     { path: "settings", component: SettingsComponent, canActivate: [AuthGuard] /* data: { roles: ["role1"] } */ },
-                    { path: "", component: IndexComponent },
+
+                    { path: "guidelines", component: HtmlLoaderComponent, data: { path: "/assets/guidelines.html" } },
 
                     // Last route. Spawn a 404 page.
                     { path: "**", component: NotFoundComponent },

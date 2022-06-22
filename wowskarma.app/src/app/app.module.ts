@@ -44,6 +44,8 @@ import { SeedTokenChangeComponent } from './shared/modals/seed-token-change/seed
 import { PostDeleteComponent } from './shared/modals/post-delete/post-delete.component';
 import { PostModDeleteComponent } from './shared/modals/post-mod-delete/post-mod-delete.component';
 import { KarmaColorPipe } from './services/pipes/karma-color.pipe';
+import { BypassHtmlPipe } from './services/pipes/bypass-html.pipe';
+import { HtmlLoaderComponent } from './shared/components/html-loader/html-loader.component';
 
 @NgModule({
     declarations: [
@@ -80,6 +82,8 @@ import { KarmaColorPipe } from './services/pipes/karma-color.pipe';
         PostDeleteComponent,
         PostModDeleteComponent,
         KarmaColorPipe,
+        BypassHtmlPipe,
+        HtmlLoaderComponent,
 
     ],
     imports: [

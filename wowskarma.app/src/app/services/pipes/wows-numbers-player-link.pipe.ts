@@ -6,7 +6,7 @@ import { getWowsNumbersPlayerLink } from "../helpers";
 })
 export class WowsNumbersPlayerLinkPipe implements PipeTransform {
 
-    transform(player: { id?: number, username?: string }) {
+    transform(player: { id?: number, username?: string | null }) {
         return getWowsNumbersPlayerLink({ id: player.id!, username: player.username! });
     }
 

@@ -4,7 +4,7 @@
     </div>
 
     <div class="row gx-2 gy-3">
-        <div class="col-lg-4 col-md-6" *ngFor="let p of posts.sort(sortByLastCreated)">
+        <div class="col-lg-4 col-md-6" *ngFor="let p of posts">
             <app-post [post]="p" [postDisplayType]="'received'"></app-post>
         </div>
     </div>

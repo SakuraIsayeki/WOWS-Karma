@@ -2,7 +2,7 @@
 
 <ng-container *ngIf="this.authService.isLoaded$ | async else loading">
     <ng-container *ngIf="this.authService.profileFlags$ | async as settings">
-        <form [formGroup]="form" (ngSubmit)="saveChanges()">
+        <form (ngSubmit)="saveChanges()">
             <h1 class="mb-5 text-danger">Danger Zone</h1>
 
             <div class="row align-content-between mb-5">

@@ -6,7 +6,7 @@ import { getWowsNumbersClanLink } from "../helpers";
 })
 export class WowsNumbersClanLinkPipe implements PipeTransform {
 
-  transform(clan: { id?: number, tag?: string, name?: string}): unknown {
+  transform(clan: { id?: number, tag?: string | null, name?: string | null}): unknown {
     return getWowsNumbersClanLink({ id: clan.id!, tag: clan.tag!, name: clan.name! });
   }
 

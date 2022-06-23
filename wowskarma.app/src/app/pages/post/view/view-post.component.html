@@ -14,7 +14,7 @@
 
   <div *ngIf="post.replay as replay">
     <h2>Replay
-      <a class="btn btn-primary btn-lg ms-5 px-4" href="{{post.replay.downloadUri}}">Download Replay</a>
+      <a class="btn btn-primary btn-lg ms-5 px-4" [href]="post.replay.downloadUri">Download Replay</a>
     </h2>
 
     <div class="row justify-content-between my-3">

@@ -14,9 +14,8 @@ public static class Utilities
 {
 	public static JsonSerializerOptions ApiSerializerOptions { get; } = new()
 	{
-		ReferenceHandler = ReferenceHandler.Preserve,
 		PropertyNameCaseInsensitive = true,
-		NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals
+		NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
 	};
 
 	public static JsonSerializerOptions CookieSerializerOptions { get; } = new()

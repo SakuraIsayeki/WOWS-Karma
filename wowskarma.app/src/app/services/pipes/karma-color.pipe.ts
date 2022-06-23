@@ -6,13 +6,9 @@ import { getKarmaColor, getPostBorderColor } from "../helpers";
     name: "karmaColor",
 })
 export class KarmaColorPipe implements PipeTransform {
-    transform(value: number | { flairs: PostFlairs | undefined } | null | undefined): "success" | "danger" | "warning" {
+    transform(value: number | undefined | null): "success" | "danger" | "warning" {
         if (typeof value === "number") {
             return getKarmaColor(value);
-        }
-
-        if (value && value.flairs) {
-            return getPostBorderColor(value);
         }
 
         return "warning";

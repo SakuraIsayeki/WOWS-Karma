@@ -25,7 +25,7 @@
                 <dd class="col-sm-8">{{clan.members?.length ?? 'N/A'}}</dd>
 
                 <dt class="col-sm-4">Statistics</dt>
-                <dd class="col-sm-8"><a [href]="getWowsNumbersClanLink(clan)" target="_blank">View on <b>wows-numbers.com</b></a></dd>
+                <dd class="col-sm-8"><a [href]="clan | wowsNumbersClanLink" target="_blank">View on <b>wows-numbers.com</b></a></dd>
             </dl>
         </div>
 
@@ -34,30 +34,25 @@
 
             <div class="row justify-content-center my-5">
                 <div class="col">
-                    <ng-container [ngTemplateOutlet]="metrics"
-                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['game'], name: 'In-Game Karma' }"></ng-container>
+                    <minmax-metric [metric]="clanMetrics['game']" name="In-Game Karma"></minmax-metric>
                 </div>
 
                 <div class="col">
-                    <ng-container [ngTemplateOutlet]="metrics"
-                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['platform'], name: 'Platform Karma' }"></ng-container>
+                    <minmax-metric [metric]="clanMetrics['platform']" name="Platform Karma"></minmax-metric>
                 </div>
             </div>
 
             <div class="row justify-content-center my-5">
                 <div class="col">
-                    <ng-container [ngTemplateOutlet]="metrics"
-                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['performance'], name: 'Performance' }"></ng-container>
+                    <minmax-metric [metric]="clanMetrics['performance']" name="Performance"></minmax-metric>
                 </div>
 
                 <div class="col">
-                    <ng-container [ngTemplateOutlet]="metrics"
-                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['teamplay'], name: 'Teamplay' }"></ng-container>
+                    <minmax-metric [metric]="clanMetrics['teamplay']" name="Teamplay"></minmax-metric>
                 </div>
 
                 <div class="col">
-                    <ng-container [ngTemplateOutlet]="metrics"
-                                  [ngTemplateOutletContext]="{ metrics: clanMetrics['courtesy'], name: 'Courtesy' }"></ng-container>
+                    <minmax-metric [metric]="clanMetrics['courtesy']" name="Courtesy"></minmax-metric>
                 </div>
             </div>
         </div>
@@ -98,26 +93,4 @@
 
 <ng-template #notFound>
     <h3>Clan not found.</h3>
-</ng-template>
-
-<ng-template #metrics let-name="name" let-metrics="metrics">
-    <ng-container *ngIf="metrics else noMetrics">
-        <h2 class="my-3 metrics-display">
-            <span title="Total" class="text-{{metrics.total | karmaColor}}">{{metrics.total}}</span>
-
-            <span class="sup-sub">
-                <sup title="Most" class="text-{{metrics.max | karmaColor}}">{{metrics.max}}</sup>
-                <sub title="Least" class="text-{{metrics.min | karmaColor}}">{{metrics.min}}</sub>
-            </span>
-        </h2>
-
-        <h4>{{name}}</h4>
-    </ng-container>
-
-    <ng-template #noMetrics>
-        <div class="alert alert-warning">
-            <h2 class="my-3 text-danger">N/A</h2>
-            <h4>{{name}}</h4>
-        </div>
-    </ng-template>
 </ng-template>

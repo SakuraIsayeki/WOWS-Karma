@@ -46,6 +46,10 @@ import { PostModDeleteComponent } from './shared/modals/post-mod-delete/post-mod
 import { KarmaColorPipe } from './services/pipes/karma-color.pipe';
 import { BypassHtmlPipe } from './services/pipes/bypass-html.pipe';
 import { HtmlLoaderComponent } from './shared/components/html-loader/html-loader.component';
+import { MinMaxMetricComponent } from './shared/components/minmax-metric/min-max-metric.component';
+import { PostBorderColorPipe } from './services/pipes/post-border-color.pipe';
+import { WowsNumbersPlayerLinkPipe } from './services/pipes/wows-numbers-player-link.pipe';
+import { WowsNumbersClanLinkPipe } from './services/pipes/wows-numbers-clan-link.pipe';
 
 @NgModule({
     declarations: [
@@ -84,6 +88,10 @@ import { HtmlLoaderComponent } from './shared/components/html-loader/html-loader
         KarmaColorPipe,
         BypassHtmlPipe,
         HtmlLoaderComponent,
+        MinMaxMetricComponent,
+        PostBorderColorPipe,
+        WowsNumbersPlayerLinkPipe,
+        WowsNumbersClanLinkPipe,
 
     ],
     imports: [

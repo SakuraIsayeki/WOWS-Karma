@@ -6,11 +6,11 @@ import { ClanListingDto } from "../../../services/api/models/clan-listing-dto";
 import { ClanRole } from "../../../services/api/models/clan-role";
 import { PlayerProfileDto } from "../../../services/api/models/player-profile-dto";
 import { ClanService } from "../../../services/api/services/clan.service";
+import { MinMaxMetricObject } from "../../../shared/components/minmax-metric/min-max-metric.component";
 import { routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
 
 @Component({
     templateUrl: "./profile.component.html",
-    styleUrls: ["./profile.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileComponent {
@@ -53,8 +53,6 @@ export class ProfileComponent {
 
 type RankAndJoinDateComparisonInput = { clan?: { clanMemberRole?: ClanRole }, joinDate?: string }
 
-type MetricObject = { total: any; min: number; max: number }
-
 /**
  * Maps the following member metrics to a metric object:
  *
@@ -69,7 +67,7 @@ type MetricObject = { total: any; min: number; max: number }
 function mapMetrics(
     members: PlayerProfileDto[],
     metricSelector: (member: PlayerProfileDto) => number,
-): MetricObject {
+): MinMaxMetricObject {
     return {
         total: members.reduce((acc, m) => acc + metricSelector(m), 0),
         min: Math.min(...members.map(metricSelector)),

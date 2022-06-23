@@ -156,7 +156,7 @@ namespace WowsKarma.Api.Controllers
 			}
 			catch (Exception e)
 			{
-				return BadRequest(e);
+				return BadRequest(e.ToString());
 			}
 			
 			if (await playerService.GetPlayerAsync(post.Author.Id) is not { } author)

@@ -1,36 +1,62 @@
 <ng-template #loading><h3 class="text-info">Loading...</h3></ng-template>
 
 <ng-container *ngIf="post$ | async as post else loading">
-  <h1>View Post</h1>
-  <p class="lead">Post ID : <span class="ml-3 text-monospace">{{post.id}}</span></p>
+    <h1>View Post</h1>
+    <p class="lead">Post ID : <span class="ml-3 text-monospace">{{post.id}}</span></p>
 
-  <div class="my-5">
-    <div class="row">
-      <div class="col-lg-4">
-        <app-post [post]="post" [postDisplayType]="'neutral'"></app-post>
-      </div>
+    <div class="my-5">
+        <div class="row">
+            <div class="col-lg-4 col-lg-6">
+                <app-post [post]="post" [postDisplayType]="'neutral'"></app-post>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div *ngIf="post.replay as replay">
-    <h2>Replay
-      <a class="btn btn-primary btn-lg ms-5 px-4" [href]="post.replay.downloadUri">Download Replay</a>
-    </h2>
+    <div class="my-5" *ngIf="lastModAction$ | async as modAction">
+        <div class="mb-3">
+            <h4>Mod Action</h4>
 
-    <div class="row justify-content-between my-3">
-      <div class="col-lg-7 mb-5 order-lg-5">
-        <h4 class="my-3">Teams Roster</h4>
+            <p *ngIf="modAction.actionType === 0" class="text-danger lead">
+                This post was removed by our Community Managers, and is no longer visible on the platform.
+            </p>
 
-        <replay-team-roster [replay]="replay" [authorId]="post.author!.id!" [playerId]="post.player!.id!">
-        </replay-team-roster>
-      </div>
+            <p *ngIf="modAction.actionType === 1" class="text-warning lead">
+                This post was Locked by our Community Managers, and can no longer be edited.
+            </p>
+        </div>
 
-      <div class="col-lg-5 mb-5">
-        <h4 class="my-3">Chat Messages</h4>
 
-        <replay-chat-log [replay]="replay" [authorId]="post.author!.id!" [playerId]="post.player!.id!">
-        </replay-chat-log>
-      </div>
+        <dl class="row">
+            <dt class="col-sm-3 col-lg-2">Mod Action ID</dt>
+            <dd class="col-sm-9 col-lg-10">{{modAction.id}}</dd>
+
+            <dt class="col-sm-3 col-lg-2">Removed by</dt>
+            <dd class="col-sm-9 col-lg-10">{{modAction.modUsername}}</dd>
+
+            <dt class="col-sm-3 col-lg-2">Reason</dt>
+            <dd class="col-sm-9 col-lg-10" style="white-space: pre-wrap;">{{modAction.reason}}</dd>
+        </dl>
     </div>
-  </div>
+
+    <div *ngIf="post.replay as replay">
+        <h2>Replay
+            <a class="btn btn-primary btn-lg ms-5 px-4" [href]="post.replay.downloadUri">Download Replay</a>
+        </h2>
+
+        <div class="row justify-content-between my-3">
+            <div class="col-lg-7 mb-5 order-lg-5">
+                <h4 class="my-3">Teams Roster</h4>
+
+                <replay-team-roster [replay]="replay" [authorId]="post.author!.id!" [playerId]="post.player!.id!">
+                </replay-team-roster>
+            </div>
+
+            <div class="col-lg-5 mb-5">
+                <h4 class="my-3">Chat Messages</h4>
+
+                <replay-chat-log [replay]="replay" [authorId]="post.author!.id!" [playerId]="post.player!.id!">
+                </replay-chat-log>
+            </div>
+        </div>
+    </div>
 </ng-container>

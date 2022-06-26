@@ -17,6 +17,7 @@ import { ViewPostComponent } from "./pages/post/view/view-post.component";
 import { ApiModule } from "./services/api/api.module";
 import { AppConfigService } from "./services/app-config.service";
 import { AppInitService } from "./services/app-init.service";
+import { AppInsightsService } from "./services/app-insights.service";
 import { AuthService } from "./services/auth.service";
 import { AppInitGuard } from "./services/guards/app-init.guard";
 import { AuthGuard } from "./services/guards/auth.guard";
@@ -103,6 +104,7 @@ import { WowsNumbersClanLinkPipe } from './services/pipes/wows-numbers-clan-link
     providers: [
         AuthService,
         AppConfigService,
+        AppInsightsService,
         AppInitService,
         AppInitGuard,
         AuthGuard,

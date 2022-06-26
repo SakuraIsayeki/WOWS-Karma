@@ -1,15 +1,19 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 import { AppInitService } from "./services/app-init.service";
+import { AppInsightsService } from "./services/app-insights.service";
 
 @Component({
-  template: "<router-outlet></router-outlet>",
+    template: "<router-outlet></router-outlet>",
 
 })
 export class AppComponent {
-  constructor(private appInitService: AppInitService) {
-  }
+    constructor(
+        private appInitService: AppInitService,
+        private _applicationInsights: AppInsightsService, // Used for initializing the app insights service
+    ) {
+    }
 
-  ngOnInit(): void {
-      setTimeout(() => this.appInitService.initialized(), 0);
-  }
+    ngOnInit(): void {
+        setTimeout(() => this.appInitService.initialized(), 0);
+    }
 }

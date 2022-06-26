@@ -1,4 +1,5 @@
 import { Component, Inject, OnInit } from "@angular/core";
+import { environment } from "../../../../environments/environment";
 import { ApiRegion } from "../../../models/ApiRegion";
 import { AppConfigService } from "../../../services/app-config.service";
 
@@ -15,6 +16,7 @@ export class FooterComponent implements OnInit {
   }
 
   public currentRegion: ApiRegion = AppConfigService.getApiRegionFromLocation() as ApiRegion;
+  public currentApiHost: string = environment.apiHost[this.appConfig.currentRegion];
 
   ngOnInit(): void {
   }

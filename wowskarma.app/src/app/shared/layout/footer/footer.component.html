@@ -1,27 +1,27 @@
 <footer class="footer text-muted mt-5">
-  <div class="container">
-    <div class="row justify-content-between flex-grow-1">
-      <div class="col-auto align-self-end">
-        <div id="app-id">
-          <strong class="me-3">WOWS Karma ({{currentRegion}})</strong>
-          v{{appConfig.version}}
-        </div>
+    <div class="container">
+        <div class="row justify-content-between flex-grow-1">
+            <div class="col-auto align-self-end">
+                <div id="app-id">
+                    <strong class="me-3">WOWS Karma ({{currentRegion}})</strong>
+                    v{{appConfig.version}}
+                </div>
 
-        <div>
-          <ul class="list-inline">
-            <li class="list-inline-item"><a href="/guidelines">Guidelines</a></li>
-            <li class="list-inline-item"><a href="/swagger">API</a></li>
-            <li class="list-inline-item"><a href="https://github.com/SakuraIsayeki/WoWS-Karma">GitHub</a></li>
-            <li class="list-inline-item"><a href="https://discord.gg/PrW9dtzK9K">Discord</a></li>
-          </ul>
-        </div>
-      </div>
+                <div>
+                    <ul class="list-inline">
+                        <li class="list-inline-item"><a routerLink="/guidelines">Guidelines</a></li>
+                        <li class="list-inline-item"><a target="_blank" rel="external" [href]="currentApiHost + '/swagger'">API</a></li>
+                        <li class="list-inline-item"><a target="_blank" rel="external" href="https://github.com/SakuraIsayeki/WoWS-Karma">GitHub</a></li>
+                        <li class="list-inline-item"><a target="_blank" rel="external" href="https://discord.gg/PrW9dtzK9K">Discord</a></li>
+                    </ul>
+                </div>
+            </div>
 
-      <div class="col-auto align-self-end mb-3">
-        Developed by <a href="https://wows-karma.com/player/503379282,Sakura_Isayeki">Sakura Isayeki</a>
-        <br/>
-        Powered by <a target="_blank" href="https://nodsoft.net/" rel="noreferrer">Nodsoft Systems</a>
-      </div>
+            <div class="col-auto align-self-end mb-3">
+                Developed by <a href="https://wows-karma.com/player/503379282,Sakura_Isayeki">Sakura Isayeki</a>
+                <br/>
+                Powered by <a target="_blank" rel="external" href="https://nodsoft.net/">Nodsoft Systems</a>
+            </div>
+        </div>
     </div>
-  </div>
 </footer>

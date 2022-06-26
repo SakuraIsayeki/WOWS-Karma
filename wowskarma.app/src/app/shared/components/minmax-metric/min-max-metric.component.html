@@ -1,0 +1,19 @@
+<ng-container *ngIf="metric else noMetric">
+    <h2 class="my-3 metrics-display">
+        <span title="Total" class="text-{{metric.total | karmaColor}}">{{metric.total}}</span>
+
+        <span class="sup-sub">
+            <sup title="Most" class="text-{{metric.max | karmaColor}}">{{metric.max}}</sup>
+            <sub title="Least" class="text-{{metric.min | karmaColor}}">{{metric.min}}</sub>
+        </span>
+    </h2>
+
+    <h4>{{name}}</h4>
+</ng-container>
+
+<ng-template #noMetric>
+    <div class="alert alert-warning">
+        <h2 class="my-3 text-danger">N/A</h2>
+        <h4>{{name}}</h4>
+    </div>
+</ng-template>

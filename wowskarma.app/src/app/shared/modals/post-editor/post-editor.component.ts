@@ -13,7 +13,6 @@ import * as ReplayValidators from "../../validation/replay-validators";
 @Component({
     selector: "post-editor",
     templateUrl: "./post-editor.component.html",
-    styleUrls: ["./post-editor.component.scss"],
     changeDetection: ChangeDetectionStrategy.Default,
 })
 export class PostEditorComponent {

@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<form #f="ngForm" (ngSubmit)="f.form.valid && onSubmit()" novalidate>
+<form (ngSubmit)="form.valid && onSubmit()" novalidate>
     <div class="modal-body px-3">
 
         <div class="form-group mb-3">

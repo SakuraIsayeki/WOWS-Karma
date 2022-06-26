@@ -6,13 +6,13 @@
       <a class="nav-link text-white" [routerLink]="['/player', user.id +','+ user.username]">Profile</a>
     </li>
 
-    <li class="nav-item"><a class="nav-link text-white" [routerLink]="['/settings']">Settings</a></li>
-    <li class="nav-item"><a class="nav-link text-white" [routerLink]="['/logout']">Logout</a></li>
+    <li class="nav-item"><a class="nav-link text-white" routerLink="/settings">Settings</a></li>
+    <li class="nav-item"><a class="nav-link text-white" routerLink="/logout">Logout</a></li>
   </ng-container>
 
   <ng-template #unauthorized>
     <li class="nav-item">
-      <a class="nav-link text-white" [routerLink]="'/login'" [queryParams]="{redirectUri: (currentRelativePath$ | async)}">Login</a>
+      <a class="nav-link text-white" routerLink="/login" [queryParams]="{redirectUri: (currentRelativePath$ | async)}">Login</a>
     </li>
   </ng-template>
 </ul>

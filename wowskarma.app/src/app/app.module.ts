@@ -9,7 +9,6 @@ import { LoginComponent } from "./pages/auth/login.component";
 import { LogoutComponent } from "./pages/auth/logout.component";
 import { ProfileComponent as ClanProfileComponent } from "./pages/clan/profile/profile.component";
 import { SearchComponent as ClanSearchComponent } from "./pages/clan/search/search.component";
-import { IndexComponent } from "./pages/index/index.component";
 import { NotFoundComponent } from "./pages/not-found/not-found.component";
 import { ProfileComponent as PlayerProfileComponent } from "./pages/player/profile/profile.component";
 import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";
@@ -18,6 +17,7 @@ import { ViewPostComponent } from "./pages/post/view/view-post.component";
 import { ApiModule } from "./services/api/api.module";
 import { AppConfigService } from "./services/app-config.service";
 import { AppInitService } from "./services/app-init.service";
+import { AppInsightsService } from "./services/app-insights.service";
 import { AuthService } from "./services/auth.service";
 import { AppInitGuard } from "./services/guards/app-init.guard";
 import { AuthGuard } from "./services/guards/auth.guard";
@@ -46,6 +46,10 @@ import { PostModDeleteComponent } from './shared/modals/post-mod-delete/post-mod
 import { KarmaColorPipe } from './services/pipes/karma-color.pipe';
 import { BypassHtmlPipe } from './services/pipes/bypass-html.pipe';
 import { HtmlLoaderComponent } from './shared/components/html-loader/html-loader.component';
+import { MinMaxMetricComponent } from './shared/components/minmax-metric/min-max-metric.component';
+import { PostBorderColorPipe } from './services/pipes/post-border-color.pipe';
+import { WowsNumbersPlayerLinkPipe } from './services/pipes/wows-numbers-player-link.pipe';
+import { WowsNumbersClanLinkPipe } from './services/pipes/wows-numbers-clan-link.pipe';
 
 @NgModule({
     declarations: [
@@ -53,7 +57,6 @@ import { HtmlLoaderComponent } from './shared/components/html-loader/html-loader
         LayoutComponent,
         NavbarComponent,
         FooterComponent,
-        IndexComponent,
         NotFoundComponent,
         PlayerSearchComponent,
         AppWrapperComponent,
@@ -84,6 +87,10 @@ import { HtmlLoaderComponent } from './shared/components/html-loader/html-loader
         KarmaColorPipe,
         BypassHtmlPipe,
         HtmlLoaderComponent,
+        MinMaxMetricComponent,
+        PostBorderColorPipe,
+        WowsNumbersPlayerLinkPipe,
+        WowsNumbersClanLinkPipe,
 
     ],
     imports: [
@@ -97,6 +104,7 @@ import { HtmlLoaderComponent } from './shared/components/html-loader/html-loader
     providers: [
         AuthService,
         AppConfigService,
+        AppInsightsService,
         AppInitService,
         AppInitGuard,
         AuthGuard,

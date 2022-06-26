@@ -19,10 +19,12 @@ export class SettingsComponent {
         map((profileFlags) => {
             // Check if the user is opted out and if they are on cooldown (1 Week after opting out)
             const cooldownEnd = new Date(profileFlags?.optOutChanged!)?.addDays(7);
-            const isOnCooldown = (profileFlags?.optedOut && cooldownEnd && cooldownEnd > new Date(Date.now())) ?? false;
+            const isOnCooldown = (cooldownEnd && cooldownEnd > new Date(Date.now())) ?? false;
             return { isOnCooldown, cooldownEnd };
         }),
     );
+
+    platformBanned$ = new BehaviorSubject(false);
 
     form = this.formBuilder.nonNullable.group({
         id: 0,
@@ -38,6 +40,11 @@ export class SettingsComponent {
         this.authService.profileFlags$.subscribe((profileFlags) => {
             if (profileFlags) {
                 this.form.patchValue(profileFlags);
+
+                if (profileFlags.postsBanned) {
+                    this.platformBanned$.next(true);
+                    this.form.disable();
+                }
             }
         });
     }

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { BehaviorSubject, Observable, tap } from "rxjs";
+import { map } from "rxjs/operators";
 import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
 import { PostService } from "../../../../services/api/services/post.service";
 import { sortByCreationDate } from "../../../../services/helpers";
@@ -22,6 +23,7 @@ export class PostsSentComponent {
   sentPosts$ = this.userId$.pipe(
     tap(() => this.loading$.next(true)),
     switchMapCatchError(userId => this.postService.apiPostUserIdSentGet$Json({ userId })),
+    map(posts => posts?.sort(this.sortByLastCreated)),
     tapAny(() => this.loading$.next(false))
   );
 

@@ -20,6 +20,8 @@
     "@angular/platform-browser": "^14.0.0",
     "@angular/platform-browser-dynamic": "^14.0.0",
     "@angular/router": "^14.0.0",
+    "@microsoft/applicationinsights-angularplugin-js": "^2.9.1",
+    "@microsoft/applicationinsights-web": "^2.8.4",
     "@ng-bootstrap/ng-bootstrap": "^12.1.2",
     "@popperjs/core": "^2.11.5",
     "@types/bootstrap": "^5.1.12",

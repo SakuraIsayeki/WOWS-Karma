@@ -5,7 +5,6 @@ import { LoginComponent } from "./pages/auth/login.component";
 import { LogoutComponent } from "./pages/auth/logout.component";
 import { ProfileComponent as ClanProfileComponent } from "./pages/clan/profile/profile.component";
 import { SearchComponent as ClanSearchComponent } from "./pages/clan/search/search.component";
-import { IndexComponent } from "./pages/index/index.component";
 import { NotFoundComponent } from "./pages/not-found/not-found.component";
 import { ProfileComponent as PlayerProfileComponent } from "./pages/player/profile/profile.component";
 import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";

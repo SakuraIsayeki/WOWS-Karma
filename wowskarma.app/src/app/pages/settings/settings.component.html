@@ -1,8 +1,21 @@
-<h1 class="mb-5">Settings</h1>
+<div class="my-5 d-flex flex-row justify-content-between">
+    <h1>Settings</h1>
 
-<ng-container *ngIf="this.authService.isLoaded$ | async else loading">
+    <div *ngIf="platformBanned$ | async" class="row align-items-center text-danger">
+        <div class="col-auto">
+            <h2 class="m-0"><i class="bi-x-circle"></i></h2>
+        </div>
+
+        <div class="col">
+            <h5>You have been banned from the platform.</h5>
+            Account settings cannot be changed.
+        </div>
+    </div>
+</div>
+
+<div *ngIf="this.authService.isLoaded$ | async else loading">
     <ng-container *ngIf="this.authService.profileFlags$ | async as settings">
-        <form [formGroup]="form" (ngSubmit)="saveChanges()">
+        <form (ngSubmit)="saveChanges()">
             <h1 class="mb-5 text-danger">Danger Zone</h1>
 
             <div class="row align-content-between mb-5">
@@ -19,7 +32,7 @@
                     <ng-container *ngIf="optOutOnCooldown$ | async as optOutOnCooldown">
                         <div class="form-check form-control-lg">
                             <input type="checkbox" id="optedOut" name="optedOut" [formControl]="form.controls.optedOut" class="form-check-input"
-                                   [attr.disabled]="optOutOnCooldown.isOnCooldown === true">
+                                   [attr.disabled]="optOutOnCooldown.isOnCooldown ? true : null">
                             <label class="form-check-label lead text-danger" for="optedOut">Opt Out of WOWS Karma</label>
                         </div>
 
@@ -28,10 +41,6 @@
                             You may update this again, past {{optOutOnCooldown.cooldownEnd}}.
                         </p>
                     </ng-container>
-
-
-
-
                 </div>
             </div>
 
@@ -79,7 +88,7 @@
             </div>
 
             <div class="d-flex flex-row gap-5 align-items-center my-5">
-                <button type="submit" class="btn btn-success px-5">Save</button>
+                <button type="submit" class="btn btn-success px-5" [attr.disabled]="(platformBanned$ | async) ? true : null">Save</button>
 
                 <p *ngIf="changesSaved$ | async" class="text-success my-0" role="alert">
                     Your changes have been saved.
@@ -88,7 +97,7 @@
 
         </form>
     </ng-container>
-</ng-container>
+</div>
 
 <ng-template #loading>
     <h3 class="text-info">Loading...</h3>

@@ -19,7 +19,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostListComponent {
-  listFilters = this.formBuilder.group({
+  listFilters = this.formBuilder.group<ListFilters>({
     count: 10,
     hideModActions: false,
     hasReplay: undefined

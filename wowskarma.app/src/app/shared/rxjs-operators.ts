@@ -124,3 +124,21 @@ export function InputObservable() {
 export function startFrom<T, O extends ObservableInput<any>>(start: O): OperatorFunction<T, T | ObservedValueOf<O>> {
   return (source: Observable<T>) => concat(start, source)
 }
+
+export function mergeAndCache<T, X>(merge$: Observable<X>, func: ((cached: T[], newItem: X) => T[])): (source$: Observable<T[]>) => Observable<T[]> {
+  return source$ => new Observable<T[]>(subscriber => {
+    let cached:T[] = [];
+    const sourceSubscription = source$.subscribe(v => {
+      cached = v;
+      subscriber.next(v);
+    }, err => subscriber.error(err), () => subscriber.complete());
+    const mergeSubscription = merge$.subscribe(v => {
+      cached = func(cached, v);
+      subscriber.next(cached);
+    });
+    return () => {
+      sourceSubscription.unsubscribe();
+      mergeSubscription.unsubscribe();
+    };
+  });
+}

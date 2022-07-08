@@ -1,18 +1,24 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, debounceTime, distinctUntilChanged, tap } from "rxjs";
+import { BehaviorSubject, combineLatest, debounceTime, distinctUntilChanged, startWith, tap } from "rxjs";
 import { map } from "rxjs/operators";
+import { PlayerPostDto } from "../../../services/api/models/player-post-dto";
 import { PostService } from "../../../services/api/services/post.service";
 import { AuthService } from "../../../services/auth.service";
-import { sortByCreationDate } from "../../../services/helpers";
+import { PostsHubService } from "../../../services/hubs/posts-hub.service";
 import {
   filterNotNull,
-  filterPartials,
+  filterPartials, mergeAndCache,
   shareReplayRefCount,
   startFrom,
   switchMapCatchError,
   tapAny,
 } from "../../../shared/rxjs-operators";
+
+export declare type HasId = {id: string};
+export declare type PostChange = { mode: 'new' | 'edited' | 'deleted', post: HasId };
+
+
 
 @Component({
   templateUrl: "./post-list.component.html",
@@ -27,7 +33,7 @@ export class PostListComponent {
 
   loaded$ = new BehaviorSubject<boolean>(false);
 
-  posts$ = this.listFilters.valueChanges.pipe(
+  _posts$ = this.listFilters.valueChanges.pipe(
     debounceTime(300),
     distinctUntilChanged(),
     filterPartials(),
@@ -45,7 +51,38 @@ export class PostListComponent {
     shareReplayRefCount(1),
   );
 
-  constructor(public authService: AuthService, private postService: PostService, private formBuilder: FormBuilder) {
+
+
+  private postChanges$ = combineLatest([
+      this.postsHubService.newPost$.pipe(startWith(null)),
+    this.postsHubService.editedPost$.pipe(startWith(null)),
+    this.postsHubService.deletedPost$.pipe(startWith(null))
+  ])
+      .pipe(map(([newPost, editedPost, deletedPost]) => {
+        if(newPost)
+          return { mode: 'new', post: newPost } as PostChange;
+        else if(editedPost)
+          return { mode: 'edited', post: editedPost } as PostChange;
+        else
+          return { mode: 'deleted', post: {id: deletedPost}} as PostChange;
+      }))
+  posts$ = this._posts$.pipe(filterNotNull(),
+      mergeAndCache(this.postChanges$, this.merge));
+
+  constructor(public authService: AuthService, private postService: PostService, private formBuilder: FormBuilder, private postsHubService: PostsHubService) {
+
+  }
+
+  private merge(array: PlayerPostDto[], postChange: PostChange){
+    if(postChange.mode == 'new' && !array.find(a => a.id == postChange.post.id)){
+      array = [postChange.post, ...array];
+    } else if(postChange.mode == 'edited'){
+      array[array.findIndex(a => a.id == postChange.post.id)] = postChange.post;
+      array = [...array];
+    } else{
+      array = [...array.splice(array.findIndex(a => a.id == postChange.post.id), 1)];
+    }
+    return array;
   }
 }
 

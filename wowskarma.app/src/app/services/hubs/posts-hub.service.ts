@@ -9,7 +9,7 @@ import { AppConfigService } from "../app-config.service";
 @Injectable({
     providedIn: "root"
 })
-export class PostsHubService {
+export class PostsHub {
 
     private onNewPost = new Subject<PlayerPostDto>();
     private onEditedPost = new Subject<PlayerPostDto>();

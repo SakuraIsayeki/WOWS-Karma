@@ -4,6 +4,12 @@ import { PostFlairs } from "./api/models/post-flairs";
 import { AppConfigService } from "./app-config.service";
 import { countBalance, parseFlairsEnum } from "./metricsHelpers";
 
+export type HubTupleResult<T1, T2> = { "item1": T1, "item2": T2 };
+
+export type KeyOfType<T, V> = keyof {
+    [P in keyof T as T[P] extends V? P: never]: any
+}
+
 /**
  * Get the bootstrap color to apply to a Karma metric.
  * @param karma The karma value.
@@ -88,6 +94,28 @@ export function sortByCreationDate(
     const aDate = a.createdAt instanceof Date ? a.createdAt : new Date(a.createdAt ?? "");
     const bDate = b.createdAt instanceof Date ? b.createdAt : new Date(b.createdAt ?? "");
     return reverse ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+}
+
+/**
+ * Sorts objects by their creation date/time, per a given object property.
+ * @param field The property to sort by (must be a Date, string, or null).
+ * @param reverse Whether to sort in reverse order.
+ * @returns A sort function that can be used with Array.sort().
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+ */
+export function sortByDateField<T>(field: keyof T, reverse = false): (a: T, b: T) => number {
+    type DateParamType = Date | string | null;
+
+    const dateFunc: (o: T) => Date = (obj) => {
+        const date = (obj[field] as unknown) as DateParamType;
+        return date instanceof Date ? date : new Date(date ?? "");
+    }
+
+    return (a: T, b: T) => {
+        const aDate = dateFunc(a);
+        const bDate = dateFunc(b);
+        return reverse ? bDate.getTime() - aDate.getTime() : aDate.getTime() - bDate.getTime();
+    }
 }
 
 /**

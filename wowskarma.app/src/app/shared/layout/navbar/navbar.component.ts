@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Collapse } from "bootstrap";
+import { AuthService } from "../../../services/auth.service";
 
 @Component({
     selector: "app-navbar",
@@ -8,7 +9,7 @@ import { Collapse } from "bootstrap";
 })
 export class NavbarComponent implements OnInit {
 
-    constructor() { }
+    constructor(public authService: AuthService) { }
 
     ngOnInit(): void {
     }

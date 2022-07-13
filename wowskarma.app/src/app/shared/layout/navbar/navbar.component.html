@@ -23,6 +23,10 @@
           </button>
         </li>
         -->
+
+        <li *ngIf="authService.userInfo$ | async" class="nav-item ml-3 msl-5">
+          <app-notifications-button></app-notifications-button>
+        </li>
       </ul>
     </div>
 

@@ -50,6 +50,9 @@ import { MinMaxMetricComponent } from './shared/components/minmax-metric/min-max
 import { PostBorderColorPipe } from './services/pipes/post-border-color.pipe';
 import { WowsNumbersPlayerLinkPipe } from './services/pipes/wows-numbers-player-link.pipe';
 import { WowsNumbersClanLinkPipe } from './services/pipes/wows-numbers-clan-link.pipe';
+import { NotificationsButtonComponent } from './shared/layout/navbar/notifications-button/notifications-button.component';
+import { NotificationsMenuComponent } from './shared/notifications/notifications-menu/notifications-menu.component';
+import { NotificationComponent } from './shared/notifications/notification/notification.component';
 
 @NgModule({
     declarations: [
@@ -91,6 +94,9 @@ import { WowsNumbersClanLinkPipe } from './services/pipes/wows-numbers-clan-link
         PostBorderColorPipe,
         WowsNumbersPlayerLinkPipe,
         WowsNumbersClanLinkPipe,
+        NotificationsButtonComponent,
+        NotificationsMenuComponent,
+        NotificationComponent,
 
     ],
     imports: [

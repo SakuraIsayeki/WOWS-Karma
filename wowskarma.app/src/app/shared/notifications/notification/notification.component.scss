@@ -1,0 +1,10 @@
+$border-rounding: calc(0.25rem - 1px);
+
+.toast-header {
+  background-clip: revert;
+}
+
+.toast-body {
+  border-bottom-left-radius: $border-rounding;
+  border-bottom-right-radius: $border-rounding;
+}

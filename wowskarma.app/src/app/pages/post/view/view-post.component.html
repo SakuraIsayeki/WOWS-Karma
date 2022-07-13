@@ -1,4 +1,6 @@
-<ng-template #loading><h3 class="text-info">Loading...</h3></ng-template>
+<ng-template #loading>
+    <h3 class="text-info">Loading...</h3>
+</ng-template>
 
 <ng-container *ngIf="post$ | async as post else loading">
     <h1>View Post</h1>
@@ -59,4 +61,8 @@
             </div>
         </div>
     </div>
+</ng-container>
+
+<ng-container *ngIf="onChanges$ | async">
+
 </ng-container>

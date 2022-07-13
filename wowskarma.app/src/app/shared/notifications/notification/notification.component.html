@@ -1,0 +1,18 @@
+<a *ngIf="buildNotificationContent(notification) as content" [routerLink]="content.link" (click)="_onClick($event)"
+   class="toast show text-decoration-none border-0" [class.text-danger]="content.critical">
+    <div class="toast-header d-flex justify-content-between text-nowrap">
+        <strong class="mr-3 d-flex-1" [class.text-danger]="content.critical">{{content!.title}}</strong>
+
+        <div>
+            <small>{{notification.emittedAt | date:"short"}}</small>
+
+            <button (click)="_onDismiss($event)" type="button" class="btn btn-link btn-sm text-white ml-3" data-bs-dismiss="toast" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="toast-body bg-body" [innerHTML]="content!.body | bypassHtml">
+
+    </div>
+</a>

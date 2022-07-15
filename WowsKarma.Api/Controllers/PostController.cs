@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using WowsKarma.Api.Infrastructure.Attributes;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
@@ -228,7 +229,7 @@ namespace WowsKarma.Api.Controllers
 		/// <response code="400">Post contents validation has failed.</response>
 		/// <response code="403">Restrictions are in effect for the existing post.</response>
 		/// <response code="404">Targeted post was not found.</response>
-		[HttpPut, Authorize(RequireNoPlatformBans)]
+		[HttpPut, Authorize(RequireNoPlatformBans), ETag(false)]
 		[ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{

@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WowsKarma.Api.Infrastructure.Attributes;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
@@ -40,7 +41,7 @@ public class ProfileController : ControllerBase
 	/// <response code="403">User cannot update a profile other than their own.</response>
 	/// <response code="404">User profile was not found.</response>
 	/// <response code="423">A cooldown is currently in effect for one of the values edited.</response>
-	[HttpPut, Authorize(RequireNoPlatformBans), ProducesResponseType(typeof(UserProfileFlagsDTO), 200)]
+	[HttpPut, Authorize(RequireNoPlatformBans), ETag(false), ProducesResponseType(typeof(UserProfileFlagsDTO), 200)]
 	[ProducesResponseType(423), ProducesResponseType(typeof(string), 403), ProducesResponseType(404)]
 	public async Task<IActionResult> UpdateProfileFlagsAsync([FromBody] UserProfileFlagsDTO flags)
 	{

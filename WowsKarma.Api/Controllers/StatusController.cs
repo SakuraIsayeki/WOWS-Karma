@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using WowsKarma.Api.Infrastructure.Attributes;
 
 namespace WowsKarma.Api.Controllers
 {
 	/// <summary>
 	/// Provides status endpoints for controlling API lifetime.
 	/// </summary>
-	[ApiController, Route("api/[controller]")]
+	[ApiController, Route("api/[controller]"), ETag(false)]
 	public class StatusController : Controller
 	{
 		/// <summary>

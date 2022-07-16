@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using WowsKarma.Api.Infrastructure.Attributes;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
@@ -15,7 +16,7 @@ namespace WowsKarma.Api.Controllers;
 /// <summary>
 /// Provides API Authentication endpoints.
 /// </summary>
-[ApiController, Route("api/[controller]")]
+[ApiController, Route("api/[controller]"), ETag(false)]
 public class AuthController : ControllerBase
 {
 	private readonly IConfiguration config;
@@ -23,6 +24,7 @@ public class AuthController : ControllerBase
 	private readonly WargamingAuthService wargamingAuthService;
 	private readonly JwtService jwtService;
 
+	
 	public AuthController(IConfiguration config, UserService userService, WargamingAuthService wargamingAuthService, JwtService jwtService)
 	{
 		this.config = config;

@@ -23,7 +23,7 @@ import { AppInsightsService } from "./services/app-insights.service";
 import { AuthService } from "./services/auth.service";
 import { AppInitGuard } from "./services/guards/app-init.guard";
 import { AuthGuard } from "./services/guards/auth.guard";
-import { AuthenticationInterceptor } from "./services/interceptors/authentication-interceptor.service";
+import { AuthenticationInterceptor } from "./services/interceptors/authentication.interceptor";
 import { ErrorInterceptor } from "./services/interceptors/error.interceptor";
 import { BypassHtmlPipe } from "./services/pipes/bypass-html.pipe";
 import { ColorHexPipe } from "./services/pipes/colorHex.pipe";

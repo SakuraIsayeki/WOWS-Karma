@@ -26,5 +26,19 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "api",
+      "cacheConfig": {
+        "maxAge": "600",
+        "maxSize": 128,
+        "strategy": "freshness"
+      },
+      "urls": [
+        "*.wows-karma.com/**",
+        "localhost:5010/api/**"
+      ]
+    }
   ]
 }

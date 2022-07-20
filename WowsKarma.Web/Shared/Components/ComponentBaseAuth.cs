@@ -13,7 +13,7 @@ namespace WowsKarma.Web.Shared.Components
 	public abstract class ComponentBaseAuth : ComponentBase
 	{
 		[Inject] protected IHttpContextAccessor HttpContextAccessor { get; set; }
-		[Inject] protected AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+		[CascadingParameter] public Task<AuthenticationState> AuthStateTask { get; set; }
 
 		protected AccountListingDTO CurrentUser { get; private set; }
 		protected ClaimsPrincipal ClaimsPrincipal { get; private set; }
@@ -23,7 +23,7 @@ namespace WowsKarma.Web.Shared.Components
 		{
 			await base.OnInitializedAsync();
 
-			AuthenticationState authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+			AuthenticationState authenticationState = await AuthStateTask;
 			ClaimsPrincipal = authenticationState.User;
 			CurrentUser = authenticationState.User.ToAccountListing();
 			CurrentToken = HttpContextAccessor?.HttpContext?.Request?.Cookies[ApiTokenAuthenticationHandler.CookieName];

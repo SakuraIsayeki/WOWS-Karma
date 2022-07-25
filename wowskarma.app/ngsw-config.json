@@ -36,7 +36,7 @@
         "strategy": "freshness"
       },
       "urls": [
-        "*.wows-karma.com/**",
+        "api**.wows-karma.com/**",
         "localhost:5010/api/**"
       ]
     }

@@ -54,6 +54,7 @@ import { FlairMarkupsComponent } from "./shared/post/flair-markup/flair-markups.
 import { PostComponent } from "./shared/post/post.component";
 import { ChatLogComponent } from "./shared/replay/chat-log/chat-log.component";
 import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.component";
+import { ChatMessageChannelPipe } from './services/pipes/chat-message-channel.pipe';
 
 @NgModule({
     declarations: [
@@ -98,6 +99,7 @@ import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.com
         NotificationsButtonComponent,
         NotificationsMenuComponent,
         NotificationComponent,
+        ChatMessageChannelPipe,
 
     ],
     imports: [

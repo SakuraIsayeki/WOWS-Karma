@@ -1,5 +1,9 @@
-<div class="my-3">
-
+<div class="my-3" *ngIf="whoChatted$ | async as whoChatted">
+  <ng-container *ngIf="!(whoChatted[0] === true && whoChatted[1] === true) else bothInteracted">
+    <ng-container *ngIf="whoChatted[0] === true then authorOnly"></ng-container>
+    <ng-container *ngIf="whoChatted[1] === true then playerOnly"></ng-container>
+    <ng-container *ngIf="(whoChatted[0] === false && whoChatted[1] === false) then noneInteracted"></ng-container>
+  </ng-container>
 </div>
 
 <div class="list-group">
@@ -11,9 +15,15 @@
         <span *ngIf="msg.playerId == (playerId$ | async)" class="text-muted small fst-italic ms-4">(Player)</span>
       </div>
 
-
+      <small *ngIf="msg.messageGroup | chatMessageChannel as channel" [class]="channel.color">({{channel.display}})</small>
     </div>
 
     <p class="mb-1 text-break">{{msg.messageContent}}</p>
   </a>
 </div>
+
+
+<ng-template #bothInteracted><h5 class="text-success">Both players have interacted with chat.</h5></ng-template>
+<ng-template #playerOnly><h5 class="text-info">Only the Player has interacted with chat.</h5></ng-template>
+<ng-template #authorOnly><h5 class="text-info">Only the Author has interacted with chat.</h5></ng-template>
+<ng-template #noneInteracted><h5 class="text-warning">Neither player has interacted with chat.</h5></ng-template>

@@ -367,3 +367,5 @@ WowsKarma.Web/**/*.razor.css
 .idea/
 
 wowskarma.app/pnpm-lock.yaml
+
+.store/

@@ -1,6 +1,6 @@
-﻿using Nodsoft.WowsReplaysUnpack.Data;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Nodsoft.WowsReplaysUnpack.Core.Models;
 
 
 namespace WowsKarma.Api.Data.Models.Replays;

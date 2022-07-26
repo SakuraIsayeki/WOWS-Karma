@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
-using Nodsoft.WowsReplaysUnpack.Data;
+using Nodsoft.WowsReplaysUnpack.Core.Models;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;

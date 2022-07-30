@@ -31,7 +31,9 @@ public class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInv
 
 	public async IAsyncEnumerable<(string, object)> GetPendingNotifications([EnumeratorCancellation] CancellationToken ct)
 	{
-		ConfiguredCancelableAsyncEnumerable<NotificationBase> notifications = _service.GetPendingNotifications(uint.Parse(Context.UserIdentifier))
+		uint userId = uint.Parse(Context.UserIdentifier ?? throw new InvalidOperationException("No context user identifier. Is the user logged in on the hub?"));
+		
+		ConfiguredCancelableAsyncEnumerable<NotificationBase> notifications = _service.GetPendingNotifications(userId)
 			.AsNoTracking()
 			.AsAsyncEnumerable()
 			.WithCancellation(ct);
@@ -39,9 +41,9 @@ public class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInv
 		await foreach (NotificationBase item in notifications)
 		{
 			ct.ThrowIfCancellationRequested();
-			object notificationDTO = item.ToDTO();
+			object notificationDto = item.ToDTO();
 
-			yield return (notificationDTO.GetType().FullName, notificationDTO);
+			yield return (notificationDto.GetType().FullName, notificationDto);
 		}
 	}
 }

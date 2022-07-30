@@ -1,11 +1,21 @@
-name: .NET Build
+name: .NET Build & Test
 
 on: [ push, pull_request ]
 
 jobs:
-  build:
-
+  build-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Projects to build
+        project: [ 
+          { name: "Common", path: "./WowsKarma.Common/WowsKarma.Common.csproj" },
+          { name: "API", path: "./WowsKarma.Api/WowsKarma.Api.csproj" },
+          { name: "Web (legacy)", path: "./WowsKarma.Web/WowsKarma.Web.csproj" },
+        ]
 
     steps:
     - uses: actions/checkout@v2
@@ -17,9 +27,12 @@ jobs:
       with:
         dotnet-version: '6.x'
     #    include-prerelease: true
-    - name: Restore dependencies
-      run: dotnet restore *.sln
-    - name: Build
-      run: dotnet build --no-restore *.sln
-    - name: Test
-      run: dotnet test --no-build --verbosity normal *.sln
+
+    - name: Restore dependencies for ${{ matrix.project.name }}
+      run: dotnet restore ${{ matrix.project.path }}
+
+    - name: Build ${{ matrix.project.name }}
+      run: dotnet build --no-restore ${{ matrix.project.path }}
+
+    - name: Test ${{ matrix.project.name }}
+      run: dotnet test --no-build --verbosity normal ${{ matrix.project.path }}

@@ -26,6 +26,7 @@ public class ApiDbContext : DbContext
 	public DbSet<PostAddedNotification> PostAddedNotifications { get; init; }
 	public DbSet<PostEditedNotification> PostEditedNotifications { get; init; }
 	public DbSet<PostDeletedNotification> PostDeletedNotifications { get; init; }
+	public DbSet<PostModEditedNotification> PostModEditedNotifications { get; init; }
 	public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; init; }
 	#endregion
 
@@ -72,6 +73,7 @@ public class ApiDbContext : DbContext
 				.HasValue<PostAddedNotification>(NotificationType.PostAdded)
 				.HasValue<PostEditedNotification>(NotificationType.PostEdited)
 				.HasValue<PostDeletedNotification>(NotificationType.PostDeleted)
+				.HasValue<PostModEditedNotification>(NotificationType.PostModEdited)
 				.HasValue<PostModDeletedNotification>(NotificationType.PostModDeleted)
 				.HasValue<PlatformBanNotification>(NotificationType.PlatformBan)
 				.IsComplete(false);

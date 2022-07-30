@@ -40,7 +40,7 @@ namespace WowsKarma.Api.Controllers
 		[HttpGet("{postId:guid}"), ProducesResponseType(typeof(PlayerPostDTO), 200), ProducesResponseType(404), ProducesResponseType(410)]
 		public async Task<IActionResult> GetPostAsync(Guid postId)
 			=> await postService.GetPostDTOAsync(postId) is { } post
-				? !post.ModLocked || post.Author.Id == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
+				? !post.ModLocked || post.Author.Id == User.ToAccountListing().Id || User.IsInRole(ApiRoles.CM)
 					? StatusCode(200, post)
 					: StatusCode(410)
 				: StatusCode(404);
@@ -205,7 +205,7 @@ namespace WowsKarma.Api.Controllers
 				return BadRequest();
 			}
 			
-			catch (InvalidReplayException e) when (e.InnerException is Nodsoft.WowsReplaysUnpack.Infrastructure.Exceptions.InvalidReplayException)
+			catch (InvalidReplayException e) when (e.InnerException is Nodsoft.WowsReplaysUnpack.Core.Exceptions.InvalidReplayException)
 			{
 				return UnprocessableEntity("Invalid replay.");
 			}

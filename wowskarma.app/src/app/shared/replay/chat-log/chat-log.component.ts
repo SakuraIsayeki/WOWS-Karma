@@ -26,8 +26,15 @@ export class ChatLogComponent {
   public playerId$!: Observable<number>;
 
   public messages$ = this.replay$.pipe(
-    map(replay => replay.chatMessages),
+    map(replay => replay.chatMessages)
   );
+
+  public whoChatted$ = this.replay$.pipe(
+    map(replay => [
+        replay.chatMessages?.some(message => message.playerId === this.authorId) ?? false,
+        replay.chatMessages?.some(message => message.playerId === this.playerId) ?? false
+      ]
+    ));
 
   public authorChatted$ = this.messages$.pipe(
     map(messages => messages?.some(message => message.playerId === this.authorId) ?? false)
@@ -37,5 +44,5 @@ export class ChatLogComponent {
     map(messages => messages?.some(message => message.playerId === this.playerId) ?? false)
   );
 
-  //getChannelName(msgCategory: ChatMessageCategory): string {
+//getChannelName(msgCategory: ChatMessageCategory): string {
 }

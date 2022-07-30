@@ -13,7 +13,7 @@ using WowsKarma.Api.Services.Discord;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 using WowsKarma.Common.Hubs;
-
+using WowsKarma.Common.Models.DTOs.Notifications;
 
 
 namespace WowsKarma.Api.Services
@@ -165,7 +165,7 @@ namespace WowsKarma.Api.Services
 			return entry.Entity;
 		}
 
-		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO)
+		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO, bool modLock = false)
 		{
 			ValidatePostContents(editedPostDTO);
 
@@ -177,6 +177,7 @@ namespace WowsKarma.Api.Services
 			post.Content = editedPostDTO.Content;
 			post.Flairs = editedPostDTO.Flairs;
 			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
+			post.ModLocked = post.ModLocked || modLock;
 
 			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
 			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, previousFlairs);

@@ -5,12 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
-using Nodsoft.WowsReplaysUnpack.Data;
+using Nodsoft.WowsReplaysUnpack.Core.Models;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Common.Models;
-using ReplayPlayer = WowsKarma.Api.Data.Models.Replays.ReplayPlayer;
 
 #nullable disable
 
@@ -23,7 +22,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.2")
+                .HasAnnotation("ProductVersion", "6.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "clan_role", new[] { "unknown", "commander", "executive_officer", "recruitment_officer", "commissioned_officer", "officer", "private" });
@@ -379,6 +378,19 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.HasDiscriminator().HasValue(NotificationType.PostModDeleted);
                 });
 
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostModEditedNotification", b =>
+                {
+                    b.HasBaseType("WowsKarma.Api.Data.Models.Notifications.NotificationBase");
+
+                    b.Property<Guid>("ModActionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("PostModEditedNotification_ModActionId");
+
+                    b.HasIndex("ModActionId");
+
+                    b.HasDiscriminator().HasValue(NotificationType.PostModEdited);
+                });
+
             modelBuilder.Entity("WowsKarma.Api.Data.Models.ClanMember", b =>
                 {
                     b.HasOne("WowsKarma.Api.Data.Models.Clan", "Clan")
@@ -514,6 +526,17 @@ namespace WowsKarma.Api.Migrations.ApiDb
                 });
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostModDeletedNotification", b =>
+                {
+                    b.HasOne("WowsKarma.Api.Data.Models.PostModAction", "ModAction")
+                        .WithMany()
+                        .HasForeignKey("ModActionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ModAction");
+                });
+
+            modelBuilder.Entity("WowsKarma.Api.Data.Models.Notifications.PostModEditedNotification", b =>
                 {
                     b.HasOne("WowsKarma.Api.Data.Models.PostModAction", "ModAction")
                         .WithMany()

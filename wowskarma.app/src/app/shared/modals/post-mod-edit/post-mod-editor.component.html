@@ -17,9 +17,7 @@
         <label for="content" class="mb-2">Title</label>
         <form-errors [control]="form.controls.title"></form-errors>
       </div>
-      <input type="text" id="title" class="form-control" [formControl]="form.controls.title"
-             [formControlExtensions]="titleError" name="title"
-      >
+      <input type="text" id="title" class="form-control" [formControl]="form.controls.title" [formControlExtensions]="titleError" name="title">
     </div>
 
     <div class="form-group mb-3">
@@ -28,11 +26,9 @@
         <form-errors [control]="form.controls.content"></form-errors>
       </div>
 
-      <textarea id="content" required minlength="50" maxlength="2000" [formControl]="form.controls.content"
-                name="content"
+      <textarea id="content" required minlength="50" maxlength="2000" [formControl]="form.controls.content" name="content"
                 class="form-control" style="height:10rem; min-height:100px;"
-                [formControlExtensions]="contentError"
-      >
+                [formControlExtensions]="contentError">
             </textarea>
     </div>
   </div>
@@ -48,15 +44,13 @@
               <ng-container *ngFor="let option of group.options">
                 <input [value]="option.value" class="btn-check" [formControl]="group.control"
                        [id]="group.label + '-' + option.label"
-                       [name]="group.label" type="radio"
-                >
+                       [name]="group.label" type="radio">
 
                 <label class="btn" [ngClass]="{
                                     'btn-outline-danger': option.value === false,
                                     'btn-outline-success': option.value === true,
                                     'btn-outline-warning': option.value === null
-                                }" [for]="group.label + '-' + option.label"
-                >
+                                }" [for]="group.label + '-' + option.label">
                   {{option.label}}
                 </label>
               </ng-container>
@@ -73,36 +67,41 @@
         <h4 class="mb-2">Replay File</h4>
 
         <input name="replay-file" type="file" class="form-control" accept=".wowsreplay"
-               [formControl]="form.controls.replayFile" [formControlExtensions]="replayErrors"
-        >
+               [formControl]="form.controls.replayFile" [formControlExtensions]="replayErrors">
 
         <div class="my-2" #replayErrors>
           <form-errors [control]="form.controls.replayFile"></form-errors>
         </div>
       </div>
     </div>
+  </div>
 
+  <div class="modal-body px-3">
+    <div class="form-group mb-3">
+      <div class="d-flex justify-content-between" #modReasonError>
+        <label for="modReason" class="mb-2">Mod Reason</label>
+        <form-errors [control]="form.controls.modReason"></form-errors>
+      </div>
 
+      <textarea id="modReason" required maxlength="1000" [formControl]="form.controls.modReason" name="modReason"
+                class="form-control" style="height:6rem; min-height:60px;"
+                [formControlExtensions]="modReasonError">
+            </textarea>
+    </div>
   </div>
 
   <div class="modal-footer d-flex flex-column flex-md-row justify-content-between align-content-center">
     <div class="form-check mx-3 mb-3 mb-lg-0">
-      <input [formControl]="form.controls.guidelinesAccepted" name="accept-guidelines" id="accept-guidelines"
-             class="form-check-input" type="checkbox"
-      >
+      <input [formControl]="form.controls.guidelinesAccepted" name="accept-guidelines" id="accept-guidelines" class="form-check-input" type="checkbox">
 
       <label class="form-check-label">
-        I hereby affirm to have read and followed the <a [routerLink]="'/guidelines'" target="_blank">Posting
-        Guidelines</a>.
+        I hereby affirm to have read and followed the <a [routerLink]="'/guidelines'" target="_blank">Posting Guidelines</a>.
       </label>
     </div>
 
     <div class="d-flex gap-2 flex-md-row flex-row-reverse">
       <button type="button" class="btn btn-danger px-3" (click)="modal.close()">Cancel</button>
-      <button type="submit" class="btn btn-success px-4" value="Create"
-              [disabled]="form.controls.guidelinesAccepted.invalid"
-      >Create
-      </button>
+      <button type="submit" class="btn btn-primary px-4" value="Create" [disabled]="form.controls.guidelinesAccepted.invalid">Submit</button>
     </div>
   </div>
 </form>

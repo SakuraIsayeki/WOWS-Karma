@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, HostListener, Input } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
-import { AccountClanListingDto } from "../../../services/api/models/account-clan-listing-dto";
-import { PlayerPostDto } from "../../../services/api/models/player-post-dto";
-import { PostFlairs } from "../../../services/api/models/post-flairs";
-import { ReplayDto } from "../../../services/api/models/replay-dto";
-import { PostService } from "../../../services/api/services/post.service";
-import { markTouchedDirtyAndValidate } from "../../../services/helpers";
-import { parseFlairsEnum, toEnum } from "../../../services/metricsHelpers";
+import { AccountClanListingDto } from "src/app/services/api/models/account-clan-listing-dto";
+import { PlayerPostDto } from "src/app/services/api/models/player-post-dto";
+import { PostFlairs } from "src/app/services/api/models/post-flairs";
+import { ReplayDto } from "src/app/services/api/models/replay-dto";
+import { PostService } from "src/app/services/api/services/post.service";
+import { markTouchedDirtyAndValidate, TypedFormControls, TypedFormGroup } from "src/app/services/helpers";
+import { parseFlairsEnum, toEnum } from "src/app/services/metricsHelpers";
 import * as ReplayValidators from "../../validation/replay-validators";
 
 @Component({
@@ -19,26 +19,27 @@ export class PostEditorComponent {
     @Input() post!: PlayerPostEditorDto;
     @Input() modal!: NgbModalRef;
 
-    form = new FormGroup({
-        id: new FormControl(""),
-        title: new FormControl("", Validators.compose([Validators.required, Validators.minLength(5), Validators.maxLength(60)])),
-        content: new FormControl("", Validators.compose([Validators.required, Validators.minLength(50), Validators.maxLength(500)])),
-        parsedFlairs: new FormGroup({
-            performance: new FormControl<boolean | null>(null),
-            teamplay: new FormControl<boolean | null>(null),
-            courtesy: new FormControl<boolean | null>(null),
-        }),
-        replayFile: new FormControl<File | null>(null, ReplayValidators.requireReplay), // [ReplayValidators.requireReplayForNotNullFlairs, ReplayValidators.replayFileValid]),
-        guidelinesAccepted: new FormControl(false, Validators.requiredTrue),
-    });
+    form = new FormBuilder().nonNullable.group({
+      id: "",
+      title: ["", [Validators.required, Validators.minLength(5), Validators.maxLength(60)]],
+      content: ["", [Validators.required, Validators.minLength(50), Validators.maxLength(2000)]],
+      parsedFlairs: new FormBuilder().group({
+        performance: [null as boolean | null],
+        teamplay: [null as boolean | null],
+        courtesy: [null as boolean | null],
+      }),
+      replayFile: [null as File | null, [ReplayValidators.requireReplay]],
+      guidelinesAccepted: [false, Validators.requiredTrue],
+      modReason: ["", Validators.required]
+    })
 
-    private flairsOptions = [
+    protected readonly flairsOptions = [
         { value: false, label: "Negative" },
         { value: null, label: "Neutral" },
         { value: true, label: "Positive" },
     ];
 
-    flairGroups = [
+    readonly flairGroups = [
         {
             label: "Performance",
             control: this.form.controls.parsedFlairs.controls.performance,

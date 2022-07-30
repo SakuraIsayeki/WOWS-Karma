@@ -24,6 +24,7 @@ using Nodsoft.Wargaming.Api.Client;
 using Nodsoft.Wargaming.Api.Client.Clients;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
 using Nodsoft.Wargaming.Api.Common;
+using Nodsoft.WowsReplaysUnpack.ExtendedData;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Authorization;
@@ -211,6 +212,11 @@ namespace WowsKarma.Api
 				AppId = s.GetRequiredService<IConfiguration>()[$"Api:{ApiRegion.ToRegionString()}:AppId"]
 			});
 			
+			services.AddWowsReplayUnpacker(builder =>
+			{
+				builder.AddExtendedData();
+			});
+			
 			services.AddWargamingAuth();
 			services.AddScoped<JwtAuthenticationHandler>();
 
@@ -219,8 +225,7 @@ namespace WowsKarma.Api
 			services.AddSingleton<PostWebhookService>();
 			services.AddSingleton<ModActionWebhookService>();
 			services.AddSingleton<ITelemetryInitializer, TelemetryEnrichment>();
-			services.AddSingleton<ReplayUnpacker>();
-			
+
 			services.AddTransient<PostHub>();
 
 			services.AddScoped<ClanService>();

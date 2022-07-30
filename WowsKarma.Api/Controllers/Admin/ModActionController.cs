@@ -23,7 +23,7 @@ public class ModActionController : ControllerBase
 	/// Fetches ModAction by ID.
 	/// </summary>
 	/// <param name="id">ID of ModAction to fetch.</param>
-	[HttpGet("{id}"), AllowAnonymous]
+	[HttpGet("{id:guid}"), AllowAnonymous]
 	public async Task<PostModActionDTO> Fetch(Guid id) => (await _service.GetModActionAsync(id)).Adapt<PostModActionDTO>();
 
 	/// <summary>
@@ -92,7 +92,7 @@ public class ModActionController : ControllerBase
 	/// </remarks>
 	/// <param name="id">ID of ModAction to delete.</param>
 	/// <response code="205">ModAction was flagged for deletion.</response>
-	[HttpDelete("{id}"), Authorize(Roles = $"{ApiRoles.Administrator},{ApiRoles.CM}"), ProducesResponseType(205)]
+	[HttpDelete("{id:guid}"), Authorize(Roles = $"{ApiRoles.Administrator},{ApiRoles.CM}"), ProducesResponseType(205)]
 	public async Task<IActionResult> Revert(Guid id)
 	{
 		await _service.RevertModActionAsync(id);

@@ -116,12 +116,14 @@ public class ReplayController : ControllerBase
 	[HttpPatch("reprocess/{replayId:guid}"), Authorize(Roles = ApiRoles.Administrator)]
 	public async Task<IActionResult> ReprocessReplayAsync(Guid replayId, CancellationToken ct = default)
 	{
-		if (_ingestService.GetReplay(replayId) is not { } replay)
+		try
+		{
+			await _ingestService.ReprocessReplayAsync(replayId, ct);
+			return StatusCode(200);
+		}
+		catch (ArgumentException)
 		{
 			return StatusCode(404, $"No replay with GUID {replayId} found.");
 		}
-
-		await _ingestService.ReprocessReplayAsync(replay, ct);
-		return StatusCode(200);
 	}
 }

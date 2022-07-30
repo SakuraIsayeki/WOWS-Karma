@@ -10,6 +10,9 @@ export type KeyOfType<T, V> = keyof {
     [P in keyof T as T[P] extends V? P: never]: any
 }
 
+export type TypedFormControls<T> = { [key in keyof T]: FormControl<key> | FormGroup | FormArray };
+export type TypedFormGroup<T> = FormGroup & { value: T, controls: TypedFormControls<T> };
+
 /**
  * Get the bootstrap color to apply to a Karma metric.
  * @param karma The karma value.

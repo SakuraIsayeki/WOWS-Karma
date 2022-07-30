@@ -55,6 +55,7 @@ import { PostComponent } from "./shared/post/post.component";
 import { ChatLogComponent } from "./shared/replay/chat-log/chat-log.component";
 import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.component";
 import { ChatMessageChannelPipe } from './services/pipes/chat-message-channel.pipe';
+import { PostModEditorComponent } from 'src/app/shared/modals/post-mod-edit/post-mod-editor.component';
 
 @NgModule({
     declarations: [
@@ -100,6 +101,7 @@ import { ChatMessageChannelPipe } from './services/pipes/chat-message-channel.pi
         NotificationsMenuComponent,
         NotificationComponent,
         ChatMessageChannelPipe,
+        PostModEditorComponent,
 
     ],
     imports: [

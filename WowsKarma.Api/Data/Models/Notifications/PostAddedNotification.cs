@@ -2,5 +2,5 @@
 
 public record PostAddedNotification : PostNotificationBase
 {
-	public override NotificationType Type { get; protected private init; } = NotificationType.PostAdded;
+	public override NotificationType Type { get; private protected init; } = NotificationType.PostAdded;
 }

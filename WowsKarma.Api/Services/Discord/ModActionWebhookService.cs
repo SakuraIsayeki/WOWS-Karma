@@ -18,16 +18,26 @@ namespace WowsKarma.Api.Services.Discord
 		{
 			DiscordEmbedBuilder embed = new()
 			{
-				Title = $"**Post Locked by Mod-Action**",
+				Title = "**Post Locked by Mod-Action**",
 				Url = modAction.Post.GetPostLink(),
 				Footer = GetDefaultFooter(),
-				Color = DiscordColor.Red
+				Color = modAction.ActionType switch
+				{
+					ModActionType.Deletion => DiscordColor.Red,
+					ModActionType.Update => DiscordColor.Yellow,
+					_ => throw new ArgumentOutOfRangeException(nameof(modAction))
+				}
 			};
 
 			AddModActionContent(embed, modAction);
 
 			await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder()
-				.WithContent("**Single Post Deletion**")
+				.WithContent(modAction.ActionType switch
+				{
+					ModActionType.Deletion => "**Single Post Deletion**",
+					ModActionType.Update => "**Post Mod-Edition**",
+					_ => throw new ArgumentOutOfRangeException(nameof(modAction))
+				})
 				.AddEmbed(embed));
 		}
 
@@ -52,7 +62,7 @@ namespace WowsKarma.Api.Services.Discord
 		{
 			DiscordEmbedBuilder embed = new()
 			{
-				Title = $"**Account Banned from Platform**",
+				Title = "**Account Banned from Platform**",
 				Url = ban.User.GetPlayerProfileLink(),
 				Footer = GetDefaultFooter(),
 				Color = DiscordColor.Red

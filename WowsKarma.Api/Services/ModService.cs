@@ -47,7 +47,8 @@ public class ModService
 	public async Task SubmitPostModActionAsync(PostModActionDTO modAction)
 	{
 		EntityEntry<PostModAction> entityEntry = await _context.PostModActions.AddAsync(modAction.Adapt<PostModAction>());
-
+		await _context.SaveChangesAsync();
+		
 		switch (modAction.ActionType)
 		{
 			case ModActionType.Deletion:
@@ -60,14 +61,13 @@ public class ModService
 
 				await _postService.EditPostAsync(modAction.PostId, current with
 				{
-					Content = modAction.UpdatedPost.Content ?? current.Content,
-					Flairs = modAction.UpdatedPost.Flairs
-				});
+					Title = modAction.UpdatedPost?.Title ?? current.Title, 
+					Content = modAction.UpdatedPost?.Content ?? current.Content,
+					Flairs = modAction.UpdatedPost?.Flairs ?? current.Flairs
+				}, true);
 
 				break;
 		}
-
-		await _context.SaveChangesAsync();
 
 		await entityEntry.Reference(pma => pma.Mod).LoadAsync();
 		await entityEntry.Reference(pma => pma.Post).Query().Include(p => p.Author).LoadAsync();
@@ -77,7 +77,7 @@ public class ModService
 
 	public async Task RevertModActionAsync(Guid modActionId)
 	{
-		PostModAction modAction = await _context.PostModActions.FindAsync(modActionId);
+		PostModAction modAction = await _context.PostModActions.FindAsync(modActionId) ?? throw new ArgumentException($"Mod action with id {modActionId} not found");
 
 		_context.PostModActions.Remove(modAction);
 		await _postService.RevertPostModLockAsync(modAction.PostId);

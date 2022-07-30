@@ -3,9 +3,9 @@ using WowsKarma.Common.Models.DTOs.Notifications;
 
 namespace WowsKarma.Api.Data.Models.Notifications;
 
-public record PostModDeletedNotification : NotificationBase
+public record PostModEditedNotification : NotificationBase
 {
-	public override NotificationType Type { get; private protected init; } = NotificationType.PostModDeleted;
+	public override NotificationType Type { get; private protected init; } = NotificationType.PostModEdited;
 
 	public virtual Guid ModActionId { get; set; }
 	public virtual PostModAction ModAction { get; set; }
@@ -21,7 +21,7 @@ public record PostModDeletedNotification : NotificationBase
 			ModAction = modAction
 		};
 
-	public override PostModDeletedNotificationDTO ToDTO() => new()
+	public override PostModEditedNotificationDTO ToDTO() => new()
 	{
 		Id = Id,
 		AccountId = AccountId,

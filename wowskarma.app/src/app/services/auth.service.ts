@@ -103,6 +103,7 @@ export class AuthService {
             });
         } else {
             console.log("No authentication cookie found.");
+            this.isLoaded$.next(true);
         }
     }
 

@@ -10,7 +10,7 @@ import { LoginComponent } from "./pages/auth/login.component";
 import { LogoutComponent } from "./pages/auth/logout.component";
 import { ProfileComponent as ClanProfileComponent } from "./pages/clan/profile/profile.component";
 import { SearchComponent as ClanSearchComponent } from "./pages/clan/search/search.component";
-import { NotFoundComponent } from "./pages/not-found/not-found.component";
+import { NotFoundComponent } from "./pages/fallbacks/not-found/not-found.component";
 import { ProfileComponent as PlayerProfileComponent } from "./pages/player/profile/profile.component";
 import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";
 import { PostListComponent } from "./pages/post/list/post-list.component";
@@ -56,6 +56,8 @@ import { ChatLogComponent } from "./shared/replay/chat-log/chat-log.component";
 import { TeamRosterComponent } from "./shared/replay/team-roster/team-roster.component";
 import { ChatMessageChannelPipe } from './services/pipes/chat-message-channel.pipe';
 import { PostModEditorComponent } from 'src/app/shared/modals/post-mod-edit/post-mod-editor.component';
+import { UnauthorizedComponent } from './pages/fallbacks/unauthorized/unauthorized.component';
+import { ForbiddenComponent } from './pages/fallbacks/forbidden/forbidden.component';
 
 @NgModule({
     declarations: [
@@ -102,6 +104,8 @@ import { PostModEditorComponent } from 'src/app/shared/modals/post-mod-edit/post
         NotificationComponent,
         ChatMessageChannelPipe,
         PostModEditorComponent,
+        UnauthorizedComponent,
+        ForbiddenComponent,
 
     ],
     imports: [

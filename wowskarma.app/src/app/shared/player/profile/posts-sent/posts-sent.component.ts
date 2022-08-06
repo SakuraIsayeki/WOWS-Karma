@@ -5,7 +5,7 @@ import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
 import { PostService } from "../../../../services/api/services/post.service";
 import { sortByCreationDate } from "../../../../services/helpers";
 import { PostsHub } from "../../../../services/hubs/posts-hub.service";
-import { filterNotNull, InputObservable, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../rxjs-operators";
+import { filterNotNull, InputObservable, reloadWhen, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../rxjs-operators";
 
 @Component({
     selector: "app-posts-sent",
@@ -19,19 +19,16 @@ export class PostsSentComponent {
     userId$!: Observable<number>;
 
     loaded$ = new BehaviorSubject(false);
-    shouldRefresh$ = new BehaviorSubject(true); // Set to true to allow initial fetch of posts.
+    shouldRefresh$ = new BehaviorSubject<void | null>(null); // Set to true to allow initial fetch of posts.
 
     // Get an observable to fetch received posts on component init.
-    sentPosts$ = this.shouldRefresh$.pipe(
-        combineLatestWith(this.userId$),
+    sentPosts$ = this.userId$.pipe(
+        reloadWhen(this.shouldRefresh$),
         tap(() => this.loaded$.next(false)),
-        filter(([shouldRefresh, userId]) => shouldRefresh && userId != 0),
-        switchMapCatchError(p => this.postService.apiPostUserIdSentGet$Json({ userId: p[1] })),
+        filter((userId) => userId != 0),
+        switchMapCatchError(userId => this.postService.apiPostUserIdSentGet$Json({ userId })),
         map(posts => posts?.sort(this.sortByLastCreated)),
-        tapAny(() => {
-            this.shouldRefresh$.next(false);
-            this.loaded$.next(true);
-        }),
+        tapAny(() => this.loaded$.next(true)),
         shareReplayRefCount(1),
     );
 
@@ -47,7 +44,7 @@ export class PostsSentComponent {
         }),
         tap(({ posts, userId, post, postId }) => {
             if (post && post.author?.id === userId || postId && posts.find(p => p.id === postId)) {
-                this.shouldRefresh$.next(true);
+                this.shouldRefresh$.next();
             }
         }),
     );

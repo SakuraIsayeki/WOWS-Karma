@@ -1,13 +1,14 @@
 import { Injectable } from "@angular/core";
-import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, RouterStateSnapshot, UrlTree } from "@angular/router";
-import { combineLatestWith, Observable, of, switchMap } from "rxjs";
+import { ActivatedRouteSnapshot, CanActivate, CanActivateChild, Router, RouterStateSnapshot, UrlTree } from "@angular/router";
+import { combineLatestWith, Observable, of, switchMap, tap } from "rxjs";
 import { combineLatest, filter } from "rxjs/operators";
 import { AuthService } from "../auth.service";
 
 @Injectable()
 export class AuthGuard implements CanActivate, CanActivateChild {
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService,
+    private router: Router) {
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
@@ -35,12 +36,12 @@ export class AuthGuard implements CanActivate, CanActivateChild {
                 //   return of(this.router.parseUrl(this.authConfig.noAccessUrl));
                 //} else {
               } else {
-                return of(false); // Nothing happens.
+                return of(this.router.parseUrl('/forbidden')); // User lacks the necessary roles.
               }
             }
             return of(true); // Authenticated.
           }
-          return of(false);
+          return of(this.router.parseUrl(`/unauthorized`)); // Not authenticated, redirect to 401 page.
 
           // } else if (route.data?.auth?.redirectToLogin) {
           //  return of(this.router.parseUrl(this.authConfig.loginUrl + '?returnUrl=' + state.url));

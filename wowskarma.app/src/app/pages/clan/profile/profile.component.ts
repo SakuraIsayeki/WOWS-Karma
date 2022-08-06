@@ -1,54 +1,69 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { catchError, Observable, of, switchMap } from "rxjs";
 import { map } from "rxjs/operators";
+import { ClanProfileFullDto } from "src/app/services/api/models/clan-profile-full-dto";
 import { getWowsNumbersClanLink } from "src/app/services/helpers";
 import { ClanListingDto } from "../../../services/api/models/clan-listing-dto";
 import { ClanRole } from "../../../services/api/models/clan-role";
 import { PlayerProfileDto } from "../../../services/api/models/player-profile-dto";
 import { ClanService } from "../../../services/api/services/clan.service";
 import { MinMaxMetricObject } from "../../../shared/components/minmax-metric/min-max-metric.component";
-import { routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
+import { mapApiModelState, routeParam, shareReplayRefCount } from "../../../shared/rxjs-operators";
+
+type ApiModelState<T> = {
+  notFound?: true,
+  model?: T
+}
+
 
 @Component({
-    templateUrl: "./profile.component.html",
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: "./profile.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileComponent {
-    // Get the "ID,username" from the route params.
-    profile$ = routeParam(this.route, "idNamePair").pipe(
-        map(idNamePair => parseInt(idNamePair?.split(",")[0]!)),
-        switchMapCatchError((clanId) =>
-            this.clanService.apiClanClanIdGet$Json({ clanId }),
-        ),
-        shareReplayRefCount(1),
-    );
+  //loaded$ = new BehaviorSubject<boolean>(false);
 
-    totalMixedKarma$ = this.profile$.pipe(map(clan => clan?.members?.reduce((acc, m) => acc + (m.gameKarma! + m.siteKarma!), 0)!));
+  // Get the "ID,username" from the route params.
+  profile$: Observable<ApiModelState<ClanProfileFullDto>> = routeParam(this.route, "idNamePair").pipe(
+    map(idNamePair => parseInt(idNamePair?.split(",")[0]!)),
+    mapApiModelState((clanId) => this.clanService.apiClanClanIdGet$Json({ clanId })),
+    shareReplayRefCount(1),
+    //tapAny(() => this.loaded$.next(true)),
+  );
 
-    clanCombinedMetrics$ = this.profile$.pipe(
-        map(clan => ({
-            game: mapMetrics(clan?.members ?? [], m => m.gameKarma!),
-            platform: mapMetrics(clan?.members ?? [], m => m.siteKarma!),
-            performance: mapMetrics(clan?.members ?? [], m => m.ratingPerformance!),
-            teamplay: mapMetrics(clan?.members ?? [], m => m.ratingTeamplay!),
-            courtesy: mapMetrics(clan?.members ?? [], m => m.ratingCourtesy!),
-        })),
-        shareReplayRefCount(1),
-    );
+  clan$ = this.profile$.pipe(map(result => result.model));
 
-    constructor(private route: ActivatedRoute, private clanService: ClanService) { }
+  totalMixedKarma$ = this.clan$.pipe(map(clan => clan?.members?.reduce((acc, m) => acc + (m.gameKarma! + m.siteKarma!), 0)!));
 
-    sortByRankThenJoinDate(a: RankAndJoinDateComparisonInput, b: RankAndJoinDateComparisonInput): number {
-        return (a.clan!.clanMemberRole! < b.clan!.clanMemberRole!)
-            ? -1
-            : new Date(a.joinDate!) < new Date(b.joinDate!)
-                ? -1
-                : 1;
-    }
+  clanCombinedMetrics$ = this.clan$.pipe(
+    map(clan => ({
+      game: mapMetrics(clan?.members ?? [], m => m.gameKarma!),
+      platform: mapMetrics(clan?.members ?? [], m => m.siteKarma!),
+      performance: mapMetrics(clan?.members ?? [], m => m.ratingPerformance!),
+      teamplay: mapMetrics(clan?.members ?? [], m => m.ratingTeamplay!),
+      courtesy: mapMetrics(clan?.members ?? [], m => m.ratingCourtesy!),
+    })),
+    shareReplayRefCount(1),
+  );
 
-    getWowsNumbersClanLink({ id, tag, name }: ClanListingDto): string | undefined {
-        return getWowsNumbersClanLink({ id: id!, tag: tag!, name: name! });
-    }
+  constructor(private route: ActivatedRoute, private clanService: ClanService) {
+    // Empty subscription to preemptively load the clan profile ahead of view tree.
+    // (uses shareReplayRefCount to prevent multiple requests)
+    this.profile$.subscribe();
+  }
+
+  sortByRankThenJoinDate(a: RankAndJoinDateComparisonInput, b: RankAndJoinDateComparisonInput): number {
+    return (a.clan!.clanMemberRole! < b.clan!.clanMemberRole!)
+      ? -1
+      : new Date(a.joinDate!) < new Date(b.joinDate!)
+        ? -1
+        : 1;
+  }
+
+  getWowsNumbersClanLink({ id, tag, name }: ClanListingDto): string | undefined {
+    return getWowsNumbersClanLink({ id: id!, tag: tag!, name: name! });
+  }
 }
 
 type RankAndJoinDateComparisonInput = { clan?: { clanMemberRole?: ClanRole }, joinDate?: string }
@@ -65,12 +80,12 @@ type RankAndJoinDateComparisonInput = { clan?: { clanMemberRole?: ClanRole }, jo
  * @returns The metric object
  */
 function mapMetrics(
-    members: PlayerProfileDto[],
-    metricSelector: (member: PlayerProfileDto) => number,
+  members: PlayerProfileDto[],
+  metricSelector: (member: PlayerProfileDto) => number,
 ): MinMaxMetricObject {
-    return {
-        total: members.reduce((acc, m) => acc + metricSelector(m), 0),
-        min: Math.min(...members.map(metricSelector)),
-        max: Math.max(...members.map(metricSelector)),
-    };
+  return {
+    total: members.reduce((acc, m) => acc + metricSelector(m), 0),
+    min: Math.min(...members.map(metricSelector)),
+    max: Math.max(...members.map(metricSelector)),
+  };
 }

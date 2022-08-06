@@ -28,11 +28,10 @@
         </div>
 
         <div class="col-auto px-1">
+          <i *ngIf="post?.readOnly" class="bi bi-asterisk text-warning lead mx-1"></i>
           <i *ngIf="post?.modLocked" class="bi bi-x-circle text-danger lead mx-1"></i>
 
-          <a *ngIf="post?.replayId !== null else noReplay" class="text-body"
-             [routerLink]="['/posts', 'view', post?.id]"
-          >
+          <a *ngIf="post?.replayId !== null else noReplay" class="text-body" [routerLink]="['/posts', 'view', post?.id]">
             <i class="bi bi-camera-video text-success lead mx-1"></i>
           </a>
 

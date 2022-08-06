@@ -1,17 +1,36 @@
+import { HttpErrorResponse } from "@angular/common/http";
 import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
-  catchError, concat,
+  catchError,
+  concat,
   distinctUntilChanged,
   Observable,
-  ObservableInput, ObservedValueOf,
-  of, OperatorFunction,
+  ObservableInput,
+  ObservedValueOf,
+  of,
+  OperatorFunction,
   shareReplay,
   switchMap,
   tap,
+  throwError,
 } from "rxjs";
 import { filter, map } from "rxjs/operators";
 
+export function reloadWhen<T>(triggerObs: Observable<any>): OperatorFunction<T, T> {
+  return source$ => new Observable<T>(subscriber => {
+    let lastValue: T | undefined;
+    const sourceSubscription = source$.pipe(tap(v => lastValue = v)).subscribe(v => subscriber.next(v), err => subscriber.error(err), () => subscriber.complete());
+    const triggerSubscription = triggerObs.subscribe(() => {
+      if (lastValue !== undefined)
+        subscriber.next(lastValue);
+    });
+    return () => {
+      sourceSubscription.unsubscribe();
+      triggerSubscription.unsubscribe();
+    };
+  });
+}
 /**
  * RxJS operator to catch errors and return an Observable of the error.
  * This operator is used to catch errors in the HTTP requests.
@@ -21,6 +40,30 @@ import { filter, map } from "rxjs/operators";
 export function switchMapCatchError<T, O extends ObservableInput<any>>(project: (value: T, index: number) => O) {
   return (source$: Observable<T>) => source$.pipe(switchMap(v => {
     return of(v).pipe(switchMap(project), catchErrorReturnNull());
+  }));
+}
+
+type ApiModelState<T> = {
+  notFound?: true,
+  model?: T
+}
+
+export function mapApiModelState<T, X>(project: (value: T, index: number) => ObservableInput<X>) {
+  return (source$: Observable<T>) => source$.pipe(switchMap(v => {
+    return of(v).pipe(
+      switchMap(project),
+      map(model => ({ model } as ApiModelState<X>)),
+      catchError(err => {
+        return of({ notFound: true } as ApiModelState<X>);
+
+        // if (err instanceof HttpErrorResponse) {
+        //   if (err.status == 404 || err.status == 204) {
+        //     return of({ notFound: true } as ApiModelState<X>);
+        //   }
+        // }
+        // return throwError(err);
+      }),
+    );
   }));
 }
 
@@ -122,12 +165,12 @@ export function InputObservable() {
 }
 
 export function startFrom<T, O extends ObservableInput<any>>(start: O): OperatorFunction<T, T | ObservedValueOf<O>> {
-  return (source: Observable<T>) => concat(start, source)
+  return (source: Observable<T>) => concat(start, source);
 }
 
 export function mergeAndCache<T, X>(merge$: Observable<X>, func: ((cached: T[], newItem: X) => T[])): (source$: Observable<T[]>) => Observable<T[]> {
   return source$ => new Observable<T[]>(subscriber => {
-    let cached:T[] = [];
+    let cached: T[] = [];
     const sourceSubscription = source$.subscribe(v => {
       cached = v;
       subscriber.next(v);

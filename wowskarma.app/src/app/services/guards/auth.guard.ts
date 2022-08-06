@@ -24,11 +24,9 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     const roles = (route.routeConfig?.data as any)?.roles as (string[] | undefined);
     return this.authService.isLoaded$
       .pipe(
-        tap(v => console.log('Is Loaded', v)),
         filter(v => v),
         combineLatestWith(this.authService.userInfo$),
         switchMap(([, user]) => {
-          console.log('User Info', user);
           if (this.authService.isAuthenticated) {
             if (roles && roles.length > 0) {
 
@@ -43,7 +41,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
             }
             return of(true); // Authenticated.
           }
-          return of(this.router.parseUrl(`/unauthorized/${route.url}`)); // Not authenticated, redirect to 401 page.
+          return of(this.router.parseUrl(`/unauthorized`)); // Not authenticated, redirect to 401 page.
 
           // } else if (route.data?.auth?.redirectToLogin) {
           //  return of(this.router.parseUrl(this.authConfig.loginUrl + '?returnUrl=' + state.url));

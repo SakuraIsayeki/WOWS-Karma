@@ -25,6 +25,7 @@ export class SearchComponent {
     filterNotNull(),
     tap(() => this.loading$.next(true)), // Set loading to true when the search form value changes.
     switchMapCatchError(query => this.playerService.apiPlayerSearchQueryGet$Json({ query })), // Get the search results
+    map(results => results === null ? [] : results),
     tapAny(() => this.loading$.next(false)) // Sets loading to false when the search results are received, regardless of whether the search was successful or not.
   );
 

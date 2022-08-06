@@ -1,14 +1,19 @@
+import { HttpErrorResponse } from "@angular/common/http";
 import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
-  catchError, concat,
+  catchError,
+  concat,
   distinctUntilChanged,
   Observable,
-  ObservableInput, ObservedValueOf,
-  of, OperatorFunction,
+  ObservableInput,
+  ObservedValueOf,
+  of,
+  OperatorFunction,
   shareReplay,
   switchMap,
   tap,
+  throwError,
 } from "rxjs";
 import { filter, map } from "rxjs/operators";
 
@@ -21,6 +26,28 @@ import { filter, map } from "rxjs/operators";
 export function switchMapCatchError<T, O extends ObservableInput<any>>(project: (value: T, index: number) => O) {
   return (source$: Observable<T>) => source$.pipe(switchMap(v => {
     return of(v).pipe(switchMap(project), catchErrorReturnNull());
+  }));
+}
+
+type ApiModelState<T> = {
+  notFound?: true,
+  model?: T
+}
+
+export function mapApiModelState<T, X>(project: (value: T, index: number) => ObservableInput<X>) {
+  return (source$: Observable<T>) => source$.pipe(switchMap(v => {
+    return of(v).pipe(
+      switchMap(project),
+      map(model => ({ model } as ApiModelState<X>)),
+      catchError(err => {
+        if (err instanceof HttpErrorResponse) {
+          if (err.status == 404 || err.status == 204) {
+            return of({ notFound: true } as ApiModelState<X>);
+          }
+        }
+        return throwError(err);
+      }),
+    );
   }));
 }
 
@@ -122,12 +149,12 @@ export function InputObservable() {
 }
 
 export function startFrom<T, O extends ObservableInput<any>>(start: O): OperatorFunction<T, T | ObservedValueOf<O>> {
-  return (source: Observable<T>) => concat(start, source)
+  return (source: Observable<T>) => concat(start, source);
 }
 
 export function mergeAndCache<T, X>(merge$: Observable<X>, func: ((cached: T[], newItem: X) => T[])): (source$: Observable<T[]>) => Observable<T[]> {
   return source$ => new Observable<T[]>(subscriber => {
-    let cached:T[] = [];
+    let cached: T[] = [];
     const sourceSubscription = source$.subscribe(v => {
       cached = v;
       subscriber.next(v);

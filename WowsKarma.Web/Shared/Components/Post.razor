@@ -106,7 +106,11 @@
 					<Authorized>
 						@if (PlayerPost.Author.Id == CurrentUserId && !PlayerPost.ModLocked)
 						{
-							<button class="btn btn-warning btn-sm" @onclick=EditClicked>Edit</button>
+							if (!PlayerPost.ReadOnly)
+							{
+								<button class="btn btn-warning btn-sm" @onclick=EditClicked>Edit</button>
+							}
+							
 							<button class="btn btn-danger btn-sm" @onclick=DeleteClicked>Delete</button>
 						}
 					</Authorized>

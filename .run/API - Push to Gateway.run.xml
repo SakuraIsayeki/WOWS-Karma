@@ -1,6 +1,8 @@
 ﻿<component name="ProjectRunConfigurationManager">
   <configuration default="false" name="API - Push to Gateway" type="DotNetFolderPublish" factoryName="Publish to folder">
     <riderPublish configuration="Release" platform="Any CPU" ready_to_run="true" runtime="linux-x64" target_folder="Z:/opt/wows-karma/api" target_framework="net6.0" uuid_high="-4369901299116324292" uuid_low="-5153415337395562298" />
-    <method v="2" />
+    <method v="2">
+      <option name="CleanSolution" enabled="true" />
+    </method>
   </configuration>
 </component>

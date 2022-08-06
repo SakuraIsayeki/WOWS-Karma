@@ -165,42 +165,42 @@ namespace WowsKarma.Api.Services
 			return entry.Entity;
 		}
 
-		public async Task EditPostAsync(Guid id, PlayerPostDTO editedPostDTO, bool modLock = false)
+		public async Task EditPostAsync(Guid id, PlayerPostDTO edited, bool modEditLock = false)
 		{
-			ValidatePostContents(editedPostDTO);
+			ValidatePostContents(edited);
 
-			Post post = await context.Posts.FindAsync(id);
-			PostFlairsParsed previousFlairs = post.ParsedFlairs;
-			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {editedPostDTO.Player.Id} not found", nameof(editedPostDTO));
+			Post current = await context.Posts.FindAsync(id);
+			PostFlairsParsed previousFlairs = current.ParsedFlairs;
+			Player player = await context.Players.FindAsync(current.PlayerId) ?? throw new ArgumentException($"Player Account {edited.Player.Id} not found", nameof(edited));
 
-			post.Title = editedPostDTO.Title;
-			post.Content = editedPostDTO.Content;
-			post.Flairs = editedPostDTO.Flairs;
-			post.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
-			post.ModLocked = post.ModLocked || modLock;
+			current.Title = edited.Title;
+			current.Content = edited.Content;
+			current.Flairs = edited.Flairs;
+			current.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
+			current.ReadOnly = current.ReadOnly || modEditLock;
 
-			KarmaService.UpdatePlayerKarma(player, post.ParsedFlairs, previousFlairs, post.NegativeKarmaAble);
-			KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, previousFlairs);
+			KarmaService.UpdatePlayerKarma(player, current.ParsedFlairs, previousFlairs, current.NegativeKarmaAble);
+			KarmaService.UpdatePlayerRatings(player, current.ParsedFlairs, previousFlairs);
 
 			await context.SaveChangesAsync();
 
-			_ = webhookService.SendEditedPostWebhookAsync(post, await playerService.GetPlayerAsync(post.AuthorId), player);
+			_ = webhookService.SendEditedPostWebhookAsync(current, await playerService.GetPlayerAsync(current.AuthorId), player);
 
-			_ = _postsHub.Clients.All.EditedPost(post.Adapt<PlayerPostDTO>());
+			_ = _postsHub.Clients.All.EditedPost(current.Adapt<PlayerPostDTO>());
 
 			_ = _notificationService.SendNewNotification(new PostEditedNotification
 			{
 				Account = player,
 				AccountId = player.Id,
-				Post = post,
-				PostId = post.Id
+				Post = current,
+				PostId = current.Id
 			});
 		}
 
 		public async Task DeletePostAsync(Guid id, bool modLock = false)
 		{
-			Post post = await context.Posts.FindAsync(id);
-			Player player = await context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {post.PlayerId} not found");
+			Post post = await context.Posts.FindAsync(id) ?? throw new ArgumentException($"Post {id} not found", nameof(id));
+			Player player = await context.Players.FindAsync(post.PlayerId)!;
 
 			if (modLock)
 			{
@@ -226,7 +226,7 @@ namespace WowsKarma.Api.Services
 			_ = _notificationService.SendNewNotification(new PostDeletedNotification
 			{
 				Account = player,
-				AccountId = player.Id,
+				AccountId = player!.Id,
 				PostId = post.Id,
 			});
 		}

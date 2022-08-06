@@ -42,7 +42,7 @@ export class ViewPostComponent {
 
     lastModAction$ = this.post$.pipe(
         filterNotNull(),
-        filter((post) => post.modLocked === true),
+        filter((post) => post.modLocked === true || post.readOnly === true),
         switchMapCatchError((post) => this.modActionService.apiModActionListGet$Json({ postId: post.id! }).pipe(
             filterNotNull(),
         )),

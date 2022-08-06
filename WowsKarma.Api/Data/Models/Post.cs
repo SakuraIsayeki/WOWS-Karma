@@ -35,6 +35,8 @@ namespace WowsKarma.Api.Data.Models
 
 		public bool NegativeKarmaAble { get; internal set; }
 
+		public bool ReadOnly { get; set; }
+		
 		public bool ModLocked { get; set; }
 	}
 }

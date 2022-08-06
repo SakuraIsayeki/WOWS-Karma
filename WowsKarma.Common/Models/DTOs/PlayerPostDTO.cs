@@ -16,6 +16,7 @@ public record PlayerPostDTO
 	public string Content { get; init; } = string.Empty;
 
 	public bool ModLocked { get; init; }
+	public bool ReadOnly { get; init; }
 
 	public Guid? ReplayId { get; init; }
 	public ReplayDTO? Replay { get; init; }

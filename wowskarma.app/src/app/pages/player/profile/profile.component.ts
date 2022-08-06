@@ -4,7 +4,7 @@ import { BehaviorSubject, merge, Subject } from "rxjs";
 import { map } from "rxjs/operators";
 import { PlayerService } from "../../../services/api/services/player.service";
 import { getWowsNumbersPlayerLink } from "../../../services/helpers";
-import { routeParam, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
+import { mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
 
 
 @Component({
@@ -13,17 +13,15 @@ import { routeParam, shareReplayRefCount, switchMapCatchError, tapAny } from "..
 })
 
 export class ProfileComponent {
-  loaded$ = new BehaviorSubject<boolean>(false);
-
   // Get the "ID,username" from the route params.
-  profile$ = routeParam(this.route, "idNamePair")
+  request$ = routeParam(this.route, "idNamePair")
     .pipe(
       map(idNamePair => parseInt(idNamePair?.split(",")[0]!)),
-      switchMapCatchError((id) =>
-        this.playerService.apiPlayerIdGet$Json({id, includeClanInfo: true})),
+      mapApiModelState((id) => this.playerService.apiPlayerIdGet$Json({id, includeClanInfo: true})),
       shareReplayRefCount(1),
-      tapAny(() => this.loaded$.next(true)),
     );
+
+  profile$ = this.request$.pipe(map(result => result.model));
 
   // Gets the profile's total karma, as a sum of game + platform karma.
   // Observable profile$ must first successfully emit a profile before calculating the total karma.

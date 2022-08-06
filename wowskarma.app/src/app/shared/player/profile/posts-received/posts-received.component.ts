@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject, combineLatest, combineLatestWith, filter, merge, Observable, shareReplay, tap, withLatestFrom } from "rxjs";
-import { map } from "rxjs/operators";
+import { BehaviorSubject, combineLatest, combineLatestWith,  filter, merge, Observable, shareReplay, tap, withLatestFrom } from "rxjs";
+import { map,  } from "rxjs/operators";
 import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
 import { PostService } from "../../../../services/api/services/post.service";
 import { AuthService } from "../../../../services/auth.service";
 import { sortByCreationDate } from "../../../../services/helpers";
 import { PostsHub } from "../../../../services/hubs/posts-hub.service";
 import { PostEditorComponent } from "../../../modals/post-editor/post-editor.component";
-import { filterNotNull, InputObservable, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../rxjs-operators";
+import { filterNotNull, InputObservable, reloadWhen, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../rxjs-operators";
 
 
 @Component({
@@ -42,19 +42,16 @@ export class PostsReceivedComponent {
     userId$!: Observable<number>;
 
     loaded$ = new BehaviorSubject(false);
-    shouldRefresh$ = new BehaviorSubject(true); // Set to true to allow initial fetch of posts.
+    shouldRefresh$ = new BehaviorSubject<void | null>(null); // Set to true to allow initial fetch of posts.
 
     // Get an observable to fetch received posts on component init, and refresh on hub events.
-    receivedPosts$ = this.shouldRefresh$.pipe(
-        combineLatestWith(this.userId$),
+    receivedPosts$ = this.userId$.pipe(
         tap(() => this.loaded$.next(false)),
-        filter(([shouldRefresh, userId]) => shouldRefresh && userId != 0),
-        switchMapCatchError(p => this.postService.apiPostUserIdReceivedGet$Json({ userId: p[1] })),
+        reloadWhen(this.shouldRefresh$),
+        filter((userId) => userId != 0),
+        switchMapCatchError(userId => this.postService.apiPostUserIdReceivedGet$Json({ userId })),
         map(posts => posts?.sort(this.sortByLastCreated)),
-        tapAny(() => {
-            this.shouldRefresh$.next(false);
-            this.loaded$.next(true);
-        }),
+        tapAny(() => this.loaded$.next(true)),
         shareReplayRefCount(1),
     );
 
@@ -123,7 +120,7 @@ export class PostsReceivedComponent {
             }),
             tap(({ posts, userId, post, postId }) => {
                 if (post && post.player?.id === userId || postId && posts.find(p => p.id === postId)) {
-                    this.shouldRefresh$.next(true);
+                    this.shouldRefresh$.next();
                 }
             }),
         ).subscribe();

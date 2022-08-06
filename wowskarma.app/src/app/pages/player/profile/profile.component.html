@@ -1,5 +1,5 @@
-<ng-container *ngIf="loaded$ | async">
-  <ng-container *ngIf="profile$ | async as profile else loading">
+<ng-container *ngIf="request$ | async as result else loading">
+  <ng-container *ngIf="result.model as profile else notFound">
     <div class="text-center mb-5">
       <h1>
         <a *ngIf="profile.clan?.clanInfo as clan"
@@ -107,8 +107,13 @@
       <app-posts-sent *ngIf="currentTab === 'sent'" [userId]="profile.id!"></app-posts-sent>
     </ng-container>
   </ng-container>
-
-  <ng-template #loading>
-    <h3 class="text-info">Loading...</h3>
-  </ng-template>
 </ng-container>
+
+<ng-template #loading>
+  <h3 class="text-info">Loading...</h3>
+</ng-template>
+
+<ng-template #notFound>
+  <app-not-found message="Sorry, no player was found."></app-not-found>
+</ng-template>
+

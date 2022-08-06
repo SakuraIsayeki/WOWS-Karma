@@ -8,17 +8,13 @@ import { AppConfigService } from "../../../services/app-config.service";
   templateUrl: "./footer.component.html",
   styleUrls: ["./footer.component.scss"],
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent {
+
+  public currentRegion: ApiRegion | undefined = AppConfigService.GetApiRegionFromLocation();
+  public currentApiHost: string = environment.apiHost[this.appConfig.currentRegion];
 
   constructor(
     @Inject(AppConfigService) public appConfig: AppConfigService,
   ) {
   }
-
-  public currentRegion: ApiRegion = AppConfigService.getApiRegionFromLocation() as ApiRegion;
-  public currentApiHost: string = environment.apiHost[this.appConfig.currentRegion];
-
-  ngOnInit(): void {
-  }
-
 }

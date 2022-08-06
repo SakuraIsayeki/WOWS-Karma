@@ -40,7 +40,7 @@ export function getKarmaColor(karma: number): "success" | "danger" | "warning" {
  */
 export function getWowsNumbersPlayerLink({ id, username }: { id: number; username: string }): string | undefined {
     // Get the base site URL, specific to the ApiRegion.
-    switch (AppConfigService.getApiRegionFromLocation()) {
+    switch (AppConfigService.GetApiRegionFromLocation()) {
         case ApiRegion.EU:
             return `https://wows-numbers.com/player/${id},${username}`;
         case ApiRegion.NA:
@@ -62,7 +62,7 @@ export function getWowsNumbersPlayerLink({ id, username }: { id: number; usernam
  */
 export function getWowsNumbersClanLink({ id, tag, name }: { id: number; tag: string; name: string }): string | undefined {
     // Get the base site URL, specific to the ApiRegion.
-    switch (AppConfigService.getApiRegionFromLocation()) {
+    switch (AppConfigService.GetApiRegionFromLocation()) {
         case ApiRegion.EU:
             return `https://wows-numbers.com/clan/${id},${tag}-${name}`;
         case ApiRegion.NA:

@@ -12,8 +12,6 @@ using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 using InvalidReplayException = WowsKarma.Api.Infrastructure.Exceptions.InvalidReplayException;
 
-
-
 namespace WowsKarma.Api.Controllers
 {
 	[ApiController, Route("api/[controller]")]
@@ -233,7 +231,7 @@ namespace WowsKarma.Api.Controllers
 		[ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 		public async Task<IActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 		{
-			if (postService.GetPost(post.Id ?? default) is not Post current)
+			if (postService.GetPost(post.Id ?? Guid.Empty) is not { } current)
 			{
 				return StatusCode(404, $"No post with ID {post.Id} found.");
 			}
@@ -251,7 +249,8 @@ namespace WowsKarma.Api.Controllers
 				{
 					return StatusCode(403, "Author is not authorized to edit posts on behalf of other users.");
 				}
-				if (current.ModLocked)
+				
+				if (current is { ModLocked: true } or { ReadOnly: true })
 				{
 					return StatusCode(403, "Post has been locked by Community Managers. No modification is possible.");
 				}
@@ -259,7 +258,7 @@ namespace WowsKarma.Api.Controllers
 
 			try
 			{
-				await postService.EditPostAsync(post.Id ?? default, post);
+				await postService.EditPostAsync(post.Id ?? Guid.Empty, post);
 				return StatusCode(200);
 			}
 			catch (ArgumentException e)

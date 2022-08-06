@@ -10,6 +10,7 @@ export interface PlayerPostDto {
   flairs?: PostFlairs;
   id?: null | string;
   modLocked?: boolean;
+  readOnly?: boolean;
   player?: AccountClanListingDto;
   replay?: ReplayDto;
   replayId?: null | string;

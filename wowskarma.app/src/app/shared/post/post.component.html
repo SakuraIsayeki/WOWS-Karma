@@ -71,10 +71,8 @@
       </p>
 
       <div class="d-flex flex-row my-1 gap-2">
-        <div class="d-flex flex-row gap-1" *ngIf="canEdit">
-          <button class="btn btn-warning btn-sm" (click)="openEditor()">Edit</button>
-          <button class="btn btn-danger btn-sm" (click)="openDeleteModal()">Delete</button>
-        </div>
+        <button *ngIf="canEdit" class="btn btn-warning btn-sm" (click)="openEditor()">Edit</button>
+        <button *ngIf="canDelete" class="btn btn-danger btn-sm" (click)="openDeleteModal()">Delete</button>
 
         <div class="d-flex flex-row gap-1" *ngIf="this.authService.isInRole('mod')">
           <button class="btn btn-outline-warning btn-sm" (click)="openModEditor()">Mod Edit</button>

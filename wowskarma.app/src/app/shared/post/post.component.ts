@@ -22,9 +22,13 @@ export class PostComponent {
   constructor(public authService: AuthService, private modalService: NgbModal) {
   }
 
-  get canEdit() {
+  get canDelete() {
     return !this.post?.modLocked
       && this.authService.userInfo$.value?.id === this.post?.author?.id;
+  }
+
+  get canEdit() {
+    return this.canDelete && !this.post?.readOnly;
   }
 
   openEditor() {

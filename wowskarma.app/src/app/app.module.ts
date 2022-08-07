@@ -3,6 +3,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { ServiceWorkerModule } from "@angular/service-worker";
+import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from "./app-routing.module";
 import { AppWrapperComponent } from "./app-wrapper.component";
 import { AppComponent } from "./app.component";
@@ -121,6 +122,7 @@ import { ForbiddenComponent } from './pages/fallbacks/forbidden/forbidden.compon
             // or after 30 seconds (whichever comes first).
             registrationStrategy: "registerWhenStable:30000",
         }),
+        NgbCollapseModule,
     ],
     providers: [
         AuthService,

@@ -6,12 +6,8 @@ import { AppConfigService } from "../../services/app-config.service";
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss']
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent {
   currentRegion: string = this.appConfigService.currentRegion;
 
   constructor(private appConfigService: AppConfigService) { }
-
-  ngOnInit(): void {
-  }
-
 }

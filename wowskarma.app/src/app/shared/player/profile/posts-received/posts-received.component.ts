@@ -48,7 +48,7 @@ export class PostsReceivedComponent {
     receivedPosts$ = this.userId$.pipe(
         tap(() => this.loaded$.next(false)),
         reloadWhen(this.shouldRefresh$),
-        filter((userId) => userId != 0),
+        filter((userId) => userId != 0 && userId != null),
         switchMapCatchError(userId => this.postService.apiPostUserIdReceivedGet$Json({ userId })),
         map(posts => posts?.sort(this.sortByLastCreated)),
         tapAny(() => this.loaded$.next(true)),

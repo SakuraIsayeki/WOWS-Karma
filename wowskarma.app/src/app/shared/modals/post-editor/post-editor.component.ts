@@ -30,7 +30,7 @@ export class PostEditorComponent {
       }),
       replayFile: [null as File | null, [ReplayValidators.requireReplay]],
       guidelinesAccepted: [false, Validators.requiredTrue],
-      modReason: ["", Validators.required]
+      modReason: ""
     })
 
     protected readonly flairsOptions = [

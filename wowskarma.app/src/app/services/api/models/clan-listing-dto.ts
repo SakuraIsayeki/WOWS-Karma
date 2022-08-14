@@ -3,6 +3,6 @@
 export interface ClanListingDto {
   id?: number;
   leagueColor?: number;
-  name?: null | string;
-  tag?: null | string;
+  name?: string;
+  tag?: string;
 }

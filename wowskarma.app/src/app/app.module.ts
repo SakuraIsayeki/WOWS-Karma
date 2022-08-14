@@ -59,6 +59,7 @@ import { ChatMessageChannelPipe } from './services/pipes/chat-message-channel.pi
 import { PostModEditorComponent } from 'src/app/shared/modals/post-mod-edit/post-mod-editor.component';
 import { UnauthorizedComponent } from './pages/fallbacks/unauthorized/unauthorized.component';
 import { ForbiddenComponent } from './pages/fallbacks/forbidden/forbidden.component';
+import { ClanRankComponent } from './shared/components/icons/clan-rank/clan-rank.component';
 
 @NgModule({
     declarations: [
@@ -107,6 +108,7 @@ import { ForbiddenComponent } from './pages/fallbacks/forbidden/forbidden.compon
         PostModEditorComponent,
         UnauthorizedComponent,
         ForbiddenComponent,
+        ClanRankComponent,
 
     ],
     imports: [

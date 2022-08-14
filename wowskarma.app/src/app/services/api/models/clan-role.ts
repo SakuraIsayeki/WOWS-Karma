@@ -1,11 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export enum ClanRole {
-  $0 = 0,
-  $1 = 1,
-  $2 = 2,
-  $3 = 3,
-  $4 = 4,
-  $5 = 5,
-  $6 = 6
+  Unknown = 0,
+  Commander = 1,
+  ExecutiveOfficer = 2,
+  Recruiter = 3,
+  CommissionedOfficer = 4,
+  Officer = 5,
+  Private = 6
 }

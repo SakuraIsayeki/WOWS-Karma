@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
+using Hangfire;
+using Hangfire.Tags.Attributes;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
@@ -203,6 +205,7 @@ namespace WowsKarma.Api.Services
 			await _context.SaveChangesAsync();
 		}
 
+		[JobDisplayName("Recalculate player metrics"), Tag("player", "maintenance", "metrics", "recalculation")]
 		public async Task RecalculatePlayerMetrics(uint playerId, CancellationToken ct)
 		{
 			Player player = await _context.Players.Include(p => p.PostsReceived).FirstOrDefaultAsync(p => p.Id == playerId, ct);

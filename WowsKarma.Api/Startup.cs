@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Hangfire.Tags.PostgreSql;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
 using Nodsoft.Wargaming.Api.Client;
@@ -230,6 +231,7 @@ namespace WowsKarma.Api
 				
 				config.UsePostgreSqlStorage(Configuration.GetConnectionString(dbConnectionString), new() { SchemaName = "hangfire", PrepareSchemaIfNecessary = true });
 				config.UseSerilogLogProvider();
+				config.UseTagsWithPostgreSql();
 			});
 			
 			services.AddWargamingAuth();

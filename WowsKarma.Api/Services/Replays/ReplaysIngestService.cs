@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Security;
 using System.Threading;
+using Hangfire;
+using Hangfire.Tags.Attributes;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
@@ -162,11 +164,11 @@ public class ReplaysIngestService
 		// Catch any CVE-2022-31265 related exceptions and log them.
 		catch (InvalidReplayException e) when (e.InnerException is SecurityException se && se.Data["exploit"] is "CVE-2022-31265")
 		{
-			_logger.LogWarning("CVE-2022-31265 exploit detected in replay {replayId}. Please delete both post and replay from the platform at once.", replay.Id);
+			_logger.LogWarning("CVE-2022-31265 exploit detected in replay {ReplayId}. Please delete both post and replay from the platform at once.", replay.Id);
 		}
 		catch (Exception e)
 		{
-			_logger.LogWarning(e, "Failed to reprocess replay {replayId}.", replay.Id);
+			_logger.LogWarning(e, "Failed to reprocess replay {ReplayId}.", replay.Id);
 		}
 	}
 
@@ -178,6 +180,7 @@ public class ReplaysIngestService
 	/// <param name="replayId">The ID of the replay being reprocessed</param>
 	/// <param name="ct"></param>
 	/// <exception cref="ArgumentException">Thrown when no replay was found.</exception>
+	[JobDisplayName("Reprocess single replay"), Tag("replay", "recalculation", "single")]
 	public async Task ReprocessReplayAsync(Guid replayId, CancellationToken ct)
 	{
 		Replay replay = await _context.Replays.FindAsync(new object[] { replayId }, cancellationToken: ct) 
@@ -194,9 +197,10 @@ public class ReplaysIngestService
 	/// 
 	/// <param name="start">Start of time range to select replays from</param>
 	/// <param name="end">End of time range to select replays from</param>
+	[JobDisplayName("Reprocess all replays within date range"), Tag("replay", "recalculation", "batch")]
 	public async Task ReprocessAllReplaysAsync(DateTime? start, DateTime? end, CancellationToken ct)
 	{
-		_logger.LogWarning("Started reprocessing all replays between {start:g} and {end:g}", start, end);
+		_logger.LogWarning("Started reprocessing all replays between {Start:g} and {End:g}", start, end);
 
 		List<Replay> replays = await _context.Posts.Include(p => p.Replay)
 			.Where(r => r.Replay != null && r.CreatedAt >= start && r.CreatedAt <= end)
@@ -207,16 +211,16 @@ public class ReplaysIngestService
 				BlobName = r.Replay.BlobName
 			}).ToListAsync(ct);
 		
-		_logger.LogWarning("Database readout complete. {count} replays will be reprocessed.", replays.Count);
+		_logger.LogWarning("Database readout complete. {Count} replays will be reprocessed.", replays.Count);
 
 		// Process each replay in parallel.
 		await Task.WhenAll(replays.Select(r => ReprocessReplayAsync(r, ct)));
 
-		_logger.LogWarning("Finished file reprocessing of {count} replays. Saving to database...", replays.Count);
+		_logger.LogWarning("Finished file reprocessing of {Count} replays. Saving to database...", replays.Count);
 
 		_context.UpdateRange(replays);
 		await _context.SaveChangesAsync(ct);
 
-		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {count} replays total.", replays.Count);
+		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {Count} replays total.", replays.Count);
 	}
 }

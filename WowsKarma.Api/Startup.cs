@@ -16,6 +16,8 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -115,7 +117,7 @@ namespace WowsKarma.Api
 
 			services.AddAuthorization(options =>
 			{
-				options.AddPolicy(AuthorizationPolicies.RequireNoPlatformBans, policy =>
+				options.AddPolicy(RequireNoPlatformBans, policy =>
 				{
 					policy.Requirements.Add(new PlatformBanRequirement());
 				});
@@ -216,6 +218,17 @@ namespace WowsKarma.Api
 			{
 				builder.AddExtendedData();
 			});
+
+			services.AddHangfireServer();
+			services.AddHangfire((s, config) =>
+			{
+				config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+					.UseSimpleAssemblyNameTypeSerializer()
+					.UseRecommendedSerializerSettings();
+
+				config.UseMemoryStorage();
+				config.UseSerilogLogProvider();
+			});
 			
 			services.AddWargamingAuth();
 			services.AddScoped<JwtAuthenticationHandler>();
@@ -304,6 +317,15 @@ namespace WowsKarma.Api
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapDefaultControllerRoute();
+				
+				endpoints.MapHangfireDashboard("/hangfire", new()
+				{
+					AppPath = ApiRegion.GetRegionWebDomain(),
+					Authorization = new[] { HangfireDashboardAuthorizationFilter.Instance },
+					IsReadOnlyFunc = HangfireDashboardAuthorizationFilter.IsAccessReadOnly,
+					DashboardTitle = $"WOWS Karma API ({ApiRegion.ToRegionString()})"
+				});
+				
 				endpoints.MapHub<AuthHub>("/api/hubs/auth");
 				endpoints.MapHub<PostHub>("/api/hubs/post");
 				endpoints.MapHub<NotificationsHub>("/api/hubs/notifications");

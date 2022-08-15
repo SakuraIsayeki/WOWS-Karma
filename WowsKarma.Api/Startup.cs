@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -17,11 +16,8 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using Hangfire;
-using Hangfire.MemoryStorage;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
 using Nodsoft.Wargaming.Api.Client;
 using Nodsoft.Wargaming.Api.Client.Clients;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
@@ -226,7 +222,7 @@ namespace WowsKarma.Api
 					.UseSimpleAssemblyNameTypeSerializer()
 					.UseRecommendedSerializerSettings();
 
-				config.UseMemoryStorage();
+				config.UsePostgreSqlStorage(Configuration.GetConnectionString(dbConnectionString), new() { SchemaName = "hangfire", PrepareSchemaIfNecessary = true });
 				config.UseSerilogLogProvider();
 			});
 			

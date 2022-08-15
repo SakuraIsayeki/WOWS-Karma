@@ -1,16 +1,13 @@
 using System.Threading;
 using Mapster;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Data.Models.Replays;
-using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Replays;
-using WowsKarma.Common.Hubs;
 
 namespace WowsKarma.Api.Services.Posts;
 
@@ -22,29 +19,24 @@ public class PostService
 
 	private readonly ApiDbContext _context;
 	private readonly PlayerService _playerService;
-	private readonly IHubContext<PostHub, IPostHubPush> _postsHub;
-	private readonly NotificationService _notificationService;
 	private readonly ReplaysIngestService _replayService;
 
-	public PostService(ApiDbContext context, PlayerService playerService, IHubContext<PostHub, IPostHubPush> postsHub,
-		NotificationService notificationService, ReplaysIngestService replayService)
+	public PostService(ApiDbContext context, PlayerService playerService, ReplaysIngestService replayService)
 	{
 		_context = context;
 		_playerService = playerService;
-		_postsHub = postsHub;
-		_notificationService = notificationService;
 		_replayService = replayService;
 	}
 
 	public Post GetPost(Guid id) => GetPost(_context, id);
 	internal static Post GetPost(ApiDbContext context, Guid id) => context.Posts
 		.Include(p => p.Author)
-		.ThenInclude(p => p.ClanMember)
-		.ThenInclude(p => p.Clan)
+			.ThenInclude(p => p.ClanMember)
+			.ThenInclude(p => p.Clan)
 			
 		.Include(p => p.Player)
-		.ThenInclude(p => p.ClanMember)
-		.ThenInclude(p => p.Clan)
+			.ThenInclude(p => p.ClanMember)
+			.ThenInclude(p => p.Clan)
 			
 		.Include(p => p.Replay)
 		.FirstOrDefault(p => p.Id == id);
@@ -64,34 +56,36 @@ public class PostService
 
 	public IQueryable<Post> GetReceivedPosts(uint playerId) => _context.Posts.AsNoTracking()
 		.Include(p => p.Author)
-		.ThenInclude(p => p.ClanMember)
-		.ThenInclude(p => p.Clan)
+			.ThenInclude(p => p.ClanMember)
+			.ThenInclude(p => p.Clan)
 			
 		.Include(p => p.Player)
-		.ThenInclude(p => p.ClanMember)
-		.ThenInclude(p => p.Clan)
+			.ThenInclude(p => p.ClanMember)
+			.ThenInclude(p => p.Clan)
+		
 		.Where(p => p.PlayerId == playerId)
 		.OrderBy(p => p.CreatedAt);
 
 	public IQueryable<Post> GetSentPosts(uint authorId) => _context.Posts.AsNoTracking()
 		.Include(p => p.Author)
-		.ThenInclude(p => p.ClanMember)
-		.ThenInclude(p => p.Clan)
+			.ThenInclude(p => p.ClanMember)
+			.ThenInclude(p => p.Clan)
 			
 		.Include(p => p.Player)
-		.ThenInclude(p => p.ClanMember)
-		.ThenInclude(p => p.Clan)
+			.ThenInclude(p => p.ClanMember)
+			.ThenInclude(p => p.Clan)
+		
 		.Where(p => p.AuthorId == authorId)?
 		.OrderBy(p => p.CreatedAt);
 
 	public IQueryable<Post> GetLatestPosts() => _context.Posts.AsNoTracking()
 		.Include(p => p.Author)
-		.ThenInclude(p => p.ClanMember)
-		.ThenInclude(p => p.Clan)
+			.ThenInclude(p => p.ClanMember)
+			.ThenInclude(p => p.Clan)
 			
 		.Include(p => p.Player)
-		.ThenInclude(p => p.ClanMember)
-		.ThenInclude(p => p.Clan)
+			.ThenInclude(p => p.ClanMember)
+			.ThenInclude(p => p.Clan)
 			
 		.OrderByDescending(p => p.CreatedAt);
 
@@ -205,20 +199,6 @@ public class PostService
 		KarmaService.UpdatePlayerRatings(player, post.ParsedFlairs, null);
 
 		await _context.SaveChangesAsync();
-
-		_ = _postsHub.Clients.All.DeletedPost(id);
-
-		_ = _notificationService.SendNewNotification(new PostEditedNotification
-		{
-			AccountId = post.PlayerId,
-			PostId = post.Id,
-		});
-
-		_ = _notificationService.SendNewNotification(new PostEditedNotification
-		{
-			AccountId = post.AuthorId,
-			PostId = post.Id,
-		});
 	}
 
 	internal static void ValidatePostContents(PlayerPostDTO post)

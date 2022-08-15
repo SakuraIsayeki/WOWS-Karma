@@ -105,6 +105,9 @@ public static class NotificationServiceExtensions
 		//PostDeletedNotification
 		query = query.Include(n => (n as PostDeletedNotification).Post);
 
+		// PostModEditedNotification
+		query = query.Include(n => (n as PostModEditedNotification).ModAction);
+		
 		// PostModDeletedNotification
 		query = query.Include(n => (n as PostModDeletedNotification).ModAction);
 

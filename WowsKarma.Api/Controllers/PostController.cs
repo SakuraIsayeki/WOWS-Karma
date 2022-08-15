@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Infrastructure.Attributes;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 using InvalidReplayException = WowsKarma.Api.Infrastructure.Exceptions.InvalidReplayException;

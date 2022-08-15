@@ -1,6 +1,6 @@
 ﻿namespace WowsKarma.Common.Models.DTOs.Replays;
 
-public readonly struct ReplayPlayerDTO
+public struct ReplayPlayerDTO
 {
 	public uint Id { get; init; }
 	public uint AvatarId { get; init; }

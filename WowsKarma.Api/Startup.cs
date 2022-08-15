@@ -18,6 +18,7 @@ using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authorization;
+using Newtonsoft.Json;
 using Nodsoft.Wargaming.Api.Client;
 using Nodsoft.Wargaming.Api.Client.Clients;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
@@ -33,6 +34,7 @@ using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Cookie;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Discord;
+using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 
@@ -218,10 +220,14 @@ namespace WowsKarma.Api
 			services.AddHangfireServer();
 			services.AddHangfire((s, config) =>
 			{
-				config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-					.UseSimpleAssemblyNameTypeSerializer()
-					.UseRecommendedSerializerSettings();
-
+				config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
+				config.UseSimpleAssemblyNameTypeSerializer();
+				
+				config.UseRecommendedSerializerSettings(options =>
+				{
+					options.TypeNameHandling = TypeNameHandling.Auto;
+				});
+				
 				config.UsePostgreSqlStorage(Configuration.GetConnectionString(dbConnectionString), new() { SchemaName = "hangfire", PrepareSchemaIfNecessary = true });
 				config.UseSerilogLogProvider();
 			});
@@ -241,6 +247,7 @@ namespace WowsKarma.Api
 			services.AddScoped<UserService>();
 			services.AddScoped<PlayerService>();
 			services.AddScoped<PostService>();
+			services.AddScoped<PostUpdatesBroadcastService>();
 			services.AddScoped<KarmaService>();
 			services.AddScoped<ModService>();
 			services.AddScoped<NotificationService>();

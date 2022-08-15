@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Notifications;
@@ -37,17 +38,21 @@ public class NotificationService
 
 	public IQueryable<NotificationBase> GetNotifications(Guid[] ids) => _context.Set<NotificationBase>().Where(n => ids.Contains(n.Id));
 
+	public TNotification GetNotification<TNotification>(Guid id) where TNotification : NotificationBase 
+		=> _context.Set<TNotification>().FirstOrDefault(n => n.Id == id);
+	
 	public async Task SendNewNotification<TNotification>(TNotification notification) where TNotification : NotificationBase
 	{
 		_ = notification ?? throw new ArgumentNullException(nameof(notification));
 
-		_context.Set<TNotification>().Add(notification);
-		_context.SaveChanges();
+		EntityEntry<TNotification> entry = _context.Set<TNotification>().Add(notification);
+		await _context.SaveChangesAsync();
+		
+		// Populate a DTO with the notification data
+		NotificationBaseDTO dto = entry.Entity.ToDTO();
 
-		NotificationBaseDTO dto = notification.ToDTO();
-
-		await _hub.Clients.User(notification.AccountId.ToString()).NewNotification(typeof(TNotification).FullName, dto);
-		_logger.LogInformation("Sent notification {notificationId} to user {userId}.", notification.Id, notification.AccountId);
+		await _hub.Clients.User(notification.AccountId.ToString()).NewNotification(typeof(TNotification).FullName!, dto);
+		_logger.LogInformation("Sent notification {NotificationId} to user {UserId}.", notification.Id, notification.AccountId);
 	}
 
 	public async Task AcknowledgeNotifications(Guid[] ids)
@@ -70,7 +75,7 @@ public class NotificationService
 			}
 
 			_context.SaveChanges();
-			_logger.LogInformation("Acknowledged Notifications {notificationId}.", string.Join(", ", notifications.Select(n => n.Id)));
+			_logger.LogInformation("Acknowledged Notifications {NotificationId}.", string.Join(", ", notifications.Select(n => n.Id)));
 		}
 	}
 
@@ -78,8 +83,8 @@ public class NotificationService
 	{
 		NotificationBase notification = await _context.Set<NotificationBase>().FindAsync(id) ?? throw new ArgumentException("No notification found for given ID.", nameof(id));
 		_context.Remove(notification);
-		_context.SaveChanges();
-		_logger.LogInformation("Removed Notification {id}.", id);
+		await _context.SaveChangesAsync();
+		_logger.LogInformation("Removed Notification {Id}.", id);
 		await _hub.Clients.All.DeletedNotification(id);
 	}
 }

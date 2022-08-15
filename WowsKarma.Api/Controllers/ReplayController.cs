@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs.Replays;

@@ -24,7 +24,7 @@ public class ReplaysIngestService
 	public const int MaxReplaySize = 5242880;
 
 	private readonly BlobServiceClient _serviceClient;
-	private readonly BlobContainerClient _containerClient; // Container for stanard replays
+	private readonly BlobContainerClient _containerClient; // Container for standard replays
 	private readonly BlobContainerClient _securityContainerClient; // Container for infected replays
 	private readonly ILogger<ReplaysIngestService> _logger;
 	private readonly ApiDbContext _context;
@@ -85,8 +85,10 @@ public class ReplaysIngestService
 		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
 
 		await _context.SaveChangesAsync(ct);
+
 		return entityEntry.Entity;
 	}
+	
 	public async Task<Replay> IngestReplayAsync(IFormFile replayFile, CancellationToken ct)
 	{
 		// Over 5MB is too much for a WOWS Replay file.
@@ -100,6 +102,10 @@ public class ReplaysIngestService
 		entityEntry.Entity.BlobName = $"{entityEntry.Entity.Id:N}-{replayFile.FileName}";
 		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
 		await _context.SaveChangesAsync(ct);
+
+		// Introspect the replay players list and add them to the database.
+		uint[] players = replay.Players.Select(p => p.AccountId).ToArray();
+		BackgroundJob.Enqueue<PlayerService>(x => x.GetPlayersAsync(players, false, false, ct));
 		
 		return replay;
 	}
@@ -108,7 +114,7 @@ public class ReplaysIngestService
 	{
 		string blobName = $"{Guid.NewGuid():N}-{replayFile.FileName}";
 		await _securityContainerClient.UploadBlobAsync(blobName, replayFile.OpenReadStream());
-		_logger.LogInformation("Ingested RCE file {blobName}. Link: {Uri}", blobName, _securityContainerClient.GetBlobClient(blobName).Uri);
+		_logger.LogInformation("Ingested RCE file {BlobName}. Link: {Uri}", blobName, _securityContainerClient.GetBlobClient(blobName).Uri);
 	}
 	
 	public async Task<MemoryStream> FetchReplayFileAsync(Guid replayId, CancellationToken ct)

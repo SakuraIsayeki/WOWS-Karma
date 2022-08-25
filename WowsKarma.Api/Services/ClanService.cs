@@ -78,7 +78,7 @@ public class ClanService
 			};
 
 		clan!.UpdatedAt = DateTime.UtcNow;
-		await context.Clans.Upsert(clan).RunAsync(ct);
+		await context.Clans.Upsert(clan).On(c => c.Id).RunAsync(ct);
 
 		return clan;
 	}
@@ -123,8 +123,9 @@ public class ClanService
 		await context.SaveChangesAsync(ct);
 		
 		clan.MembersUpdatedAt = DateTime.UtcNow;
-		await context.Clans.Upsert(clan).RunAsync(ct);
-		await context.ClanMembers.UpsertRange(clan.Members).RunAsync(ct);
+		
+		// await context.Clans.Upsert(clan).RunAsync(ct);
+		await context.ClanMembers.UpsertRange(clan.Members).On(c => c.PlayerId).RunAsync(ct);
 
 		return clan;
 	}

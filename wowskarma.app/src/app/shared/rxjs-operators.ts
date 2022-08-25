@@ -2,7 +2,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
-  catchError,
+  catchError, combineLatest,
   concat,
   distinctUntilChanged,
   Observable,
@@ -185,3 +185,6 @@ export function mergeAndCache<T, X>(merge$: Observable<X>, func: ((cached: T[], 
     };
   });
 }
+
+
+export const anyTrue = (...observables: Array<ObservableInput<boolean>>) => combineLatest(observables).pipe(map(values => values.find(v => v == true) != undefined ), distinctUntilChanged());

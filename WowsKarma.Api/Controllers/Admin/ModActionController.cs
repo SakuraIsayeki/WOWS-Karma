@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Posts;
 using WowsKarma.Common;
 
 

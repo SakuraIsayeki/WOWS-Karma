@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Services.Discord;
-
+using WowsKarma.Api.Services.Posts;
 
 
 namespace WowsKarma.Api.Services;

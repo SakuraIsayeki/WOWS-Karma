@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using System.Threading;
+using Hangfire;
+using Hangfire.Tags.Attributes;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Utilities;
-using WowsKarma.Common;
 
 namespace WowsKarma.Api.Services
 {
@@ -29,6 +30,18 @@ namespace WowsKarma.Api.Services
 			_clanService = clanService;
 		}
 
+		[Tag("player", "update", "batch"), JobDisplayName("Perform API fetch on player batch")]
+		public async Task<IEnumerable<Player>> GetPlayersAsync(IEnumerable<uint> ids, bool includeRelated = false, bool includeClanInfo = false, CancellationToken ct = default)
+		{
+			List<Player> players = new();
+			
+			foreach (uint id in ids.AsParallel().WithCancellation(ct))
+			{
+				players.Add(await GetPlayerAsync(id, includeRelated, includeClanInfo, ct));
+			}
+
+			return players;
+		}
 
 		/*
 		 * FIXME: (#38)
@@ -69,7 +82,7 @@ namespace WowsKarma.Api.Services
 
 				if (insert)
 				{
-					await _context.SaveChangesAsync(ct);
+					player = player with { CreatedAt = DateTime.UtcNow };
 				}
 			}
 
@@ -84,13 +97,13 @@ namespace WowsKarma.Api.Services
 				player.UpdatedAt = DateTime.UtcNow;
 			}
 
-			await _context.SaveChangesAsync(ct);
-
 			if (player.ClanMember is { ClanId: not 0 })
 			{
 				player.ClanMember = player.ClanMember with { Clan = await _clanService.GetClanAsync(player.ClanMember.ClanId, ct: ct) };
 			}
-			
+
+			await _context.Players.Upsert(player).On(p => p.Id).RunAsync(ct);
+
 			return player;
 		}
 
@@ -162,10 +175,7 @@ namespace WowsKarma.Api.Services
 			{
 				if (player.ClanMember is not null)
 				{
-					player.ClanMember = player.ClanMember! with
-					{
-						Role = apiResult!.Role
-					};
+					player.ClanMember = player.ClanMember! with { Role = apiResult!.Role };
 				}
 			}
 			
@@ -203,6 +213,7 @@ namespace WowsKarma.Api.Services
 			await _context.SaveChangesAsync();
 		}
 
+		[JobDisplayName("Recalculate player metrics"), Tag("player", "maintenance", "metrics", "recalculation")]
 		public async Task RecalculatePlayerMetrics(uint playerId, CancellationToken ct)
 		{
 			Player player = await _context.Players.Include(p => p.PostsReceived).FirstOrDefaultAsync(p => p.Id == playerId, ct);

@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Security;
 using System.Threading;
+using Hangfire;
+using Hangfire.Tags.Attributes;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
@@ -22,7 +24,7 @@ public class ReplaysIngestService
 	public const int MaxReplaySize = 5242880;
 
 	private readonly BlobServiceClient _serviceClient;
-	private readonly BlobContainerClient _containerClient; // Container for stanard replays
+	private readonly BlobContainerClient _containerClient; // Container for standard replays
 	private readonly BlobContainerClient _securityContainerClient; // Container for infected replays
 	private readonly ILogger<ReplaysIngestService> _logger;
 	private readonly ApiDbContext _context;
@@ -83,8 +85,10 @@ public class ReplaysIngestService
 		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
 
 		await _context.SaveChangesAsync(ct);
+
 		return entityEntry.Entity;
 	}
+	
 	public async Task<Replay> IngestReplayAsync(IFormFile replayFile, CancellationToken ct)
 	{
 		// Over 5MB is too much for a WOWS Replay file.
@@ -98,6 +102,10 @@ public class ReplaysIngestService
 		entityEntry.Entity.BlobName = $"{entityEntry.Entity.Id:N}-{replayFile.FileName}";
 		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
 		await _context.SaveChangesAsync(ct);
+
+		// Introspect the replay players list and add them to the database.
+		uint[] players = replay.Players.Select(p => p.AccountId).ToArray();
+		BackgroundJob.Enqueue<PlayerService>(x => x.GetPlayersAsync(players, false, false, ct));
 		
 		return replay;
 	}
@@ -106,7 +114,7 @@ public class ReplaysIngestService
 	{
 		string blobName = $"{Guid.NewGuid():N}-{replayFile.FileName}";
 		await _securityContainerClient.UploadBlobAsync(blobName, replayFile.OpenReadStream());
-		_logger.LogInformation("Ingested RCE file {blobName}. Link: {Uri}", blobName, _securityContainerClient.GetBlobClient(blobName).Uri);
+		_logger.LogInformation("Ingested RCE file {BlobName}. Link: {Uri}", blobName, _securityContainerClient.GetBlobClient(blobName).Uri);
 	}
 	
 	public async Task<MemoryStream> FetchReplayFileAsync(Guid replayId, CancellationToken ct)
@@ -162,11 +170,11 @@ public class ReplaysIngestService
 		// Catch any CVE-2022-31265 related exceptions and log them.
 		catch (InvalidReplayException e) when (e.InnerException is SecurityException se && se.Data["exploit"] is "CVE-2022-31265")
 		{
-			_logger.LogWarning("CVE-2022-31265 exploit detected in replay {replayId}. Please delete both post and replay from the platform at once.", replay.Id);
+			_logger.LogWarning("CVE-2022-31265 exploit detected in replay {ReplayId}. Please delete both post and replay from the platform at once.", replay.Id);
 		}
 		catch (Exception e)
 		{
-			_logger.LogWarning(e, "Failed to reprocess replay {replayId}.", replay.Id);
+			_logger.LogWarning(e, "Failed to reprocess replay {ReplayId}.", replay.Id);
 		}
 	}
 
@@ -178,6 +186,7 @@ public class ReplaysIngestService
 	/// <param name="replayId">The ID of the replay being reprocessed</param>
 	/// <param name="ct"></param>
 	/// <exception cref="ArgumentException">Thrown when no replay was found.</exception>
+	[JobDisplayName("Reprocess single replay"), Tag("replay", "recalculation", "single")]
 	public async Task ReprocessReplayAsync(Guid replayId, CancellationToken ct)
 	{
 		Replay replay = await _context.Replays.FindAsync(new object[] { replayId }, cancellationToken: ct) 
@@ -194,9 +203,10 @@ public class ReplaysIngestService
 	/// 
 	/// <param name="start">Start of time range to select replays from</param>
 	/// <param name="end">End of time range to select replays from</param>
+	[JobDisplayName("Reprocess all replays within date range"), Tag("replay", "recalculation", "batch")]
 	public async Task ReprocessAllReplaysAsync(DateTime? start, DateTime? end, CancellationToken ct)
 	{
-		_logger.LogWarning("Started reprocessing all replays between {start:g} and {end:g}", start, end);
+		_logger.LogWarning("Started reprocessing all replays between {Start:g} and {End:g}", start, end);
 
 		List<Replay> replays = await _context.Posts.Include(p => p.Replay)
 			.Where(r => r.Replay != null && r.CreatedAt >= start && r.CreatedAt <= end)
@@ -207,16 +217,16 @@ public class ReplaysIngestService
 				BlobName = r.Replay.BlobName
 			}).ToListAsync(ct);
 		
-		_logger.LogWarning("Database readout complete. {count} replays will be reprocessed.", replays.Count);
+		_logger.LogWarning("Database readout complete. {Count} replays will be reprocessed.", replays.Count);
 
 		// Process each replay in parallel.
 		await Task.WhenAll(replays.Select(r => ReprocessReplayAsync(r, ct)));
 
-		_logger.LogWarning("Finished file reprocessing of {count} replays. Saving to database...", replays.Count);
+		_logger.LogWarning("Finished file reprocessing of {Count} replays. Saving to database...", replays.Count);
 
 		_context.UpdateRange(replays);
 		await _context.SaveChangesAsync(ct);
 
-		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {count} replays total.", replays.Count);
+		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {Count} replays total.", replays.Count);
 	}
 }

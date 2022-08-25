@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs.Replays;
@@ -105,8 +107,8 @@ public class ReplayController : ControllerBase
 			end = DateTime.UtcNow;
 		}
 		
-		await _ingestService.ReprocessAllReplaysAsync(start.ToUniversalTime(), end.ToUniversalTime(), ct);
-		return StatusCode(200);
+		BackgroundJob.Enqueue<ReplaysIngestService>(s => s.ReprocessAllReplaysAsync(start.ToUniversalTime(), end.ToUniversalTime(), ct));
+		return StatusCode(202);
 	}
 	
 	/// <summary>
@@ -118,8 +120,8 @@ public class ReplayController : ControllerBase
 	{
 		try
 		{
-			await _ingestService.ReprocessReplayAsync(replayId, ct);
-			return StatusCode(200);
+			BackgroundJob.Enqueue<ReplaysIngestService>(s => s.ReprocessReplayAsync(replayId, ct));
+			return StatusCode(202);
 		}
 		catch (ArgumentException)
 		{

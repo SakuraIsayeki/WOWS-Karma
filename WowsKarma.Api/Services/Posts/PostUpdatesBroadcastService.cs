@@ -74,7 +74,7 @@ public class PostUpdatesBroadcastService
 	#region Creation
 	
 	[Tag("post", "creation", "log", "webhook"), JobDisplayName("Log player post creation through webhook")]
-	private async Task LogPostCreationAsync(Guid postId)
+	public async Task LogPostCreationAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
 		Post post = PostService.GetPost(_dbContext, postId);
@@ -85,7 +85,7 @@ public class PostUpdatesBroadcastService
 	}
 	
 	[Tag("post", "creation", "broadcast", "signalr"), JobDisplayName("Broadcast player post creation on posts hub")]
-	private async Task BroadcastPostCreationAsync(Guid postId)
+	public async Task BroadcastPostCreationAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
 		Post post = PostService.GetPost(_dbContext, postId);
@@ -96,12 +96,11 @@ public class PostUpdatesBroadcastService
 	}
 	
 	[Tag("post", "creation", "notification", "webhook"), JobDisplayName("Notify player post creation on notifications hub")]
-	private async Task NotifyPostCreationAsync(Guid postId)
+	public async Task NotifyPostCreationAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
 		Post post = PostService.GetPost(_dbContext, postId);
-		PlayerPostDTO postDto = post.Adapt<PlayerPostDTO>();
-		
+
 		// Send the notification.
 		await _notificationService.SendNewNotification(new PostAddedNotification
 		{

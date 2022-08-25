@@ -5,7 +5,6 @@ using System.Threading;
 using Hangfire;
 using Mapster;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
 

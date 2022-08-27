@@ -59,16 +59,19 @@ public class PostUpdatesBroadcastService
 	/// <summary>
 	/// Triggers all the necessary actions to broadcast a post deletion to the SignalR hubs and Discord webhooks
 	/// </summary>
-	/// <param name="postId">The post id.</param>
-	public static void OnPostDeletionAsync(Guid postId, bool modlock)
+	/// <param name="post">The post.</param>
+	/// <param name="modlock">Whether the post is being locked by a moderator.</param>
+	public static void OnPostDeletionAsync(PlayerPostDTO post, bool modlock)
 	{
+		post = post with { Replay = null };
+		
 		if (!modlock)
 		{
-			BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.LogPostDeletionAsync(postId));
+			BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.LogPostDeletionAsync(post));
 		}
 		
-		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.BroadcastPostDeletionAsync(postId));
-		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.NotifyPostDeletionAsync(postId));
+		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.BroadcastPostDeletionAsync(post.Id!.Value));
+		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.NotifyPostDeletionAsync(post));
 	}
 	
 	#region Creation
@@ -154,16 +157,12 @@ public class PostUpdatesBroadcastService
 	#region Deletion
 	
 	[Tag("post", "deletion", "log", "webhook"), JobDisplayName("Log player post deletion through webhook")]
-	public async Task LogPostDeletionAsync(Guid postId)
+	public async Task LogPostDeletionAsync(PlayerPostDTO post)
 	{
-		// Get the post from the database, and adapt to DTO.
-		Post post = PostService.GetPost(_dbContext, postId);
-		PlayerPostDTO postDto = post.Adapt<PlayerPostDTO>();
-		
 		// Send the webhook.
-		await _webhookService.SendDeletedPostWebhookAsync(postDto);
+		await _webhookService.SendDeletedPostWebhookAsync(post);
 	}
-	
+
 	[Tag("post", "deletion", "broadcast", "signalr"), JobDisplayName("Broadcast player post deletion on posts hub")]
 	public async Task BroadcastPostDeletionAsync(Guid postId)
 	{
@@ -172,18 +171,15 @@ public class PostUpdatesBroadcastService
 	}
 	
 	[Tag("post", "deletion", "notification", "webhook"), JobDisplayName("Notify player post deletion on notifications hub")]
-	public async Task NotifyPostDeletionAsync(Guid postId)
+	public async Task NotifyPostDeletionAsync(PlayerPostDTO post)
 	{
-		// Get the post from the database, and adapt to DTO.
-		Post post = PostService.GetPost(_dbContext, postId);
-
 		// Send the notification.
 		await _notificationService.SendNewNotification(new PostDeletedNotification
 		{
 			AccountId = post.Player.Id,
-			PostId = post.Id
+			PostId = post.Id!.Value
 		});
 	}
-	
+
 	#endregion
 }

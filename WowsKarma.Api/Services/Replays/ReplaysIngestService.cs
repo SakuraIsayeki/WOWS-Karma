@@ -42,6 +42,7 @@ public class ReplaysIngestService
 	}
 
 	public Replay GetReplay(Guid id) => _context.Replays.Find(id);
+	
 	public async Task<ReplayDTO> GetReplayDTOAsync(Guid id)
 	{
 		Replay replay = await _context.Replays.FindAsync(id);

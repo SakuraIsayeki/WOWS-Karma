@@ -186,7 +186,7 @@ public class PostService
 		await _context.SaveChangesAsync();
 
 		// Queue background notification jobs
-		PostUpdatesBroadcastService.OnPostDeletionAsync(post.Id, modLock);
+		PostUpdatesBroadcastService.OnPostDeletionAsync(post.Adapt<PlayerPostDTO>(), modLock);
 	}
 
 	public async Task RevertPostModLockAsync(Guid id)

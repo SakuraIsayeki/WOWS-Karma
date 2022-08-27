@@ -18,6 +18,15 @@ public class ClanController : ControllerBase
 	}
 
 	/// <summary>
+	/// List all IDs of clans in the database.
+	/// </summary>
+	/// <returns>List of clan IDs.</returns>
+	/// <response code="200">Returns list of clan IDs.</response>
+	[HttpGet]
+	[ProducesResponseType(typeof(IAsyncEnumerable<uint>), 200)]
+	public IAsyncEnumerable<uint> ListClans() => _clanService.ListClans();
+
+	/// <summary>
 	/// Fetches Clan info for a given Clan ID, along with clan members (unless excluded).
 	/// </summary>
 	/// <param name="clanId">ID of Clan to fetch info/members for</param>

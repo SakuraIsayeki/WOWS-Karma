@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { catchError, Observable, of, switchMap } from "rxjs";
+import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { ClanProfileFullDto } from "src/app/services/api/models/clan-profile-full-dto";
 import { getWowsNumbersClanLink } from "src/app/services/helpers";
-import { ClanListingDto } from "../../../services/api/models/clan-listing-dto";
-import { ClanRole } from "../../../services/api/models/clan-role";
-import { PlayerProfileDto } from "../../../services/api/models/player-profile-dto";
-import { ClanService } from "../../../services/api/services/clan.service";
-import { MinMaxMetricObject } from "../../../shared/components/minmax-metric/min-max-metric.component";
-import { mapApiModelState, routeParam, shareReplayRefCount } from "../../../shared/rxjs-operators";
+import { ClanListingDto } from "src/app/services/api/models/clan-listing-dto";
+import { ClanRole } from "src/app/services/api/models/clan-role";
+import { PlayerProfileDto } from "src/app/services/api/models/player-profile-dto";
+import { ClanService } from "src/app/services/api/services/clan.service";
+import { MinMaxMetricObject } from "src/app/shared/components/minmax-metric/min-max-metric.component";
+import { mapApiModelState, routeParam, shareReplayRefCount } from "src/app/shared/rxjs-operators";
 
 type ApiModelState<T> = {
   notFound?: true,
@@ -27,7 +27,7 @@ export class ProfileComponent {
   // Get the "ID,username" from the route params.
   profile$: Observable<ApiModelState<ClanProfileFullDto>> = routeParam(this.route, "idNamePair").pipe(
     map(idNamePair => parseInt(idNamePair?.split(",")[0]!)),
-    mapApiModelState((clanId) => this.clanService.apiClanClanIdGet$Json({ clanId })),
+    mapApiModelState((clanId) => this.clanService.apiClanClanIdGet$Json({clanId})),
     shareReplayRefCount(1),
     //tapAny(() => this.loaded$.next(true)),
   );
@@ -61,8 +61,8 @@ export class ProfileComponent {
         : 1;
   }
 
-  getWowsNumbersClanLink({ id, tag, name }: ClanListingDto): string | undefined {
-    return getWowsNumbersClanLink({ id: id!, tag: tag!, name: name! });
+  getWowsNumbersClanLink({id, tag, name}: ClanListingDto): string | undefined {
+    return getWowsNumbersClanLink({id: id!, tag: tag!, name: name!});
   }
 }
 

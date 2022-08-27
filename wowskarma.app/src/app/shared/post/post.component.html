@@ -1,15 +1,8 @@
 <div class="m-2 vstack" [id]=[post?.id]>
   <p *ngIf="postDisplayType === 'neutral'" class="text-body">
-    <a *ngIf="post?.author?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
-       [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
-
-    <a [routerLink]="['/player', post?.author?.id + ',' + post?.author?.username]">{{post?.author?.username}}</a>
+    <player-namelink [player]="post!.author" [displayClan]="true"></player-namelink>
     &gt;
-
-    <a *ngIf="post?.player?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
-       [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]">[{{clan.tag}}]</a>
-
-    <a [routerLink]="['/player', post?.player?.id + ',' + post?.player?.username]">{{post?.player?.username}}</a>
+    <player-namelink [player]="post!.player" [displayClan]="true"></player-namelink>
   </p>
 
   <div class="card post-card border-{{post!.flairs! | postBorderColor}}">
@@ -49,21 +42,11 @@
     <div class="card-footer">
       <p class="blockquote-footer my-1">
         <ng-container *ngIf="postDisplayType === 'received'">
-          From
-          <a *ngIf="post?.author?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
-             [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]"
-          >[{{clan.tag}}]</a>
-
-          <a [routerLink]="['/player', post?.author?.id + ',' + post?.author?.username]">{{post?.author?.username}}</a>
+          From <player-namelink [player]="post!.author" [displayClan]="true"></player-namelink>
         </ng-container>
 
         <ng-container *ngIf="postDisplayType === 'sent'">
-          To
-          <a *ngIf="post?.player?.clan as clan" [style.color]="clan.leagueColor | colorHex" class="me-1"
-             [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]"
-          >[{{clan.tag}}]</a>
-
-          <a [routerLink]="['/player', post?.player?.id + ',' + post?.player?.username]">{{post?.player?.username}}</a>
+          To <player-namelink [player]="post!.player" [displayClan]="true"></player-namelink>
         </ng-container>
 
         {{post?.createdAt | date:'medium'}}

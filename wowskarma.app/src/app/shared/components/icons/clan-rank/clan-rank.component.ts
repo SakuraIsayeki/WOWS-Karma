@@ -1,0 +1,52 @@
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ClanRole } from 'src/app/services/api/models/clan-role';
+
+@Component({
+  selector: 'icon-clan-rank',
+  template: `<i [className]="clanRankIconName" [title]="clanRankDisplayName"></i>`,
+  styleUrls: ['./clan-rank.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class ClanRankComponent {
+  @Input() clanRank? = ClanRole.Unknown;
+
+  get clanRankIconName() {
+    switch (this.clanRank) {
+      case ClanRole.Commander:
+        return 'clanranks-commander';
+      case ClanRole.ExecutiveOfficer:
+        return 'clanranks-executiveofficer';
+      case ClanRole.Recruiter:
+        return 'clanranks-recruiter';
+      case ClanRole.CommissionedOfficer:
+        return 'clanranks-commissionedofficer';
+      case ClanRole.Officer:
+        return 'clanranks-officer';
+      case ClanRole.Private:
+        return 'clanranks-private';
+      default:
+        return null;
+    }
+  }
+
+  get clanRankDisplayName() {
+    switch (this.clanRank) {
+      case ClanRole.Commander:
+        return 'Commander';
+      case ClanRole.ExecutiveOfficer:
+        return 'Executive Officer';
+      case ClanRole.Recruiter:
+        return 'Recruiter';
+      case ClanRole.CommissionedOfficer:
+        return 'Commissioned Officer';
+      case ClanRole.Officer:
+        return 'Officer';
+      case ClanRole.Private:
+        return 'Private';
+      default:
+        return null;
+    }
+  }
+
+  constructor() { }
+}

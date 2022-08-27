@@ -1,6 +1,6 @@
 ﻿namespace WowsKarma.Common.Models.DTOs.Replays;
 
-public readonly struct ReplayChatMessageDTO
+public struct ReplayChatMessageDTO
 {
 	public uint PlayerId { get; init; }
 	public string Username { get; init; }

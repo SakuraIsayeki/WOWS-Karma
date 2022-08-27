@@ -5,49 +5,48 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
-namespace WowsKarma.Api.Services.Authentication.Jwt
+namespace WowsKarma.Api.Services.Authentication.Jwt;
+
+public class JwtAuthenticationHandler : JwtBearerHandler
 {
-	public class JwtAuthenticationHandler : JwtBearerHandler
+	private readonly UserService userService;
+
+	public JwtAuthenticationHandler(IOptionsMonitor<JwtBearerOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, UserService userService)
+		: base(options, logger, encoder, clock)
 	{
-		private readonly UserService userService;
+		this.userService = userService;
+	}
 
-		public JwtAuthenticationHandler(IOptionsMonitor<JwtBearerOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, UserService userService)
-			: base(options, logger, encoder, clock)
+	protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+	{
+		AuthenticateResult baseResult = await base.HandleAuthenticateAsync();
+
+		if (!baseResult.Succeeded)
 		{
-			this.userService = userService;
+			return baseResult;
 		}
 
-		protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+		bool isValid = false;
+		Exception failure = default;
+
+		try
 		{
-			AuthenticateResult baseResult = await base.HandleAuthenticateAsync();
-
-			if (!baseResult.Succeeded)
+			if (new Guid(baseResult.Principal.FindFirstValue("seed")) is var seed
+				&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
 			{
-				return baseResult;
+				isValid = true;
 			}
-
-			bool isValid = false;
-			Exception failure = default;
-
-			try
-			{
-				if (new Guid(baseResult.Principal.FindFirstValue("seed")) is var seed
-					&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
-				{
-					isValid = true;
-				}
-			}
-			catch (Exception e)
-			{
-				isValid = false;
-				failure = e;
-			}
-
-			return isValid
-				? baseResult
-				: failure == default
-					? AuthenticateResult.NoResult()
-					: AuthenticateResult.Fail(failure.Message);
 		}
+		catch (Exception e)
+		{
+			isValid = false;
+			failure = e;
+		}
+
+		return isValid
+			? baseResult
+			: failure == default
+				? AuthenticateResult.NoResult()
+				: AuthenticateResult.Fail(failure.Message);
 	}
 }

@@ -26,38 +26,22 @@
           <dd class="col-sm-8">{{clan.members?.length ?? 'N/A'}}</dd>
 
           <dt class="col-sm-4">Statistics</dt>
-          <dd class="col-sm-8"><a [href]="clan | wowsNumbersClanLink" target="_blank">View on
-            <b>wows-numbers.com</b></a></dd>
+          <dd class="col-sm-8"><a [href]="clan | wowsNumbersClanLink" target="_blank">View on <b>wows-numbers.com</b></a></dd>
         </dl>
       </div>
 
-      <div *ngIf="clanCombinedMetrics$ | async as clanMetrics"
-           class="col-lg-5 col-md-6 order-md-5 order-lg-1 float-lg-end text-center"
-      >
+      <div *ngIf="clanCombinedMetrics$ | async as clanMetrics" class="col-lg-5 col-md-6 order-md-5 order-lg-1 float-lg-end text-center">
         <h2>Clan Metrics</h2>
 
         <div class="row justify-content-center my-5">
-          <div class="col">
-            <minmax-metric [metric]="clanMetrics['game']" name="In-Game Karma"></minmax-metric>
-          </div>
-
-          <div class="col">
-            <minmax-metric [metric]="clanMetrics['platform']" name="Platform Karma"></minmax-metric>
-          </div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['game']" name="In-Game Karma"></minmax-metric></div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['platform']" name="Platform Karma"></minmax-metric></div>
         </div>
 
         <div class="row justify-content-center my-5">
-          <div class="col">
-            <minmax-metric [metric]="clanMetrics['performance']" name="Performance"></minmax-metric>
-          </div>
-
-          <div class="col">
-            <minmax-metric [metric]="clanMetrics['teamplay']" name="Teamplay"></minmax-metric>
-          </div>
-
-          <div class="col">
-            <minmax-metric [metric]="clanMetrics['courtesy']" name="Courtesy"></minmax-metric>
-          </div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['performance']" name="Performance"></minmax-metric></div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['teamplay']" name="Teamplay"></minmax-metric></div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['courtesy']" name="Courtesy"></minmax-metric></div>
         </div>
       </div>
     </div>
@@ -80,7 +64,7 @@
 
       <tbody>
         <tr *ngFor="let member of clan.members!.sort(sortByRankThenJoinDate)">
-          <td>WIP</td>
+          <td><icon-clan-rank [clanRank]="member.clan!.clanMemberRole"></icon-clan-rank></td>
           <td><a [routerLink]="['/player', member.id + ',' + member.username]">{{member.username}}</a></td>
           <td class="small">{{member.wgAccountCreatedAt | date:"short"}}</td>
           <td class="small">{{member.clan!.joinedClanAt | date:"short"}}</td>

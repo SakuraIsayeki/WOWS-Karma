@@ -1,0 +1,38 @@
+/* Icons
+-------------------------------------------------- */
+
+.clanranks {
+  height: 3rem;
+  width: 3rem;
+  padding: 0.25rem;
+}
+
+.clanranks-commander {
+  @extend .clanranks;
+  content: url('/assets/icons/clans/clanranks-dark-commander.svg');
+}
+
+.clanranks-executiveofficer {
+  @extend .clanranks;
+  content: url('/assets/icons/clans/clanranks-dark-executiveofficer.svg');
+}
+
+.clanranks-recruiter {
+  @extend .clanranks;
+  content: url('/assets/icons/clans/clanranks-dark-recruiter.svg');
+}
+
+.clanranks-commissionedofficer {
+  @extend .clanranks;
+  content: url('/assets/icons/clans/clanranks-dark-commissionedofficer.svg');
+}
+
+.clanranks-officer {
+  @extend .clanranks;
+  content: url('/assets/icons/clans/clanranks-dark-officer.svg');
+}
+
+.clanranks-private {
+  @extend .clanranks;
+  content: url('/assets/icons/clans/clanranks-dark-private.svg');
+}

@@ -1,8 +1,7 @@
-﻿namespace WowsKarma.Api.Data.Models
+﻿namespace WowsKarma.Api.Data.Models;
+
+public interface ITimestamped
 {
-	public interface ITimestamped
-	{
-		public DateTime CreatedAt { get; init; }
-		public DateTime UpdatedAt { get; set; }
-	}
+	public DateTime CreatedAt { get; init; }
+	public DateTime UpdatedAt { get; set; }
 }

@@ -8,76 +8,75 @@ using static WowsKarma.Common.Utilities;
 
 
 
-namespace WowsKarma.Api.Services.Authentication.Wargaming
+namespace WowsKarma.Api.Services.Authentication.Wargaming;
+
+internal class WargamingAuthConfig
 {
-	internal class WargamingAuthConfig
+	public string VerifyIdentityUri { get; set; }
+}
+
+public class WargamingAuthService
+{
+	public static Uri OpenIdDomain { get; } = new($"https://{Startup.ApiRegion.ToWargamingSubdomain()}.wargaming.net/id/openid");
+
+	private static string callbackUrl;
+
+	private readonly WargamingAuthClientFactory authClientFactory;
+
+	public WargamingAuthService(IConfiguration configuration, ILogger<WargamingAuthService> logger, WargamingAuthClientFactory authClientFactory)
 	{
-		public string VerifyIdentityUri { get; set; }
+		callbackUrl ??= configuration[$"Api:{Startup.ApiRegion.ToRegionString()}:WgAuthCallback"];
+		this.authClientFactory = authClientFactory;
 	}
 
-	public class WargamingAuthService
+	public static IActionResult RedirectToLogin(IDictionary<string, string> extraRedirectParams = null) => new RedirectResult(GetAuthUri(extraRedirectParams).ToString());
+
+	public static Uri GetAuthUri(IDictionary<string, string> extraRedirectParams = null)
 	{
-		public static Uri OpenIdDomain { get; } = new($"https://{Startup.ApiRegion.ToWargamingSubdomain()}.wargaming.net/id/openid");
+		string verifyIdentityUri = callbackUrl;
 
-		private static string callbackUrl;
-
-		private readonly WargamingAuthClientFactory authClientFactory;
-
-		public WargamingAuthService(IConfiguration configuration, ILogger<WargamingAuthService> logger, WargamingAuthClientFactory authClientFactory)
+		if (extraRedirectParams?.Any() is true)
 		{
-			callbackUrl ??= configuration[$"Api:{Startup.ApiRegion.ToRegionString()}:WgAuthCallback"];
-			this.authClientFactory = authClientFactory;
+			string queryString = string.Join('&', extraRedirectParams
+				.Where(e => !string.IsNullOrEmpty(e.Value))
+				.Select(param => $"{param.Key}={param.Value}"));
+
+			verifyIdentityUri += $"?{queryString}";
 		}
 
-		public static IActionResult RedirectToLogin(IDictionary<string, string> extraRedirectParams = null) => new RedirectResult(GetAuthUri(extraRedirectParams).ToString());
-
-		public static Uri GetAuthUri(IDictionary<string, string> extraRedirectParams = null)
+		UriBuilder builder = new(OpenIdDomain)
 		{
-			string verifyIdentityUri = callbackUrl;
+			Query = BuildQuery(
+				("openid.ns", "http://specs.openid.net/auth/2.0"),
+				("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select"),
+				("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select"),
+				("openid.return_to", verifyIdentityUri),
+				("openid.mode", "checkid_setup")
+			)
+		};
 
-			if (extraRedirectParams?.Any() is true)
-			{
-				string queryString = string.Join('&', extraRedirectParams
-					.Where(e => !string.IsNullOrEmpty(e.Value))
-					.Select(param => $"{param.Key}={param.Value}"));
-
-				verifyIdentityUri += $"?{queryString}";
-			}
-
-			UriBuilder builder = new(OpenIdDomain)
-			{
-				Query = BuildQuery(
-					("openid.ns", "http://specs.openid.net/auth/2.0"),
-					("openid.claimed_id", "http://specs.openid.net/auth/2.0/identifier_select"),
-					("openid.identity", "http://specs.openid.net/auth/2.0/identifier_select"),
-					("openid.return_to", verifyIdentityUri),
-					("openid.mode", "checkid_setup")
-				)
-			};
-
-			return builder.Uri;
-		}
+		return builder.Uri;
+	}
 
 
-		public async Task<bool> VerifyIdentity(HttpRequest context)
-		{
-			// https://eu.wargaming.net/id/503276471-cpt_stewie/
+	public async Task<bool> VerifyIdentity(HttpRequest context)
+	{
+		// https://eu.wargaming.net/id/503276471-cpt_stewie/
 
-			Dictionary<string, string> paramDict = context.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault());
-			bool isValid = await IsValid(paramDict);
+		Dictionary<string, string> paramDict = context.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault());
+		bool isValid = await IsValid(paramDict);
 
-			return isValid;
-		}
+		return isValid;
+	}
 
-		private async Task<bool> IsValid(IDictionary<string, string> paramDict)
-		{
-			paramDict["openid.mode"] = "check_authentication";
+	private async Task<bool> IsValid(IDictionary<string, string> paramDict)
+	{
+		paramDict["openid.mode"] = "check_authentication";
 
 
-			using HttpClient httpClient = authClientFactory.GetClient(Startup.ApiRegion);
-			using HttpResponseMessage response = await httpClient.PostAsync("id/openid" + paramDict.BuildQuery(), null);
-			string stringResponse = await response.Content.ReadAsStringAsync();
-			return stringResponse.Contains("is_valid:true");
-		}
+		using HttpClient httpClient = authClientFactory.GetClient(Startup.ApiRegion);
+		using HttpResponseMessage response = await httpClient.PostAsync("id/openid" + paramDict.BuildQuery(), null);
+		string stringResponse = await response.Content.ReadAsStringAsync();
+		return stringResponse.Contains("is_valid:true");
 	}
 }

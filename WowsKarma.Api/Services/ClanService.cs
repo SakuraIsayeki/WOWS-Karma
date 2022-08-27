@@ -29,6 +29,14 @@ public class ClanService
 		_clansApi = clansApi;
 	}
 
+	/// <summary>
+	/// Lists all IDs of clans in the database.
+	/// </summary>
+	/// <returns>Async enumerable of clan IDs.</returns>
+	public IAsyncEnumerable<uint> ListClans() => _listClans(_context);
+	private static readonly Func<ApiDbContext, IAsyncEnumerable<uint>> _listClans = EF.CompileAsyncQuery(
+		(ApiDbContext context) => context.Clans.AsNoTracking().Select(c => c.Id));
+
 	public IQueryable<Clan> GetDbClans(bool includeMembers = false) => !includeMembers
 		? _context.Clans
 		: _context.Clans
@@ -78,7 +86,7 @@ public class ClanService
 			};
 
 		clan!.UpdatedAt = DateTime.UtcNow;
-		await context.Clans.Upsert(clan).RunAsync(ct);
+		await context.Clans.Upsert(clan).On(c => c.Id).RunAsync(ct);
 
 		return clan;
 	}
@@ -123,8 +131,9 @@ public class ClanService
 		await context.SaveChangesAsync(ct);
 		
 		clan.MembersUpdatedAt = DateTime.UtcNow;
-		await context.Clans.Upsert(clan).RunAsync(ct);
-		await context.ClanMembers.UpsertRange(clan.Members).RunAsync(ct);
+		
+		// await context.Clans.Upsert(clan).RunAsync(ct);
+		await context.ClanMembers.UpsertRange(clan.Members).On(c => c.PlayerId).RunAsync(ct);
 
 		return clan;
 	}

@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using Hangfire;
 using Mapster;
-using Microsoft.AspNetCore.Http;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
 
@@ -34,8 +33,8 @@ public class PlayerController : ControllerBase
 		IEnumerable<AccountListingDTO> accounts = await _playerService.ListPlayersAsync(query);
 
 		return accounts is null
-			? StatusCode(204)
-			: StatusCode(200, accounts);
+			? NoContent()
+			: Ok(accounts);
 	}
 
 	/// <summary>
@@ -50,14 +49,14 @@ public class PlayerController : ControllerBase
 	{
 		if (id is 0)
 		{
-			return StatusCode(400, new ArgumentException(null, nameof(id)));
+			return BadRequest(new ArgumentException(null, nameof(id)));
 		}
 
 		Player playerProfile = await _playerService.GetPlayerAsync(id, false, includeClanInfo);
 
 		return playerProfile is null
-			? StatusCode(204)
-			: StatusCode(200, playerProfile.Adapt<PlayerProfileDTO>());
+			? NoContent()
+			: Ok(playerProfile.Adapt<PlayerProfileDTO>());
 	}
 
 	/// <summary>
@@ -66,7 +65,7 @@ public class PlayerController : ControllerBase
 	/// <param name="ids">List of Account IDs</param>
 	/// <response code="200">Returns "Account":"SiteKarma" Dictionary of Karma metrics for available accounts (may be empty).</response>
 	[HttpPost("karmas"), ProducesResponseType(typeof(Dictionary<uint, int>), 200)]
-	public IActionResult FetchKarmas([FromBody] uint[] ids) => StatusCode(200, AccountKarmaDTO.ToDictionary(_playerService.GetPlayersKarma(ids)));
+	public IActionResult FetchKarmas([FromBody] uint[] ids) => Ok(AccountKarmaDTO.ToDictionary(_playerService.GetPlayersKarma(ids)));
 
 	/// <summary>
 	/// Fetches full Karma metrics (Site Karma and Flairs) for each provided Account ID, where available.
@@ -74,7 +73,7 @@ public class PlayerController : ControllerBase
 	/// <param name="ids">List of Account IDs</param>
 	/// <response code="200">Returns Full Karma metrics for available accounts (may be empty).</response>
 	[HttpPost("karmas-full"), ProducesResponseType(typeof(IEnumerable<AccountFullKarmaDTO>), 200)]
-	public IActionResult FetchFullKarmas([FromBody] uint[] ids) => StatusCode(200, _playerService.GetPlayersFullKarma(ids));
+	public IActionResult FetchFullKarmas([FromBody] uint[] ids) => Ok(_playerService.GetPlayersFullKarma(ids));
 
 	/// <summary>
 	/// Triggers recalculation of Karma metrics for a given account.
@@ -89,6 +88,6 @@ public class PlayerController : ControllerBase
 	public IActionResult RecalculateMetrics([FromQuery] uint playerId, CancellationToken ct)
 	{
 		BackgroundJob.Enqueue<PlayerService>(p => p.RecalculatePlayerMetrics(playerId, ct));
-		return StatusCode(StatusCodes.Status202Accepted);
+		return Accepted();
 	}
 }

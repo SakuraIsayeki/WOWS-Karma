@@ -98,7 +98,7 @@ public class PostUpdatesBroadcastService
 		await _hubContext.Clients.All.NewPost(postDto);
 	}
 	
-	[Tag("post", "creation", "notification", "webhook"), JobDisplayName("Notify player post creation on notifications hub")]
+	[Tag("post", "creation", "notification", "signalr"), JobDisplayName("Notify player post creation on notifications hub")]
 	public async Task NotifyPostCreationAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
@@ -138,7 +138,7 @@ public class PostUpdatesBroadcastService
 		await _hubContext.Clients.All.EditedPost(postDto);
 	}
 	
-	[Tag("post", "edition", "notification", "webhook"), JobDisplayName("Notify player post edition on notifications hub")]
+	[Tag("post", "edition", "notification", "signalr"), JobDisplayName("Notify player post edition on notifications hub")]
 	public async Task NotifyPostEditionAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
@@ -170,7 +170,7 @@ public class PostUpdatesBroadcastService
 		await _hubContext.Clients.All.DeletedPost(postId);
 	}
 	
-	[Tag("post", "deletion", "notification", "webhook"), JobDisplayName("Notify player post deletion on notifications hub")]
+	[Tag("post", "deletion", "notification", "signalr"), JobDisplayName("Notify player post deletion on notifications hub")]
 	public async Task NotifyPostDeletionAsync(PlayerPostDTO post)
 	{
 		// Send the notification.

@@ -5,22 +5,21 @@ using WowsKarma.Api;
 
 
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection;
+
+public static class WargamingAuthExtensions
 {
-	public static class WargamingAuthExtensions
+	public static IServiceCollection AddWargamingAuth(this IServiceCollection services)
 	{
-		public static IServiceCollection AddWargamingAuth(this IServiceCollection services)
+		services.AddSingleton<WargamingAuthService>();
+		services.AddSingleton<WargamingAuthClientFactory>();
+
+		services.AddHttpClient($"wargaming-auth-{Startup.ApiRegion.ToRegionString()}", c =>
 		{
-			services.AddSingleton<WargamingAuthService>();
-			services.AddSingleton<WargamingAuthClientFactory>();
+			c.BaseAddress = new Uri($"https://{Startup.ApiRegion.ToWargamingSubdomain()}.wargaming.net");
+			c.DefaultRequestHeaders.Add("Accept", "application/json");
+		}).ConfigureHttpMessageHandlerBuilder(c => c.PrimaryHandler = new HttpClientHandler() { MaxConnectionsPerServer = 200, UseProxy = false });
 
-			services.AddHttpClient($"wargaming-auth-{Startup.ApiRegion.ToRegionString()}", c =>
-			{
-				c.BaseAddress = new Uri($"https://{Startup.ApiRegion.ToWargamingSubdomain()}.wargaming.net");
-				c.DefaultRequestHeaders.Add("Accept", "application/json");
-			}).ConfigureHttpMessageHandlerBuilder(c => c.PrimaryHandler = new HttpClientHandler() { MaxConnectionsPerServer = 200, UseProxy = false });
-
-			return services;
-		}
+		return services;
 	}
 }

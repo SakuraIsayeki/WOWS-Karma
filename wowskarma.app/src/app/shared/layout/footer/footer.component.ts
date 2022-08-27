@@ -26,7 +26,7 @@ export class FooterComponent {
   )
 
   isCM$ = this.authService.userInfo$.pipe(
-    map(user => !!(user?.roles && user.roles.includes("cm"))),
+    map(user => !!(user?.roles && user.roles.includes("mod"))),
     shareReplayRefCount(1)
   )
 

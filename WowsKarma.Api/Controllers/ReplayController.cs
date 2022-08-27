@@ -34,6 +34,14 @@ public class ReplayController : ControllerBase
 	}
 
 	/// <summary>
+	/// Lists all replays by ID.
+	/// </summary>
+	/// <returns>List of all replays IDs.</returns>
+	/// <response code="200">Returns list of all replays IDs.</response>
+	[HttpGet, ProducesResponseType(StatusCodes.Status200OK)]
+	public IAsyncEnumerable<Guid> List() => _ingestService.ListReplaysAsync();
+
+	/// <summary>
 	/// Gets Replay data for given Replay ID
 	/// </summary>
 	/// <param name="replayId">ID of Replay to fetch</param>

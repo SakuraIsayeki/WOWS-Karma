@@ -28,6 +28,17 @@ public class PostService
 		_replayService = replayService;
 	}
 
+	/// <summary>
+	/// Lists all post IDs.
+	/// </summary>
+	/// <returns>Async enumerable of post IDs.</returns>
+	public IAsyncEnumerable<Guid> ListPostIdsAsync() => _listPostIdsAsync(_context);
+	private static readonly Func<ApiDbContext, IAsyncEnumerable<Guid>> _listPostIdsAsync = EF.CompileAsyncQuery(
+		(ApiDbContext context) => context.Posts.Select(p => p.Id));
+
+	/// <summary>
+	/// Gets a post by id.
+	/// </summary>
 	public Post GetPost(Guid id) => GetPost(_context, id);
 	internal static Post GetPost(ApiDbContext context, Guid id) => context.Posts
 		.Include(p => p.Author)

@@ -41,6 +41,14 @@ public class ReplaysIngestService
 		_processService = processService;
 	}
 
+	/// <summary>
+	/// List all replay IDs in the database.
+	/// </summary>
+	/// <returns>Async enumerable of replay IDs.</returns>
+	public IAsyncEnumerable<Guid> ListReplaysAsync() => _listReplaysAsync(_context);
+	private static readonly Func<ApiDbContext, IAsyncEnumerable<Guid>> _listReplaysAsync = EF.CompileAsyncQuery(
+		(ApiDbContext context) => context.Replays.Select(r => r.Id));
+
 	public Replay GetReplay(Guid id) => _context.Replays.Find(id);
 	
 	public async Task<ReplayDTO> GetReplayDTOAsync(Guid id)

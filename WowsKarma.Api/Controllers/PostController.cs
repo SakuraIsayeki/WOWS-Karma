@@ -30,6 +30,13 @@ public class PostController : ControllerBase
 	}
 
 	/// <summary>
+	/// Lists all post IDs.
+	/// </summary>
+	/// <returns>List of post IDs.</returns>
+	[HttpGet, ProducesResponseType(StatusCodes.Status200OK)]
+	public IAsyncEnumerable<Guid> GetPostIds() => postService.ListPostIdsAsync();
+
+	/// <summary>
 	/// Fetches player post with given ID
 	/// </summary>
 	/// <param name="postId">Post's GUID</param>

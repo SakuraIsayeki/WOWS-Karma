@@ -29,6 +29,14 @@ public class ClanService
 		_clansApi = clansApi;
 	}
 
+	/// <summary>
+	/// Lists all IDs of clans in the database.
+	/// </summary>
+	/// <returns>Async enumerable of clan IDs.</returns>
+	public IAsyncEnumerable<uint> ListClans() => _listClans(_context);
+	private static readonly Func<ApiDbContext, IAsyncEnumerable<uint>> _listClans = EF.CompileAsyncQuery(
+		(ApiDbContext context) => context.Clans.AsNoTracking().Select(c => c.Id));
+
 	public IQueryable<Clan> GetDbClans(bool includeMembers = false) => !includeMembers
 		? _context.Clans
 		: _context.Clans

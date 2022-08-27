@@ -21,6 +21,14 @@ public class PlayerController : ControllerBase
 	}
 
 	/// <summary>
+	/// Lists all players in the database.
+	/// </summary>
+	/// <returns>A list of all players in the database.</returns>
+	/// <response code="200">Returns all players in the database.</response>
+	[HttpGet, ProducesResponseType(typeof(IEnumerable<uint>), 200)]
+	public IAsyncEnumerable<uint> ListPlayers() => _playerService.ListPlayerIds();
+
+	/// <summary>
 	/// Lists accounts containing usernames starting with given search query.
 	/// (Max. 100 results)
 	/// </summary>

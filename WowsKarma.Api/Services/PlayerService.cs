@@ -30,6 +30,15 @@ public class PlayerService
 		_clanService = clanService;
 	}
 
+	/// <summary>
+	/// Gets all players in the database.
+	/// </summary>
+	/// <returns>A non-tracked queryable collection of all players in the database.</returns>
+	public IAsyncEnumerable<uint> ListPlayerIds() => _listPlayerIds(_context);
+	private static readonly Func<ApiDbContext, IAsyncEnumerable<uint>> _listPlayerIds = EF.CompileAsyncQuery(
+		(ApiDbContext context) => context.Players.AsNoTracking().Select(p => p.Id));
+	
+	
 	[Tag("player", "update", "batch"), JobDisplayName("Perform API fetch on player batch")]
 	public async Task<IEnumerable<Player>> GetPlayersAsync(IEnumerable<uint> ids, bool includeRelated = false, bool includeClanInfo = false, CancellationToken ct = default)
 	{
@@ -113,12 +122,18 @@ public class PlayerService
 				where accountIds.Contains(p.Id)
 				select new AccountFullKarmaDTO(p.Id, p.SiteKarma, p.PerformanceRating, p.TeamplayRating, p.CourtesyRating);
 	}
-	public IQueryable<AccountKarmaDTO> GetPlayersKarma(IEnumerable<uint> accountIds)
-	{
-		return from p in _context.Players.AsNoTracking()
-				where accountIds.Contains(p.Id)
-				select new AccountKarmaDTO(p.Id, p.SiteKarma);
-	}
+	
+	/// <summary>
+	/// Gets a karma readout for specified players.
+	/// </summary>
+	/// <param name="accountIds">The player account IDs to get karma for.</param>
+	/// <returns>A async-enumerable collection of <see cref="AccountKarmaDTO"/> objects.</returns>
+	public IEnumerable<AccountKarmaDTO> GetPlayersKarma(IEnumerable<uint> accountIds) => _getPlayersKarma(_context, accountIds);
+	
+	private static readonly Func<ApiDbContext, IEnumerable<uint>, IEnumerable<AccountKarmaDTO>> _getPlayersKarma = EF.CompileQuery(
+		(ApiDbContext context, IEnumerable<uint> accountIds) => context.Players.AsNoTracking()
+				.Where(p => accountIds.Contains(p.Id))
+				.Select(p => new AccountKarmaDTO(p.Id, p.SiteKarma)));
 
 	public async Task<IEnumerable<AccountListingDTO>> ListPlayersAsync(string search)
 	{

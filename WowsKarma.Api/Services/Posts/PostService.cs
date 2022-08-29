@@ -182,14 +182,14 @@ public class PostService
 		Post post = await _context.Posts.FindAsync(id) ?? throw new ArgumentException($"Post {id} not found", nameof(id));
 		Player player = await _context.Players.FindAsync(post.PlayerId)!;
 
-//		if (modLock)
-//		{
-//			post.ModLocked = true;
-//		}
-//		else
-//		{
-//			_context.Posts.Remove(post);
-//		}
+		if (modLock)
+		{
+			post.ModLocked = true;
+		}
+		else
+		{
+			_context.Posts.Remove(post);
+		}
 
 		KarmaService.UpdatePlayerKarma(player, null, post.ParsedFlairs, post.NegativeKarmaAble);
 		KarmaService.UpdatePlayerRatings(player, null, post.ParsedFlairs);

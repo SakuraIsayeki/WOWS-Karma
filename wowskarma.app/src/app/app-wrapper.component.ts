@@ -6,13 +6,8 @@ import { AppInitService } from "./services/app-init.service";
   templateUrl: './app-wrapper.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppWrapperComponent implements OnInit {
+export class AppWrapperComponent {
 
-  constructor(public appInit: AppInitService){
-
+  constructor(public appInit: AppInitService) {
   }
-
-  ngOnInit(): void {
-  }
-
 }

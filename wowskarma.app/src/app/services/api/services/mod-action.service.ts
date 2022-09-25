@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
@@ -43,7 +43,9 @@ export class ModActionService extends BaseService {
      * ID of ModAction to fetch.
      */
     id: string;
-  }): Observable<StrictHttpResponse<PostModActionDto>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<PostModActionDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, ModActionService.ApiModActionIdGetPath, 'get');
     if (params) {
@@ -52,7 +54,8 @@ export class ModActionService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -77,7 +80,9 @@ export class ModActionService extends BaseService {
      * ID of ModAction to fetch.
      */
     id: string;
-  }): Observable<PostModActionDto> {
+    context?: HttpContext
+  }
+): Observable<PostModActionDto> {
 
     return this.apiModActionIdGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<PostModActionDto>) => r.body as PostModActionDto)
@@ -100,7 +105,9 @@ export class ModActionService extends BaseService {
      * ID of ModAction to fetch.
      */
     id: string;
-  }): Observable<StrictHttpResponse<PostModActionDto>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<PostModActionDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, ModActionService.ApiModActionIdGetPath, 'get');
     if (params) {
@@ -109,7 +116,8 @@ export class ModActionService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -134,7 +142,9 @@ export class ModActionService extends BaseService {
      * ID of ModAction to fetch.
      */
     id: string;
-  }): Observable<PostModActionDto> {
+    context?: HttpContext
+  }
+): Observable<PostModActionDto> {
 
     return this.apiModActionIdGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<PostModActionDto>) => r.body as PostModActionDto)
@@ -162,7 +172,9 @@ export class ModActionService extends BaseService {
      * ID of ModAction to delete.
      */
     id: string;
-  }): Observable<StrictHttpResponse<void>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, ModActionService.ApiModActionIdDeletePath, 'delete');
     if (params) {
@@ -171,7 +183,8 @@ export class ModActionService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -196,7 +209,9 @@ export class ModActionService extends BaseService {
      * ID of ModAction to delete.
      */
     id: string;
-  }): Observable<void> {
+    context?: HttpContext
+  }
+): Observable<void> {
 
     return this.apiModActionIdDelete$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)
@@ -229,7 +244,9 @@ export class ModActionService extends BaseService {
      * Get ModActions for specific User.
      */
     userId?: number;
-  }): Observable<StrictHttpResponse<Array<PostModActionDto>>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PostModActionDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, ModActionService.ApiModActionListGetPath, 'get');
     if (params) {
@@ -239,7 +256,8 @@ export class ModActionService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -269,7 +287,9 @@ export class ModActionService extends BaseService {
      * Get ModActions for specific User.
      */
     userId?: number;
-  }): Observable<Array<PostModActionDto>> {
+    context?: HttpContext
+  }
+): Observable<Array<PostModActionDto>> {
 
     return this.apiModActionListGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<Array<PostModActionDto>>) => r.body as Array<PostModActionDto>)
@@ -297,7 +317,9 @@ export class ModActionService extends BaseService {
      * Get ModActions for specific User.
      */
     userId?: number;
-  }): Observable<StrictHttpResponse<Array<PostModActionDto>>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PostModActionDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, ModActionService.ApiModActionListGetPath, 'get');
     if (params) {
@@ -307,7 +329,8 @@ export class ModActionService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -337,7 +360,9 @@ export class ModActionService extends BaseService {
      * Get ModActions for specific User.
      */
     userId?: number;
-  }): Observable<Array<PostModActionDto>> {
+    context?: HttpContext
+  }
+): Observable<Array<PostModActionDto>> {
 
     return this.apiModActionListGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<Array<PostModActionDto>>) => r.body as Array<PostModActionDto>)
@@ -360,12 +385,14 @@ export class ModActionService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiModActionPost$Response(params?: {
+    context?: HttpContext
 
     /**
      * ModAction to submit
      */
     body?: PostModActionDto
-  }): Observable<StrictHttpResponse<void>> {
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, ModActionService.ApiModActionPostPath, 'post');
     if (params) {
@@ -374,7 +401,8 @@ export class ModActionService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -394,12 +422,14 @@ export class ModActionService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiModActionPost(params?: {
+    context?: HttpContext
 
     /**
      * ModAction to submit
      */
     body?: PostModActionDto
-  }): Observable<void> {
+  }
+): Observable<void> {
 
     return this.apiModActionPost$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)

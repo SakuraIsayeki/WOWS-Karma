@@ -10,7 +10,7 @@ import { NotFoundComponent } from "./pages/fallbacks/not-found/not-found.compone
 import { UnauthorizedComponent } from "./pages/fallbacks/unauthorized/unauthorized.component";
 import { ProfileComponent as PlayerProfileComponent } from "./pages/player/profile/profile.component";
 import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";
-import { PostListComponent } from "./pages/post/list/post-list.component";
+import { ListLatestComponent } from "src/app/pages/post/list/list-latest.component";
 import { ViewPostComponent } from "./pages/post/view/view-post.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
 import { AppInitGuard } from "./services/guards/app-init.guard";
@@ -47,7 +47,7 @@ const routes: Routes = [
             path: "posts",
 
             children: [
-              { path: "", component: PostListComponent },
+              { path: "", component: ListLatestComponent },
               { path: ":id", component: ViewPostComponent },
               { path: "view/:id", redirectTo: ":id" },
             ],

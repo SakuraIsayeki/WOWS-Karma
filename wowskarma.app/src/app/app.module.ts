@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { ServiceWorkerModule } from "@angular/service-worker";
-import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from "./app-routing.module";
 import { AppWrapperComponent } from "./app-wrapper.component";
 import { AppComponent } from "./app.component";
@@ -14,7 +14,7 @@ import { SearchComponent as ClanSearchComponent } from "./pages/clan/search/sear
 import { NotFoundComponent } from "./pages/fallbacks/not-found/not-found.component";
 import { ProfileComponent as PlayerProfileComponent } from "./pages/player/profile/profile.component";
 import { SearchComponent as PlayerSearchComponent } from "./pages/player/search/search.component";
-import { PostListComponent } from "./pages/post/list/post-list.component";
+import { ListLatestComponent } from "src/app/pages/post/list/list-latest.component";
 import { ViewPostComponent } from "./pages/post/view/view-post.component";
 import { SettingsComponent } from "./pages/settings/settings.component";
 import { ApiModule } from "./services/api/api.module";
@@ -84,7 +84,7 @@ import { PlayerNamelinkComponent } from './shared/components/player-namelink/pla
         NavAuthComponent,
         LoginComponent,
         LogoutComponent,
-        PostListComponent,
+        ListLatestComponent,
         PostEditorComponent,
         ControlExtensionsDirective,
         FormErrorsComponent,
@@ -111,7 +111,6 @@ import { PlayerNamelinkComponent } from './shared/components/player-namelink/pla
         ForbiddenComponent,
         ClanRankComponent,
         PlayerNamelinkComponent,
-
     ],
     imports: [
         BrowserModule,
@@ -127,6 +126,7 @@ import { PlayerNamelinkComponent } from './shared/components/player-namelink/pla
             registrationStrategy: "registerWhenStable:30000",
         }),
         NgbCollapseModule,
+        NgbPaginationModule,
     ],
     providers: [
         AuthService,

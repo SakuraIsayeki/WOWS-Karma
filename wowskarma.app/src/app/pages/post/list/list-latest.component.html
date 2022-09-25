@@ -26,7 +26,15 @@
     </div>
 
     <div class="col-md-auto align-content-end mb-sm-5 mb-md-3">
-      <h4 class="my-3">Posts View Count</h4>
+      <h4 class="my-3">Page</h4>
+
+      <ng-container *ngIf="pageInfo$ | async as pageInfo">
+        <ngb-pagination [(page)]="pageInfo.currentPage" [boundaryLinks]="true" [collectionSize]="pageInfo.totalItems"
+                        [maxSize]="8" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)">
+        </ngb-pagination>
+      </ng-container>
+
+      <h4 class="my-3">View Count</h4>
 
       <div aria-label="Select posts view count" class="btn-group mr-2" role="group">
         <input [value]="10" class="btn-check" formControlName="count" id="count-10" name="count" type="radio">

@@ -109,7 +109,7 @@ export class PostEditorComponent {
             this.postService.apiPostPost({
                 body: {
                     postDto: JSON.stringify(this.post),
-                    replay: this.form.controls.replayFile.value,
+                    replay: this.form.controls.replayFile.value!,
                 },
             }).subscribe(
                 (data) => {

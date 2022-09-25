@@ -18,7 +18,7 @@ using InvalidReplayException = WowsKarma.Api.Infrastructure.Exceptions.InvalidRe
 namespace WowsKarma.Api.Controllers;
 
 [ApiController, Route("api/[controller]")]
-public class PostController : ControllerBase
+public sealed class PostController : ControllerBase
 {
 	private readonly PlayerService playerService;
 	private readonly PostService postService;

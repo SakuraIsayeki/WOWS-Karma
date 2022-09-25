@@ -71,7 +71,8 @@ public sealed class PostController : ControllerBase
 
 		if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			posts = posts.Where(p => !p.ModLocked || p.AuthorId == User.ToAccountListing().Id);
+			AccountListingDTO currentUser = User.ToAccountListing();
+			posts = posts.Where(p => !p.ModLocked || (currentUser != null && p.AuthorId == currentUser.Id));
 		}
 
 		// Get the page of results and set headers
@@ -120,7 +121,7 @@ public sealed class PostController : ControllerBase
 	/// <response code="200">List of latest posts, sorted by Submission time.</response>
 	[HttpGet("latest"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200)]
 	public IActionResult GetLatestPosts(
-		[FromQuery] int page = 0, 
+		[FromQuery] int page = 1, 
 		[FromQuery] int pageSize = 10, 
 		[FromQuery] bool? hasReplay = null, 
 		[FromQuery] bool hideModActions = false
@@ -131,7 +132,7 @@ public sealed class PostController : ControllerBase
 
 		if (!User.IsInRole(ApiRoles.CM))
 		{
-			posts = posts.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id);
+			posts = posts.Where(p => !p.ModLocked || (currentUser != null && p.AuthorId == currentUser.Id));
 		}
 		else if (hideModActions)
 		{

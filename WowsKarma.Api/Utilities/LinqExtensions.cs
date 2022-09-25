@@ -19,14 +19,14 @@ public static class LinqExtensions
 	/// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="pageSize"/> or <paramref name="index"/> are out of range.</exception>
 	public static Page<T> Page<T>(this IQueryable<T> source, int pageSize, int index)
 	{
-		if (index < 0)
+		if (index <= 0)
 		{
 			throw new ArgumentOutOfRangeException(nameof(index), "Index must be greater than or equal to 0.");
 		}
 
-		if (pageSize < 0)
+		if (pageSize <= 0)
 		{
-			throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than or equal to 0.");
+			throw new ArgumentOutOfRangeException(nameof(pageSize), "Page size must be greater than 0.");
 		}
 
 		// Get the total number of items in the sequence.
@@ -34,6 +34,9 @@ public static class LinqExtensions
 		
 		// Calculate the total number of pages.
 		int totalPages = (int)Math.Ceiling(total / (double)pageSize);
+		
+		// Adjust the index to be zero-based.
+		index--; 
 		
 		// If the index is out of range, throw an exception.
 		if (index > totalPages)

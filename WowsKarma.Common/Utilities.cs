@@ -8,7 +8,7 @@ using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
 namespace WowsKarma.Common;
-
+#nullable enable
 
 public static class Utilities
 {
@@ -23,7 +23,7 @@ public static class Utilities
 		PropertyNamingPolicy = JsonNamingPolicy.CamelCase
 	};
 
-	public static Region GetRegionConfigString(string configString) => configString switch
+	public static Region GetRegionConfigString(string? configString) => configString switch
 	{
 		"EU" => Region.EU,
 		"NA" => Region.NA,
@@ -32,7 +32,7 @@ public static class Utilities
 		_ => throw new ArgumentOutOfRangeException(nameof(configString))
 	};
 
-	public static string ToRegionString(this Region region) => region switch
+	public static string ToRegionString(this Region? region) => region switch
 	{
 		Region.EU => "EU",
 		Region.NA => "NA",
@@ -41,7 +41,7 @@ public static class Utilities
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 
-	public static string ToWargamingSubdomain(this Region region) => region switch
+	public static string ToWargamingSubdomain(this Region? region) => region switch
 	{
 		Region.EU => "eu",
 		Region.NA => "na",
@@ -50,7 +50,7 @@ public static class Utilities
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 
-	public static Region FromWargamingSubdomain(this string subdomain) => subdomain switch
+	public static Region FromWargamingSubdomain(this string? subdomain) => subdomain switch
 	{
 		"eu" => Region.EU,
 		"na" => Region.NA,
@@ -59,7 +59,7 @@ public static class Utilities
 		_ => throw new ArgumentOutOfRangeException(nameof(subdomain))
 	};
 
-	public static string GetRegionWebDomain(this Region region) => region switch
+	public static string GetRegionWebDomain(this Region? region) => region switch
 	{
 		Region.EU => "https://wows-karma.com/",
 		Region.NA => "https://na.wows-karma.com/",
@@ -68,7 +68,7 @@ public static class Utilities
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 
-	public static string GetRegionApiDomain(this Region region) => region switch
+	public static string GetRegionApiDomain(this Region? region) => region switch
 	{
 		Region.EU => "https://api.wows-karma.com/",
 		Region.NA => "https://api.na.wows-karma.com/",
@@ -104,8 +104,10 @@ public static class Utilities
 		return path.ToString();
 	}
 
-	public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal)
-		=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
+	public static AccountListingDTO? ToAccountListing(this ClaimsPrincipal? claimsPrincipal) 
+		=> uint.TryParse(claimsPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier), out uint accountId) 
+			? new AccountListingDTO(accountId, claimsPrincipal.FindFirstValue(ClaimTypes.Name)) 
+			: null;
 
 
 	public static Type? GetType(string typeName)
@@ -126,7 +128,7 @@ public static class Utilities
 		return null;
 	}
 
-	public static ReplayChatMessageChannel GetMessageChannelType(string messageGroup) => messageGroup switch
+	public static ReplayChatMessageChannel GetMessageChannelType(string? messageGroup) => messageGroup switch
 	{
 		"battle_common" => ReplayChatMessageChannel.All,
 		"battle_team" => ReplayChatMessageChannel.Team,
@@ -134,7 +136,7 @@ public static class Utilities
 		_ => ReplayChatMessageChannel.Unknown
 	};
 
-	public static string GetDisplayString(this ReplayChatMessageChannel channel) => channel switch
+	public static string GetDisplayString(this ReplayChatMessageChannel? channel) => channel switch
 	{
 		ReplayChatMessageChannel.All => "All",
 		ReplayChatMessageChannel.Team => "Team",

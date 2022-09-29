@@ -64,7 +64,7 @@ public sealed class PostController : ControllerBase
 	[HttpGet("{userId}/received"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200)]
 	public IActionResult GetReceivedPosts(
 		[FromRoute] uint userId, 
-		[FromQuery] int page = 0, 
+		[FromQuery] int page = 1, 
 		[FromQuery] int pageSize = 10
 	) {
 		IQueryable<Post> posts = postService.GetReceivedPosts(userId);
@@ -94,7 +94,7 @@ public sealed class PostController : ControllerBase
 	[HttpGet("{userId}/sent"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(typeof(string), 404)]
 	public IActionResult GetSentPosts(
 		[FromRoute] uint userId, 
-		[FromQuery] int page = 0, 
+		[FromQuery] int page = 1, 
 		[FromQuery] int pageSize = 10
 	) {
 		IQueryable<Post> posts = postService.GetSentPosts(userId);

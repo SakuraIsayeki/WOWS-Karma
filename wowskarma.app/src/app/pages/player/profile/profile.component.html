@@ -53,9 +53,20 @@
             <dd class="col-sm-9">{{profile.lastBattleTime | date:"medium"}}</dd>
 
             <dt class="col-sm-3">Statistics :</dt>
-            <dd class="col-sm-9">
-              <a href="{{profile | wowsNumbersPlayerLink}}">View on wows-numbers.com</a>
-            </dd>
+            <dd class="col-sm-9"><a href="{{profile | wowsNumbersPlayerLink}}">View on wows-numbers.com</a></dd>
+
+            <ng-container *ngIf="isCurrentUserCM">
+              <dt class="col-sm-3">Platform Banned ?</dt>
+              <dd class="col-sm-9">
+                <ng-container *ngIf="isPlatformBanned$ | async else notPlatformBanned">
+                  <span class="text-danger">Yes</span>
+                </ng-container>
+
+                <ng-template #notPlatformBanned>
+                  <span class="text-success">No</span>
+                </ng-template>
+              </dd>
+            </ng-container>
           </ng-container>
         </dl>
       </div>

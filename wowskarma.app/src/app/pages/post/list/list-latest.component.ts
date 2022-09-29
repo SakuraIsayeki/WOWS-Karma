@@ -2,10 +2,10 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, combineLatest, Observable, of } from "rxjs";
 import { map, debounceTime, distinctUntilChanged, shareReplay, startWith, tap } from "rxjs/operators";
-import { PlayerPostDto } from "../../../services/api/models/player-post-dto";
-import { PostService } from "../../../services/api/services/post.service";
-import { AuthService } from "../../../services/auth.service";
-import { PostsHub } from "../../../services/hubs/posts-hub.service";
+import { PlayerPostDto } from "src/app/services/api/models/player-post-dto";
+import { PostService } from "src/app/services/api/services/post.service";
+import { AuthService } from "src/app/services/auth.service";
+import { PostsHub } from "src/app/services/hubs/posts-hub.service";
 import { filterNotNull, filterPartials, mergeAndCache, shareReplayRefCount, startFrom, switchMapCatchError, tapAny, tapPageInfoHeaders } from "../../../shared/rxjs-operators";
 
 export declare type HasId = { id: string };

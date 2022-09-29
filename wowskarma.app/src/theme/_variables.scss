@@ -112,13 +112,13 @@ $pagination-color:                  $white !default;
 $pagination-bg:                     $secondary !default;
 $pagination-border-width:           0 !default;
 $pagination-border-color:           transparent !default;
-$pagination-hover-color:            $white !default;
-$pagination-hover-bg:               lighten($pagination-bg, 10%) !default;
+$pagination-hover-color:            $pagination-color !default;
+$pagination-hover-bg:               darken($pagination-bg, 5%) !default;
 $pagination-hover-border-color:     transparent !default;
 $pagination-active-bg:              $pagination-hover-bg !default;
 $pagination-active-border-color:    transparent !default;
-$pagination-disabled-color:         $white !default;
-$pagination-disabled-bg:            darken($pagination-bg, 15%) !default;
+$pagination-disabled-color:         darken($pagination-color, 30%) !default;
+$pagination-disabled-bg:            darken($pagination-bg, 10%) !default;
 $pagination-disabled-border-color:  transparent !default;
 
 // Cards

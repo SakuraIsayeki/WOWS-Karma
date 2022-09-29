@@ -1,14 +1,14 @@
 <h1 class="mb-3">Latest Posts</h1>
 
 <form [formGroup]="listFilters">
-  <div class="row d-flex justify-content-between gy-3">
+  <div class="row d-xl-flex justify-content-between gy-3">
     <div class="col-md-auto">
       <div class="my-3">
         <h4>Filters</h4>
         <hr class="my-0" />
       </div>
 
-      <div id="post-filter-settings" class="d-flex flex-row gap-5">
+      <div id="post-filter-settings" class="d-flex flex-row gap-4">
         <div id="filter-replays">
           <p class="lead">Contains Replay</p>
 
@@ -29,20 +29,20 @@
       </div>
     </div>
 
-    <div class="col-md-auto text-end mb-sm-5 mb-md-3">
+    <div class="col-md-auto text-xl-end mb-sm-5 mb-md-3">
       <div class="my-3">
         <h4>View</h4>
         <hr class="my-0" />
       </div>
 
 
-      <div id="post-view-settings" class="d-flex flex-row gap-5">
+      <div id="post-view-settings" class="d-xl-flex flex-row gap-4">
         <div id="page-count">
           <p class="lead">Page</p>
 
           <ng-container *ngIf="pageInfo$ | async as pageInfo">
             <ngb-pagination [(page)]="pageInfo.currentPage" [boundaryLinks]="true" [collectionSize]="pageInfo.totalItems"
-                            [maxSize]="8" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)" class="bg-secondary"
+                            [maxSize]="5" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)"
             >
             </ngb-pagination>
           </ng-container>

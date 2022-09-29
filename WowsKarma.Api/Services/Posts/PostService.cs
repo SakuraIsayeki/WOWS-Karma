@@ -75,7 +75,7 @@ public class PostService
 			.ThenInclude(p => p.Clan)
 		
 		.Where(p => p.PlayerId == playerId)
-		.OrderBy(p => p.CreatedAt);
+		.OrderByDescending(p => p.CreatedAt);
 
 	public IQueryable<Post> GetSentPosts(uint authorId) => _context.Posts.AsNoTracking()
 		.Include(p => p.Author)
@@ -87,7 +87,7 @@ public class PostService
 			.ThenInclude(p => p.Clan)
 		
 		.Where(p => p.AuthorId == authorId)?
-		.OrderBy(p => p.CreatedAt);
+		.OrderByDescending(p => p.CreatedAt);
 
 	public IQueryable<Post> GetLatestPosts() => _context.Posts.AsNoTracking()
 		.Include(p => p.Author)

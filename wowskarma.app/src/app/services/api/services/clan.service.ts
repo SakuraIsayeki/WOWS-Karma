@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
@@ -21,6 +21,113 @@ export class ClanService extends BaseService {
     http: HttpClient
   ) {
     super(config, http);
+  }
+
+  /**
+   * Path part for operation apiClanGet
+   */
+  static readonly ApiClanGetPath = '/api/Clan';
+
+  /**
+   * List all IDs of clans in the database.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiClanGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiClanGet$Plain$Response(params?: {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<number>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, ClanService.ApiClanGetPath, 'get');
+    if (params) {
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: 'text/plain',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<number>>;
+      })
+    );
+  }
+
+  /**
+   * List all IDs of clans in the database.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiClanGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiClanGet$Plain(params?: {
+    context?: HttpContext
+  }
+): Observable<Array<number>> {
+
+    return this.apiClanGet$Plain$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<number>>) => r.body as Array<number>)
+    );
+  }
+
+  /**
+   * List all IDs of clans in the database.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiClanGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiClanGet$Json$Response(params?: {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<number>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, ClanService.ApiClanGetPath, 'get');
+    if (params) {
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'text/json',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<number>>;
+      })
+    );
+  }
+
+  /**
+   * List all IDs of clans in the database.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiClanGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiClanGet$Json(params?: {
+    context?: HttpContext
+  }
+): Observable<Array<number>> {
+
+    return this.apiClanGet$Json$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<number>>) => r.body as Array<number>)
+    );
   }
 
   /**
@@ -49,7 +156,9 @@ export class ClanService extends BaseService {
      * Select whether response must include members
      */
     includeMembers?: boolean;
-  }): Observable<StrictHttpResponse<ClanProfileFullDto>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<ClanProfileFullDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, ClanService.ApiClanClanIdGetPath, 'get');
     if (params) {
@@ -59,7 +168,8 @@ export class ClanService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -89,7 +199,9 @@ export class ClanService extends BaseService {
      * Select whether response must include members
      */
     includeMembers?: boolean;
-  }): Observable<ClanProfileFullDto> {
+    context?: HttpContext
+  }
+): Observable<ClanProfileFullDto> {
 
     return this.apiClanClanIdGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<ClanProfileFullDto>) => r.body as ClanProfileFullDto)
@@ -117,7 +229,9 @@ export class ClanService extends BaseService {
      * Select whether response must include members
      */
     includeMembers?: boolean;
-  }): Observable<StrictHttpResponse<ClanProfileFullDto>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<ClanProfileFullDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, ClanService.ApiClanClanIdGetPath, 'get');
     if (params) {
@@ -127,7 +241,8 @@ export class ClanService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -157,7 +272,9 @@ export class ClanService extends BaseService {
      * Select whether response must include members
      */
     includeMembers?: boolean;
-  }): Observable<ClanProfileFullDto> {
+    context?: HttpContext
+  }
+): Observable<ClanProfileFullDto> {
 
     return this.apiClanClanIdGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<ClanProfileFullDto>) => r.body as ClanProfileFullDto)
@@ -190,7 +307,9 @@ export class ClanService extends BaseService {
      * Amount of maximum results to return
      */
     results?: number;
-  }): Observable<StrictHttpResponse<Array<ClanListingDto>>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<ClanListingDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, ClanService.ApiClanSearchSearchGetPath, 'get');
     if (params) {
@@ -200,7 +319,8 @@ export class ClanService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -230,7 +350,9 @@ export class ClanService extends BaseService {
      * Amount of maximum results to return
      */
     results?: number;
-  }): Observable<Array<ClanListingDto>> {
+    context?: HttpContext
+  }
+): Observable<Array<ClanListingDto>> {
 
     return this.apiClanSearchSearchGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<Array<ClanListingDto>>) => r.body as Array<ClanListingDto>)
@@ -258,7 +380,9 @@ export class ClanService extends BaseService {
      * Amount of maximum results to return
      */
     results?: number;
-  }): Observable<StrictHttpResponse<Array<ClanListingDto>>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<ClanListingDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, ClanService.ApiClanSearchSearchGetPath, 'get');
     if (params) {
@@ -268,7 +392,8 @@ export class ClanService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -298,7 +423,9 @@ export class ClanService extends BaseService {
      * Amount of maximum results to return
      */
     results?: number;
-  }): Observable<Array<ClanListingDto>> {
+    context?: HttpContext
+  }
+): Observable<Array<ClanListingDto>> {
 
     return this.apiClanSearchSearchGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<Array<ClanListingDto>>) => r.body as Array<ClanListingDto>)

@@ -7,16 +7,18 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Infrastructure.Attributes;
+using WowsKarma.Api.Infrastructure.Data;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
+using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
 using InvalidReplayException = WowsKarma.Api.Infrastructure.Exceptions.InvalidReplayException;
 
 namespace WowsKarma.Api.Controllers;
 
 [ApiController, Route("api/[controller]")]
-public class PostController : ControllerBase
+public sealed class PostController : ControllerBase
 {
 	private readonly PlayerService playerService;
 	private readonly PostService postService;
@@ -47,93 +49,108 @@ public class PostController : ControllerBase
 	public async Task<IActionResult> GetPostAsync(Guid postId)
 		=> await postService.GetPostDTOAsync(postId) is { } post
 			? !post.ModLocked || post.Author.Id == User.ToAccountListing().Id || User.IsInRole(ApiRoles.CM)
-				? StatusCode(200, post)
+				? Ok(post)
 				: StatusCode(410)
-			: StatusCode(404);
+			: NotFound();
 
 	/// <summary>
 	/// Fetches all posts that a given player has received.
 	/// </summary>
 	/// <param name="userId">Account ID of player to query</param>
-	/// <param name="lastResults">Return maximum of results (where available)</param>
-	/// <response code="200">List of posts received by player</response>
-	/// <response code="204">No posts received for given player.</response>
+	/// <param name="page">Page number to fetch</param>
+	/// <param name="pageSize">Number of posts per page</param>
+	/// <response code="200">List of posts received by player.</response>
 	/// <response code="404">No player found for given Account ID.</response>
 	[HttpGet("{userId}/received"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200)]
-	public IActionResult GetReceivedPosts(uint userId, [FromQuery] int? lastResults)
-	{
+	public IActionResult GetReceivedPosts(
+		[FromRoute] uint userId, 
+		[FromQuery] int page = 1, 
+		[FromQuery] int pageSize = 10
+	) {
 		IQueryable<Post> posts = postService.GetReceivedPosts(userId);
 
 		if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			posts = posts.Where(p => !p.ModLocked || p.AuthorId == User.ToAccountListing().Id);
+			AccountListingDTO currentUser = User.ToAccountListing();
+			posts = posts.Where(p => !p.ModLocked || (currentUser != null && p.AuthorId == currentUser.Id));
 		}
 
-		if (lastResults is > 0)
-		{
-			posts = posts.Take((int)lastResults);
-		}
-
-		return Ok(posts.Adapt<List<PlayerPostDTO>>());
+		// Get the page of results and set headers
+		Page<Post> pageResults = posts.Page(pageSize, page);
+		Response.AddPaginationHeaders(pageResults);
+		
+		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
 	}
 
 	/// <summary>
 	/// Fetches all posts that a given player has sent.
 	/// </summary>
 	/// <param name="userId">Account ID of player to query</param>
-	/// <param name="lastResults">Return maximum of results (where available)</param>
+	/// <param name="page">Page number to fetch</param>
+	/// <param name="pageSize">Number of posts per page</param>
 	/// <response code="200">List of posts sent by player</response>
 	/// <response code="204">No posts sent by given player.</response>
 	/// <response code="404">No player found for given Account ID.</response>
 	[HttpGet("{userId}/sent"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(typeof(string), 404)]
-	public IActionResult GetSentPosts(uint userId, [FromQuery] int? lastResults)
-	{
+	public IActionResult GetSentPosts(
+		[FromRoute] uint userId, 
+		[FromQuery] int page = 1, 
+		[FromQuery] int pageSize = 10
+	) {
 		IQueryable<Post> posts = postService.GetSentPosts(userId);
 
 		if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			posts = posts?.Where(p => !p.ModLocked);
+			posts = posts?.Where(static p => !p.ModLocked);
 		}
 
-		if (lastResults is > 0)
-		{
-			posts = posts.Take((int)lastResults);
-		}
-
-		return Ok(posts.Adapt<List<PlayerPostDTO>>());
+		// Get the page of results and set headers
+		Page<Post> pageResults = posts.Page(pageSize, page);
+		Response.AddPaginationHeaders(pageResults);
+		
+		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
 	}
 
 	/// <summary>
 	/// Fetches latest posts.
 	/// </summary>
-	/// <param name="count">Return maximum of results.</param>
+	/// <param name="page">Page number to fetch</param>
+	/// <param name="pageSize">Number of posts per page</param>
 	/// <param name="hasReplay">Filters returned posts by Replay attachment.</param>
 	/// <param name="hideModActions">Hides posts containing Mod Actions (visible only to CMs).</param>
 	/// <response code="200">List of latest posts, sorted by Submission time.</response>
 	[HttpGet("latest"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200)]
-	public IActionResult GetLatestPosts([FromQuery] int count = 10, bool? hasReplay = null, bool hideModActions = false)
-	{
+	public IActionResult GetLatestPosts(
+		[FromQuery] int page = 1, 
+		[FromQuery] int pageSize = 10, 
+		[FromQuery] bool? hasReplay = null, 
+		[FromQuery] bool hideModActions = false
+	) {
 		AccountListingDTO currentUser = User.ToAccountListing();
 
 		IQueryable<Post> posts = postService.GetLatestPosts();
 
 		if (!User.IsInRole(ApiRoles.CM))
 		{
-			posts = posts.Where(p => !p.ModLocked || p.AuthorId == currentUser.Id);
+			posts = posts.Where(p => !p.ModLocked || (currentUser != null && p.AuthorId == currentUser.Id));
 		}
 		else if (hideModActions)
 		{
-			posts = posts.Where(p => !p.ModLocked);
+			posts = posts.Where(static p => !p.ModLocked);
 		}
 
 		if (hasReplay.HasValue)
 		{
 			posts = hasReplay.Value
-				? posts.Where(p => p.Replay != null)
-				: posts.Where(p => p.Replay == null);
+				? posts.Where(static p => p.Replay != null)
+				: posts.Where(static p => p.Replay == null);
 		}
 
-		return base.StatusCode(200, posts.Take(count).Adapt<List<PlayerPostDTO>>());
+		// Get the page of results and set headers
+		Page<Post> pageResults = posts.Page(pageSize, page);
+		Response.AddPaginationHeaders(pageResults);
+		
+		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
 	}
 
 	/// <summary>

@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
@@ -37,7 +37,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthHead$Response(params?: {
-  }): Observable<StrictHttpResponse<void>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, AuthService.ApiAuthHeadPath, 'head');
     if (params) {
@@ -45,7 +47,8 @@ export class AuthService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -65,7 +68,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthHead(params?: {
-  }): Observable<void> {
+    context?: HttpContext
+  }
+): Observable<void> {
 
     return this.apiAuthHead$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)
@@ -88,7 +93,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthLoginGet$Response(params?: {
-  }): Observable<StrictHttpResponse<void>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, AuthService.ApiAuthLoginGetPath, 'get');
     if (params) {
@@ -96,7 +103,8 @@ export class AuthService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -116,7 +124,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthLoginGet(params?: {
-  }): Observable<void> {
+    context?: HttpContext
+  }
+): Observable<void> {
 
     return this.apiAuthLoginGet$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)
@@ -139,7 +149,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthWgCallbackGet$Response(params?: {
-  }): Observable<StrictHttpResponse<void>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, AuthService.ApiAuthWgCallbackGetPath, 'get');
     if (params) {
@@ -147,7 +159,8 @@ export class AuthService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -167,7 +180,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthWgCallbackGet(params?: {
-  }): Observable<void> {
+    context?: HttpContext
+  }
+): Observable<void> {
 
     return this.apiAuthWgCallbackGet$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)
@@ -190,7 +205,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthRenewSeedPost$Response(params?: {
-  }): Observable<StrictHttpResponse<void>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, AuthService.ApiAuthRenewSeedPostPath, 'post');
     if (params) {
@@ -198,7 +215,8 @@ export class AuthService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -218,7 +236,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthRenewSeedPost(params?: {
-  }): Observable<void> {
+    context?: HttpContext
+  }
+): Observable<void> {
 
     return this.apiAuthRenewSeedPost$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)
@@ -241,7 +261,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthRefreshTokenGet$Plain$Response(params?: {
-  }): Observable<StrictHttpResponse<string>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<string>> {
 
     const rb = new RequestBuilder(this.rootUrl, AuthService.ApiAuthRefreshTokenGetPath, 'get');
     if (params) {
@@ -249,7 +271,8 @@ export class AuthService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -269,7 +292,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthRefreshTokenGet$Plain(params?: {
-  }): Observable<string> {
+    context?: HttpContext
+  }
+): Observable<string> {
 
     return this.apiAuthRefreshTokenGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<string>) => r.body as string)
@@ -287,7 +312,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthRefreshTokenGet$Json$Response(params?: {
-  }): Observable<StrictHttpResponse<string>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<string>> {
 
     const rb = new RequestBuilder(this.rootUrl, AuthService.ApiAuthRefreshTokenGetPath, 'get');
     if (params) {
@@ -295,7 +322,8 @@ export class AuthService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -315,7 +343,9 @@ export class AuthService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiAuthRefreshTokenGet$Json(params?: {
-  }): Observable<string> {
+    context?: HttpContext
+  }
+): Observable<string> {
 
     return this.apiAuthRefreshTokenGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<string>) => r.body as string)

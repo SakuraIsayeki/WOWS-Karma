@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
@@ -44,7 +44,9 @@ export class ProfileService extends BaseService {
      * Player ID to fetch profile flags from.
      */
     id: number;
-  }): Observable<StrictHttpResponse<UserProfileFlagsDto>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<UserProfileFlagsDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, ProfileService.ApiProfileIdGetPath, 'get');
     if (params) {
@@ -53,7 +55,8 @@ export class ProfileService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -79,7 +82,9 @@ export class ProfileService extends BaseService {
      * Player ID to fetch profile flags from.
      */
     id: number;
-  }): Observable<UserProfileFlagsDto> {
+    context?: HttpContext
+  }
+): Observable<UserProfileFlagsDto> {
 
     return this.apiProfileIdGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<UserProfileFlagsDto>) => r.body as UserProfileFlagsDto)
@@ -103,7 +108,9 @@ export class ProfileService extends BaseService {
      * Player ID to fetch profile flags from.
      */
     id: number;
-  }): Observable<StrictHttpResponse<UserProfileFlagsDto>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<UserProfileFlagsDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, ProfileService.ApiProfileIdGetPath, 'get');
     if (params) {
@@ -112,7 +119,8 @@ export class ProfileService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -138,7 +146,9 @@ export class ProfileService extends BaseService {
      * Player ID to fetch profile flags from.
      */
     id: number;
-  }): Observable<UserProfileFlagsDto> {
+    context?: HttpContext
+  }
+): Observable<UserProfileFlagsDto> {
 
     return this.apiProfileIdGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<UserProfileFlagsDto>) => r.body as UserProfileFlagsDto)
@@ -161,13 +171,15 @@ export class ProfileService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiProfilePut$Plain$Response(params?: {
+    context?: HttpContext
 
     /**
      * Updated profile values to set on profile.
      * Note: Platform Ban state cannot be edited through this endpoint.
      */
     body?: UserProfileFlagsDto
-  }): Observable<StrictHttpResponse<UserProfileFlagsDto>> {
+  }
+): Observable<StrictHttpResponse<UserProfileFlagsDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, ProfileService.ApiProfilePutPath, 'put');
     if (params) {
@@ -176,7 +188,8 @@ export class ProfileService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -196,13 +209,15 @@ export class ProfileService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiProfilePut$Plain(params?: {
+    context?: HttpContext
 
     /**
      * Updated profile values to set on profile.
      * Note: Platform Ban state cannot be edited through this endpoint.
      */
     body?: UserProfileFlagsDto
-  }): Observable<UserProfileFlagsDto> {
+  }
+): Observable<UserProfileFlagsDto> {
 
     return this.apiProfilePut$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<UserProfileFlagsDto>) => r.body as UserProfileFlagsDto)
@@ -220,13 +235,15 @@ export class ProfileService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiProfilePut$Json$Response(params?: {
+    context?: HttpContext
 
     /**
      * Updated profile values to set on profile.
      * Note: Platform Ban state cannot be edited through this endpoint.
      */
     body?: UserProfileFlagsDto
-  }): Observable<StrictHttpResponse<UserProfileFlagsDto>> {
+  }
+): Observable<StrictHttpResponse<UserProfileFlagsDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, ProfileService.ApiProfilePutPath, 'put');
     if (params) {
@@ -235,7 +252,8 @@ export class ProfileService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -255,13 +273,15 @@ export class ProfileService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiProfilePut$Json(params?: {
+    context?: HttpContext
 
     /**
      * Updated profile values to set on profile.
      * Note: Platform Ban state cannot be edited through this endpoint.
      */
     body?: UserProfileFlagsDto
-  }): Observable<UserProfileFlagsDto> {
+  }
+): Observable<UserProfileFlagsDto> {
 
     return this.apiProfilePut$Json$Response(params).pipe(
       map((r: StrictHttpResponse<UserProfileFlagsDto>) => r.body as UserProfileFlagsDto)

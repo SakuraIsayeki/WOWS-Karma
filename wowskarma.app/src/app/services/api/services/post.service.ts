@@ -1,800 +1,1034 @@
 /* tslint:disable */
-import { HttpClient, HttpResponse } from "@angular/common/http";
 /* eslint-disable */
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
-import { filter, map } from "rxjs/operators";
-import { ApiConfiguration } from "../api-configuration";
-import { BaseService } from "../base-service";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
+import { BaseService } from '../base-service';
+import { ApiConfiguration } from '../api-configuration';
+import { StrictHttpResponse } from '../strict-http-response';
+import { RequestBuilder } from '../request-builder';
+import { Observable } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
 
-import { PlayerPostDto } from "../models/player-post-dto";
-import { RequestBuilder } from "../request-builder";
-import { StrictHttpResponse } from "../strict-http-response";
+import { PlayerPostDto } from '../models/player-post-dto';
 
 @Injectable({
-    providedIn: "root",
+  providedIn: 'root',
 })
 export class PostService extends BaseService {
-    /**
-     * Path part for operation apiPostPostIdGet
-     */
-    static readonly ApiPostPostIdGetPath = "/api/Post/{postId}";
-    /**
-     * Path part for operation apiPostPostIdDelete
-     */
-    static readonly ApiPostPostIdDeletePath = "/api/Post/{postId}";
-    /**
-     * Path part for operation apiPostUserIdReceivedGet
-     */
-    static readonly ApiPostUserIdReceivedGetPath = "/api/Post/{userId}/received";
-    /**
-     * Path part for operation apiPostUserIdSentGet
-     */
-    static readonly ApiPostUserIdSentGetPath = "/api/Post/{userId}/sent";
-    /**
-     * Path part for operation apiPostLatestGet
-     */
-    static readonly ApiPostLatestGetPath = "/api/Post/latest";
-    /**
-     * Path part for operation apiPostPut
-     */
-    static readonly ApiPostPutPath = "/api/Post";
-    /**
-     * Path part for operation apiPostPost
-     */
-    static readonly ApiPostPostPath = "/api/Post";
+  constructor(
+    config: ApiConfiguration,
+    http: HttpClient
+  ) {
+    super(config, http);
+  }
 
-    constructor(
-        config: ApiConfiguration,
-        http: HttpClient,
-    ) {
-        super(config, http);
+  /**
+   * Path part for operation apiPostGet
+   */
+  static readonly ApiPostGetPath = '/api/Post';
+
+  /**
+   * Lists all post IDs.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostGet$Plain$Response(params?: {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<string>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostGetPath, 'get');
+    if (params) {
     }
 
-    /**
-     * Fetches player post with given ID.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostPostIdGet$Plain()` instead.
-     *
-     * This method doesn't expect any request body.
-     */
-    apiPostPostIdGet$Plain$Response(params: {
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: 'text/plain',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<string>>;
+      })
+    );
+  }
 
-        /**
-         * Post&#x27;s GUID
-         */
-        postId: string;
-    }): Observable<StrictHttpResponse<PlayerPostDto>> {
+  /**
+   * Lists all post IDs.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostGet$Plain(params?: {
+    context?: HttpContext
+  }
+): Observable<Array<string>> {
 
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPostIdGetPath, "get");
-        if (params) {
-            rb.path("postId", params.postId, {});
-        }
+    return this.apiPostGet$Plain$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<string>>) => r.body as Array<string>)
+    );
+  }
 
-        return this.http.request(rb.build({
-            responseType: "text",
-            accept: "text/plain",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return r as StrictHttpResponse<PlayerPostDto>;
-            }),
-        );
+  /**
+   * Lists all post IDs.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostGet$Json$Response(params?: {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<string>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostGetPath, 'get');
+    if (params) {
     }
 
-    /**
-     * Fetches player post with given ID.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostPostIdGet$Plain$Response()` instead.
-     *
-     * This method doesn't expect any request body.
-     */
-    apiPostPostIdGet$Plain(params: {
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'text/json',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<string>>;
+      })
+    );
+  }
 
-        /**
-         * Post&#x27;s GUID
-         */
-        postId: string;
-    }): Observable<PlayerPostDto> {
+  /**
+   * Lists all post IDs.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostGet$Json(params?: {
+    context?: HttpContext
+  }
+): Observable<Array<string>> {
 
-        return this.apiPostPostIdGet$Plain$Response(params).pipe(
-            map((r: StrictHttpResponse<PlayerPostDto>) => r.body as PlayerPostDto),
-        );
-    }
+    return this.apiPostGet$Json$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<string>>) => r.body as Array<string>)
+    );
+  }
 
-    /**
-     * Fetches player post with given ID.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostPostIdGet$Json()` instead.
-     *
-     * This method doesn't expect any request body.
-     */
-    apiPostPostIdGet$Json$Response(params: {
+  /**
+   * Path part for operation apiPostPut
+   */
+  static readonly ApiPostPutPath = '/api/Post';
 
-        /**
-         * Post&#x27;s GUID
-         */
-        postId: string;
-    }): Observable<StrictHttpResponse<PlayerPostDto>> {
-
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPostIdGetPath, "get");
-        if (params) {
-            rb.path("postId", params.postId, {});
-        }
-
-        return this.http.request(rb.build({
-            responseType: "json",
-            accept: "text/json",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return r as StrictHttpResponse<PlayerPostDto>;
-            }),
-        );
-    }
+  /**
+   * Submits an updated post for editing.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostPut()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiPostPut$Response(params?: {
 
     /**
-     * Fetches player post with given ID.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostPostIdGet$Json$Response()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Bypass API Validation for post editing (Admin only).
      */
-    apiPostPostIdGet$Json(params: {
-
-        /**
-         * Post&#x27;s GUID
-         */
-        postId: string;
-    }): Observable<PlayerPostDto> {
-
-        return this.apiPostPostIdGet$Json$Response(params).pipe(
-            map((r: StrictHttpResponse<PlayerPostDto>) => r.body as PlayerPostDto),
-        );
-    }
+    ignoreChecks?: boolean;
+    context?: HttpContext
 
     /**
-     * Requests a post deletion.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostPostIdDelete()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Post object to submit
      */
-    apiPostPostIdDelete$Response(params: {
+    body?: PlayerPostDto
+  }
+): Observable<StrictHttpResponse<void>> {
 
-        /**
-         * ID of Post to delete
-         */
-        postId: string;
-
-        /**
-         * Bypass API Validation for post deletion (Admin only).
-         */
-        ignoreChecks?: boolean;
-    }): Observable<StrictHttpResponse<void>> {
-
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPostIdDeletePath, "delete");
-        if (params) {
-            rb.path("postId", params.postId, {});
-            rb.query("ignoreChecks", params.ignoreChecks, {});
-        }
-
-        return this.http.request(rb.build({
-            responseType: "text",
-            accept: "*/*",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
-            }),
-        );
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPutPath, 'put');
+    if (params) {
+      rb.query('ignoreChecks', params.ignoreChecks, {});
+      rb.body(params.body, 'application/*+json');
     }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: '*/*',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      })
+    );
+  }
+
+  /**
+   * Submits an updated post for editing.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostPut$Response()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiPostPut(params?: {
 
     /**
-     * Requests a post deletion.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostPostIdDelete$Response()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Bypass API Validation for post editing (Admin only).
      */
-    apiPostPostIdDelete(params: {
-
-        /**
-         * ID of Post to delete
-         */
-        postId: string;
-
-        /**
-         * Bypass API Validation for post deletion (Admin only).
-         */
-        ignoreChecks?: boolean;
-    }): Observable<void> {
-
-        return this.apiPostPostIdDelete$Response(params).pipe(
-            map((r: StrictHttpResponse<void>) => r.body as void),
-        );
-    }
+    ignoreChecks?: boolean;
+    context?: HttpContext
 
     /**
-     * Fetches all posts that a given player has received.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostUserIdReceivedGet$Plain()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Post object to submit
      */
-    apiPostUserIdReceivedGet$Plain$Response(params: {
+    body?: PlayerPostDto
+  }
+): Observable<void> {
 
-        /**
-         * Account ID of player to query
-         */
-        userId: number;
+    return this.apiPostPut$Response(params).pipe(
+      map((r: StrictHttpResponse<void>) => r.body as void)
+    );
+  }
 
-        /**
-         * Return maximum of results (where available)
-         */
-        lastResults?: number;
-    }): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
+  /**
+   * Path part for operation apiPostPost
+   */
+  static readonly ApiPostPostPath = '/api/Post';
 
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostUserIdReceivedGetPath, "get");
-        if (params) {
-            rb.path("userId", params.userId, {});
-            rb.query("lastResults", params.lastResults, {});
-        }
-
-        return this.http.request(rb.build({
-            responseType: "text",
-            accept: "text/plain",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return r as StrictHttpResponse<Array<PlayerPostDto>>;
-            }),
-        );
-    }
+  /**
+   * Submits a new post for creation.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostPost()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  apiPostPost$Response(params?: {
 
     /**
-     * Fetches all posts that a given player has received.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostUserIdReceivedGet$Plain$Response()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Bypass API Validation for post creation (Admin only)
      */
-    apiPostUserIdReceivedGet$Plain(params: {
+    ignoreChecks?: boolean;
+    context?: HttpContext
+    body?: {
+'postDto'?: string;
+'replay'?: Blob;
+}
+  }
+): Observable<StrictHttpResponse<void>> {
 
-        /**
-         * Account ID of player to query
-         */
-        userId: number;
-
-        /**
-         * Return maximum of results (where available)
-         */
-        lastResults?: number;
-    }): Observable<Array<PlayerPostDto>> {
-
-        return this.apiPostUserIdReceivedGet$Plain$Response(params).pipe(
-            map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>),
-        );
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPostPath, 'post');
+    if (params) {
+      rb.query('ignoreChecks', params.ignoreChecks, {});
+      rb.body(params.body, 'multipart/form-data');
     }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: '*/*',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      })
+    );
+  }
+
+  /**
+   * Submits a new post for creation.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostPost$Response()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  apiPostPost(params?: {
 
     /**
-     * Fetches all posts that a given player has received.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostUserIdReceivedGet$Json()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Bypass API Validation for post creation (Admin only)
      */
-    apiPostUserIdReceivedGet$Json$Response(params: {
+    ignoreChecks?: boolean;
+    context?: HttpContext
+    body?: {
+'postDto'?: string;
+'replay'?: Blob;
+}
+  }
+): Observable<void> {
 
-        /**
-         * Account ID of player to query
-         */
-        userId: number;
+    return this.apiPostPost$Response(params).pipe(
+      map((r: StrictHttpResponse<void>) => r.body as void)
+    );
+  }
 
-        /**
-         * Return maximum of results (where available)
-         */
-        lastResults?: number;
-    }): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
+  /**
+   * Path part for operation apiPostPostIdGet
+   */
+  static readonly ApiPostPostIdGetPath = '/api/Post/{postId}';
 
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostUserIdReceivedGetPath, "get");
-        if (params) {
-            rb.path("userId", params.userId, {});
-            rb.query("lastResults", params.lastResults, {});
-        }
-
-        return this.http.request(rb.build({
-            responseType: "json",
-            accept: "text/json",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return r as StrictHttpResponse<Array<PlayerPostDto>>;
-            }),
-        );
-    }
+  /**
+   * Fetches player post with given ID.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostPostIdGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostPostIdGet$Plain$Response(params: {
 
     /**
-     * Fetches all posts that a given player has received.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostUserIdReceivedGet$Json$Response()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Post&#x27;s GUID
      */
-    apiPostUserIdReceivedGet$Json(params: {
+    postId: string;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<PlayerPostDto>> {
 
-        /**
-         * Account ID of player to query
-         */
-        userId: number;
-
-        /**
-         * Return maximum of results (where available)
-         */
-        lastResults?: number;
-    }): Observable<Array<PlayerPostDto>> {
-
-        return this.apiPostUserIdReceivedGet$Json$Response(params).pipe(
-            map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>),
-        );
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPostIdGetPath, 'get');
+    if (params) {
+      rb.path('postId', params.postId, {});
     }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: 'text/plain',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<PlayerPostDto>;
+      })
+    );
+  }
+
+  /**
+   * Fetches player post with given ID.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostPostIdGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostPostIdGet$Plain(params: {
 
     /**
-     * Fetches all posts that a given player has sent.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostUserIdSentGet$Plain()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Post&#x27;s GUID
      */
-    apiPostUserIdSentGet$Plain$Response(params: {
+    postId: string;
+    context?: HttpContext
+  }
+): Observable<PlayerPostDto> {
 
-        /**
-         * Account ID of player to query
-         */
-        userId: number;
+    return this.apiPostPostIdGet$Plain$Response(params).pipe(
+      map((r: StrictHttpResponse<PlayerPostDto>) => r.body as PlayerPostDto)
+    );
+  }
 
-        /**
-         * Return maximum of results (where available)
-         */
-        lastResults?: number;
-    }): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
-
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostUserIdSentGetPath, "get");
-        if (params) {
-            rb.path("userId", params.userId, {});
-            rb.query("lastResults", params.lastResults, {});
-        }
-
-        return this.http.request(rb.build({
-            responseType: "text",
-            accept: "text/plain",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return r as StrictHttpResponse<Array<PlayerPostDto>>;
-            }),
-        );
-    }
+  /**
+   * Fetches player post with given ID.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostPostIdGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostPostIdGet$Json$Response(params: {
 
     /**
-     * Fetches all posts that a given player has sent.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostUserIdSentGet$Plain$Response()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Post&#x27;s GUID
      */
-    apiPostUserIdSentGet$Plain(params: {
+    postId: string;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<PlayerPostDto>> {
 
-        /**
-         * Account ID of player to query
-         */
-        userId: number;
-
-        /**
-         * Return maximum of results (where available)
-         */
-        lastResults?: number;
-    }): Observable<Array<PlayerPostDto>> {
-
-        return this.apiPostUserIdSentGet$Plain$Response(params).pipe(
-            map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>),
-        );
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPostIdGetPath, 'get');
+    if (params) {
+      rb.path('postId', params.postId, {});
     }
+
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'text/json',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<PlayerPostDto>;
+      })
+    );
+  }
+
+  /**
+   * Fetches player post with given ID.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostPostIdGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostPostIdGet$Json(params: {
 
     /**
-     * Fetches all posts that a given player has sent.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostUserIdSentGet$Json()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Post&#x27;s GUID
      */
-    apiPostUserIdSentGet$Json$Response(params: {
+    postId: string;
+    context?: HttpContext
+  }
+): Observable<PlayerPostDto> {
 
-        /**
-         * Account ID of player to query
-         */
-        userId: number;
+    return this.apiPostPostIdGet$Json$Response(params).pipe(
+      map((r: StrictHttpResponse<PlayerPostDto>) => r.body as PlayerPostDto)
+    );
+  }
 
-        /**
-         * Return maximum of results (where available)
-         */
-        lastResults?: number;
-    }): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
+  /**
+   * Path part for operation apiPostPostIdDelete
+   */
+  static readonly ApiPostPostIdDeletePath = '/api/Post/{postId}';
 
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostUserIdSentGetPath, "get");
-        if (params) {
-            rb.path("userId", params.userId, {});
-            rb.query("lastResults", params.lastResults, {});
-        }
-
-        return this.http.request(rb.build({
-            responseType: "json",
-            accept: "text/json",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return r as StrictHttpResponse<Array<PlayerPostDto>>;
-            }),
-        );
-    }
+  /**
+   * Requests a post deletion.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostPostIdDelete()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostPostIdDelete$Response(params: {
 
     /**
-     * Fetches all posts that a given player has sent.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostUserIdSentGet$Json$Response()` instead.
-     *
-     * This method doesn't expect any request body.
+     * ID of Post to delete
      */
-    apiPostUserIdSentGet$Json(params: {
-
-        /**
-         * Account ID of player to query
-         */
-        userId: number;
-
-        /**
-         * Return maximum of results (where available)
-         */
-        lastResults?: number;
-    }): Observable<Array<PlayerPostDto>> {
-
-        return this.apiPostUserIdSentGet$Json$Response(params).pipe(
-            map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>),
-        );
-    }
+    postId: string;
 
     /**
-     * Fetches latest posts.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostLatestGet$Plain()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Bypass API Validation for post deletion (Admin only).
      */
-    apiPostLatestGet$Plain$Response(params?: {
+    ignoreChecks?: boolean;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
-        /**
-         * Return maximum of results.
-         */
-        count?: number;
-
-        /**
-         * Filters returned posts by Replay attachment.
-         */
-        hasReplay?: boolean;
-
-        /**
-         * Hides posts containing Mod Actions (visible only to CMs).
-         */
-        hideModActions?: boolean;
-    }): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
-
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostLatestGetPath, "get");
-        if (params) {
-            rb.query("count", params.count, {});
-            rb.query("hasReplay", params.hasReplay, {});
-            rb.query("hideModActions", params.hideModActions, {});
-        }
-
-        return this.http.request(rb.build({
-            responseType: "text",
-            accept: "text/plain",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return r as StrictHttpResponse<Array<PlayerPostDto>>;
-            }),
-        );
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPostIdDeletePath, 'delete');
+    if (params) {
+      rb.path('postId', params.postId, {});
+      rb.query('ignoreChecks', params.ignoreChecks, {});
     }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: '*/*',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
+      })
+    );
+  }
+
+  /**
+   * Requests a post deletion.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostPostIdDelete$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostPostIdDelete(params: {
 
     /**
-     * Fetches latest posts.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostLatestGet$Plain$Response()` instead.
-     *
-     * This method doesn't expect any request body.
+     * ID of Post to delete
      */
-    apiPostLatestGet$Plain(params?: {
-
-        /**
-         * Return maximum of results.
-         */
-        count?: number;
-
-        /**
-         * Filters returned posts by Replay attachment.
-         */
-        hasReplay?: boolean;
-
-        /**
-         * Hides posts containing Mod Actions (visible only to CMs).
-         */
-        hideModActions?: boolean;
-    }): Observable<Array<PlayerPostDto>> {
-
-        return this.apiPostLatestGet$Plain$Response(params).pipe(
-            map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>),
-        );
-    }
+    postId: string;
 
     /**
-     * Fetches latest posts.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostLatestGet$Json()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Bypass API Validation for post deletion (Admin only).
      */
-    apiPostLatestGet$Json$Response(params?: {
+    ignoreChecks?: boolean;
+    context?: HttpContext
+  }
+): Observable<void> {
 
-        /**
-         * Return maximum of results.
-         */
-        count?: number;
+    return this.apiPostPostIdDelete$Response(params).pipe(
+      map((r: StrictHttpResponse<void>) => r.body as void)
+    );
+  }
 
-        /**
-         * Filters returned posts by Replay attachment.
-         */
-        hasReplay?: boolean;
+  /**
+   * Path part for operation apiPostUserIdReceivedGet
+   */
+  static readonly ApiPostUserIdReceivedGetPath = '/api/Post/{userId}/received';
 
-        /**
-         * Hides posts containing Mod Actions (visible only to CMs).
-         */
-        hideModActions?: boolean;
-    }): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
-
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostLatestGetPath, "get");
-        if (params) {
-            rb.query("count", params.count, {});
-            rb.query("hasReplay", params.hasReplay, {});
-            rb.query("hideModActions", params.hideModActions, {});
-        }
-
-        return this.http.request(rb.build({
-            responseType: "json",
-            accept: "text/json",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return r as StrictHttpResponse<Array<PlayerPostDto>>;
-            }),
-        );
-    }
+  /**
+   * Fetches all posts that a given player has received.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostUserIdReceivedGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostUserIdReceivedGet$Plain$Response(params: {
 
     /**
-     * Fetches latest posts.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostLatestGet$Json$Response()` instead.
-     *
-     * This method doesn't expect any request body.
+     * Account ID of player to query
      */
-    apiPostLatestGet$Json(params?: {
-
-        /**
-         * Return maximum of results.
-         */
-        count?: number;
-
-        /**
-         * Filters returned posts by Replay attachment.
-         */
-        hasReplay?: boolean;
-
-        /**
-         * Hides posts containing Mod Actions (visible only to CMs).
-         */
-        hideModActions?: boolean;
-    }): Observable<Array<PlayerPostDto>> {
-
-        return this.apiPostLatestGet$Json$Response(params).pipe(
-            map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>),
-        );
-    }
+    userId: number;
 
     /**
-     * Submits an updated post for editing.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostPut()` instead.
-     *
-     * This method sends `application/*+json` and handles request body of type `application/*+json`.
+     * Page number to fetch
      */
-    apiPostPut$Response(params?: {
-
-        /**
-         * Bypass API Validation for post editing (Admin only).
-         */
-        ignoreChecks?: boolean;
-
-        /**
-         * Post object to submit
-         */
-        body?: PlayerPostDto
-    }): Observable<StrictHttpResponse<void>> {
-
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPutPath, "put");
-        if (params) {
-            rb.query("ignoreChecks", params.ignoreChecks, {});
-            rb.body(params.body, "application/*+json");
-        }
-
-        return this.http.request(rb.build({
-            responseType: "text",
-            accept: "*/*",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
-            }),
-        );
-    }
+    page?: number;
 
     /**
-     * Submits an updated post for editing.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostPut$Response()` instead.
-     *
-     * This method sends `application/*+json` and handles request body of type `application/*+json`.
+     * Number of posts per page
      */
-    apiPostPut(params?: {
+    pageSize?: number;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
 
-        /**
-         * Bypass API Validation for post editing (Admin only).
-         */
-        ignoreChecks?: boolean;
-
-        /**
-         * Post object to submit
-         */
-        body?: PlayerPostDto
-    }): Observable<void> {
-
-        return this.apiPostPut$Response(params).pipe(
-            map((r: StrictHttpResponse<void>) => r.body as void),
-        );
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostUserIdReceivedGetPath, 'get');
+    if (params) {
+      rb.path('userId', params.userId, {});
+      rb.query('page', params.page, {});
+      rb.query('pageSize', params.pageSize, {});
     }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: 'text/plain',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<PlayerPostDto>>;
+      })
+    );
+  }
+
+  /**
+   * Fetches all posts that a given player has received.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostUserIdReceivedGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostUserIdReceivedGet$Plain(params: {
 
     /**
-     * Submits a new post for creation.
-     *
-     *
-     *
-     * This method provides access to the full `HttpResponse`, allowing access to response headers.
-     * To access only the response body, use `apiPostPost()` instead.
-     *
-     * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+     * Account ID of player to query
      */
-    apiPostPost$Response(params?: {
-
-        /**
-         * Bypass API Validation for post creation (Admin only)
-         */
-        ignoreChecks?: boolean;
-        body?: {
-            "postDto"?: string;
-            "replay"?: File | null;
-        }
-    }): Observable<StrictHttpResponse<void>> {
-
-        const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostPostPath, "post");
-        if (params) {
-            rb.query("ignoreChecks", params.ignoreChecks, {});
-            rb.body(params.body, "multipart/form-data");
-        }
-
-        return this.http.request(rb.build({
-            responseType: "text",
-            accept: "*/*",
-        })).pipe(
-            filter((r: any) => r instanceof HttpResponse),
-            map((r: HttpResponse<any>) => {
-                return (r as HttpResponse<any>).clone({ body: undefined }) as StrictHttpResponse<void>;
-            }),
-        );
-    }
+    userId: number;
 
     /**
-     * Submits a new post for creation.
-     *
-     *
-     *
-     * This method provides access to only to the response body.
-     * To access the full response (for headers, for example), `apiPostPost$Response()` instead.
-     *
-     * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+     * Page number to fetch
      */
-    apiPostPost(params?: {
+    page?: number;
 
-        /**
-         * Bypass API Validation for post creation (Admin only)
-         */
-        ignoreChecks?: boolean;
-        body?: {
-            "postDto"?: string;
-            "replay"?: File | null;
-        }
-    }): Observable<void> {
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+    context?: HttpContext
+  }
+): Observable<Array<PlayerPostDto>> {
 
-        return this.apiPostPost$Response(params).pipe(
-            map((r: StrictHttpResponse<void>) => r.body as void),
-        );
+    return this.apiPostUserIdReceivedGet$Plain$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>)
+    );
+  }
+
+  /**
+   * Fetches all posts that a given player has received.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostUserIdReceivedGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostUserIdReceivedGet$Json$Response(params: {
+
+    /**
+     * Account ID of player to query
+     */
+    userId: number;
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostUserIdReceivedGetPath, 'get');
+    if (params) {
+      rb.path('userId', params.userId, {});
+      rb.query('page', params.page, {});
+      rb.query('pageSize', params.pageSize, {});
     }
+
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'text/json',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<PlayerPostDto>>;
+      })
+    );
+  }
+
+  /**
+   * Fetches all posts that a given player has received.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostUserIdReceivedGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostUserIdReceivedGet$Json(params: {
+
+    /**
+     * Account ID of player to query
+     */
+    userId: number;
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+    context?: HttpContext
+  }
+): Observable<Array<PlayerPostDto>> {
+
+    return this.apiPostUserIdReceivedGet$Json$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>)
+    );
+  }
+
+  /**
+   * Path part for operation apiPostUserIdSentGet
+   */
+  static readonly ApiPostUserIdSentGetPath = '/api/Post/{userId}/sent';
+
+  /**
+   * Fetches all posts that a given player has sent.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostUserIdSentGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostUserIdSentGet$Plain$Response(params: {
+
+    /**
+     * Account ID of player to query
+     */
+    userId: number;
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostUserIdSentGetPath, 'get');
+    if (params) {
+      rb.path('userId', params.userId, {});
+      rb.query('page', params.page, {});
+      rb.query('pageSize', params.pageSize, {});
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: 'text/plain',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<PlayerPostDto>>;
+      })
+    );
+  }
+
+  /**
+   * Fetches all posts that a given player has sent.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostUserIdSentGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostUserIdSentGet$Plain(params: {
+
+    /**
+     * Account ID of player to query
+     */
+    userId: number;
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+    context?: HttpContext
+  }
+): Observable<Array<PlayerPostDto>> {
+
+    return this.apiPostUserIdSentGet$Plain$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>)
+    );
+  }
+
+  /**
+   * Fetches all posts that a given player has sent.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostUserIdSentGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostUserIdSentGet$Json$Response(params: {
+
+    /**
+     * Account ID of player to query
+     */
+    userId: number;
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostUserIdSentGetPath, 'get');
+    if (params) {
+      rb.path('userId', params.userId, {});
+      rb.query('page', params.page, {});
+      rb.query('pageSize', params.pageSize, {});
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'text/json',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<PlayerPostDto>>;
+      })
+    );
+  }
+
+  /**
+   * Fetches all posts that a given player has sent.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostUserIdSentGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostUserIdSentGet$Json(params: {
+
+    /**
+     * Account ID of player to query
+     */
+    userId: number;
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+    context?: HttpContext
+  }
+): Observable<Array<PlayerPostDto>> {
+
+    return this.apiPostUserIdSentGet$Json$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>)
+    );
+  }
+
+  /**
+   * Path part for operation apiPostLatestGet
+   */
+  static readonly ApiPostLatestGetPath = '/api/Post/latest';
+
+  /**
+   * Fetches latest posts.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostLatestGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostLatestGet$Plain$Response(params?: {
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+
+    /**
+     * Filters returned posts by Replay attachment.
+     */
+    hasReplay?: boolean;
+
+    /**
+     * Hides posts containing Mod Actions (visible only to CMs).
+     */
+    hideModActions?: boolean;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostLatestGetPath, 'get');
+    if (params) {
+      rb.query('page', params.page, {});
+      rb.query('pageSize', params.pageSize, {});
+      rb.query('hasReplay', params.hasReplay, {});
+      rb.query('hideModActions', params.hideModActions, {});
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: 'text/plain',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<PlayerPostDto>>;
+      })
+    );
+  }
+
+  /**
+   * Fetches latest posts.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostLatestGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostLatestGet$Plain(params?: {
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+
+    /**
+     * Filters returned posts by Replay attachment.
+     */
+    hasReplay?: boolean;
+
+    /**
+     * Hides posts containing Mod Actions (visible only to CMs).
+     */
+    hideModActions?: boolean;
+    context?: HttpContext
+  }
+): Observable<Array<PlayerPostDto>> {
+
+    return this.apiPostLatestGet$Plain$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>)
+    );
+  }
+
+  /**
+   * Fetches latest posts.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPostLatestGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostLatestGet$Json$Response(params?: {
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+
+    /**
+     * Filters returned posts by Replay attachment.
+     */
+    hasReplay?: boolean;
+
+    /**
+     * Hides posts containing Mod Actions (visible only to CMs).
+     */
+    hideModActions?: boolean;
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PlayerPostDto>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PostService.ApiPostLatestGetPath, 'get');
+    if (params) {
+      rb.query('page', params.page, {});
+      rb.query('pageSize', params.pageSize, {});
+      rb.query('hasReplay', params.hasReplay, {});
+      rb.query('hideModActions', params.hideModActions, {});
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'text/json',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<PlayerPostDto>>;
+      })
+    );
+  }
+
+  /**
+   * Fetches latest posts.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPostLatestGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPostLatestGet$Json(params?: {
+
+    /**
+     * Page number to fetch
+     */
+    page?: number;
+
+    /**
+     * Number of posts per page
+     */
+    pageSize?: number;
+
+    /**
+     * Filters returned posts by Replay attachment.
+     */
+    hasReplay?: boolean;
+
+    /**
+     * Hides posts containing Mod Actions (visible only to CMs).
+     */
+    hideModActions?: boolean;
+    context?: HttpContext
+  }
+): Observable<Array<PlayerPostDto>> {
+
+    return this.apiPostLatestGet$Json$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<PlayerPostDto>>) => r.body as Array<PlayerPostDto>)
+    );
+  }
 
 }

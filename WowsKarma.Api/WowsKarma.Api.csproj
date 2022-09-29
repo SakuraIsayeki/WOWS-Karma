@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>preview</LangVersion>
-    <Version>0.16.1</Version>
+    <Version>0.16.2</Version>
     <Authors>Sakura Akeno Isayeki</Authors>
     <Company>Nodsoft Systems</Company>
     <Product>WOWS Karma (API)</Product>
@@ -38,7 +38,7 @@
     <PackageReference Include="DSharpPlus" Version="4.2.0" />
     <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="6.0.1" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.31" />
-    <PackageReference Include="Hangfire.PostgreSql" Version="1.9.8" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.9.9" />
     <PackageReference Include="Hangfire.Tags.PostgreSql" Version="1.9.5" />
     <PackageReference Include="Mapster" Version="7.3.0" />
     <PackageReference Include="Mapster.DependencyInjection" Version="1.0.0" />
@@ -60,14 +60,14 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="NodaTime" Version="3.1.2" />
     <PackageReference Include="Nodsoft.Wargaming.Api.Client" Version="0.2.6" />
-    <PackageReference Include="Nodsoft.WowsReplaysUnpack" Version="1.0.0" />
-    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="1.0.0" />
+    <PackageReference Include="Nodsoft.WowsReplaysUnpack" Version="1.0.11" />
+    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="1.0.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
     <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="5.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.0" />
   </ItemGroup>
 
   <ItemGroup>

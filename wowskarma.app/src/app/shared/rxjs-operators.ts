@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
@@ -10,12 +10,14 @@ import {
   ObservedValueOf,
   of,
   OperatorFunction,
-  shareReplay,
+  shareReplay, Subject,
   switchMap,
   tap,
   throwError,
 } from "rxjs";
 import { filter, map } from "rxjs/operators";
+import { PageInfo } from 'src/app/models/PageInfo';
+import { StrictHttpResponse } from "../services/api/strict-http-response";
 
 export function reloadWhen<T>(triggerObs: Observable<any>): OperatorFunction<T, T> {
   return source$ => new Observable<T>(subscriber => {
@@ -188,3 +190,24 @@ export function mergeAndCache<T, X>(merge$: Observable<X>, func: ((cached: T[], 
 
 
 export const anyTrue = (...observables: Array<ObservableInput<boolean>>) => combineLatest(observables).pipe(map(values => values.find(v => v == true) != undefined ), distinctUntilChanged());
+
+/**
+ * Taps the page information of a paged result, from the header of the HTTP response.
+ * @param pageInfo$
+ */
+export const tapPageInfoHeaders = <T>(pageInfo$: BehaviorSubject<PageInfo | null>) => tap((response: StrictHttpResponse<T> | null) => {
+  const pageInfo = {
+    currentPage: +response?.headers.get("Content-Page-Current")! + 1,
+    totalPages: +response?.headers.get("Content-Page-Total")!,
+    pageSize: +response?.headers.get("Content-Page-Size")!,
+    totalItems: +response?.headers.get("Content-Items-Total")!,
+  }
+
+  // Does it conform to the expected format (numbers only)? Is everything there?
+  if (Object.values(pageInfo).every(v => !isNaN(v))) {
+    // Then send it to the subject.
+    pageInfo$.next(pageInfo);
+  }
+
+  console.debug("Page info:", pageInfo);
+});

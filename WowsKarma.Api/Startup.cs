@@ -37,6 +37,7 @@ using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
+using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api;
@@ -289,7 +290,8 @@ public class Startup
 			builder.SetIsOriginAllowed(_ => true); // Allow all origins
 
 			builder.AllowAnyHeader()
-				.AllowAnyMethod();
+				.AllowAnyMethod()
+				.WithExposedPaginationHeaders();
 
 			builder.AllowCredentials();
 		});

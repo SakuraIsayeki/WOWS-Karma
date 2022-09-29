@@ -1,53 +1,66 @@
 <ng-container *ngIf="receivedPosts$ | async as posts else loading">
+  <div class="d-md-flex justify-content-between">
     <div class="ms-xl-2 m-4" *ngIf="showState$ | async as state">
-        <ng-container [ngTemplateOutlet]="state.template" [ngTemplateOutletContext]="state.context"></ng-container>
+      <ng-container [ngTemplateOutlet]="state.template" [ngTemplateOutletContext]="state.context"></ng-container>
     </div>
 
-    <div class="row gx-2 gy-3" *ngIf="posts.length > 0 else noPosts">
-        <div class="col-lg-4 col-md-6" *ngFor="let p of posts">
-            <app-post [post]="p" postDisplayType="received"></app-post>
-        </div>
+    <div id="post-view-settings" class="d-flex flex-row-reverse">
+      <div id="page-count">
+        <p class="lead mb-1">Page</p>
+
+        <ng-container *ngIf="pageInfo$ | async as pageInfo">
+          <ngb-pagination [(page)]="pageInfo.currentPage" [boundaryLinks]="true" [collectionSize]="pageInfo.totalItems" size="sm"
+                          [maxSize]="5" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)"
+          >
+          </ngb-pagination>
+        </ng-container>
+      </div>
     </div>
+  </div>
+
+  <div class="row gx-2 gy-3" *ngIf="posts.length > 0 else noPosts">
+    <div class="col-lg-4 col-md-6" *ngFor="let p of posts">
+      <app-post [post]="p" postDisplayType="received"></app-post>
+    </div>
+  </div>
 </ng-container>
 
-<ng-container *ngIf="shouldRefresh$">
-
-</ng-container>
+<ng-container *ngIf="shouldRefresh$"></ng-container>
 
 <!-- TEMPLATES -->
 
 
 <ng-template #loading>
-    <h3 class="text-info">Loading...</h3>
+  <h3 class="text-info">Loading...</h3>
 </ng-template>
 
 <ng-template #createPostButton>
-    <button class="btn btn-success px-4" (click)="openEditor()">New Post</button>
+  <button class="btn btn-success px-4" (click)="openEditor()">New Post</button>
 </ng-template>
 
 <ng-template #noPosts>
-    <h3 class="text-warning">No posts found.</h3>
+  <h3 class="text-warning">No posts found.</h3>
 </ng-template>
 
 <ng-template #notAuthenticated>
-    <h5 class="text-warning">
-        You must first <a [routerLink]="['/login']" [queryParams]="{returnUrl: getCurrentLocation()}">login</a> before creating posts.
-    </h5>
+  <h5 class="text-warning">
+    You must first <a [routerLink]="['/login']" [queryParams]="{returnUrl: getCurrentLocation()}">login</a> before creating posts.
+  </h5>
 </ng-template>
 
 <ng-template #selfPost>
-    <h5 class="text-info">You cannot create a post for yourself.</h5>
+  <h5 class="text-info">You cannot create a post for yourself.</h5>
 </ng-template>
 
 <ng-template #platformBanned>
-    <h5 class="text-danger">You are banned from posting on WOWS Karma.</h5>
+  <h5 class="text-danger">You are banned from posting on WOWS Karma.</h5>
 </ng-template>
 
 <ng-template #optedOut>
-    <h5 class="text-danger">You have opted out of WOWS Karma.</h5>
+  <h5 class="text-danger">You have opted out of WOWS Karma.</h5>
 </ng-template>
 
 <ng-template #postsCooldown let-until="until">
-    <h5 class="text-info">You must wait until {{until | date:"medium"}} before posting again.</h5>
+  <h5 class="text-info">You must wait until {{until | date:"medium"}} before posting again.</h5>
 </ng-template>
 

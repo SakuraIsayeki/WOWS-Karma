@@ -28,7 +28,7 @@ export const replayFileValid = (control: AbstractControl<File | undefined, File 
         }
     }
 
-    return error === {} ? null : error;
+    return error;
 };
 
 export const requireReplay = (control: AbstractControl<File | undefined, File | undefined>): ValidationErrors | null => {
@@ -45,6 +45,6 @@ export const requireReplay = (control: AbstractControl<File | undefined, File | 
         }
     }
 
-    return error === {} ? null : error;
+    return error;
 };
 

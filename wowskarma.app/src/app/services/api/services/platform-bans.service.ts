@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
@@ -48,7 +48,9 @@ export class PlatformBansService extends BaseService {
      * Return only currently active platform bans.
      */
     currentOnly?: boolean;
-  }): Observable<StrictHttpResponse<Array<PlatformBanDto>>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PlatformBanDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlatformBansService.ApiModBansUserIdGetPath, 'get');
     if (params) {
@@ -58,7 +60,8 @@ export class PlatformBansService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -88,7 +91,9 @@ export class PlatformBansService extends BaseService {
      * Return only currently active platform bans.
      */
     currentOnly?: boolean;
-  }): Observable<Array<PlatformBanDto>> {
+    context?: HttpContext
+  }
+): Observable<Array<PlatformBanDto>> {
 
     return this.apiModBansUserIdGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<Array<PlatformBanDto>>) => r.body as Array<PlatformBanDto>)
@@ -116,7 +121,9 @@ export class PlatformBansService extends BaseService {
      * Return only currently active platform bans.
      */
     currentOnly?: boolean;
-  }): Observable<StrictHttpResponse<Array<PlatformBanDto>>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<PlatformBanDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlatformBansService.ApiModBansUserIdGetPath, 'get');
     if (params) {
@@ -126,7 +133,8 @@ export class PlatformBansService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -156,7 +164,9 @@ export class PlatformBansService extends BaseService {
      * Return only currently active platform bans.
      */
     currentOnly?: boolean;
-  }): Observable<Array<PlatformBanDto>> {
+    context?: HttpContext
+  }
+): Observable<Array<PlatformBanDto>> {
 
     return this.apiModBansUserIdGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<Array<PlatformBanDto>>) => r.body as Array<PlatformBanDto>)
@@ -184,12 +194,14 @@ export class PlatformBansService extends BaseService {
      * (Helper) Sets a temporary ban, to the number of specified days starting from UTC now.
      */
     days?: number;
+    context?: HttpContext
 
     /**
      * Platform Ban to emit
      */
     body?: PlatformBanDto
-  }): Observable<StrictHttpResponse<void>> {
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlatformBansService.ApiModBansPostPath, 'post');
     if (params) {
@@ -199,7 +211,8 @@ export class PlatformBansService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -224,12 +237,14 @@ export class PlatformBansService extends BaseService {
      * (Helper) Sets a temporary ban, to the number of specified days starting from UTC now.
      */
     days?: number;
+    context?: HttpContext
 
     /**
      * Platform Ban to emit
      */
     body?: PlatformBanDto
-  }): Observable<void> {
+  }
+): Observable<void> {
 
     return this.apiModBansPost$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)
@@ -257,7 +272,9 @@ export class PlatformBansService extends BaseService {
      * ID of Platform Ban to revert.
      */
     id: string;
-  }): Observable<StrictHttpResponse<void>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlatformBansService.ApiModBansIdDeletePath, 'delete');
     if (params) {
@@ -267,7 +284,8 @@ export class PlatformBansService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -292,7 +310,9 @@ export class PlatformBansService extends BaseService {
      * ID of Platform Ban to revert.
      */
     id: string;
-  }): Observable<void> {
+    context?: HttpContext
+  }
+): Observable<void> {
 
     return this.apiModBansIdDelete$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)

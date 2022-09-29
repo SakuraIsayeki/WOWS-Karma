@@ -1,10 +1,9 @@
 /* tslint:disable */
 /* eslint-disable */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
-import { PlayerProfileDto } from "../models/player-profile-dto";
 import { StrictHttpResponse } from '../strict-http-response';
 import { RequestBuilder } from '../request-builder';
 import { Observable } from 'rxjs';
@@ -12,7 +11,7 @@ import { map, filter } from 'rxjs/operators';
 
 import { AccountFullKarmaDto } from '../models/account-full-karma-dto';
 import { AccountListingDto } from '../models/account-listing-dto';
-import { PlayerClanProfileDto } from '../models/player-clan-profile-dto';
+import { PlayerProfileDto } from '../models/player-profile-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +22,113 @@ export class PlayerService extends BaseService {
     http: HttpClient
   ) {
     super(config, http);
+  }
+
+  /**
+   * Path part for operation apiPlayerGet
+   */
+  static readonly ApiPlayerGetPath = '/api/Player';
+
+  /**
+   * Lists all players in the database.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPlayerGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPlayerGet$Plain$Response(params?: {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<number>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerGetPath, 'get');
+    if (params) {
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'text',
+      accept: 'text/plain',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<number>>;
+      })
+    );
+  }
+
+  /**
+   * Lists all players in the database.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPlayerGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPlayerGet$Plain(params?: {
+    context?: HttpContext
+  }
+): Observable<Array<number>> {
+
+    return this.apiPlayerGet$Plain$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<number>>) => r.body as Array<number>)
+    );
+  }
+
+  /**
+   * Lists all players in the database.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiPlayerGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPlayerGet$Json$Response(params?: {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<number>>> {
+
+    const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerGetPath, 'get');
+    if (params) {
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'text/json',
+      context: params?.context
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<Array<number>>;
+      })
+    );
+  }
+
+  /**
+   * Lists all players in the database.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiPlayerGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiPlayerGet$Json(params?: {
+    context?: HttpContext
+  }
+): Observable<Array<number>> {
+
+    return this.apiPlayerGet$Json$Response(params).pipe(
+      map((r: StrictHttpResponse<Array<number>>) => r.body as Array<number>)
+    );
   }
 
   /**
@@ -47,7 +153,9 @@ export class PlayerService extends BaseService {
      * Username search query
      */
     query: string;
-  }): Observable<StrictHttpResponse<Array<AccountListingDto>>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<AccountListingDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerSearchQueryGetPath, 'get');
     if (params) {
@@ -56,7 +164,8 @@ export class PlayerService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -82,7 +191,9 @@ export class PlayerService extends BaseService {
      * Username search query
      */
     query: string;
-  }): Observable<Array<AccountListingDto>> {
+    context?: HttpContext
+  }
+): Observable<Array<AccountListingDto>> {
 
     return this.apiPlayerSearchQueryGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<Array<AccountListingDto>>) => r.body as Array<AccountListingDto>)
@@ -106,7 +217,9 @@ export class PlayerService extends BaseService {
      * Username search query
      */
     query: string;
-  }): Observable<StrictHttpResponse<Array<AccountListingDto>>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<Array<AccountListingDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerSearchQueryGetPath, 'get');
     if (params) {
@@ -115,7 +228,8 @@ export class PlayerService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -141,7 +255,9 @@ export class PlayerService extends BaseService {
      * Username search query
      */
     query: string;
-  }): Observable<Array<AccountListingDto>> {
+    context?: HttpContext
+  }
+): Observable<Array<AccountListingDto>> {
 
     return this.apiPlayerSearchQueryGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<Array<AccountListingDto>>) => r.body as Array<AccountListingDto>)
@@ -174,7 +290,9 @@ export class PlayerService extends BaseService {
      * Include clan membership info while fetching player profile.
      */
     includeClanInfo?: boolean;
-  }): Observable<StrictHttpResponse<PlayerProfileDto>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<PlayerProfileDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerIdGetPath, 'get');
     if (params) {
@@ -184,7 +302,8 @@ export class PlayerService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -214,7 +333,9 @@ export class PlayerService extends BaseService {
      * Include clan membership info while fetching player profile.
      */
     includeClanInfo?: boolean;
-  }): Observable<PlayerProfileDto> {
+    context?: HttpContext
+  }
+): Observable<PlayerProfileDto> {
 
     return this.apiPlayerIdGet$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<PlayerProfileDto>) => r.body as PlayerProfileDto)
@@ -242,7 +363,9 @@ export class PlayerService extends BaseService {
      * Include clan membership info while fetching player profile.
      */
     includeClanInfo?: boolean;
-  }): Observable<StrictHttpResponse<PlayerProfileDto>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<PlayerProfileDto>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerIdGetPath, 'get');
     if (params) {
@@ -252,7 +375,8 @@ export class PlayerService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -282,7 +406,9 @@ export class PlayerService extends BaseService {
      * Include clan membership info while fetching player profile.
      */
     includeClanInfo?: boolean;
-  }): Observable<PlayerProfileDto> {
+    context?: HttpContext
+  }
+): Observable<PlayerProfileDto> {
 
     return this.apiPlayerIdGet$Json$Response(params).pipe(
       map((r: StrictHttpResponse<PlayerProfileDto>) => r.body as PlayerProfileDto)
@@ -305,12 +431,14 @@ export class PlayerService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiPlayerKarmasPost$Plain$Response(params?: {
+    context?: HttpContext
 
     /**
      * List of Account IDs
      */
     body?: Array<number>
-  }): Observable<StrictHttpResponse<{
+  }
+): Observable<StrictHttpResponse<{
 [key: string]: number;
 }>> {
 
@@ -321,7 +449,8 @@ export class PlayerService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -343,12 +472,14 @@ export class PlayerService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiPlayerKarmasPost$Plain(params?: {
+    context?: HttpContext
 
     /**
      * List of Account IDs
      */
     body?: Array<number>
-  }): Observable<{
+  }
+): Observable<{
 [key: string]: number;
 }> {
 
@@ -372,12 +503,14 @@ export class PlayerService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiPlayerKarmasPost$Json$Response(params?: {
+    context?: HttpContext
 
     /**
      * List of Account IDs
      */
     body?: Array<number>
-  }): Observable<StrictHttpResponse<{
+  }
+): Observable<StrictHttpResponse<{
 [key: string]: number;
 }>> {
 
@@ -388,7 +521,8 @@ export class PlayerService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -410,12 +544,14 @@ export class PlayerService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiPlayerKarmasPost$Json(params?: {
+    context?: HttpContext
 
     /**
      * List of Account IDs
      */
     body?: Array<number>
-  }): Observable<{
+  }
+): Observable<{
 [key: string]: number;
 }> {
 
@@ -444,12 +580,14 @@ export class PlayerService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiPlayerKarmasFullPost$Plain$Response(params?: {
+    context?: HttpContext
 
     /**
      * List of Account IDs
      */
     body?: Array<number>
-  }): Observable<StrictHttpResponse<Array<AccountFullKarmaDto>>> {
+  }
+): Observable<StrictHttpResponse<Array<AccountFullKarmaDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerKarmasFullPostPath, 'post');
     if (params) {
@@ -458,7 +596,8 @@ export class PlayerService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: 'text/plain'
+      accept: 'text/plain',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -478,12 +617,14 @@ export class PlayerService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiPlayerKarmasFullPost$Plain(params?: {
+    context?: HttpContext
 
     /**
      * List of Account IDs
      */
     body?: Array<number>
-  }): Observable<Array<AccountFullKarmaDto>> {
+  }
+): Observable<Array<AccountFullKarmaDto>> {
 
     return this.apiPlayerKarmasFullPost$Plain$Response(params).pipe(
       map((r: StrictHttpResponse<Array<AccountFullKarmaDto>>) => r.body as Array<AccountFullKarmaDto>)
@@ -501,12 +642,14 @@ export class PlayerService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiPlayerKarmasFullPost$Json$Response(params?: {
+    context?: HttpContext
 
     /**
      * List of Account IDs
      */
     body?: Array<number>
-  }): Observable<StrictHttpResponse<Array<AccountFullKarmaDto>>> {
+  }
+): Observable<StrictHttpResponse<Array<AccountFullKarmaDto>>> {
 
     const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerKarmasFullPostPath, 'post');
     if (params) {
@@ -515,7 +658,8 @@ export class PlayerService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'json',
-      accept: 'text/json'
+      accept: 'text/json',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -535,12 +679,14 @@ export class PlayerService extends BaseService {
    * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiPlayerKarmasFullPost$Json(params?: {
+    context?: HttpContext
 
     /**
      * List of Account IDs
      */
     body?: Array<number>
-  }): Observable<Array<AccountFullKarmaDto>> {
+  }
+): Observable<Array<AccountFullKarmaDto>> {
 
     return this.apiPlayerKarmasFullPost$Json$Response(params).pipe(
       map((r: StrictHttpResponse<Array<AccountFullKarmaDto>>) => r.body as Array<AccountFullKarmaDto>)
@@ -548,9 +694,9 @@ export class PlayerService extends BaseService {
   }
 
   /**
-   * Path part for operation apiPlayerRecalculatePost
+   * Path part for operation apiPlayerRecalculatePatch
    */
-  static readonly ApiPlayerRecalculatePostPath = '/api/Player/recalculate';
+  static readonly ApiPlayerRecalculatePatchPath = '/api/Player/recalculate';
 
   /**
    * Triggers recalculation of Karma metrics for a given account.
@@ -558,26 +704,29 @@ export class PlayerService extends BaseService {
    * Can only be called by Site Administrators.
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `apiPlayerRecalculatePost()` instead.
+   * To access only the response body, use `apiPlayerRecalculatePatch()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiPlayerRecalculatePost$Response(params?: {
+  apiPlayerRecalculatePatch$Response(params?: {
 
     /**
      * Account ID of player profile
      */
     playerId?: number;
-  }): Observable<StrictHttpResponse<void>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
-    const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerRecalculatePostPath, 'post');
+    const rb = new RequestBuilder(this.rootUrl, PlayerService.ApiPlayerRecalculatePatchPath, 'patch');
     if (params) {
       rb.query('playerId', params.playerId, {});
     }
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -592,19 +741,21 @@ export class PlayerService extends BaseService {
    * Can only be called by Site Administrators.
    *
    * This method provides access to only to the response body.
-   * To access the full response (for headers, for example), `apiPlayerRecalculatePost$Response()` instead.
+   * To access the full response (for headers, for example), `apiPlayerRecalculatePatch$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiPlayerRecalculatePost(params?: {
+  apiPlayerRecalculatePatch(params?: {
 
     /**
      * Account ID of player profile
      */
     playerId?: number;
-  }): Observable<void> {
+    context?: HttpContext
+  }
+): Observable<void> {
 
-    return this.apiPlayerRecalculatePost$Response(params).pipe(
+    return this.apiPlayerRecalculatePatch$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)
     );
   }

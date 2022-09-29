@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
@@ -37,7 +37,9 @@ export class StatusService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiStatusGet$Response(params?: {
-  }): Observable<StrictHttpResponse<void>> {
+    context?: HttpContext
+  }
+): Observable<StrictHttpResponse<void>> {
 
     const rb = new RequestBuilder(this.rootUrl, StatusService.ApiStatusGetPath, 'get');
     if (params) {
@@ -45,7 +47,8 @@ export class StatusService extends BaseService {
 
     return this.http.request(rb.build({
       responseType: 'text',
-      accept: '*/*'
+      accept: '*/*',
+      context: params?.context
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
@@ -65,7 +68,9 @@ export class StatusService extends BaseService {
    * This method doesn't expect any request body.
    */
   apiStatusGet(params?: {
-  }): Observable<void> {
+    context?: HttpContext
+  }
+): Observable<void> {
 
     return this.apiStatusGet$Response(params).pipe(
       map((r: StrictHttpResponse<void>) => r.body as void)

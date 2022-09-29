@@ -1,0 +1,96 @@
+<h1 class="mb-3">Latest Posts</h1>
+
+<form [formGroup]="listFilters">
+  <div class="row d-xl-flex justify-content-between gy-3">
+    <div class="col-md-auto">
+      <div class="my-3">
+        <h4>Filters</h4>
+        <hr class="my-0" />
+      </div>
+
+      <div id="post-filter-settings" class="d-flex flex-row gap-4">
+        <div id="filter-replays">
+          <p class="lead">Contains Replay</p>
+
+          <select formControlName="hasReplay" class="form-select">
+            <option [value]="" selected></option>
+            <option [value]="true">Yes</option>
+            <option [value]="false">No</option>
+          </select>
+        </div>
+
+        <div id="filter-mod-actions" *ngIf="authService.isInRole$('mod') | async">
+          <p class="lead">Exclude Mod-Actions</p>
+
+          <input type="checkbox" class="form-check-input me-3" formControlName="hideModActions"
+                 style="height:1.25rem; width:1.25rem;"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-auto text-xl-end mb-sm-5 mb-md-3">
+      <div class="my-3">
+        <h4>View</h4>
+        <hr class="my-0" />
+      </div>
+
+
+      <div id="post-view-settings" class="d-xl-flex flex-row gap-4">
+        <div id="page-count">
+          <p class="lead">Page</p>
+
+          <ng-container *ngIf="pageInfo$ | async as pageInfo">
+            <ngb-pagination [(page)]="pageInfo.currentPage" [boundaryLinks]="true" [collectionSize]="pageInfo.totalItems"
+                            [maxSize]="5" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)"
+            >
+            </ngb-pagination>
+          </ng-container>
+        </div>
+
+        <div id="view-count">
+          <p class="lead">View Count</p>
+
+          <div aria-label="Select posts view count" class="btn-group mr-2" role="group">
+            <input [value]="10" class="btn-check" formControlName="count" id="count-10" name="count" type="radio">
+            <label class="btn btn-secondary" for="count-10">10</label>
+
+            <input [value]="25" class="btn-check" formControlName="count" id="count-25" name="count" type="radio">
+            <label class="btn btn-secondary" for="count-25">25</label>
+
+            <input [value]="50" class="btn-check" formControlName="count" id="count-50" name="count" type="radio">
+            <label class="btn btn-secondary" for="count-50">50</label>
+
+            <input [value]="100" class="btn-check" formControlName="count" id="count-100" name="count" type="radio">
+            <label class="btn btn-secondary" for="count-100">100</label>
+
+            <ng-container *ngIf="authService.isAuthenticated">
+              <input [value]="500" class="btn-check" formControlName="count" id="count-500" name="count" type="radio">
+              <label class="btn btn-secondary" for="count-500">500</label>
+            </ng-container>
+          </div>
+
+          <h5 *ngIf="posts$ | async as posts" class="my-3 text-info">Loaded {{(posts.length)}} posts.</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<hr class="my-sm-5 mt-md-3 rounded" style="border: 2px solid;"/>
+
+<div *ngIf="posts$ | async as posts else loadingPosts">
+  <div *ngIf="posts.length > 0 else noPosts" class="row gx-2 gy-3">
+    <div *ngFor="let post of posts" class="col-lg-4 col-md-6">
+      <app-post [post]="post" [postDisplayType]="'neutral'"></app-post>
+    </div>
+  </div>
+
+  <ng-template #noPosts>
+    <h4 class="text-warning mb-5">No Posts found.</h4>
+  </ng-template>
+</div>
+
+<ng-template #loadingPosts>
+  <h3 class="text-info">Loading posts...</h3>
+</ng-template>

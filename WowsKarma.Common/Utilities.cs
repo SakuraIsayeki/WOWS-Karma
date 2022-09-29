@@ -7,6 +7,7 @@ using Nodsoft.Wargaming.Api.Common;
 using WowsKarma.Common.Models;
 using WowsKarma.Common.Models.DTOs;
 
+#nullable enable
 namespace WowsKarma.Common;
 
 
@@ -50,7 +51,7 @@ public static class Utilities
 		_ => throw new ArgumentOutOfRangeException(nameof(region))
 	};
 
-	public static Region FromWargamingSubdomain(this string subdomain) => subdomain switch
+	public static Region FromWargamingSubdomain(this string? subdomain) => subdomain switch
 	{
 		"eu" => Region.EU,
 		"na" => Region.NA,
@@ -104,8 +105,10 @@ public static class Utilities
 		return path.ToString();
 	}
 
-	public static AccountListingDTO ToAccountListing(this ClaimsPrincipal claimsPrincipal)
-		=> new(uint.Parse(claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"), claimsPrincipal.FindFirstValue(ClaimTypes.Name));
+	public static AccountListingDTO? ToAccountListing(this ClaimsPrincipal? claimsPrincipal) 
+		=> uint.TryParse(claimsPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier), out uint accountId) 
+			? new AccountListingDTO(accountId, claimsPrincipal.FindFirstValue(ClaimTypes.Name)) 
+			: null;
 
 
 	public static Type? GetType(string typeName)

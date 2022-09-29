@@ -1,6 +1,8 @@
 ﻿using WowsKarma.Common;
 
+#nullable enable
 namespace WowsKarma.Api.Utilities;
+
 
 /// <summary>
 /// Provides web link utilities.

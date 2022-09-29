@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-import { HttpRequest, HttpParameterCodec, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpRequest, HttpParameterCodec, HttpParams, HttpHeaders, HttpContext } from '@angular/common/http';
 
 /**
  * Custom parameter codec to correctly handle the plus sign in parameter
@@ -116,9 +116,9 @@ class PathParameter extends Parameter {
   // @ts-ignore
   serializeValue(value: any, separator = ','): string {
     var result = typeof value === 'string' ? encodeURIComponent(value) : super.serializeValue(value, separator);
-    result = result.replace('%3D', '=');
-    result = result.replace('%3B', ';');
-    result = result.replace('%2C', ',');
+    result = result.replace(/%3D/g, '=');
+    result = result.replace(/%3B/g, ';');
+    result = result.replace(/%2C/g, ',');
     return result;
   }
 }
@@ -320,6 +320,9 @@ export class RequestBuilder {
 
     /** Whether to report progress on uploads / downloads */
     reportProgress?: boolean;
+
+    /** Allow passing HttpContext for HttpClient */
+    context?: HttpContext;
   }): HttpRequest<T> {
 
     options = options || {};
@@ -358,7 +361,8 @@ export class RequestBuilder {
       params: httpParams,
       headers: httpHeaders,
       responseType: options.responseType,
-      reportProgress: options.reportProgress
+      reportProgress: options.reportProgress,
+      context: options.context
     });
   }
 }

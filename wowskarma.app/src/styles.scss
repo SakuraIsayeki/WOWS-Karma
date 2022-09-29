@@ -1,10 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
-@import "~bootswatch/dist/darkly/variables";
-@import "~bootstrap/scss/bootstrap";
-@import "~bootswatch/dist/darkly/bootswatch";
-@import "~bootstrap-icons/font/bootstrap-icons";
+/* Base imports
+ * -------------------------------------------------- */
+@import "theme/variables";
+@import "bootstrap/scss/bootstrap";
+@import "bootswatch/dist/darkly/bootswatch";
+@import "bootstrap-icons/font/bootstrap-icons";
 
-$body-color: #1a1a1a;
+
 
 a {
   /* Provide sufficient contrast against white background */
@@ -105,17 +106,12 @@ body {
 /* Custom page CSS
 -------------------------------------------------- */
 
-body {
-  background-color: $body-color;
-  color: #fff;
-}
-
-
 .bg-dark-acrylic {
   background-color: rgba(17, 17, 17, 0.6);
   -webkit-backdrop-filter: blur(50px);
   backdrop-filter: blur(50px);
 }
+
 
 /* Validation
 -------------------------------------------------- */

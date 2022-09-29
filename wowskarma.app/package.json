@@ -24,7 +24,7 @@
     "@microsoft/applicationinsights-angularplugin-js": "^2.9.1",
     "@microsoft/applicationinsights-web": "^2.8.4",
     "@microsoft/signalr": "^6.0.6",
-    "@ng-bootstrap/ng-bootstrap": "^12.1.2",
+    "@ng-bootstrap/ng-bootstrap": "^13.0.0",
     "@popperjs/core": "^2.11.5",
     "@types/bootstrap": "^5.1.12",
     "bootstrap": "^5.1.3",

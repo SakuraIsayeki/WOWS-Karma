@@ -3,6 +3,7 @@ import { ActivatedRoute } from "@angular/router";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, combineLatest, merge, of, Subject, tap } from "rxjs";
 import { filter, map } from "rxjs/operators";
+import { ModActionService } from 'src/app/services/api/services/mod-action.service';
 import { PlatformBansService } from 'src/app/services/api/services/platform-bans.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { ProfileModActionsViewComponent } from 'src/app/shared/modals/profile-mod-actions-view/profile-mod-actions-view.component';
@@ -40,6 +41,12 @@ export class ProfileComponent {
     shareReplayRefCount(1)
   );
 
+  profileModActions$ = this.profile$.pipe(
+    filter(() => this.isCurrentUserCM),
+    switchMapCatchError((profile) => this.modActionsService.apiModActionListGet$Json({userId: profile!.id!})),
+    shareReplayRefCount(1)
+  );
+
   // Gets the profile's total karma, as a sum of game + platform karma.
   // Observable profile$ must first successfully emit a profile before calculating the total karma.
   profileTotalKarma$ = this.profile$.pipe(map(profile => (profile?.gameKarma ?? 0) + (profile?.siteKarma ?? 0)));
@@ -55,6 +62,7 @@ export class ProfileComponent {
     private route: ActivatedRoute,
     private playerService: PlayerService,
     public authService: AuthService,
+    private modActionsService: ModActionService,
     private platformBansService: PlatformBansService,
     private modalService: NgbModal,
   ) {
@@ -64,12 +72,11 @@ export class ProfileComponent {
     return this.authService.isInRole('mod');
   }
 
-  openModActionsViewModal$ = this.profile$.pipe(
-    filterNotNull(),
-    map(profile => ProfileModActionsViewComponent.OpenModal(this.modalService, profile))
-  )
-
   get openPlatformBansModal() {
     return this.profile$.subscribe(profile => ProfilePlatformBansViewComponent.OpenModal(this.modalService, profile!));
+  }
+
+  get openModActionsModal() {
+    return this.profile$.subscribe(profile => ProfileModActionsViewComponent.OpenModal(this.modalService, profile!));
   }
 }

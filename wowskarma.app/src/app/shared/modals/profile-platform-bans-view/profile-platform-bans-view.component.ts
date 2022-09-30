@@ -7,7 +7,6 @@ import { InputObservable, shareReplayRefCount, switchMapCatchError, tapAny } fro
 
 @Component({
   templateUrl: './profile-platform-bans-view.component.html',
-  styleUrls: ['./profile-platform-bans-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePlatformBansViewComponent {

@@ -1,0 +1,73 @@
+<ng-container *ngIf="platformBans$ | async as platformBans">
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <h4 class="modal-title">Platform Bans</h4>
+  </div>
+
+  <!-- Modal body -->
+  <div class="modal-body">
+    <div class="v-stack gap-1">
+      <ng-container *ngFor="let ban of platformBans">
+        <div class="card bg-body">
+          <div class="card-body d-flex flex-lg-row gap-3 justify-content-between">
+            <table class="table table-borderless table-md flex-grow-1">
+              <tbody>
+                <tr>
+                  <th>Ban ID</th>
+                  <td><code>{{ ban.id }}</code></td>
+                </tr>
+
+                <tr>
+                  <th>Reason</th>
+                  <td>{{ ban.reason }}</td>
+                </tr>
+
+                <tr>
+                  <th>Expires</th>
+
+                  <td>
+                    <span *ngIf="ban.bannedUntil else forever">{{ ban.bannedUntil | date: 'medium' }}</span>
+                    <ng-template #forever><span class="text-danger">Permanent</span></ng-template>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>Reverted</th>
+
+                  <td>
+                    <span *ngIf="ban.reverted else notReverted" class="text-success">Yes</span>
+                    <ng-template #notReverted><span class="text-danger">No</span></ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="table table-borderless table-md" style="width: 70% !important;">
+              <tbody>
+                <tr>
+                  <th>Banned by</th>
+                  <td>
+                    <player-namelink [player]="{id: ban.modId!, username: ban.modUsername!}"></player-namelink>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Banned on</th>
+                  <td>{{ ban.createdAt | date: 'short' }}</td>
+                </tr>
+                <tr>
+                  <th>Updated on</th>
+                  <td>{{ ban.updatedAt | date: 'short' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Modal footer -->
+  <div class="modal-footer">
+    <p class="lead mx-3">Total bans: <strong class="ms-2">{{ filterReverted(platformBans ?? []).length }}</strong></p>
+  </div>
+</ng-container>

@@ -61,6 +61,8 @@ import { UnauthorizedComponent } from './pages/fallbacks/unauthorized/unauthoriz
 import { ForbiddenComponent } from './pages/fallbacks/forbidden/forbidden.component';
 import { ClanRankComponent } from './shared/components/icons/clan-rank/clan-rank.component';
 import { PlayerNamelinkComponent } from './shared/components/player-namelink/player-namelink.component';
+import { ProfileModActionsViewComponent } from './shared/modals/profile-mod-actions-view/profile-mod-actions-view.component';
+import { ProfilePlatformBansViewComponent } from './shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
 
 @NgModule({
     declarations: [
@@ -111,6 +113,8 @@ import { PlayerNamelinkComponent } from './shared/components/player-namelink/pla
         ForbiddenComponent,
         ClanRankComponent,
         PlayerNamelinkComponent,
+        ProfileModActionsViewComponent,
+        ProfilePlatformBansViewComponent,
     ],
     imports: [
         BrowserModule,

@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, combineLatest, merge, of, Subject, tap } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { PlatformBansService } from 'src/app/services/api/services/platform-bans.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { ProfileModActionsViewComponent } from 'src/app/shared/modals/profile-mod-actions-view/profile-mod-actions-view.component';
+import { ProfilePlatformBansViewComponent } from 'src/app/shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
 import { PlayerService } from "../../../services/api/services/player.service";
 import { getWowsNumbersPlayerLink } from "../../../services/helpers";
 import { filterNotNull, mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
@@ -25,17 +28,10 @@ export class ProfileComponent {
 
   profile$ = this.request$.pipe(map(result => result.model));
 
-  get isCurrentUserCM() {
-    return this.authService.isInRole('mod');
-  }
-
   platformBans$ = this.profile$.pipe(
-    tap(() => console.debug("Fetching platform bans...")),
     // Only send a request if the user is a CM and the profile is loaded.
     filter(() => this.isCurrentUserCM),
-    tap(() => console.debug("User is a CM, fetching platform bans...")),
     switchMapCatchError((profile) => this.platformBansService.apiModBansUserIdGet$Json({userId: profile!.id!})),
-    tapAny(() => console.debug("Fetched platform bans.")),
     shareReplayRefCount(1)
   )
 
@@ -55,10 +51,25 @@ export class ProfileComponent {
       map(profile => profile?.optedOut ? "sent" : "received")),
   ).pipe(shareReplayRefCount(1));
 
-  constructor(private route: ActivatedRoute, private playerService: PlayerService, public authService: AuthService, private platformBansService: PlatformBansService) {
+  constructor(
+    private route: ActivatedRoute,
+    private playerService: PlayerService,
+    public authService: AuthService,
+    private platformBansService: PlatformBansService,
+    private modalService: NgbModal,
+  ) {
   }
 
-  getWowsNumbersPlayerLink(id: number, username: string): string | undefined {
-    return getWowsNumbersPlayerLink({id, username});
+  get isCurrentUserCM() {
+    return this.authService.isInRole('mod');
+  }
+
+  openModActionsViewModal$ = this.profile$.pipe(
+    filterNotNull(),
+    map(profile => ProfileModActionsViewComponent.OpenModal(this.modalService, profile))
+  )
+
+  get openPlatformBansModal() {
+    return this.profile$.subscribe(profile => ProfilePlatformBansViewComponent.OpenModal(this.modalService, profile!));
   }
 }

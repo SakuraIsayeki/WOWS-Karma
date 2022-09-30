@@ -58,12 +58,13 @@
             <ng-container *ngIf="isCurrentUserCM">
               <dt class="col-sm-3">Platform Banned ?</dt>
               <dd class="col-sm-9">
-                <ng-container *ngIf="isPlatformBanned$ | async else notPlatformBanned">
-                  <span class="text-danger">Yes</span>
-                </ng-container>
+                <div *ngIf="isPlatformBanned$ | async else notPlatformBanned" class="d-flex flex-row gap-3 align-items-center">
+                  <span class="text-danger font-weight-bold">Yes</span>
+                  <button class="btn btn-sm btn-secondary" (click)="openPlatformBansModal">View details</button>
+                </div>
 
                 <ng-template #notPlatformBanned>
-                  <span class="text-success">No</span>
+                  <span class="text-success font-weight-bold">No</span>
                 </ng-template>
               </dd>
             </ng-container>

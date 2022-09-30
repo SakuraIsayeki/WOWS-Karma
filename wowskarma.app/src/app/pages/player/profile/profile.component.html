@@ -53,9 +53,33 @@
             <dd class="col-sm-9">{{profile.lastBattleTime | date:"medium"}}</dd>
 
             <dt class="col-sm-3">Statistics :</dt>
-            <dd class="col-sm-9">
-              <a href="{{profile | wowsNumbersPlayerLink}}">View on wows-numbers.com</a>
-            </dd>
+            <dd class="col-sm-9"><a href="{{profile | wowsNumbersPlayerLink}}">View on wows-numbers.com</a></dd>
+
+            <ng-container *ngIf="isCurrentUserCM">
+              <dt class="col-sm-3">Platform Banned ?</dt>
+              <dd class="col-sm-9">
+                <div *ngIf="isPlatformBanned$ | async else notPlatformBanned" class="d-flex flex-row gap-3 align-items-center">
+                  <span class="text-danger font-weight-bold">Yes</span>
+                  <button class="btn btn-sm btn-secondary" (click)="openPlatformBansModal">Details</button>
+                </div>
+
+                <ng-template #notPlatformBanned>
+                  <span class="text-success font-weight-bold">No</span>
+                </ng-template>
+              </dd>
+
+              <dt class="col-sm-3">Mod-Actions :</dt>
+              <dd class="col-sm-9">
+                <div *ngIf="((profileModActions$ | async) ?? []).length > 0 else noModActions" class="d-flex flex-row gap-3 align-items-center">
+                  <span class="text-warning font-weight-bold">{{((profileModActions$ | async) ?? []).length}}</span>
+                  <button class="btn btn-sm btn-secondary" (click)="openModActionsModal">Details</button>
+                </div>
+
+                <ng-template #noModActions>
+                  <span class="text-success font-weight-bold">None</span>
+                </ng-template>
+              </dd>
+            </ng-container>
           </ng-container>
         </dl>
       </div>

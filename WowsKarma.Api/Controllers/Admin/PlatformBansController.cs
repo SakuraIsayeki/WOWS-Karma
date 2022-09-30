@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
@@ -30,14 +31,12 @@ public class PlatformBansController : ControllerBase
 	{
 		IQueryable<PlatformBan> bans = _service.GetPlatformBans(userId);
 
-		if (currentOnly || User.ToAccountListing().Id != userId || !User.IsInRole(ApiRoles.CM))
+		if (currentOnly || User.ToAccountListing()!.Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			bans = bans.Where(b => b.BannedUntil > DateTime.UtcNow);
+			bans = bans.Where(b => b.BannedUntil == null || b.BannedUntil > DateTime.UtcNow);
 		}
 
-		return bans.Any()
-			? Ok(bans.ProjectToType<PlatformBanDTO>().ToList())
-			: NoContent();
+		return Ok(bans.ProjectToType<PlatformBanDTO>().AsAsyncEnumerable());
 	}
 
 	/// <summary>

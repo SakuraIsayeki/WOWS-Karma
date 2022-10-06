@@ -155,18 +155,17 @@ public class ReplaysIngestService
 	}
 
 
-	///  <summary>
-	/// 		Reprocesses a replay file.
-	/// 		This causes a replay to be downloaded from Azure storage and processed again.
-	///  </summary>
+	/// <summary>
+	/// Reprocesses a replay file.
+	/// This causes a replay to be downloaded from Azure storage and processed again.
+	/// </summary>
 	///  
-	///  <param name="replay">
-	/// 		The replay being reprocessed.
-	/// 		Its ID and Blobname will be used to match the replay on Azure storage.
-	///  </param>
-	/// 
-	///  <param name="ct"></param>
-	public async Task ReprocessReplayAsync(Replay replay, CancellationToken ct)
+	/// <param name="replay">
+	/// The replay being reprocessed.
+	/// Its ID and Blobname will be used to match the replay on Azure storage.
+	/// </param>
+	/// <param name="ct">Cancellation token.</param>
+	public async Task<Replay?> ReprocessReplayAsync(Replay replay, CancellationToken ct)
 	{
 		await using MemoryStream ms = new();
 		await _containerClient.GetBlobClient(replay.BlobName).DownloadToAsync(ms, ct);
@@ -174,7 +173,7 @@ public class ReplaysIngestService
 
 		try
 		{
-			await _processService.ProcessReplayAsync(replay, ms, ct);
+			return await _processService.ProcessReplayAsync(replay, ms, ct);
 		}
 		// Catch any CVE-2022-31265 related exceptions and log them.
 		catch (InvalidReplayException e) when (e.InnerException is SecurityException se && se.Data["exploit"] is "CVE-2022-31265")
@@ -185,15 +184,17 @@ public class ReplaysIngestService
 		{
 			_logger.LogWarning(e, "Failed to reprocess replay {ReplayId}.", replay.Id);
 		}
+
+		return null;
 	}
 
 	/// <summary>
-	///		Reprocesses the replay file for the specified replay ID.
-	///		This causes a replay to be downloaded from Azure storage and processed again.
+	///	Reprocesses the replay file for the specified replay ID.
+	///	This causes a replay to be downloaded from Azure storage and processed again.
 	/// </summary>
 	/// 
 	/// <param name="replayId">The ID of the replay being reprocessed</param>
-	/// <param name="ct"></param>
+	/// <param name="ct">Cancellation token.</param>
 	/// <exception cref="ArgumentException">Thrown when no replay was found.</exception>
 	[JobDisplayName("Reprocess single replay"), Tag("replay", "recalculation", "single")]
 	public async Task ReprocessReplayAsync(Guid replayId, CancellationToken ct)
@@ -204,38 +205,46 @@ public class ReplaysIngestService
 		await ReprocessReplayAsync(replay, ct);
 		await _context.SaveChangesAsync(ct);
 	}
-	
+
 	/// <summary>
-	///		Reprocesses all replays in the database submitted between the specified dates.
-	///		This causes all corresponding replays to be downloaded from Azure storage and processed again.
+	/// Reprocesses all replays in the database submitted between the specified dates.
+	/// This causes all corresponding replays to be downloaded from Azure storage and processed again.
 	/// </summary>
-	/// 
 	/// <param name="start">Start of time range to select replays from</param>
 	/// <param name="end">End of time range to select replays from</param>
+	/// <param name="ct">Cancellation token</param>
 	[JobDisplayName("Reprocess all replays within date range"), Tag("replay", "recalculation", "batch")]
 	public async Task ReprocessAllReplaysAsync(DateTime? start, DateTime? end, CancellationToken ct)
 	{
 		_logger.LogWarning("Started reprocessing all replays between {Start:g} and {End:g}", start, end);
 
-		List<Replay> replays = await _context.Posts.Include(p => p.Replay)
+		var replayStubs = await _context.Posts.Include(static p => p.Replay)
 			.Where(r => r.Replay != null && r.CreatedAt >= start && r.CreatedAt <= end)
-			.Select(r => new Replay
-			{
-				Id = r.Replay.Id,
-				PostId = r.Replay.PostId,
-				BlobName = r.Replay.BlobName
-			}).ToListAsync(ct);
+			.Select(static p => new Replay
+				{
+					Id = p.Replay.Id,
+					BlobName = p.Replay.BlobName,
+					PostId = p.Id
+				})
+			.ToArrayAsync(ct);
 		
-		_logger.LogWarning("Database readout complete. {Count} replays will be reprocessed.", replays.Count);
+		_logger.LogWarning("Database readout complete. {Count} replays will be reprocessed.", replayStubs.Length);
 
-		// Process each replay in parallel.
-		await Task.WhenAll(replays.Select(r => ReprocessReplayAsync(r, ct)));
+		List<Replay> replays = new();
 
-		_logger.LogWarning("Finished file reprocessing of {Count} replays. Saving to database...", replays.Count);
+		foreach (Replay replay in replayStubs)
+		{
+			if (await ReprocessReplayAsync(replay, ct) is { } r)
+			{
+				replays.Add(r);
+			}
+		}
+
+		_logger.LogWarning("Finished file reprocessing of {Count} replays. Saving to database...", replayStubs.Length);
 
 		_context.UpdateRange(replays);
 		await _context.SaveChangesAsync(ct);
 
-		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {Count} replays total.", replays.Count);
+		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {Count} replays total.", replayStubs.Length);
 	}
 }

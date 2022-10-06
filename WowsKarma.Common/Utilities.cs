@@ -106,8 +106,8 @@ public static class Utilities
 	}
 
 	public static AccountListingDTO? ToAccountListing(this ClaimsPrincipal? claimsPrincipal) 
-		=> uint.TryParse(claimsPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier), out uint accountId) 
-			? new AccountListingDTO(accountId, claimsPrincipal.FindFirstValue(ClaimTypes.Name)) 
+		=> uint.TryParse(claimsPrincipal?.FindFirst(ClaimTypes.NameIdentifier)?.Value, out uint accountId) 
+			? new AccountListingDTO(accountId, claimsPrincipal.FindFirst(ClaimTypes.Name)!.Value) 
 			: null;
 
 

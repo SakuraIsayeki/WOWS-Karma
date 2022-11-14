@@ -23,7 +23,7 @@
     "@angular/service-worker": "^14.2.3",
     "@microsoft/applicationinsights-angularplugin-js": "^3.0.0",
     "@microsoft/applicationinsights-web": "^2.8.7",
-    "@microsoft/signalr": "^6.0.9",
+    "@microsoft/signalr": "^7.0.0",
     "@ng-bootstrap/ng-bootstrap": "^13.0.0",
     "@popperjs/core": "^2.11.6",
     "@types/bootstrap": "^5.2.4",

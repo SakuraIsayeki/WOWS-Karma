@@ -25,7 +25,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '6.x'
+        dotnet-version: '7.x'
     #    include-prerelease: true
 
     - name: Restore dependencies for ${{ matrix.project.name }}

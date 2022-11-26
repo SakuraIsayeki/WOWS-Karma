@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nodsoft.Wargaming.Api.Common" Version="0.2.6" />
+    <PackageReference Include="Nodsoft.Wargaming.Api.Common" Version="0.3.1-alpha-g7b68211119" />
   </ItemGroup>
 
 </Project>

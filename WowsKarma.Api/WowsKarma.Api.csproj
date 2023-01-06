@@ -60,7 +60,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="NodaTime" Version="3.1.3" />
     <PackageReference Include="Nodsoft.Wargaming.Api.Client" Version="0.2.6" />
-    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="2.0.6-alpha-gcbcb7f6a80" />
+    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="2.0.8-alpha-g2a9a24924f" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
     <PackageReference Include="Serilog.AspNetCore" Version="6.0.1" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />

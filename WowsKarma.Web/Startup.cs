@@ -109,7 +109,7 @@ namespace WowsKarma.Web
 			services.AddScoped<ClanService>();
 			
 #if DEBUG
-			services.AddSassCompiler();
+//			services.AddSassCompiler();
 #endif
 		}
 

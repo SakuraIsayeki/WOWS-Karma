@@ -34,7 +34,7 @@ export class AppConfigService {
         const host: string = url instanceof URL ? url.host : url;
 
         // Match the host against the regex.
-        const output = REGEX_API_SUBDOMAIN.exec(host)?.groups?.["region"];
+        const output = (REGEX_API_SUBDOMAIN.exec(host))?.groups?.["region"];
 
         // Match the subdomain against the enum,
         // making sure of noting discrepancies (for example "asia" => "SEA").
@@ -63,12 +63,6 @@ export class AppConfigService {
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Location}
      * */
     static GetApiRegionFromLocation(): ApiRegion | undefined {
-        // Wait for the browser's location to be available.
-
-        if (typeof window?.location === "undefined") {
-            // This means we're SSR. We'll have to get the region from the server request URL.
-        }
-
         return AppConfigService.getApiRegion(window.location.host);
     }
 }
@@ -81,5 +75,5 @@ export class AppConfigService {
  * @constant
  * @see https://regex101.com/r/XjyrMT/2
  */
-const REGEX_API_SUBDOMAIN = /(?:|(?<region>|na|ru|asia)\.)wows-karma\.com(?:\/.*)?$/gim;
+const REGEX_API_SUBDOMAIN = /(?:|(?<region>|na|ru|asia)\.)wows-karma\.com(?:\/.*)?$/im;
 

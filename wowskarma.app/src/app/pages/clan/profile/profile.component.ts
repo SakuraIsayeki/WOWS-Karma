@@ -60,10 +60,6 @@ export class ProfileComponent {
         ? -1
         : 1;
   }
-
-  getWowsNumbersClanLink({id, tag, name}: ClanListingDto): string | undefined {
-    return getWowsNumbersClanLink({id: id!, tag: tag!, name: name!});
-  }
 }
 
 type RankAndJoinDateComparisonInput = { clan?: { clanMemberRole?: ClanRole }, joinDate?: string }

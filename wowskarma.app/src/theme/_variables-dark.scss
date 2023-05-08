@@ -1,0 +1,21 @@
+﻿// scss-docs-start sass-dark-mode-vars
+@import url("https://fonts.googleapis.com/css2?family=Lato");
+$font-family-sans-serif: "Lato", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+$dark: #1a1a1a;
+$light: #f8f9fa;
+
+$theme-colors: (
+  "primary": $blue,
+  "secondary": $gray-700,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+);
+
+// Body
+$body-bg-dark:                   $dark;
+$body-color-dark:                $light;

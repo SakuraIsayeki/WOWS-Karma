@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Notifications;
@@ -94,23 +97,41 @@ public static class NotificationServiceExtensions
 	public static IQueryable<NotificationBase> IncludeAllNotificationsChildNavs(this IQueryable<NotificationBase> query)
 	{
 		//PlatformBanNotification
-		query = query.Include(n => (n as PlatformBanNotification).Ban);
+		query = query.Include(static n => (n as PlatformBanNotification).Ban);
+		
 
 		// PostAddedNotification
-		query = query.Include(n => (n as PostAddedNotification).Post);
+		query = query.IncludeAllPostNotificationsChildNavs<PostAddedNotification>();
 
 		//PostEditedNotification
-		query = query.Include(n => (n as PostEditedNotification).Post);
+		query = query.IncludeAllPostNotificationsChildNavs<PostEditedNotification>();
 
 		//PostDeletedNotification
-		query = query.Include(n => (n as PostDeletedNotification).Post);
+		query = query.IncludeAllPostNotificationsChildNavs<PostDeletedNotification>();
 
 		// PostModEditedNotification
-		query = query.Include(n => (n as PostModEditedNotification).ModAction);
-		
-		// PostModDeletedNotification
-		query = query.Include(n => (n as PostModDeletedNotification).ModAction);
+		query = query.Include(static n => (n as PostModEditedNotification).ModAction);
 
+		// PostModDeletedNotification
+		query = query.Include(static n => (n as PostModDeletedNotification).ModAction);
+
+		return query;
+	}
+	
+	/// <summary>
+	/// Returns a queryable of type <typeparamref name="TNotification"/> that includes all <see cref="PostNotificationBase"/> child navigation properties.
+	/// </summary>
+	/// <returns>An included queryable of type <typeparamref name="TNotification"/> that includes all <see cref="PostNotificationBase"/> child navigation properties. </returns>
+	[Pure, MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static IQueryable<NotificationBase> IncludeAllPostNotificationsChildNavs<TNotification>(this IQueryable<NotificationBase> query) 
+		where TNotification : PostNotificationBase
+	{
+		query = query.Include(static n => (n as TNotification).Post)
+			.ThenInclude(static p => p.Author);
+
+		query = query.Include(static n => (n as TNotification).Post)
+			.ThenInclude(static p => p.Player);
+		
 		return query;
 	}
 }

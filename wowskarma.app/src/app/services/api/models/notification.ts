@@ -23,4 +23,5 @@ export enum NotificationType {
 
 export type PostNotification = Notification & { postId: string, post: PlayerPostDto }
 export type PostModDeletedNotification = Notification & { modActionId: string, modAction: PostModActionDto }
+export type PostModEditedNotification = Notification & { modActionId: string, modAction: PostModActionDto }
 export type PlatformBanNotification = Notification & { reason: string, until?: Date }

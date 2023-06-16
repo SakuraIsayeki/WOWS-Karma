@@ -211,7 +211,8 @@ public class Startup
 			
 		services.AddSingleton(s => new PublicApiOptions
 		{
-			AppId = s.GetRequiredService<IConfiguration>()[$"Api:{ApiRegion.ToRegionString()}:AppId"]
+			AppId = s.GetRequiredService<IConfiguration>()[$"Api:{ApiRegion.ToRegionString()}:AppId"] 
+			        ?? throw new InvalidOperationException("AppId not found in configuration"),
 		});
 			
 		services.AddWowsReplayUnpacker(builder =>

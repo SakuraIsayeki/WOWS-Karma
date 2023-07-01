@@ -2,7 +2,7 @@
 
 
 // Used by WOWS Monitor
-public record AccountFullKarmaDTO(uint Id, int Karma, int Performance, int Teamplay, int Courtesy) : AccountKarmaDTO(Id, Karma);
+public record AccountFullKarmaDTO(uint Id, int GameKarma, int PlatformKarma, int Performance, int Teamplay, int Courtesy) : AccountKarmaDTO(Id, PlatformKarma);
 
 public record AccountKarmaDTO(uint Id, int Karma)
 {

@@ -116,11 +116,15 @@ public class PlayerService
 		return player;
 	}
 
-	public IQueryable<AccountFullKarmaDTO> GetPlayersFullKarma(IEnumerable<uint> accountIds)
+	private static readonly Func<ApiDbContext, IEnumerable<uint>, IEnumerable<AccountFullKarmaDTO>> CompiledPlayersFullKarmaQuery =
+		EF.CompileQuery(static (ApiDbContext db, IEnumerable<uint> accountIds) => db.Players.AsNoTracking()
+			.Where(p => accountIds.Contains(p.Id))
+			.Select(p => new AccountFullKarmaDTO(p.Id, p.GameKarma, p.SiteKarma, p.PerformanceRating, p.TeamplayRating, p.CourtesyRating)));
+	
+	public IEnumerable<AccountFullKarmaDTO> GetPlayersFullKarma(IEnumerable<uint> accountIds)
 	{
-		return from p in _context.Players.AsNoTracking()
-				where accountIds.Contains(p.Id)
-				select new AccountFullKarmaDTO(p.Id, p.SiteKarma, p.PerformanceRating, p.TeamplayRating, p.CourtesyRating);
+		// Use the compiled query
+		return CompiledPlayersFullKarmaQuery.Invoke(_context, accountIds);
 	}
 	
 	/// <summary>

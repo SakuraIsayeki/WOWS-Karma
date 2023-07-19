@@ -3,7 +3,7 @@
 [default.security]
 # Set secret key in .secrets.toml
 # SECRET_KEY = ""
-ALGORITHM = "HS256"
+ALGORITHM = "HS384"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_MINUTES = 600
 

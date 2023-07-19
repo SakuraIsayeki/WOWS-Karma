@@ -22,13 +22,9 @@ def read(*paths, **kwargs):
     return content
 
 
-description = """
-Standalone Minimap rendering microservice to render World of Warships replays.
-"""
-
 app = FastAPI(
     title="WOWS Karma - Minimap API",
-    description=description,
+    description="Standalone Minimap rendering microservice to render World of Warships replays.",
     version=read("VERSION"),
     contact={
         "name": "Sakura Isayeki",

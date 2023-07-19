@@ -122,23 +122,23 @@ shell:            ## Open a shell in the project.
 
 .PHONY: docker-build
 docker-build:	  ## Builder docker images
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap build
+	@docker-compose -f docker-compose.yaml -p wowskarma_api_minimap build
 
 .PHONY: docker-run
 docker-run:  	  ## Run docker development images
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap up -d
+	@docker-compose -f docker-compose.yaml -p wowskarma_api_minimap up -d
 
 .PHONY: docker-stop
 docker-stop: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap down
+	@docker-compose -f docker-compose.yaml -p wowskarma_api_minimap down
 
 .PHONY: docker-ps
 docker-ps: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap ps
+	@docker-compose -f docker-compose.yaml -p wowskarma_api_minimap ps
 
 .PHONY: docker-log
 docker-logs: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap logs -f app
+	@docker-compose -f docker-compose.yaml -p wowskarma_api_minimap logs -f app
 
 # This project has been generated from rochacbruno/fastapi-project-template
 # __author__ = 'rochacbruno'

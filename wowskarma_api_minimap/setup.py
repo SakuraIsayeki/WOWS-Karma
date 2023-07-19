@@ -39,5 +39,9 @@ setup(
     author="SakuraIsayeki",
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
-    entry_points={"console_scripts": ["wowskarma_api_minimap = src.__main__:main"]},
+    entry_points={
+        "console_scripts": [
+            "wowskarma_api_minimap = wowskarma_api_minimap.__main__:main"
+        ]
+    },
 )

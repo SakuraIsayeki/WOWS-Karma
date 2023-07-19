@@ -23,11 +23,11 @@ def read(*paths, **kwargs):
 
 
 description = """
-src API helps you do awesome stuff. 🚀
+Standalone Minimap rendering microservice to render World of Warships replays.
 """
 
 app = FastAPI(
-    title="wowskarma_api_minimap",
+    title="WOWS Karma - Minimap API",
     description=description,
     version=read("VERSION"),
     contact={

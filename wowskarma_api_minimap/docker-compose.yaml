@@ -8,8 +8,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - wowskarma_api_minimap_DB__uri=postgresql://postgres:postgres@db:5432/wowskarma_api_minimap_dev
-      - wowskarma_api_minimap_DB__connect_args={}
+      - ENVVAR_PREFIX_FOR_DYNACONF=WOWSKARMA_API_MINIMAP
+      - WOWSKARMA_API_MINIMAP_ENV=development
+      - WOWSKARMA_API_MINIMAP_DB__URI=postgresql://postgres:postgres@db:5432/wowskarma_api_minimap_dev
+      - WOWSKARMA_API_MINIMAP_DB__CONNECT_ARGS={}
     volumes:
       - .:/home/app/web
     depends_on:

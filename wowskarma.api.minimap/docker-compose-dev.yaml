@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    environment:
+      - wowskarma.api.minimap_DB__uri=postgresql://postgres:postgres@db:5432/src
+      - wowskarma.api.minimap_DB__connect_args={}
+    volumes:
+      - .:/home/app/web
+    depends_on:
+      - db
+  db:
+    build: postgres
+    image: wowskarma.api.minimap_postgres-13-alpine-multi-user
+    volumes:
+      - $HOME/.postgres/wowskarma.api.minimap_db/data/postgresql:/var/lib/postgresql/data
+    ports:
+      - 5435:5432
+    environment:
+      - POSTGRES_DBS=src, wowskarma.api.minimap_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres

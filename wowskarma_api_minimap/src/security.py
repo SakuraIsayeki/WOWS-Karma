@@ -1,3 +1,4 @@
+import uuid as uuid_pkg
 from datetime import datetime, timedelta
 from typing import Callable, List, Optional, Union
 
@@ -7,8 +8,6 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlmodel import Field, Relationship, Session, SQLModel
-
-from .models.content import Content, ContentResponse
 
 from .config import settings
 from .db import engine
@@ -67,26 +66,21 @@ class HashedPassword(str):
 
 
 class User(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    username: str = Field(sa_column_kwargs={"unique": True})
+    id: uuid_pkg.UUID = Field(default_factory=uuid_pkg.uuid4, primary_key=True, index=True, nullable=False)
+    username: str = Field(unique=True, index=True, nullable=False)
     password: HashedPassword
     superuser: bool = False
     disabled: bool = False
-
-    # it populates the .user attribute on the Content Model
-    contents: List["Content"] = Relationship(back_populates="user")
-
 
 class UserResponse(BaseModel):
     """This is the User model to be used as a response_model
     it doesn't include the password.
     """
 
-    id: int
+    id: uuid_pkg.UUID
     username: str
     disabled: bool
     superuser: bool
-    contents: Optional[List[ContentResponse]] = Field(default_factory=list)
 
 
 class UserCreate(BaseModel):

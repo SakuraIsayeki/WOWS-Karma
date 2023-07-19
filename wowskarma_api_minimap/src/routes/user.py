@@ -26,17 +26,31 @@ async def list_users(*, session: Session = ActiveSession):
     return users
 
 
-@router.post("/", response_model=UserResponse, dependencies=[AdminUser])
+@router.post("/", response_model=UserResponse)
 async def create_user(*, session: Session = ActiveSession, user: UserCreate):
 
     # verify user with username doesn't already exist
     try:
-        await query_user(session=session, user_id_or_username=user.username)
+        await query_user(session=session, username=user.username)
     except HTTPException:
         pass
     else:
-        raise HTTPException(status_code=422, detail="Username already exists")
+        raise HTTPException(status_code=422, detail="Username is already taken")
 
+    # If the new user is marked as superuser, check the current user is superuser too
+    try:
+        current_user: User = get_current_user()
+    except Exception as e:
+        current_user = None
+
+    if user.superuser and (not current_user or not current_user.superuser):
+        raise HTTPException(status_code=403, detail="Only superusers can create superuser accounts")
+
+    # If this is the first user in database, make it a superuser
+    if not session.exec(select(User)).first():
+        user.superuser = True
+
+    # Create the user
     db_user = User.from_orm(user)
     session.add(db_user)
     session.commit()
@@ -86,14 +100,9 @@ async def update_user_password(
     dependencies=[AuthenticatedUser],
 )
 async def query_user(
-    *, session: Session = ActiveSession, user_id_or_username: Union[str, int]
+    *, session: Session = ActiveSession, username: Union[str, int]
 ):
-    user = session.query(User).where(
-        or_(
-            User.id == user_id_or_username,
-            User.username == user_id_or_username,
-        )
-    )
+    user = session.query(User).where(User.username == username)
 
     if not user.first():
         raise HTTPException(status_code=404, detail="User not found")

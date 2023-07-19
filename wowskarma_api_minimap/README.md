@@ -1,7 +1,7 @@
 # WOWS Karma - Minimap API
 
-[![codecov](https://codecov.io/gh/SakuraIsayeki/wowskarma.api.minimap/branch/main/graph/badge.svg?token=wowskarma.api.minimap_token_here)](https://codecov.io/gh/SakuraIsayeki/wowskarma.api.minimap)
-[![CI](https://github.com/SakuraIsayeki/wowskarma.api.minimap/actions/workflows/main.yml/badge.svg)](https://github.com/SakuraIsayeki/wowskarma.api.minimap/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/SakuraIsayeki/wowskarma_api_minimap/branch/main/graph/badge.svg?token=wowskarma_api_minimap_token_here)](https://codecov.io/gh/SakuraIsayeki/wowskarma_api_minimap)
+[![CI](https://github.com/SakuraIsayeki/wowskarma_api_minimap/actions/workflows/main.yml/badge.svg)](https://github.com/SakuraIsayeki/wowskarma_api_minimap/actions/workflows/main.yml)
 
 Standalone Minimap rendering microservice to render World of Warships replays.
 
@@ -10,39 +10,39 @@ Standalone Minimap rendering microservice to render World of Warships replays.
 from source
 ```bash
 git clone https://github.com/SakuraIsayeki/WOWS-Karma wows-karma
-cd wows-karma/wowskarma.api.minimap
+cd wows-karma/wowskarma_api_minimap
 make install
 ```
 
 from pypi
 
 ```bash
-pip install wowskarma.api.minimap
+pip install wowskarma_api_minimap
 ```
 
 ## Executing
 
 ```bash
-$ wowskarma.api.minimap run --port 8080
+$ wowskarma_api_minimap run --port 8080
 ```
 
 or
 
 ```bash
-python -m wowskarma.api.minimap run --port 8080
+python -m wowskarma_api_minimap run --port 8080
 ```
 
 or
 
 ```bash
-$ uvicorn wowskarma.api.minimap:app
+$ uvicorn wowskarma_api_minimap:app
 ```
 
 ## CLI
 
 ```bash
-❯ wowskarma.api.minimap --help
-Usage: wowskarma.api.minimap [OPTIONS] COMMAND [ARGS]...
+❯ wowskarma_api_minimap --help
+Usage: wowskarma_api_minimap [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --install-completion [bash|zsh|fish|powershell|pwsh]
@@ -61,7 +61,7 @@ Commands:
 ### Creating a user
 
 ```bash
-❯ wowskarma.api.minimap create-user --help
+❯ wowskarma_api_minimap create-user --help
 Usage: src create-user [OPTIONS] USERNAME PASSWORD
 
   Create user
@@ -78,7 +78,7 @@ Options:
 **IMPORTANT** To create an admin user on the first run:
 
 ```bash
-wowskarma.api.minimap create-user admin admin --superuser
+wowskarma_api_minimap create-user admin admin --superuser
 ```
 
 ### The Shell
@@ -86,7 +86,7 @@ wowskarma.api.minimap create-user admin admin --superuser
 You can enter an interactive shell with all the objects imported.
 
 ```bash
-❯ wowskarma.api.minimap shell       
+❯ wowskarma_api_minimap shell       
 Auto imports: ['app', 'settings', 'User', 'engine', 'cli', 'create_user', 'select', 'session', 'Content']
 
 In [1]: session.query(Content).all()
@@ -100,12 +100,12 @@ Out[3]: [Content(text='string', title='string', created_time='2021-09-14T19:25:0
 
 ## API
 
-Run with `wowskarma.api.minimap run` and access http://127.0.0.1:8000/docs
+Run with `wowskarma_api_minimap run` and access http://127.0.0.1:8000/docs
 
 ![](https://raw.githubusercontent.com/rochacbruno/fastapi-project-template/master/docs/api.png)
 
 
-**For some api calls you must authenticate** using the user created with `wowskarma.api.minimap create-user`.
+**For some api calls you must authenticate** using the user created with `wowskarma_api_minimap create-user`.
 
 ## Testing
 
@@ -138,18 +138,18 @@ tests/test_user_api.py::test_user_create PASSED                           [100%]
 ----------- coverage: platform linux, python 3.9.6-final-0 -----------
 Name                              Stmts   Miss  Cover
 -----------------------------------------------------
-wowskarma.api.minimap/__init__.py              4      0   100%
-wowskarma.api.minimap/app.py                  16      1    94%
-wowskarma.api.minimap/cli.py                  21      0   100%
-wowskarma.api.minimap/config.py                5      0   100%
-wowskarma.api.minimap/db.py                   10      0   100%
-wowskarma.api.minimap/models/__init__.py       0      0   100%
-wowskarma.api.minimap/models/content.py       47      1    98%
-wowskarma.api.minimap/routes/__init__.py      11      0   100%
-wowskarma.api.minimap/routes/content.py       52     25    52%
-wowskarma.api.minimap/routes/security.py      15      1    93%
-wowskarma.api.minimap/routes/user.py          52     26    50%
-wowskarma.api.minimap/security.py            103     12    88%
+wowskarma_api_minimap/__init__.py              4      0   100%
+wowskarma_api_minimap/app.py                  16      1    94%
+wowskarma_api_minimap/cli.py                  21      0   100%
+wowskarma_api_minimap/config.py                5      0   100%
+wowskarma_api_minimap/db.py                   10      0   100%
+wowskarma_api_minimap/models/__init__.py       0      0   100%
+wowskarma_api_minimap/models/content.py       47      1    98%
+wowskarma_api_minimap/routes/__init__.py      11      0   100%
+wowskarma_api_minimap/routes/content.py       52     25    52%
+wowskarma_api_minimap/routes/security.py      15      1    93%
+wowskarma_api_minimap/routes/user.py          52     26    50%
+wowskarma_api_minimap/security.py            103     12    88%
 -----------------------------------------------------
 TOTAL                               336     66    80%
 
@@ -171,7 +171,7 @@ make fmt   # formats the code
 This project uses [Dynaconf](https://dynaconf.com) to manage configuration.
 
 ```py
-from wowskarma.api.minimap.config import settings
+from wowskarma_api_minimap.config import settings
 ```
 
 ## Acessing variables
@@ -200,14 +200,14 @@ dynaconf_merge = true
 echo = true
 ```
 
-> `dynaconf_merge` is a boolean that tells if the settings should be merged with the default settings defined in wowskarma.api.minimap/default.toml.
+> `dynaconf_merge` is a boolean that tells if the settings should be merged with the default settings defined in wowskarma_api_minimap/default.toml.
 
 ### As environment variables
 ```bash
-export wowskarma.api.minimap_KEY=value
-export wowskarma.api.minimap_KEY="@int 42"
-export wowskarma.api.minimap_KEY="@jinja {{ this.db.uri }}"
-export wowskarma.api.minimap_DB__uri="@jinja {{ this.db.uri | replace('db', 'data') }}"
+export wowskarma_api_minimap_KEY=value
+export wowskarma_api_minimap_KEY="@int 42"
+export wowskarma_api_minimap_KEY="@jinja {{ this.db.uri }}"
+export wowskarma_api_minimap_DB__uri="@jinja {{ this.db.uri | replace('db', 'data') }}"
 ```
 
 ### Secrets
@@ -221,7 +221,7 @@ can read those variables.
 ### Switching environments
 
 ```bash
-wowskarma.api.minimap_ENV=production wowskarma.api.minimap run
+wowskarma_api_minimap_ENV=production wowskarma_api_minimap run
 ```
 
 Read more on https://dynaconf.com

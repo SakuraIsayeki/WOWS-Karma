@@ -1,8 +1,0 @@
-[run]
-source = wowskarma.api.minimap
-
-[report]
-omit =
-    */python?.?/*
-    */site-packages/nose/*
-    wowskarma.api.minimap/__main__.py

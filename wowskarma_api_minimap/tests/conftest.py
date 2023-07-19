@@ -8,8 +8,8 @@ from sqlalchemy.exc import IntegrityError
 # This next line ensures tests uses its own database and settings environment
 os.environ["FORCE_ENV_FOR_DYNACONF"] = "testing"  # noqa
 # WARNING: Ensure imports from `src` comes after this line
-from wowskarma.api.minimap import app, settings, db  # noqa
-from wowskarma.api.minimap.cli import create_user, cli  # noqa
+from wowskarma_api_minimap import app, settings, db  # noqa
+from wowskarma_api_minimap.cli import create_user, cli  # noqa
 
 
 # each test runs on cwd to its temp dir

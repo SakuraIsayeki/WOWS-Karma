@@ -27,18 +27,13 @@ src API helps you do awesome stuff. 🚀
 """
 
 app = FastAPI(
-    title="src",
+    title="wowskarma_api_minimap",
     description=description,
     version=read("VERSION"),
-    terms_of_service="http://wowskarma.api.minimap.com/terms/",
     contact={
-        "name": "SakuraIsayeki",
-        "url": "http://wowskarma.api.minimap.com/contact/",
-        "email": "SakuraIsayeki@src.com",
-    },
-    license_info={
-        "name": "The Unlicense",
-        "url": "https://unlicense.org",
+        "name": "Sakura Isayeki",
+        "url": "https://github.com/SakuraIsayeki",
+        "email": "sakura.isayeki@nodsoft.net",
     },
 )
 

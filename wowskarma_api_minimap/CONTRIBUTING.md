@@ -1,6 +1,6 @@
 # How to develop on this project
 
-wowskarma.api.minimap welcomes contributions from the community.
+wowskarma_api_minimap welcomes contributions from the community.
 
 **You need PYTHON3!**
 
@@ -8,9 +8,9 @@ This instructions are for linux base systems. (Linux, MacOS, BSD, etc.)
 ## Setting up your own fork of this repo.
 
 - On github interface click on `Fork` button.
-- Clone your fork of this repo. `git clone git@github.com:YOUR_GIT_USERNAME/wowskarma.api.minimap.git`
-- Enter the directory `cd wowskarma.api.minimap`
-- Add upstream repo `git remote add upstream https://github.com/SakuraIsayeki/wowskarma.api.minimap`
+- Clone your fork of this repo. `git clone git@github.com:YOUR_GIT_USERNAME/wowskarma_api_minimap.git`
+- Enter the directory `cd wowskarma_api_minimap`
+- Add upstream repo `git remote add upstream https://github.com/SakuraIsayeki/wowskarma_api_minimap`
 
 ## Setting up your own virtual environment
 

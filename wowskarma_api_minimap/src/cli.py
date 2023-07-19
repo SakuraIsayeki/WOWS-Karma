@@ -8,7 +8,7 @@ from .db import create_db_and_tables, engine
 from .models.content import Content
 from .security import User
 
-cli = typer.Typer(name="src API")
+cli = typer.Typer(name="WOWS Karma - Minimap API")
 
 
 @cli.command()
@@ -20,7 +20,7 @@ def run(
 ):  # pragma: no cover
     """Run the API server."""
     uvicorn.run(
-        "src.app:app",
+        "wowskarma_api_minimap.app:app",
         host=host,
         port=port,
         log_level=log_level,

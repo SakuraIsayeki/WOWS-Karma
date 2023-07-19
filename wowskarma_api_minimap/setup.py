@@ -30,16 +30,14 @@ def read_requirements(path):
 
 
 setup(
-    name="wowskarma.api.minimap",
-    version=read("wowskarma.api.minimap", "VERSION"),
-    description="Awesome src created by SakuraIsayeki",
-    url="https://github.com/SakuraIsayeki/wowskarma.api.minimap/",
+    name="wowskarma_api_minimap",
+    version=read("src", "VERSION"),
+    description="Standalone Minimap rendering microservice to render World of Warships replays.",
+    url="https://github.com/SakuraIsayeki/WOWS-Karma/",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     author="SakuraIsayeki",
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
-    entry_points={
-        "console_scripts": ["wowskarma.api.minimap = wowskarma.api.minimap.__main__:main"]
-    }
+    entry_points={"console_scripts": ["wowskarma_api_minimap = src.__main__:main"]},
 )

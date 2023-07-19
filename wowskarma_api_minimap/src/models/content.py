@@ -5,7 +5,7 @@ from pydantic import BaseModel, Extra
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from wowskarma.api.minimap.security import User
+    from wowskarma_api_minimap.security import User
 
 
 class Content(SQLModel, table=True):
@@ -19,9 +19,7 @@ class Content(SQLModel, table=True):
     slug: str = Field(default=None)
     text: str
     published: bool = False
-    created_time: str = Field(
-        default_factory=lambda: datetime.now().isoformat()
-    )
+    created_time: str = Field(default_factory=lambda: datetime.now().isoformat())
     tags: str = Field(default="")
     user_id: Optional[int] = Field(foreign_key="user.id")
 

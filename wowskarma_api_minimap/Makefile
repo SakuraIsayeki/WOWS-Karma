@@ -39,7 +39,7 @@ lint:             ## Run pep8, black, mypy linters.
 
 .PHONY: test
 test: lint        ## Run tests and generate coverage report.
-	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=wowskarma.api.minimap -l --tb=short --maxfail=1 tests/
+	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=wowskarma_api_minimap -l --tb=short --maxfail=1 tests/
 	$(ENV_PREFIX)coverage xml
 	$(ENV_PREFIX)coverage html
 
@@ -101,7 +101,7 @@ switch-to-poetry: ## Switch to poetry package manager.
 	@poetry init --no-interaction --name=a_flask_test --author=rochacbruno
 	@echo "" >> pyproject.toml
 	@echo "[tool.poetry.scripts]" >> pyproject.toml
-	@echo "wowskarma.api.minimap = 'wowskarma.api.minimap.__main__:main'" >> pyproject.toml
+	@echo "wowskarma_api_minimap = 'wowskarma_api_minimap.__main__:main'" >> pyproject.toml
 	@cat requirements.txt | while read in; do poetry add --no-interaction "$${in}"; done
 	@cat requirements-test.txt | while read in; do poetry add --no-interaction "$${in}" --dev; done
 	@poetry install --no-interaction
@@ -109,7 +109,7 @@ switch-to-poetry: ## Switch to poetry package manager.
 	@mv requirements* .github/backup
 	@mv setup.py .github/backup
 	@echo "You have switched to https://python-poetry.org/ package manager."
-	@echo "Please run 'poetry shell' or 'poetry run wowskarma.api.minimap'"
+	@echo "Please run 'poetry shell' or 'poetry run wowskarma_api_minimap'"
 
 .PHONY: init
 init:             ## Initialize the project based on an application template.
@@ -118,27 +118,27 @@ init:             ## Initialize the project based on an application template.
 .PHONY: shell
 shell:            ## Open a shell in the project.
 	@if [ "$(USING_POETRY)" ]; then poetry shell; exit; fi
-	@./.venv/bin/ipython -c "from wowskarma.api.minimap import *"
+	@./.venv/bin/ipython -c "from wowskarma_api_minimap import *"
 
 .PHONY: docker-build
 docker-build:	  ## Builder docker images
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma.api.minimap build
+	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap build
 
 .PHONY: docker-run
 docker-run:  	  ## Run docker development images
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma.api.minimap up -d
+	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap up -d
 
 .PHONY: docker-stop
 docker-stop: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma.api.minimap down
+	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap down
 
 .PHONY: docker-ps
 docker-ps: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma.api.minimap ps
+	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap ps
 
 .PHONY: docker-log
 docker-logs: 	  ## Bring down docker dev environment
-	@docker-compose -f docker-compose-dev.yaml -p wowskarma.api.minimap logs -f app
+	@docker-compose -f docker-compose-dev.yaml -p wowskarma_api_minimap logs -f app
 
 # This project has been generated from rochacbruno/fastapi-project-template
 # __author__ = 'rochacbruno'

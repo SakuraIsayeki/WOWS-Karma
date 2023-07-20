@@ -17,7 +17,11 @@ router = APIRouter()
 
 
 @router.post("/render", dependencies=[AuthenticatedUser])
-async def render_replay(file: UploadFile, replay_id: str | None = None):
+async def render_replay(
+        file: UploadFile,
+        replay_id: str | None = None,
+        target_player_id: int | None = None
+):
     # First check if the file is a replay file (extension .wowsreplay)
     if not file.filename.endswith(".wowsreplay"):
         raise HTTPException(
@@ -29,7 +33,7 @@ async def render_replay(file: UploadFile, replay_id: str | None = None):
     if file.size > settings.replay.max_file_size:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="File is too large",
+            detail="File is too large"
         )
 
     # We're gonna write the replay data to a temporary file, in the following folder:
@@ -43,6 +47,12 @@ async def render_replay(file: UploadFile, replay_id: str | None = None):
     replay_data: ReplayData = replay_info["hidden"]["replay_data"]
 
     filepath = f"/tmp/wows-karma/minimap/{binascii.b2a_hex(os.urandom(7))}.mp4"
-    Renderer(replay_data, enable_chat=True, team_tracers=True).start(filepath)
+    renderer = Renderer(
+        replay_data,
+        enable_chat=True,
+        team_tracers=True,
+        target_player_id=target_player_id
+    )
+    renderer.start(filepath)
 
     return FileResponse(filepath, media_type="video/mp4", filename=f"{replay_id or 'replay'}.mp4")

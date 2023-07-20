@@ -14,4 +14,4 @@ passlib[bcrypt]
 python-multipart
 psycopg2-binary
 
-git+https://github.com/WoWs-Builder-Team/minimap_renderer.git
+git+https://github.com/SakuraIsayeki/wowskarma_minimap_renderer.git

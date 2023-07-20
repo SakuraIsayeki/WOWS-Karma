@@ -13,3 +13,5 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 psycopg2-binary
+
+git+https://github.com/WoWs-Builder-Team/minimap_renderer.git

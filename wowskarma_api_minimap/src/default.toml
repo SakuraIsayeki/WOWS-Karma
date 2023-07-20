@@ -17,3 +17,6 @@ reload = false
 uri = "@jinja sqlite:///{{ this.current_env | lower }}.db"
 connect_args = {check_same_thread=false}
 echo = false
+
+[default.replay]
+max_file_size = 5242880 # Max replay file size in bytes. Default is 5MB

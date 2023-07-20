@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Change directory to subdirectory
-        run: cd wowskarma.api.minimap
+        run: cd wowskarma_api_minimap
       - name: Install project dependencies
         run: make install
       - name: Run linter

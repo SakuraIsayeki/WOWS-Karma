@@ -35,7 +35,7 @@ public sealed class MinimapApiClient
 	/// <param name="ReplayId">(optional) The ID of the replay to render the minimap for.</param>
 	/// <param name="targetedPlayerId">(optional) The ID of a player to highlight/target on the minimap.</param>
 	/// <returns>The rendered minimap MP4 video, in a blob.</returns> 
-	public async ValueTask<byte[]> RenderReplayMinimapAsync(byte[] replay, string? ReplayId = null, uint? targetedPlayerId = null)
+	public async ValueTask<byte[]> RenderReplayMinimapAsync(byte[] replay, string? ReplayId = null, uint? targetedPlayerId = null, CancellationToken ct = default)
 	{
 		using HttpRequestMessage request = new(HttpMethod.Post, "replay/minimap")
 		{
@@ -47,18 +47,18 @@ public sealed class MinimapApiClient
 			}
 		};
 		
-		using HttpResponseMessage response = await _client.SendAsync(request);
+		using HttpResponseMessage response = await _client.SendAsync(request, ct);
 		
 		if (response.IsSuccessStatusCode)
 		{
-			return await response.Content.ReadAsByteArrayAsync();
+			return await response.Content.ReadAsByteArrayAsync(ct);
 		}
 
 		throw new HttpRequestException($"The request failed with Status Code: {response.StatusCode} {response.ReasonPhrase}.", null, response.StatusCode)
 		{
 			Data =
 			{
-				{ "Content", await response.Content.ReadAsStringAsync() },
+				{ "Content", await response.Content.ReadAsStringAsync(ct) },
 				{ "Headers", response.Headers }
 			}
 		};

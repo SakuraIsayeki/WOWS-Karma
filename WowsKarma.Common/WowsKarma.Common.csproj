@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nodsoft.Wargaming.Api.Common" Version="0.3.1-alpha-g7b68211119" />
+    <PackageReference Include="Nodsoft.Wargaming.Api.Common" Version="0.3.5" />
   </ItemGroup>
 
 </Project>

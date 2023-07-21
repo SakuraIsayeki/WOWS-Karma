@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Minimap;
 using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
@@ -102,7 +103,7 @@ public class ReplayController : ControllerBase
 	/// <param name="start">Start of date/time range</param>
 	/// <param name="end">End of date/time range</param>
 	/// <returns></returns>
-	[HttpPatch("reprocess/all"), Authorize(Roles = ApiRoles.Administrator)]
+	[HttpPatch("reprocess/replay/all"), Authorize(Roles = ApiRoles.Administrator)]
 	public async Task<IActionResult> ReprocessPostsAsync(DateTime start = default, DateTime end = default, CancellationToken ct = default)
 	{
 		if (start == default)
@@ -123,7 +124,7 @@ public class ReplayController : ControllerBase
 	/// Triggers reporessing on a replay (Usable only by Administrators)
 	/// </summary>
 	/// <returns></returns>
-	[HttpPatch("reprocess/{replayId:guid}"), Authorize(Roles = ApiRoles.Administrator)]
+	[HttpPatch("reprocess/replay/{replayId:guid}"), Authorize(Roles = ApiRoles.Administrator)]
 	public async Task<IActionResult> ReprocessReplayAsync(Guid replayId, CancellationToken ct = default)
 	{
 		try
@@ -135,5 +136,27 @@ public class ReplayController : ControllerBase
 		{
 			return StatusCode(404, $"No replay with GUID {replayId} found.");
 		}
+	}
+	
+	/// <summary>
+	/// Triggers minimap rendering on a post's replay (Usable only by Administrators)
+	/// </summary>
+	/// <param name="postId">The ID of the post to render the replay's minimap for.</param>
+	/// <param name="postService"></param>
+	/// <param name="ct">The cancellation token.</param>
+	/// <response code="202">The job was enqueued successfully.</response>
+	/// <response code="404">No post with the specified GUID was found.</response>
+	[HttpPatch("reprocess/minimap/{postId:guid}")]//[Authorize(Roles = ApiRoles.Administrator)]
+	public IActionResult RenderMinimap(Guid postId, 
+		[FromServices] PostService postService,
+		CancellationToken ct = default
+	) {
+		if (postService.GetPost(postId) is not { } post)
+		{
+			return StatusCode(404, $"No post with GUID {postId} found.");
+		}
+		
+		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(post.Id, post.PlayerId, ct));
+		return StatusCode(202);
 	}
 }

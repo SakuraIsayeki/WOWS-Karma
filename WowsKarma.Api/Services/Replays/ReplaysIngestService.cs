@@ -12,6 +12,7 @@ using Hangfire.Tags.Attributes;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
+using WowsKarma.Api.Services.Minimap;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs.Replays;
 
@@ -62,7 +63,8 @@ public class ReplaysIngestService
 			ChatMessages = replay.ChatMessages.Adapt<IEnumerable<ReplayChatMessageDTO>>()
 				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }),
 			Players = replay.Players.Adapt<IEnumerable<ReplayPlayerDTO>>(),
-			DownloadUri = (await GenerateReplayDownloadLinkAsync(id)).ToString(),
+			DownloadUri = $"{_containerClient.Uri}/{ReplayBlobContainer}/{replay.BlobName}",
+			MiniMapUri = $"{_containerClient.Uri}/{MinimapRenderingService.MinimapBlobContainer}/{replay.Id}.mp4"
 		};
 	}
 

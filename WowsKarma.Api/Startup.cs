@@ -30,11 +30,13 @@ using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Authorization;
 using WowsKarma.Api.Infrastructure.Telemetry;
 using WowsKarma.Api.Middlewares;
+using WowsKarma.Api.Minimap.Client;
 using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Cookie;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Discord;
+using WowsKarma.Api.Services.Minimap;
 using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Api.Utilities;
@@ -214,12 +216,14 @@ public class Startup
 			AppId = s.GetRequiredService<IConfiguration>()[$"Api:{ApiRegion.ToRegionString()}:AppId"] 
 			        ?? throw new InvalidOperationException("AppId not found in configuration"),
 		});
-			
+		
 		services.AddWowsReplayUnpacker(builder =>
 		{
 			builder.AddExtendedData();
 		});
 
+		services.AddMinimapApiClient(options => Configuration.GetSection("MinimapApi").Bind(options)); 
+		
 		services.AddHangfireServer();
 		services.AddHangfire((s, config) =>
 		{
@@ -257,6 +261,7 @@ public class Startup
 		services.AddScoped<NotificationService>();
 		services.AddScoped<ReplaysIngestService>();
 		services.AddScoped<ReplaysProcessService>();
+		services.AddScoped<MinimapRenderingService>();
 
 		services.AddScoped<IAuthorizationHandler, PlatformBanAuthorizationHandler>();
 

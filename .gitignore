@@ -369,3 +369,5 @@ WowsKarma.Web/**/*.razor.css
 wowskarma.app/pnpm-lock.yaml
 
 .store/
+
+wowskarma.api.minimap/main.py

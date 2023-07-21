@@ -28,6 +28,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
-        context: .
+        context: wowskarma_api_minimap
+        file: wowskarma_api_minimap/Dockerfile.dev
         push: true
         tags: wowskarma_api_minimap:latest,wowskarma_api_minimap:${{ github.ref_name }}

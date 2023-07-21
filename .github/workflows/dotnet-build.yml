@@ -1,38 +1,34 @@
 name: .NET Build & Test
 
-on: [ push, pull_request ]
+permissions: 
+  contents: read
+
+on:
+  - push
+  - pull_request
+  - workflow_call
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    strategy:
-      fail-fast: false
-      matrix:
-        # Projects to build
-        project: [ 
-          { name: "Common", path: "./WowsKarma.Common/WowsKarma.Common.csproj" },
-          { name: "API", path: "./WowsKarma.Api/WowsKarma.Api.csproj" },
-          { name: "Web (legacy)", path: "./WowsKarma.Web/WowsKarma.Web.csproj" },
-        ]
-
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: 'recursive'
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.x'
+        dotnet-version: '7.0.x'
     #    include-prerelease: true
 
-    - name: Restore dependencies for ${{ matrix.project.name }}
-      run: dotnet restore ${{ matrix.project.path }}
+    - name: Restore dependencies
+      run: dotnet restore
 
-    - name: Build ${{ matrix.project.name }}
-      run: dotnet build --no-restore ${{ matrix.project.path }}
+    - name: Build
+      run: dotnet build --no-restore
 
-    - name: Test ${{ matrix.project.name }}
-      run: dotnet test --no-build --verbosity normal ${{ matrix.project.path }}
+    - name: Test
+      run: dotnet test --no-build --verbosity normal

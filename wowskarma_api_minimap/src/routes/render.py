@@ -4,7 +4,7 @@ import random
 import tempfile
 import os
 
-from fastapi import APIRouter, HTTPException, status, UploadFile
+from fastapi import APIRouter, HTTPException, status, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse
 from renderer.data import ReplayData
 from renderer.render import Renderer
@@ -16,9 +16,12 @@ from ..security import AuthenticatedUser
 router = APIRouter()
 
 
+
+
 @router.post("/render", dependencies=[AuthenticatedUser])
 async def render_replay(
         file: UploadFile,
+        background_tasks: BackgroundTasks,
         replay_id: str | None = None,
         target_player_id: int | None = None
 ):
@@ -55,4 +58,5 @@ async def render_replay(
     )
     renderer.start(filepath)
 
+    background_tasks.add_task(os.remove, filepath)
     return FileResponse(filepath, media_type="video/mp4", filename=f"{replay_id or 'replay'}.mp4")

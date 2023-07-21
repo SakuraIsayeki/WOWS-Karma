@@ -1,0 +1,16 @@
+name: Build Minimap API Docker Image
+
+on:
+  push:
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build Docker Image
+      run: docker build -f wowskarma_api_minimap/Dockerfile.dev -t wowskarma_api_minimap:tag ./wowskarma_api_minimap

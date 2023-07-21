@@ -5,7 +5,6 @@ from sqlmodel import Session, select
 from .app import app
 from .config import settings
 from .db import create_db_and_tables, engine
-from .models.content import Content
 from .security import User
 
 cli = typer.Typer(name="WOWS Karma - Minimap API")
@@ -53,7 +52,6 @@ def shell():  # pragma: no cover
         "create_user": create_user,
         "select": select,
         "session": Session(engine),
-        "Content": Content,
     }
     typer.echo(f"Auto imports: {list(_vars.keys())}")
     try:

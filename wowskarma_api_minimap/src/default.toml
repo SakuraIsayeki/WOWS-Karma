@@ -20,3 +20,6 @@ echo = false
 
 [default.replay]
 max_file_size = 5242880 # Max replay file size in bytes. Default is 5MB
+temp_workdir = "/tmp/wows-karma/minimap" # Temporary directory for replay processing
+fps = 15 # Frames per second for replay processing
+quality = 5 # Quality of the output video. 1 is the lowest quality, 9 is the highest

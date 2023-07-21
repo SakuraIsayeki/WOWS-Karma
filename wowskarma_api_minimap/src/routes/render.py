@@ -5,6 +5,8 @@ import tempfile
 import os
 
 import pathlib
+from asyncio.log import logger
+
 from fastapi import APIRouter, HTTPException, status, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse
 from renderer.data import ReplayData
@@ -40,10 +42,12 @@ async def render_replay(
             detail="File is too large"
         )
 
-    # We're gonna write the replay data to a temporary file, in the following folder:
-    # /tmp/wows-karma/minimap/
+    # Log the new job.
+    job_id = binascii.b2a_hex(os.urandom(7))
+    logger.info(f"Started new render job: Job ID: {job_id}, Replay ID: {replay_id or 'None'}, "
+                f"Filename: {file.filename}.")
 
-    # Ensure the folder exists, if not, create it.
+    # Ensure the work folder exists, if not, create it.
     os.makedirs(settings.replay.temp_workdir, exist_ok=True)
 
     # Render time!
@@ -51,14 +55,16 @@ async def render_replay(
     replay_data: ReplayData = replay_info["hidden"]["replay_data"]
 
     # Concat filepaths to get the full path to the replay file.
-    filepath = pathlib.Path(settings.replay.temp_workdir, f"{binascii.b2a_hex(os.urandom(7))}.mp4")
+
+
+    filepath = pathlib.Path(settings.replay.temp_workdir, f"{job_id}.mp4")
     renderer = Renderer(
         replay_data,
         enable_chat=True,
         team_tracers=True,
         target_player_id=target_player_id
     )
-    renderer.start(str(filepath))
+    renderer.start(str(filepath), quality=9, fps=30)
 
     background_tasks.add_task(os.remove, filepath)
     return FileResponse(filepath, media_type="video/mp4", filename=f"{replay_id or 'replay'}.mp4")

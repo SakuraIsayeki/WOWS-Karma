@@ -30,4 +30,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: wowskarma_api_minimap:latest,wowskarma_api_minimap:$(date +%Y%m%d),wowskarma_api_minimap:$(git rev-parse --short HEAD)
+        tags: wowskarma_api_minimap:latest,wowskarma_api_minimap:${{ github.ref_name }}

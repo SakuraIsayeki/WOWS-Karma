@@ -20,3 +20,4 @@ echo = false
 
 [default.replay]
 max_file_size = 5242880 # Max replay file size in bytes. Default is 5MB
+temp_workdir = "/tmp/wowskarma/minimap" # Temporary directory for replay processing

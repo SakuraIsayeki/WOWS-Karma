@@ -4,6 +4,7 @@ import random
 import tempfile
 import os
 
+import pathlib
 from fastapi import APIRouter, HTTPException, status, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse
 from renderer.data import ReplayData
@@ -43,20 +44,21 @@ async def render_replay(
     # /tmp/wows-karma/minimap/
 
     # Ensure the folder exists, if not, create it.
-    os.makedirs("/tmp/wows-karma/minimap/", exist_ok=True)
+    os.makedirs(settings.replay.temp_workdir, exist_ok=True)
 
     # Render time!
     replay_info = ReplayParser(file.file, True).get_info()
     replay_data: ReplayData = replay_info["hidden"]["replay_data"]
 
-    filepath = f"/tmp/wows-karma/minimap/{binascii.b2a_hex(os.urandom(7))}.mp4"
+    # Concat filepaths to get the full path to the replay file.
+    filepath = pathlib.Path(settings.replay.temp_workdir, f"{binascii.b2a_hex(os.urandom(7))}.mp4")
     renderer = Renderer(
         replay_data,
         enable_chat=True,
         team_tracers=True,
         target_player_id=target_player_id
     )
-    renderer.start(filepath)
+    renderer.start(str(filepath))
 
     background_tasks.add_task(os.remove, filepath)
     return FileResponse(filepath, media_type="video/mp4", filename=f"{replay_id or 'replay'}.mp4")

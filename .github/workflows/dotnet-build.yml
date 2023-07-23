@@ -3,6 +3,9 @@ name: .NET Build & Test
 permissions: 
   contents: read
 
+env:
+  SOLUTION: 'WoWS-Karma.sln'
+
 on:
   - push
   - pull_request
@@ -25,10 +28,10 @@ jobs:
     #    include-prerelease: true
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ${{ env.SOLUTION }}
 
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore ${{ env.SOLUTION }}
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build ${{ env.SOLUTION }}

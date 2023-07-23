@@ -36,7 +36,6 @@ using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Api.Services.Authentication.Cookie;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Discord;
-using WowsKarma.Api.Services.Minimap;
 using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Api.Utilities;
@@ -44,10 +43,8 @@ using WowsKarma.Common;
 
 namespace WowsKarma.Api;
 
-public class Startup
+public sealed class Startup
 {
-	public const string CommonAuthenticationScheme = "WowsKarma";
-		
 	public static Region ApiRegion { get; private set; }
 	public static string DisplayVersion { get; private set; }
 	public IConfiguration Configuration { get; }
@@ -76,7 +73,7 @@ public class Startup
 		services.AddSignalR()
 			.AddNewtonsoftJsonProtocol(options =>
 			{
-				options.PayloadSerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+				options.PayloadSerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
 			})
 			.AddMessagePackProtocol();
 
@@ -93,7 +90,7 @@ public class Startup
 						ValidateAudience = true,
 						ValidAudience = Configuration["JWT:ValidAudience"],
 						ValidIssuer = Configuration["JWT:ValidIssuer"],
-						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]!)),
 					};
 
 					options.Events = new()
@@ -225,7 +222,7 @@ public class Startup
 		services.AddMinimapApiClient(Configuration.GetSection("MinimapApi")); 
 		
 		services.AddHangfireServer();
-		services.AddHangfire((s, config) =>
+		services.AddHangfire((_, config) =>
 		{
 			config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170);
 			config.UseSimpleAssemblyNameTypeSerializer();
@@ -302,7 +299,7 @@ public class Startup
 			builder.AllowCredentials();
 		});
 
-		IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies")?.Get<string[]>()?.Select(IPAddress.Parse).ToArray();
+		IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToArray();
 
 		// Nginx configuration step
 		ForwardedHeadersOptions forwardedHeadersOptions = new()

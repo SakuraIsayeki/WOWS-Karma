@@ -105,7 +105,6 @@ public sealed class ReplayController : ControllerBase
 	/// </summary>
 	/// <param name="start">Start of date/time range</param>
 	/// <param name="end">End of date/time range</param>
-	/// <returns></returns>
 	[HttpPatch("reprocess/replay/all"), Authorize(Roles = ApiRoles.Administrator)]
 	public async Task<IActionResult> ReprocessPostsAsync(DateTime start = default, DateTime end = default, CancellationToken ct = default)
 	{
@@ -164,6 +163,31 @@ public sealed class ReplayController : ControllerBase
 		
 		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(post.Id, force, ct));
 //		await minimapRenderingService.RenderPostReplayMinimapAsync(post.Id, post.PlayerId, ct);
+		return StatusCode(202);
+	}
+	
+	/// <summary>
+	/// Triggers minimap rendering on all posts' replays within the specified date/time range (Usable only by Administrators)
+	/// </summary>
+	/// <param name="start">Start of date/time range</param>
+	/// <param name="end">End of date/time range</param>
+	/// <param name="force">Whether to force rendering a minimap, even if it has already been rendered.</param>
+	/// <param name="ct">Cancellation token</param>
+	/// <response code="202">The job was enqueued successfully.</response>
+	[HttpPatch("reprocess/minimap/all"), Authorize(Roles = ApiRoles.Administrator)]
+	public async Task<IActionResult> RenderMinimapsAsync(DateTime start = default, DateTime end = default, bool force = false, CancellationToken ct = default)
+	{
+		if (start == default)
+		{
+			start = DateTime.UnixEpoch;
+		}
+
+		if (end == default)
+		{
+			end = DateTime.UtcNow;
+		}
+		
+		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.ReprocessAllMinimapsAsync(start.ToUniversalTime(), end.ToUniversalTime(), force, ct));
 		return StatusCode(202);
 	}
 }

@@ -54,7 +54,7 @@ public sealed class MinimapRenderingService
 	/// <param name="postId">The ID of the post to render the minimap for.</param>
 	/// <param name="force">Whether to force rendering the minimap, even if it has already been rendered.</param>
 	/// <param name="ct">The cancellation token.</param>
-	[Tag("minimap", "replay", "render"), JobDisplayName("Render replay minimap for post {0}")]
+	[Tag("minimap", "replay", "render", "single"), JobDisplayName("Render replay minimap for post {0}")]
 	public async Task RenderPostReplayMinimapAsync(Guid postId, bool force = false, CancellationToken ct = default)
 	{
 		_logger.LogDebug("Rendering minimap for post {postId}.", postId);
@@ -71,10 +71,10 @@ public sealed class MinimapRenderingService
 		await using MemoryStream ms = await _replaysIngestService.FetchReplayFileAsync(post.Replay.Id, ct);
 		ms.Position = 0;
 		
-		_logger.LogDebug("Rendering minimap for post {postId} from replay {replayId}.", postId, post.Replay.Id);
+		_logger.LogDebug("Rendering minimap for replay {replayId} from post {postId}.", post.Replay.Id, postId);
 		byte[] response = await _client.RenderReplayMinimapAsync(ms.ToArray(), post.Replay.Id.ToString(), post.PlayerId, ct);
 		
-        _logger.LogDebug("Minimap rendered for post {postId} from replay {replayId}.", postId, post.Replay.Id);
+        _logger.LogInformation("Minimap rendered for replay {replayId} from post {postId}.", post.Replay.Id, postId);
 		await UploadReplayMinimapAsync(post.Replay.Id, response, force, ct);
 		
 		post.Replay.MinimapRendered = true;
@@ -107,10 +107,18 @@ public sealed class MinimapRenderingService
 
 		await _containerClient.UploadBlobAsync($"{post.Replay.Id}.mp4", ms, ct);
 			
-		_logger.LogDebug("Minimap uploaded for replay {replayId} to Azure storage.", replayId);
+		_logger.LogInformation("Minimap uploaded for replay {replayId} to Azure storage.", replayId);
 	}
 
-	public async ValueTask ReprocessAllMinimapsAsync(DateTime? start, DateTime? end, bool force = false, CancellationToken ct = default)
+	/// <summary>
+	/// Triggers minimap rendering on all replays between the specified dates.
+	/// </summary>
+	/// <param name="start">The start date.</param>
+	/// <param name="end">The end date.</param>
+	/// <param name="force">Whether to force rendering a minimap, even if it has already been rendered.</param>
+	/// <param name="ct">The cancellation token.</param>
+	[Tag("minimap", "replay", "render", "batch"), JobDisplayName("Render replay minimaps between {0} and {1}")]
+	public async Task ReprocessAllMinimapsAsync(DateTime? start, DateTime? end, bool force = false, CancellationToken ct = default)
 	{
 		_logger.LogWarning("Started reprocessing all replay minimaps between {start:g} and {end:g}", start, end);
 		

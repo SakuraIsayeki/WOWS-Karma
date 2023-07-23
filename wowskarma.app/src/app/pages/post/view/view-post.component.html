@@ -11,14 +11,18 @@
           <app-post [post]="post" [postDisplayType]="'neutral'"></app-post>
         </div>
 
-        <div *ngIf="post.replay?.miniMapUri as minimapUri" class="col-xl-7 col-md-6">
+        <div *ngIf="post.replay" class="col-xl-7 col-md-6">
           <!-- Display the minimap video -->
-          <h3 class="mb-5">Minimap</h3>
+          <h2 class="mb-5">Minimap</h2>
 
-          <video class="w-100" controls autoplay muted loop preload="auto">
+          <video *ngIf="post.replay.minimapUri as minimapUri else minimapProcessing" class="w-100" controls autoplay muted loop preload="auto">
             <source [src]="minimapUri" type="video/mp4">
             Your browser does not support the video tag.
           </video>
+
+          <ng-template #minimapProcessing>
+            <h3 class="text-info"><i>Rendering Replay minimap...</i></h3>
+          </ng-template>
         </div>
       </div>
     </div>

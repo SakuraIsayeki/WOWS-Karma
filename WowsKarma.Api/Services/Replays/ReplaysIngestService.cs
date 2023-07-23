@@ -63,7 +63,7 @@ public class ReplaysIngestService
 				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }),
 			Players = replay.Players.Adapt<IEnumerable<ReplayPlayerDTO>>(),
 			DownloadUri = $"{_containerClient.Uri}/{ReplayBlobContainer}/{replay.BlobName}",
-			MiniMapUri = $"{_serviceClient.Uri}{MinimapRenderingService.MinimapBlobContainer}/{replay.Id}.mp4"
+			MinimapUri = replay.MinimapRendered ? $"{_serviceClient.Uri}{MinimapRenderingService.MinimapBlobContainer}/{replay.Id}.mp4" : null
 		};
 	}
 

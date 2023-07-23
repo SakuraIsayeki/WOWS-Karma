@@ -8,7 +8,7 @@ public record ReplayDTO
 
 	public string DownloadUri { get; init; }
 	
-	public string MiniMapUri { get; init; }
+	public string? MinimapUri { get; init; }
 
 	public IEnumerable<ReplayPlayerDTO> Players { get; set; }
 

@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
-using WowsKarma.Api.Services.Minimap;
 using WowsKarma.Api.Services.Posts;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
@@ -163,7 +162,7 @@ public sealed class ReplayController : ControllerBase
 			return StatusCode(404, $"No post with GUID {postId} found.");
 		}
 		
-		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(post.Id, post.PlayerId, force, ct));
+		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(post.Id, force, ct));
 //		await minimapRenderingService.RenderPostReplayMinimapAsync(post.Id, post.PlayerId, ct);
 		return StatusCode(202);
 	}

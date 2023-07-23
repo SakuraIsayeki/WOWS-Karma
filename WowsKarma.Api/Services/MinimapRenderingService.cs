@@ -11,7 +11,7 @@ using WowsKarma.Api.Minimap.Client;
 using WowsKarma.Api.Services.Replays;
 using WowsKarma.Common;
 
-namespace WowsKarma.Api.Services.Minimap;
+namespace WowsKarma.Api.Services;
 
 /// <summary>
 /// Provides minimap rendering for existing post replays.
@@ -52,11 +52,10 @@ public sealed class MinimapRenderingService
 	/// Renders the minimap for the specified post's replay.
 	/// </summary>
 	/// <param name="postId">The ID of the post to render the minimap for.</param>
-	/// <param name="targetedPlayerId">(optional) The ID of a player to highlight/target on the minimap.</param>
 	/// <param name="force">Whether to force rendering the minimap, even if it has already been rendered.</param>
 	/// <param name="ct">The cancellation token.</param>
 	[Tag("minimap", "replay", "render"), JobDisplayName("Render replay minimap for post {0}")]
-	public async Task RenderPostReplayMinimapAsync(Guid postId, uint? targetedPlayerId = null, bool force = false, CancellationToken ct = default)
+	public async Task RenderPostReplayMinimapAsync(Guid postId, bool force = false, CancellationToken ct = default)
 	{
 		_logger.LogDebug("Rendering minimap for post {postId}.", postId);
 		
@@ -73,7 +72,7 @@ public sealed class MinimapRenderingService
 		ms.Position = 0;
 		
 		_logger.LogDebug("Rendering minimap for post {postId} from replay {replayId}.", postId, post.Replay.Id);
-		byte[] response = await _client.RenderReplayMinimapAsync(ms.ToArray(), post.Replay.Id.ToString(), targetedPlayerId, ct);
+		byte[] response = await _client.RenderReplayMinimapAsync(ms.ToArray(), post.Replay.Id.ToString(), post.PlayerId, ct);
 		
         _logger.LogDebug("Minimap rendered for post {postId} from replay {replayId}.", postId, post.Replay.Id);
 		await UploadReplayMinimapAsync(post.Replay.Id, response, force, ct);
@@ -81,12 +80,13 @@ public sealed class MinimapRenderingService
 		post.Replay.MinimapRendered = true;
 		await _context.SaveChangesAsync(ct);
 	}
-	
+
 	/// <summary>
 	/// Uploads the rendered minimap for the specified post's replay to Azure storage.
 	/// </summary>
 	/// <param name="replayId">The ID of the replay to upload the minimap for.</param>
 	/// <param name="content">The minimap video as a blob.</param>
+	/// <param name="force">Whether to force uploading the minimap, even if it has already been uploaded.</param>
 	/// <param name="ct">The cancellation token.</param>
 	/// <exception cref="ArgumentException">Thrown when no post was found.</exception>
 	private async ValueTask UploadReplayMinimapAsync(Guid replayId, byte[] content, bool force, CancellationToken ct = default)
@@ -122,7 +122,7 @@ public sealed class MinimapRenderingService
 		await foreach (Replay replay in replays.AsAsyncEnumerable().WithCancellation(ct))
 		{
 			_logger.LogDebug("Reprocessing replay minimap {replayId}", replay.Id);
-			await RenderPostReplayMinimapAsync(replay.Id, replay.Post.PlayerId, force, ct);
+			await RenderPostReplayMinimapAsync(replay.Id, force, ct);
 		}
 	}
 	

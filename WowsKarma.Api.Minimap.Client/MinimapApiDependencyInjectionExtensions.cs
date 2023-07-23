@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -16,19 +17,17 @@ public static class MinimapApiDependencyInjectionExtensions
 	/// <param name="services">The service collection to add the client to.</param>
 	/// <param name="configure">An action to configure the client options.</param>
 	/// <returns>The service collection.</returns>
-	public static IServiceCollection AddMinimapApiClient(this IServiceCollection services, Action<MinimapApiClientOptions> configure)
+	public static IServiceCollection AddMinimapApiClient(this IServiceCollection services, IConfigurationSection configurationSection)
 	{
 		services.AddHttpClient<MinimapApiClient>()
-			.ConfigureHttpClient((provider, client) =>
+			.ConfigureHttpClient(static (services, client) =>
 			{
-				IOptions<MinimapApiClientOptions> options = provider.GetRequiredService<IOptions<MinimapApiClientOptions>>();
-				client.BaseAddress = options.Value.BaseUrl;
-			})
-			.AddHttpMessageHandler<MinimapClientAuthenticationDelegatingHandler>();
-		
-		services.AddTransient<MinimapClientAuthenticationDelegatingHandler>();
-        services.Configure(configure);
-		
+				IOptions<MinimapApiClientOptions> options = services.GetRequiredService<IOptions<MinimapApiClientOptions>>();
+				client.BaseAddress = new(options.Value.BaseUrl);
+			});
+
+		services.Configure<MinimapApiClientOptions>(configurationSection);
+
 		return services;
 	}
 }

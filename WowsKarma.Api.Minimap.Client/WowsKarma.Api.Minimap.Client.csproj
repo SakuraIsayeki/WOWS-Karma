@@ -17,11 +17,11 @@
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="[2022,)" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="[6.0.0,)" />
-      <PackageReference Include="Microsoft.Extensions.Options" Version="[6.0.0,)" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="[6.0.0,)" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="[6.0.0,)" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="[6.32.0,7)" />
       <PackageReference Include="System.Net.Http.Json" Version="[6.0.0,)" />
     </ItemGroup>
+
 
 
 </Project>

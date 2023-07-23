@@ -1,7 +1,9 @@
 ﻿using System.Net.Http.Json;
+using System.Text.Json;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
+using WowsKarma.Api.Minimap.Client.Infrastructure.Json;
 
 namespace WowsKarma.Api.Minimap.Client;
 
@@ -17,8 +19,13 @@ public sealed class MinimapApiClient
 	private readonly IOptions<MinimapApiClientOptions> _options;
 	private JsonWebToken? _accessToken;
 	private JsonWebToken? _refreshToken;
+	private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+	{
+		PropertyNameCaseInsensitive = true,
+		PropertyNamingPolicy = SnakeCaseNamingPolicy.Instance
+	};
 	
-	public bool HasCredentials => _options.Value is { Username: not (null or ""), Password: not (null or "") };
+	public bool HasCredentials => _options.Value is { Login: not (null or ""), Password: not (null or "") };
     public bool IsAuthenticated => _accessToken?.ValidTo > DateTime.UtcNow;
 	public bool CanRefreshToken => _refreshToken?.ValidTo > DateTime.UtcNow;
 	
@@ -32,21 +39,23 @@ public sealed class MinimapApiClient
 	/// Renders the game minimap for the specified replay.
 	/// </summary>
 	/// <param name="replay">The replay to render the minimap for, in a blob.</param>
-	/// <param name="ReplayId">(optional) The ID of the replay to render the minimap for.</param>
+	/// <param name="replayId">(optional) The ID of the replay to render the minimap for.</param>
 	/// <param name="targetedPlayerId">(optional) The ID of a player to highlight/target on the minimap.</param>
 	/// <returns>The rendered minimap MP4 video, in a blob.</returns> 
-	public async ValueTask<byte[]> RenderReplayMinimapAsync(byte[] replay, string? ReplayId = null, uint? targetedPlayerId = null, CancellationToken ct = default)
+	public async ValueTask<byte[]> RenderReplayMinimapAsync(byte[] replay, string? replayId = null, uint? targetedPlayerId = null, CancellationToken ct = default)
 	{
-		using HttpRequestMessage request = new(HttpMethod.Post, "replay/minimap")
-		{
-			Content = new MultipartFormDataContent
-			{
-				{ new ByteArrayContent(replay), "replay", "replay.wowsreplay" },
-				{ new StringContent(ReplayId ?? ""), "replayId" },
-				{ new StringContent(targetedPlayerId?.ToString() ?? ""), "targetedPlayerId" }
-			}
-		};
+		using HttpRequestMessage request = await AttemptAuthenticationAsync(new(HttpMethod.Post, "render"));
+
+		// Open a stream to the replay blob
+		await using MemoryStream replayStream = new(replay, false);
 		
+		request.Content = new MultipartFormDataContent
+		{
+			{ new StreamContent(replayStream), "file", "replay.wowsreplay" },
+			{ new StringContent(replayId ?? ""), "replayId" },
+			{ new StringContent(targetedPlayerId?.ToString() ?? ""), "targetedPlayerId" }
+		};
+
 		using HttpResponseMessage response = await _client.SendAsync(request, ct);
 		
 		if (response.IsSuccessStatusCode)
@@ -86,12 +95,12 @@ public sealed class MinimapApiClient
 		using HttpResponseMessage response = await _client.PostAsync("token", new FormUrlEncodedContent(new Dictionary<string, string>
 		{
 			{ "grant_type", "password" },
-			{ "username", _options.Value.Username },
+			{ "username", _options.Value.Login },
 			{ "password", _options.Value.Password }
 		}));
 		
 		// Deserialize the response and store the access token
-		if (await response.Content.ReadFromJsonAsync<MinimapLoginResponse>() is { } loginResponse)
+		if (await response.Content.ReadFromJsonAsync<MinimapLoginResponse>(_jsonSerializerOptions) is { } loginResponse)
 		{
 			_accessToken = new(loginResponse.AccessToken);
 			_refreshToken = new(loginResponse.RefreshToken);
@@ -133,7 +142,7 @@ public sealed class MinimapApiClient
 		response.EnsureSuccessStatusCode();
 		
 		// Deserialize the response
-		if (await response.Content.ReadFromJsonAsync<MinimapLoginResponse>() is not { } content)
+		if (await response.Content.ReadFromJsonAsync<MinimapLoginResponse>(_jsonSerializerOptions) is not { } content)
 		{
 			throw new InvalidOperationException("The response did not contain a refresh token.");
 		}
@@ -149,6 +158,27 @@ public sealed class MinimapApiClient
 		{
 			throw new InvalidOperationException("The refresh token is invalid.");
 		}
+	}
+	
+	internal async ValueTask<HttpRequestMessage> AttemptAuthenticationAsync(HttpRequestMessage request)
+	{
+		// If the access token is expired, refresh it
+		if (!IsAuthenticated && CanRefreshToken)
+		{
+			await RefreshTokenAsync();
+		}
+		else if (!IsAuthenticated && HasCredentials)
+		{
+			await LoginAsync();
+		}
+		
+		// Add the access token to the request
+		if (IsAuthenticated)
+		{
+			request = AddAuthorizationHeader(request);
+		}
+
+		return request;
 	}
 
 	#endregion

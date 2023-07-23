@@ -124,7 +124,8 @@ public sealed class MinimapRenderingService
 		_logger.LogWarning("Started rendering all replay minimaps between {start:g} and {end:g}", start, end);
 
 		IQueryable<Post> posts = _context.Posts.Include(static p => p.Replay)
-			.Where(p => p.Replay != null && p.CreatedAt >= start && p.CreatedAt <= end);
+			.Where(p => p.Replay != null && p.CreatedAt >= start && p.CreatedAt <= end)
+			.OrderByDescending(p => p.CreatedAt);
 
 		int postsCount = await posts.CountAsync(ct);
 		

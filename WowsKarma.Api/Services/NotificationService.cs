@@ -106,9 +106,6 @@ public static class NotificationServiceExtensions
 		//PostEditedNotification
 		query = query.IncludeAllPostNotificationsChildNavs<PostEditedNotification>();
 
-		//PostDeletedNotification
-		query = query.IncludeAllPostNotificationsChildNavs<PostDeletedNotification>();
-
 		// PostModEditedNotification
 		query = query.Include(static n => (n as PostModEditedNotification).ModAction);
 

@@ -32,7 +32,7 @@ public class UserService
 
 	public async Task<Guid> GetUserSeedTokenAsync(uint id)
 	{
-		if (await GetUserAsync(id) is not { } user)
+		if (await context.Users.FindAsync(id) is not { } user)
 		{
 			user = new()
 			{
@@ -48,7 +48,7 @@ public class UserService
 		return user.SeedToken;
 	}
 
-	public async Task<bool> ValidateUserSeedTokenAsync(uint id, Guid seedToken) => await GetUserAsync(id) is { } user && user.SeedToken == seedToken;
+	public async Task<bool> ValidateUserSeedTokenAsync(uint id, Guid seedToken) => await context.Users.FindAsync(id) is { } user && user.SeedToken == seedToken;
 
 	public async Task RenewSeedTokenAsync(uint id)
 	{

@@ -11,7 +11,7 @@ using WowsKarma.Common;
 
 namespace WowsKarma.Api;
 
-public class Program
+public sealed class Program
 {
 	public static async Task Main(string[] args)
 	{
@@ -19,30 +19,8 @@ public class Program
 
 		using IHost host = CreateHostBuilder(args).Build();
 		using IServiceScope scope = host.Services.CreateScope();
-
-		IConfiguration configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-
-//			Log.Logger = new LoggerConfiguration()
-//#if DEBUG
-//				.MinimumLevel.Debug()
-//#else
-//				.MinimumLevel.Information()
-//				.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-//				.MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
-//#endif
-//				.Enrich.FromLogContext()
-//				.Enrich.WithProperty("_Source", typeof(Program).Assembly.GetName())
-//				.Enrich.WithProperty("_Environment", configuration["environment"])
-//				.Enrich.WithProperty("_Region", Startup.ApiRegion.ToRegionString())
-//				.WriteTo.Console()
-//#if DEBUG
-//				.WriteTo.Seq(configuration["Seq:ListenUrl"], apiKey: configuration["Seq:ApiKey"])
-//#endif
-//				.CreateLogger();
-
+		
 		Log.Information("Region selected : {Region}", Startup.ApiRegion);
-
-
 		await using (ApiDbContext db = scope.ServiceProvider.GetRequiredService<ApiDbContext>())
 		{
 			await db.Database.MigrateAsync();

@@ -62,7 +62,8 @@ public class ReplaysIngestService
 			ChatMessages = replay.ChatMessages.Adapt<IEnumerable<ReplayChatMessageDTO>>()
 				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }),
 			Players = replay.Players.Adapt<IEnumerable<ReplayPlayerDTO>>(),
-			DownloadUri = (await GenerateReplayDownloadLinkAsync(id)).ToString(),
+			DownloadUri = $"{_containerClient.Uri}/{ReplayBlobContainer}/{replay.BlobName}",
+			MinimapUri = replay.MinimapRendered ? $"{_serviceClient.Uri}{MinimapRenderingService.MinimapBlobContainer}/{replay.Id}.mp4" : null
 		};
 	}
 
@@ -133,7 +134,7 @@ public class ReplaysIngestService
 
 		BlobClient blobClient = _containerClient.GetBlobClient(replay.BlobName);
 
-		await using MemoryStream ms = new();
+		MemoryStream ms = new();
 		await blobClient.DownloadToAsync(ms, ct);
 		ms.Position = 0;
 

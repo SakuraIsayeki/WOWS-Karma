@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Hangfire;
 using Hangfire.Tags.Attributes;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,7 @@ public sealed class MinimapRenderingService
 
 		if (!_containerClient.Exists())
 		{
-			_containerClient.Create();
+			_containerClient.Create(PublicAccessType.Blob);
 		}
 	}
 
@@ -71,7 +72,7 @@ public sealed class MinimapRenderingService
 		await using MemoryStream ms = await _replaysIngestService.FetchReplayFileAsync(post.Replay.Id, ct);
 		ms.Position = 0;
 		
-		_logger.LogDebug("Rendering minimap for replay {replayId} from post {postId}.", post.Replay.Id, postId);
+		_logger.LogDebug("Rendering minimap for replay {replayId} from post {postId}. Target player ID: {targetPlayerId}", post.Replay.Id, postId, post.PlayerId);
 		byte[] response = await _client.RenderReplayMinimapAsync(ms.ToArray(), post.Replay.Id.ToString(), post.PlayerId, ct);
 		
         _logger.LogInformation("Minimap rendered for replay {replayId} from post {postId}.", post.Replay.Id, postId);
@@ -105,8 +106,8 @@ public sealed class MinimapRenderingService
 		await using MemoryStream ms = new(content);
 		ms.Position = 0;
 
-		await _containerClient.UploadBlobAsync($"{post.Replay.Id}.mp4", ms, ct);
-			
+		
+		await _containerClient.GetBlobClient($"{post.Replay.Id}.mp4").UploadAsync(ms, overwrite: true, cancellationToken: ct);
 		_logger.LogInformation("Minimap uploaded for replay {replayId} to Azure storage.", replayId);
 	}
 

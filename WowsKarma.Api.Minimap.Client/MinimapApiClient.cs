@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
@@ -44,16 +45,28 @@ public sealed class MinimapApiClient
 	/// <returns>The rendered minimap MP4 video, in a blob.</returns> 
 	public async ValueTask<byte[]> RenderReplayMinimapAsync(byte[] replay, string? replayId = null, uint? targetedPlayerId = null, CancellationToken ct = default)
 	{
-		using HttpRequestMessage request = await AttemptAuthenticationAsync(new(HttpMethod.Post, "render"));
+		// Build the query string
+		var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
+
+		if (replayId is not (null or ""))
+		{
+			query.Add("replay_id", replayId);
+		}
+		
+		if (targetedPlayerId is not null)
+		{
+			query.Add("target_player_id", targetedPlayerId.ToString());
+		}
+
+
+		using HttpRequestMessage request = await AttemptAuthenticationAsync(new(HttpMethod.Post, $"render?{query}"));
 
 		// Open a stream to the replay blob
 		await using MemoryStream replayStream = new(replay, false);
 		
 		request.Content = new MultipartFormDataContent
 		{
-			{ new StreamContent(replayStream), "file", "replay.wowsreplay" },
-			{ new StringContent(replayId ?? ""), "replayId" },
-			{ new StringContent(targetedPlayerId?.ToString() ?? ""), "targetedPlayerId" }
+			{ new StreamContent(replayStream), "file", "replay.wowsreplay" }
 		};
 
 		using HttpResponseMessage response = await _client.SendAsync(request, ct);

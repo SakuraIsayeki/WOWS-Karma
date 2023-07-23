@@ -132,7 +132,14 @@ public sealed class MinimapRenderingService
         
 		await foreach (Post post in posts.AsAsyncEnumerable().WithCancellation(ct))
 		{
-			await RenderPostReplayMinimapAsync(post.Id, force, ct);
+			try
+			{
+				await RenderPostReplayMinimapAsync(post.Id, force, ct);
+			}
+			catch (Exception e)
+			{
+				_logger.LogWarning(e, "Failed to render minimap for replay {replayId} from post {postId}. Skipping.", post.Replay.Id, post.Id);
+			}
 		}
 		
 		_logger.LogWarning("Replay Minimaps rendering complete! Rendered {count} replay minimaps total.", postsCount);

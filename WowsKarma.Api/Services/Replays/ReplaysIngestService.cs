@@ -135,7 +135,7 @@ public class ReplaysIngestService
 
 		BlobClient blobClient = _containerClient.GetBlobClient(replay.BlobName);
 
-		await using MemoryStream ms = new();
+		MemoryStream ms = new();
 		await blobClient.DownloadToAsync(ms, ct);
 		ms.Position = 0;
 

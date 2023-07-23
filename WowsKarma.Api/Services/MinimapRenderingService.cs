@@ -41,6 +41,11 @@ public sealed class MinimapRenderingService
 		string connectionString = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:Azure:Storage:ConnectionString"];
 		BlobServiceClient serviceClient = new(connectionString);
 		_containerClient = serviceClient.GetBlobContainerClient(MinimapBlobContainer);
+
+		if (!_containerClient.Exists())
+		{
+			_containerClient.Create();
+		}
 	}
 
 	/// <summary>
@@ -48,31 +53,31 @@ public sealed class MinimapRenderingService
 	/// </summary>
 	/// <param name="postId">The ID of the post to render the minimap for.</param>
 	/// <param name="targetedPlayerId">(optional) The ID of a player to highlight/target on the minimap.</param>
+	/// <param name="force">Whether to force rendering the minimap, even if it has already been rendered.</param>
 	/// <param name="ct">The cancellation token.</param>
 	[Tag("minimap", "replay", "render"), JobDisplayName("Render replay minimap for post {0}")]
-	public async Task RenderPostReplayMinimapAsync(Guid postId, uint? targetedPlayerId = null, CancellationToken ct = default)
+	public async Task RenderPostReplayMinimapAsync(Guid postId, uint? targetedPlayerId = null, bool force = false, CancellationToken ct = default)
 	{
 		_logger.LogDebug("Rendering minimap for post {postId}.", postId);
 		
 		Post post = await _context.Posts.Include(static r => r.Replay).FirstOrDefaultAsync(p => p.Id == postId, cancellationToken: ct) 
 			?? throw new ArgumentException($"Post with ID {postId} does not exist.", nameof(postId));
 
-		if (post.Replay is null or { MinimapRendered: true })
+		if (!force && post.Replay is null or { MinimapRendered: true })
 		{
 			_logger.LogInformation("Skipping minimap rendering for post {postId}.", postId);
             return;
 		}
 		
 		await using MemoryStream ms = await _replaysIngestService.FetchReplayFileAsync(post.Replay.Id, ct);
-		
-		_logger.LogDebug("Rendering minimap for post {postId} from replay {replayId}.", postId, post.Replay.Id);
 		ms.Position = 0;
 		
+		_logger.LogDebug("Rendering minimap for post {postId} from replay {replayId}.", postId, post.Replay.Id);
 		byte[] response = await _client.RenderReplayMinimapAsync(ms.ToArray(), post.Replay.Id.ToString(), targetedPlayerId, ct);
-        _logger.LogDebug("Minimap rendered for post {postId} from replay {replayId}.", postId, post.Replay.Id);
 		
-		await UploadReplayMinimapAsync(post.Replay.Id, response, ct);
-        
+        _logger.LogDebug("Minimap rendered for post {postId} from replay {replayId}.", postId, post.Replay.Id);
+		await UploadReplayMinimapAsync(post.Replay.Id, response, force, ct);
+		
 		post.Replay.MinimapRendered = true;
 		await _context.SaveChangesAsync(ct);
 	}
@@ -84,28 +89,28 @@ public sealed class MinimapRenderingService
 	/// <param name="content">The minimap video as a blob.</param>
 	/// <param name="ct">The cancellation token.</param>
 	/// <exception cref="ArgumentException">Thrown when no post was found.</exception>
-	public async ValueTask UploadReplayMinimapAsync(Guid replayId, byte[] content, CancellationToken ct = default)
+	private async ValueTask UploadReplayMinimapAsync(Guid replayId, byte[] content, bool force, CancellationToken ct = default)
 	{
-		_logger.LogDebug("Uploading minimap for replay {replayId}.", replayId);
+		_logger.LogDebug("Uploading minimap for replay {replayId} to Azure storage.", replayId);
 		
 		Post post = await _context.Posts.Include(static r => r.Replay).FirstOrDefaultAsync(p => p.Replay.Id == replayId, ct) 
 			?? throw new ArgumentException($"Post with replay ID {replayId} does not exist.", nameof(replayId));
 
-		if (post.Replay is null or { MinimapRendered: true })
+		if (!force && post.Replay is null or { MinimapRendered: true })
 		{
 			_logger.LogInformation("Skipping minimap upload for replay {replayId}.", replayId);
 			return;
 		}
 		
-		_logger.LogDebug("Uploading minimap for replay {replayId} to Azure storage.", replayId);
-		
 		await using MemoryStream ms = new(content);
 		ms.Position = 0;
-		
-		await _containerClient.UploadBlobAsync(post.Replay.Id.ToString(), ms, ct);
+
+		await _containerClient.UploadBlobAsync($"{post.Replay.Id}.mp4", ms, ct);
+			
+		_logger.LogDebug("Minimap uploaded for replay {replayId} to Azure storage.", replayId);
 	}
 
-	public async ValueTask ReprocessAllMinimapsAsync(DateTime? start, DateTime? end, CancellationToken ct)
+	public async ValueTask ReprocessAllMinimapsAsync(DateTime? start, DateTime? end, bool force = false, CancellationToken ct = default)
 	{
 		_logger.LogWarning("Started reprocessing all replay minimaps between {start:g} and {end:g}", start, end);
 		
@@ -117,7 +122,7 @@ public sealed class MinimapRenderingService
 		await foreach (Replay replay in replays.AsAsyncEnumerable().WithCancellation(ct))
 		{
 			_logger.LogDebug("Reprocessing replay minimap {replayId}", replay.Id);
-			await RenderPostReplayMinimapAsync(replay.Id, replay.Post.PlayerId, ct);
+			await RenderPostReplayMinimapAsync(replay.Id, replay.Post.PlayerId, force, ct);
 		}
 	}
 	

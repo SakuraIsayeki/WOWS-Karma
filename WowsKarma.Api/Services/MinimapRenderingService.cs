@@ -121,18 +121,21 @@ public sealed class MinimapRenderingService
 	[Tag("minimap", "replay", "render", "batch"), JobDisplayName("Render replay minimaps between {0} and {1}")]
 	public async Task ReprocessAllMinimapsAsync(DateTime? start, DateTime? end, bool force = false, CancellationToken ct = default)
 	{
-		_logger.LogWarning("Started reprocessing all replay minimaps between {start:g} and {end:g}", start, end);
-		
-		var replays = 
-			from replay in _context.Replays.Include(static r => r.Post)
-			where replay.Post.CreatedAt >= start && replay.Post.CreatedAt <= end
-			select replay;
+		_logger.LogWarning("Started rendering all replay minimaps between {start:g} and {end:g}", start, end);
 
-		await foreach (Replay replay in replays.AsAsyncEnumerable().WithCancellation(ct))
+		IQueryable<Post> posts = _context.Posts.Include(static p => p.Replay)
+			.Where(p => p.Replay != null && p.CreatedAt >= start && p.CreatedAt <= end);
+
+		int postsCount = await posts.CountAsync(ct);
+		
+		_logger.LogWarning("Database readout complete. {count} replay minimaps will be rendered.", postsCount);
+        
+		await foreach (Post post in posts.AsAsyncEnumerable().WithCancellation(ct))
 		{
-			_logger.LogDebug("Reprocessing replay minimap {replayId}", replay.Id);
-			await RenderPostReplayMinimapAsync(replay.Id, force, ct);
+			await RenderPostReplayMinimapAsync(post.Id, force, ct);
 		}
+		
+		_logger.LogWarning("Replay Minimaps rendering complete! Rendered {count} replay minimaps total.", postsCount);
 	}
 	
 	public async ValueTask<Uri> GenerateMinimapUriAsync(Guid replayId)

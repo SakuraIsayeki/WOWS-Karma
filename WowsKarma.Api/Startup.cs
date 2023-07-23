@@ -222,7 +222,7 @@ public class Startup
 			builder.AddExtendedData();
 		});
 
-		services.AddMinimapApiClient(options => Configuration.GetSection("MinimapApi").Bind(options)); 
+		services.AddMinimapApiClient(Configuration.GetSection("MinimapApi")); 
 		
 		services.AddHangfireServer();
 		services.AddHangfire((s, config) =>

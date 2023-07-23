@@ -39,7 +39,6 @@ jobs:
       id: meta
       uses: docker/metadata-action@v4.6.0
       with:
-        context: wowskarma_api_minimap
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         flavor: |
           latest=true

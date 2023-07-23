@@ -24,6 +24,7 @@ public static class MinimapApiDependencyInjectionExtensions
 			{
 				IOptions<MinimapApiClientOptions> options = services.GetRequiredService<IOptions<MinimapApiClientOptions>>();
 				client.BaseAddress = new(options.Value.BaseUrl);
+				client.Timeout = TimeSpan.FromSeconds(300);
 			});
 
 		services.Configure<MinimapApiClientOptions>(configurationSection);

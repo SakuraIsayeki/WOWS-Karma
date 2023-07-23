@@ -3,11 +3,15 @@ name: Push Minimap API Docker Image
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: 
+      - main
+      - develop
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository_owner }}/wowskarma_api_minimap
+
+
 
 jobs:
   build:
@@ -38,7 +42,12 @@ jobs:
       uses: docker/metadata-action@v4.6.0
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: minimap-latest,minimap-${{ github.ref_name }}
+        flavor: |
+          latest=true
+        tags: |
+          type=semver,pattern={{version}}
+          type=ref,event=branch
+          type=sha
 
     - name: Build and push
       uses: docker/build-push-action@v4

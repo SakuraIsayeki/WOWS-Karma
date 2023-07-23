@@ -1,4 +1,5 @@
-﻿using Hangfire;
+﻿using System.Threading;
+using Hangfire;
 using Hangfire.Tags.Attributes;
 using Mapster;
 using Microsoft.AspNetCore.SignalR;
@@ -16,9 +17,9 @@ namespace WowsKarma.Api.Services.Posts;
 
 /// <summary>
 /// Annex service to the posts service, deals with broadcasting post updates and notifications to the SignalR hubs,
-/// as well as publishing updates
+/// as well as trigger related services such as Discord webhooks, and minimap rendering.
 /// </summary>
-public class PostUpdatesBroadcastService
+public sealed class PostUpdatesBroadcastService
 {
 	private readonly ApiDbContext _dbContext;
 	private readonly IHubContext<PostHub, IPostHubPush> _hubContext;
@@ -35,7 +36,7 @@ public class PostUpdatesBroadcastService
 	}
 
 	/// <summary>
-	/// Triggers all the necessary actions to broadcast a post creation to the SignalR hubs and Discord webhooks
+	/// Triggers all the necessary actions to broadcast a post creation to the related services.
 	/// </summary>
 	/// <param name="postId">The post id.</param>
 	public static void OnPostCreationAsync(Guid postId)
@@ -43,6 +44,7 @@ public class PostUpdatesBroadcastService
 		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.LogPostCreationAsync(postId));
 		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.BroadcastPostCreationAsync(postId));
 		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.NotifyPostCreationAsync(postId));
+		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(postId, false, default));
 	}
 	
 	/// <summary>
@@ -71,7 +73,7 @@ public class PostUpdatesBroadcastService
 		}
 		
 		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.BroadcastPostDeletionAsync(post.Id!.Value));
-		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.NotifyPostDeletionAsync(post));
+//		BackgroundJob.Enqueue<PostUpdatesBroadcastService>(s => s.NotifyPostDeletionAsync(post));
 	}
 	
 	#region Creation
@@ -170,16 +172,15 @@ public class PostUpdatesBroadcastService
 		await _hubContext.Clients.All.DeletedPost(postId);
 	}
 	
-	[Tag("post", "deletion", "notification", "signalr"), JobDisplayName("Notify player post deletion on notifications hub")]
-	public async Task NotifyPostDeletionAsync(PlayerPostDTO post)
-	{
-		// Send the notification.
-		await _notificationService.SendNewNotification(new PostDeletedNotification
-		{
-			AccountId = post.Player.Id,
-			PostId = post.Id!.Value
-		});
-	}
+//	[Tag("post", "deletion", "notification", "signalr"), JobDisplayName("Notify player post deletion on notifications hub")]
+//	public async Task NotifyPostDeletionAsync(PlayerPostDTO post)
+//	{
+//		// Send the notification.
+//		await _notificationService.SendNewNotification(new PostDeletedNotification
+//		{
+//			AccountId = post.Player.Id
+//		});
+//	}
 
 	#endregion
 }

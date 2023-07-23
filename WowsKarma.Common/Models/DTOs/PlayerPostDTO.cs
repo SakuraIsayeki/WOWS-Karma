@@ -20,6 +20,8 @@ public record PlayerPostDTO
 
 	public Guid? ReplayId { get; init; }
 	public ReplayDTO? Replay { get; init; }
+    
+	public ReplayState ReplayState { get; init; }
 
 	// Computed by DB Engine (hopefully)
 	public DateTime? CreatedAt { get; init; }

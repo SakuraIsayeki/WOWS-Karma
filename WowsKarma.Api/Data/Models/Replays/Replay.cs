@@ -16,6 +16,8 @@ public record Replay
 	public virtual Post Post { get; init; }
 
 	public string BlobName { get; set; }
+	
+	public bool MinimapRendered { get; set; }
 
 
 	/*

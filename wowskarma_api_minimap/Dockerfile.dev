@@ -28,6 +28,8 @@ RUN pip install --no-cache /wheels/*
 
 COPY . $APP_HOME
 
+# Resolve the dependency for the minimap renderer
+RUN pip install git+https://github.com/SakuraIsayeki/wowskarma_minimap_renderer.git
 RUN chown -R app:app $APP_HOME
 
 USER app

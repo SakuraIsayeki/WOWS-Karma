@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Attributes;
 using WowsKarma.Api.Infrastructure.Data;
 using WowsKarma.Api.Services;
@@ -75,9 +77,20 @@ public sealed class PostController : ControllerBase
 			posts = posts.Where(p => !p.ModLocked || (currentUser != null && p.AuthorId == currentUser.Id));
 		}
 
+		posts = posts.Include(static p => p.Replay);
+		
 		// Get the page of results and set headers
 		Page<Post> pageResults = posts.Page(pageSize, page);
 		Response.AddPaginationHeaders(pageResults);
+		
+		// Trim the replay data to only include the State elements
+		foreach (Post post in pageResults.Items)
+		{
+			if (post.Replay is not null)
+			{
+				post.Replay = new() { MinimapRendered = post.Replay.MinimapRendered };
+			}
+		}
 		
 		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
 	}
@@ -104,9 +117,20 @@ public sealed class PostController : ControllerBase
 			posts = posts?.Where(static p => !p.ModLocked);
 		}
 
+		posts?.Include(static p => p.Replay);
+		
 		// Get the page of results and set headers
 		Page<Post> pageResults = posts.Page(pageSize, page);
 		Response.AddPaginationHeaders(pageResults);
+		
+		// Trim the replay data to only include the State elements
+		foreach (Post post in pageResults.Items)
+		{
+			if (post.Replay is not null)
+			{
+				post.Replay = new() { MinimapRendered = post.Replay.MinimapRendered };
+			}
+		}
 		
 		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
 	}
@@ -146,9 +170,20 @@ public sealed class PostController : ControllerBase
 				: posts.Where(static p => p.Replay == null);
 		}
 
+		posts = posts.Include(static p => p.Replay);
+		
 		// Get the page of results and set headers
 		Page<Post> pageResults = posts.Page(pageSize, page);
 		Response.AddPaginationHeaders(pageResults);
+		
+		// Trim the replay data to only include the State elements
+		foreach (Post post in pageResults.Items)
+		{
+			if (post.Replay is not null)
+			{
+				post.Replay = new() { MinimapRendered = post.Replay.MinimapRendered };
+			}
+		}
 		
 		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
 	}

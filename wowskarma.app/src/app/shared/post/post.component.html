@@ -1,36 +1,44 @@
-<div class="m-2 vstack" [id]=[post?.id]>
+<div *ngIf="post" class="m-2 vstack" [id]=[post.id]>
   <p *ngIf="postDisplayType === 'neutral'" class="text-body">
-    <player-namelink [player]="post!.author" [displayClan]="true"></player-namelink>
+    <player-namelink [player]="post.author" [displayClan]="true"></player-namelink>
     &gt;
-    <player-namelink [player]="post!.player" [displayClan]="true"></player-namelink>
+    <player-namelink [player]="post.player" [displayClan]="true"></player-namelink>
   </p>
 
-  <div class="card post-card border-{{post!.flairs! | postBorderColor}}">
+  <div class="card post-card border-{{post.flairs! | postBorderColor}}">
     <div class="card-header">
-      <h5 class="my-2">{{post!.title}}</h5>
+      <h5 class="my-2">{{post.title}}</h5>
     </div>
 
     <div class="card-body">
-      <p class="card-text" style="white-space: pre-wrap;">{{post?.content}}</p>
+      <p class="card-text" style="white-space: pre-wrap;">{{post.content}}</p>
     </div>
 
     <div class="card-body py-0 my-1" style="line-height:normal">
       <div class="row justify-content-between align-items-end">
         <div class="col-auto">
-          <flairs-markup [flairsEnum]="post?.flairs"></flairs-markup>
+          <flairs-markup [flairsEnum]="post.flairs"></flairs-markup>
         </div>
 
         <div class="col-auto px-1">
-          <i *ngIf="post?.readOnly" class="bi bi-asterisk text-warning lead mx-1"></i>
-          <i *ngIf="post?.modLocked" class="bi bi-x-circle text-danger lead mx-1"></i>
+          <i *ngIf="post.readOnly" class="bi bi-asterisk text-warning lead mx-1"></i>
+          <i *ngIf="post.modLocked" class="bi bi-x-circle text-danger lead mx-1"></i>
 
-          <a *ngIf="post?.replayId !== null else noReplay" class="text-body" [routerLink]="['/posts', 'view', post?.id]">
+          <a *ngIf="post.replayState === 2" class="text-body" [routerLink]="['/posts', 'view', post?.id]">
             <i class="bi bi-camera-video text-success lead mx-1"></i>
           </a>
 
-          <ng-template #noReplay>
+          <a *ngIf="post.replayState === 1"
+             class="text-body"
+             [routerLink]="['/posts', 'view', post?.id]"
+             title="Replay minimap is being processed."
+          >
+            <i class="bi bi-camera-video text-warning lead mx-1"></i>
+          </a>
+
+          <ng-container *ngIf="post.replayState === 0">
             <i class="bi bi-camera-video-off text-danger lead mx-1"></i>
-          </ng-template>
+          </ng-container>
 
           <a class="text-body" [routerLink]="['/posts', 'view', post?.id]">
             <i class="bi bi-link-45deg lead"></i>

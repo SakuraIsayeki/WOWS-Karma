@@ -20,6 +20,14 @@ public static class Conversions
 		TypeAdapterConfig<Post, PlayerPostDTO>
 			.NewConfig()
 			.IgnoreNullValues(true)
+			.Map(
+				static dest => dest.ReplayState, 
+				static src => src.Replay == null 
+					? ReplayState.None 
+					: src.Replay.MinimapRendered
+                		? ReplayState.Ready
+						: ReplayState.Processing
+			)
 			.Map(dest => dest.Author.Clan, src => src.Author.ClanMember.Clan)
 			.Map(dest => dest.Player.Clan, src => src.Player.ClanMember.Clan);
 

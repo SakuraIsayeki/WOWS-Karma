@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "8000:80"
+      - "8000:8000"
     environment:
       - ENVVAR_PREFIX_FOR_DYNACONF=WOWSKARMA_API_MINIMAP
       - WOWSKARMA_API_MINIMAP_ENV=development
@@ -20,10 +20,13 @@ services:
     build: postgres
     image: wowskarma_api_minimap_postgres-13-alpine-multi-user
     volumes:
-      - $HOME/.postgres/wowskarma_api_minimap_db/data/postgresql:/var/lib/postgresql/data
+      - wowskarma_api_minimap_db:/var/lib/postgresql/data
     ports:
       - 5435:5432
     environment:
       - POSTGRES_DBS=wowskarma_api_minimap_dev
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+
+volumes:
+  wowskarma_api_minimap_db:

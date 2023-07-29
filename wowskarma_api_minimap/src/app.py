@@ -48,3 +48,6 @@ app.include_router(main_router)
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables(engine)
+
+    # Ensure the work folder exists, if not, create it.
+    os.makedirs(settings.replay.temp_workdir, 0o777, exist_ok=True)

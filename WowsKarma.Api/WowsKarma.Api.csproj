@@ -4,6 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Version>0.17.0</Version>
+    <ProductVersion>0.17.0</ProductVersion>
     <Authors>Sakura Akeno Isayeki</Authors>
     <Company>Nodsoft Systems</Company>
     <Product>WOWS Karma (API)</Product>
@@ -12,24 +13,13 @@
     <RepositoryType>Git</RepositoryType>
 
     <UserSecretsId>8247eff5-32cd-4d58-ae32-52f2201e69c5</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <StartupObject>WowsKarma.Api.Program</StartupObject>
-    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
     <ApplicationInsightsResourceId>/subscriptions/0be2b8e4-3496-4846-848e-778692007b69/resourceGroups/WOWS-Karma/providers/microsoft.insights/components/wows-karma-api</ApplicationInsightsResourceId>
     <SignAssembly>false</SignAssembly>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
@@ -70,11 +60,6 @@
   <ItemGroup>
     <ProjectReference Include="..\WowsKarma.Api.Minimap.Client\WowsKarma.Api.Minimap.Client.csproj" />
     <ProjectReference Include="..\WowsKarma.Common\WowsKarma.Common.csproj" />
-
-
   </ItemGroup>
-
-
-
-
+  
 </Project>

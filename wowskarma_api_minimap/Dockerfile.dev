@@ -1,19 +1,21 @@
 # Base Image for builder
-FROM python:3.10 as builder
+FROM python:3.10-alpine as builder
 
 # Install Requirements
 COPY requirements.txt /
+RUN apk add py3-pip git gcc libc-dev gfortran g++ openblas-dev ffmpeg
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /wheels -r requirements.txt
 
 
 # Build the app image
-FROM python:3.10
+FROM python:3.10-alpine
 
 # Create directory for the app user
 RUN mkdir -p /home/app
 
 # Create the app user
-RUN groupadd app && useradd -g app app
+#RUN groupadd app && useradd -g app app
+RUN addgroup -S app && adduser -S app -G app
 
 # Create the home directory
 ENV HOME=/home/app
@@ -24,11 +26,18 @@ WORKDIR $APP_HOME
 # Install Requirements
 COPY --from=builder /wheels /wheels
 COPY --from=builder requirements.txt .
-RUN pip install --no-cache /wheels/*
+
+RUN apk add py3-pip git gcc libc-dev gfortran g++ openblas-dev ffmpeg
+
+# Short-circuit numpy install
+RUN pip install numpy
+
+# Install from wheels, excluding numpy
+RUN pip install --no-cache /wheels/* && rm -rf /wheels
 
 COPY . $APP_HOME
 
-# Resolve the dependency for the minimap renderer
+## Resolve the dependency for the minimap renderer
 RUN pip install git+https://github.com/SakuraIsayeki/wowskarma_minimap_renderer.git
 RUN chown -R app:app $APP_HOME
 

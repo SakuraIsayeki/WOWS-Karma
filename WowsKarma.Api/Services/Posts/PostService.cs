@@ -34,7 +34,8 @@ public class PostService
 	/// <returns>Async enumerable of post IDs.</returns>
 	public IAsyncEnumerable<Guid> ListPostIdsAsync() => _listPostIdsAsync(_context);
 	private static readonly Func<ApiDbContext, IAsyncEnumerable<Guid>> _listPostIdsAsync = EF.CompileAsyncQuery(
-		(ApiDbContext context) => context.Posts.Select(p => p.Id));
+		(ApiDbContext context) => context.Posts.OrderBy(p => p.CreatedAt).Select(p => p.Id)
+	);
 
 	/// <summary>
 	/// Gets a post by id.

@@ -147,23 +147,33 @@ public sealed class ReplayController : ControllerBase
 	/// <param name="postService"></param>
 	/// <param name="minimapRenderingService"></param>
 	/// <param name="force">Whether to force rendering the minimap, even if it has already been rendered.</param>
+	/// <param name="waitForCompletion">Whether to wait for the job to complete before returning.</param>
 	/// <param name="ct">The cancellation token.</param>
+	/// <response code="200">The minimap was rendered successfully.</response>
 	/// <response code="202">The job was enqueued successfully.</response>
 	/// <response code="404">No post with the specified GUID was found.</response>
 	[HttpPatch("reprocess/minimap/{postId:guid}"), Authorize(Roles = ApiRoles.Administrator)]
 	public async ValueTask<IActionResult> RenderMinimap(Guid postId,
-//		[FromServices] MinimapRenderingService minimapRenderingService,
+		[FromServices] MinimapRenderingService minimapRenderingService,
 		[FromQuery] bool force = false,
+		[FromQuery] bool waitForCompletion = false,
 		CancellationToken ct = default
 	) {
 		if (_postService.GetPost(postId) is not { } post)
 		{
 			return StatusCode(404, $"No post with GUID {postId} found.");
 		}
-		
-		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(post.Id, force, ct));
-//		await minimapRenderingService.RenderPostReplayMinimapAsync(post.Id, post.PlayerId, ct);
-		return StatusCode(202);
+
+		if (waitForCompletion)
+		{
+			await minimapRenderingService.RenderPostReplayMinimapAsync(post.Id, force, ct);
+		}
+		else
+		{
+			BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(post.Id, force, ct));
+		}
+        
+		return StatusCode(waitForCompletion ? 200 : 202);
 	}
 	
 	/// <summary>

@@ -2,6 +2,8 @@ import binascii
 import multiprocessing
 import os
 import pathlib
+from asyncio import get_event_loop
+from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import APIRouter, HTTPException, status, UploadFile, BackgroundTasks
 from fastapi.logger import logger
@@ -95,9 +97,14 @@ async def render_replay(
     # Start the render job on another process.
 
     context = multiprocessing.get_context('fork')
-    process = context.Process(target=start_render, args=(job_id, target_player_id))
+    process: multiprocessing.Process = context.Process(target=start_render, args=(job_id, target_player_id))
     process.start()
-    process.join()  # Wait for the process to finish.
+
+    # create new executor
+    executor = ThreadPoolExecutor()
+
+    loop = get_event_loop()
+    await loop.run_in_executor(executor, wait_for_process, process)
 
     filepath = get_filepath(job_id, "mp4")
     background_tasks.add_task(on_job_finished, job_id)
@@ -110,3 +117,7 @@ async def render_replay(
         media_type="video/mp4",
         filename=f"{replay_id or 'replay'}.mp4"
     )
+
+
+def wait_for_process(process: multiprocessing.Process):
+    process.join()  # Wait for the process to finish.

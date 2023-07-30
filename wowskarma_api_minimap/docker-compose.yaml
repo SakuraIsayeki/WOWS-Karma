@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "8000:8000"
+      - "8000:80"
     environment:
       - ENVVAR_PREFIX_FOR_DYNACONF=WOWSKARMA_API_MINIMAP
       - WOWSKARMA_API_MINIMAP_ENV=development

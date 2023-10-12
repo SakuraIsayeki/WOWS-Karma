@@ -25,6 +25,7 @@ using Nodsoft.Wargaming.Api.Client.Clients;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
 using Nodsoft.Wargaming.Api.Common;
 using Nodsoft.WowsReplaysUnpack.ExtendedData;
+using Npgsql;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Authorization;
@@ -186,8 +187,12 @@ public sealed class Startup
 		string dbConnectionString = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
 		int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
+		NpgsqlDataSource apiDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionString))
+			.ConfigureApiDbDataSourceBuilder()
+			.Build();
+		
 		services.AddDbContextPool<ApiDbContext>(
-			o => o.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
+			o => o.UseNpgsql(apiDbDataSourceBuilder,
 				p =>
 				{
 					p.EnableRetryOnFailure();

@@ -9,7 +9,7 @@ using WowsKarma.Api.Utilities;
 namespace WowsKarma.Api.Data;
 
 
-public class ApiDbContext : DbContext
+public sealed class ApiDbContext : DbContext
 {
 	public DbSet<Clan> Clans { get; init; }
 	public DbSet<ClanMember> ClanMembers { get; init; }
@@ -30,15 +30,10 @@ public class ApiDbContext : DbContext
 	public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; init; }
 	#endregion
 
-
-	static ApiDbContext()
+	public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
 	{
-		NpgsqlConnection.GlobalTypeMapper.MapEnum<ModActionType>();
-		NpgsqlConnection.GlobalTypeMapper.MapEnum<NotificationType>();
-		NpgsqlConnection.GlobalTypeMapper.MapEnum<ClanRole>();
+		
 	}
-
-	public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) { }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -130,5 +125,21 @@ public class ApiDbContext : DbContext
 			.HasForeignKey(pma => pma.PostId);
 
 		#endregion
+	}
+}
+
+
+public static class ApiDbContextExtensions
+{
+	public static NpgsqlDataSourceBuilder ConfigureApiDbDataSourceBuilder(this NpgsqlDataSourceBuilder dataSourceBuilder)
+	{
+		dataSourceBuilder
+			.MapEnum<ModActionType>()
+			.MapEnum<NotificationType>()
+			.MapEnum<ClanRole>();
+
+		dataSourceBuilder.EnableDynamicJson();
+
+		return dataSourceBuilder;
 	}
 }

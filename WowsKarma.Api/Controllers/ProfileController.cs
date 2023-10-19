@@ -4,18 +4,21 @@ using Microsoft.AspNetCore.Mvc;
 using WowsKarma.Api.Infrastructure.Attributes;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
+using WowsKarma.Api.Services.Authentication;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api.Controllers;
 
 [ApiController, Route("api/[controller]")]
-public class ProfileController : ControllerBase
+public sealed class ProfileController : ControllerBase
 {
-	private readonly PlayerService playerService;
+	private readonly PlayerService _playerService;
+	private readonly UserService _userService;
 
-	public ProfileController(PlayerService playerService)
+	public ProfileController(PlayerService playerService, UserService userService)
 	{
-		this.playerService = playerService;
+		_playerService = playerService;
+		_userService = userService;
 	}
 
 	/// <summary>
@@ -26,9 +29,13 @@ public class ProfileController : ControllerBase
 	/// <response code="200">Returns player profile flags for given ID.</response>
 	/// <response code="404">No player Profile was found.</response>
 	[HttpGet("{id}"), ProducesResponseType(typeof(UserProfileFlagsDTO), 200), ProducesResponseType(404)]
-	public async Task<IActionResult> GetProfileFlagsAsync(uint id) => await playerService.GetPlayerAsync(id, true) is { } player
-		? StatusCode(200, player.Adapt<UserProfileFlagsDTO>() with { PostsBanned = player.IsBanned() })
-		: StatusCode(404);
+	public async Task<IActionResult> GetProfileFlagsAsync(uint id) => await _playerService.GetPlayerAsync(id, true) is { } player
+		? Ok(player.Adapt<UserProfileFlagsDTO>() with
+			{
+				PostsBanned = player.IsBanned(),
+				ProfileRoles = (await _userService.GetUserAsync(id)).Roles.Select(r => r.Id)
+			})
+		: NotFound();
 
 	/// <summary>
 	/// Updates user-settable profile values.
@@ -52,7 +59,7 @@ public class ProfileController : ControllerBase
 				return StatusCode(403, "User can only update their own profile.");
 			}
 
-			await playerService.UpdateProfileFlagsAsync(flags);
+			await _playerService.UpdateProfileFlagsAsync(flags);
 			return StatusCode(200);
 		}
 		catch (CooldownException e)

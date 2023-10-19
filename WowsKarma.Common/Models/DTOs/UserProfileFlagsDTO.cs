@@ -1,6 +1,6 @@
 ﻿namespace WowsKarma.Common.Models.DTOs;
 
-public record UserProfileFlagsDTO
+public sealed record UserProfileFlagsDTO
 {
 	public uint Id { get; init; }
 
@@ -8,4 +8,6 @@ public record UserProfileFlagsDTO
 
 	public bool OptedOut { get; init; }
 	public DateTime OptOutChanged { get; init; }
+	
+	public IEnumerable<byte> ProfileRoles { get; init; }
 }

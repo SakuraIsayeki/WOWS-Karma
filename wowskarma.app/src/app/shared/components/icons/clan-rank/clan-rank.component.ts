@@ -3,7 +3,7 @@ import { ClanRole } from 'src/app/services/api/models/clan-role';
 
 @Component({
   selector: 'icon-clan-rank',
-  template: `<i [className]="clanRankIconName" [title]="clanRankDisplayName"></i>`,
+  template: `<i [className]="clanRankIconName" [ngbTooltip]="clanRankDisplayName" placement="bottom" [title]="clanRankDisplayName"></i>`,
   styleUrls: ['./clan-rank.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

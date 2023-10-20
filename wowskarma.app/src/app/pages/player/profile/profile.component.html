@@ -2,8 +2,6 @@
   <ng-container *ngIf="result.model as profile else notFound">
     <div class="text-center mb-5">
       <h1>
-        <icon-user-roles *ngIf="profileRoles$ | async as profileRoles" [UserRoles]="profileRoles" class="me-3"></icon-user-roles>
-
         <ng-container *ngIf="profile.clan?.clanInfo as clan">
           <div class="d-inline-flex flex-row pe-1 pb-2">
             <icon-clan-rank [clanRank]="profile.clan?.clanMemberRole" class="pe-1"></icon-clan-rank>
@@ -18,22 +16,26 @@
         <span class="mx-3">{{profile.username}}</span>
 
         <ng-container *ngIf="profileTotalKarma$ | async as profileTotalKarma">
-          <sup class="text-{{profileTotalKarma | karmaColor}}">{{profileTotalKarma}}</sup>
+          <sup class="text-{{profileTotalKarma | karmaColor}}" ngbTooltip="Total Karma" placement="bottom">{{profileTotalKarma}}</sup>
         </ng-container>
       </h1>
+
+      <div class="h1">
+        <icon-user-roles *ngIf="profileRoles$ | async as profileRoles" [UserRoles]="profileRoles" class="ms-3"></icon-user-roles>
+      </div>
     </div>
 
     <div class="row justify-content-center text-center my-5">
       <div class="col-4 m-4">
         <h4>In-Game :</h4>
         <h2 *ngIf="profile.wgHidden" class="text-danger">N/A</h2>
-        <h2 *ngIf="!profile.wgHidden" class="text-{{profile.gameKarma | karmaColor}}">{{profile.gameKarma!}}</h2>
+        <h2 *ngIf="!profile.wgHidden" class="text-{{profile.gameKarma | karmaColor}}" ngbTooltip="In-Game Karma" placement="bottom">{{profile.gameKarma!}}</h2>
       </div>
 
       <div class="col-4 m-4">
         <h4>Platform :</h4>
         <h2 *ngIf="profile.optedOut" class="text-danger">N/A</h2>
-        <h2 *ngIf="!profile.optedOut" class="text-{{profile.siteKarma | karmaColor}}">{{profile.siteKarma!}}</h2>
+        <h2 *ngIf="!profile.optedOut" class="text-{{profile.siteKarma | karmaColor}}" ngbTooltip="Platform Karma" placement="bottom">{{profile.siteKarma!}}</h2>
       </div>
     </div>
 

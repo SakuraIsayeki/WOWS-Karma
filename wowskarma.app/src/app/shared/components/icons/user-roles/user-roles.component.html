@@ -1,0 +1,11 @@
+<sup class="d-inline-flex flex-row gap-2">
+  <ng-container *ngFor="let role of UserRolesMap">
+    <ng-container *ngIf="UserRoles.includes(role.id)">
+      <i [style]="'color: ' + role.color"
+         [class]="'bi ' + role.icon"
+         [title]="role.name"
+         [ngbTooltip]="role.name" placement="bottom">
+      </i>
+    </ng-container>
+  </ng-container>
+</sup>

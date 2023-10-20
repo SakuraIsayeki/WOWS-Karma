@@ -5,4 +5,5 @@ export interface UserProfileFlagsDto {
   optOutChanged?: string;
   optedOut?: boolean;
   postsBanned?: boolean;
+  profileRoles?: number[];
 }

@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { ServiceWorkerModule } from "@angular/service-worker";
-import { NgbCollapseModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule, NgbPaginationModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ModActionTypeDisplayPipe } from 'src/app/services/pipes/mod-action-type-display.pipe';
 import { AppRoutingModule } from "./app-routing.module";
 import { AppWrapperComponent } from "./app-wrapper.component";
@@ -64,6 +64,7 @@ import { ClanRankComponent } from './shared/components/icons/clan-rank/clan-rank
 import { PlayerNamelinkComponent } from './shared/components/player-namelink/player-namelink.component';
 import { ProfileModActionsViewComponent } from './shared/modals/profile-mod-actions-view/profile-mod-actions-view.component';
 import { ProfilePlatformBansViewComponent } from './shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
+import { UserRolesComponent } from './shared/components/icons/user-roles/user-roles.component';
 
 @NgModule({
     declarations: [
@@ -116,24 +117,26 @@ import { ProfilePlatformBansViewComponent } from './shared/modals/profile-platfo
         PlayerNamelinkComponent,
         ProfileModActionsViewComponent,
         ProfilePlatformBansViewComponent,
-        ModActionTypeDisplayPipe
+        ModActionTypeDisplayPipe,
+        UserRolesComponent
     ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        FormsModule,
-        HttpClientModule,
-        ApiModule,
-        ServiceWorkerModule.register("ngsw-worker.js", {
-            // enabled: environment.production,
-            // Register the ServiceWorker as soon as the application is stable
-            // or after 30 seconds (whichever comes first).
-            registrationStrategy: "registerWhenStable:30000",
-        }),
-        NgbCollapseModule,
-        NgbPaginationModule,
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    FormsModule,
+    HttpClientModule,
+    ApiModule,
+    ServiceWorkerModule.register("ngsw-worker.js", {
+      // enabled: environment.production,
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: "registerWhenStable:30000",
+    }),
+    NgbCollapseModule,
+    NgbPaginationModule,
+    NgbTooltip,
+  ],
     providers: [
         AuthService,
         AppConfigService,

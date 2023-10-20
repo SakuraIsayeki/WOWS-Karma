@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <LangVersion>preview</LangVersion>
-    <Version>0.17.0.2</Version>
-    <ProductVersion>0.17.0.2</ProductVersion>
+    <Version>0.17.1</Version>
+    <ProductVersion>0.17.1</ProductVersion>
     <Authors>Sakura Akeno Isayeki</Authors>
     <Company>Nodsoft Systems</Company>
     <Product>WOWS Karma (API)</Product>

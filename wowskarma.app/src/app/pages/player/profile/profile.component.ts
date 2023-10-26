@@ -11,6 +11,7 @@ import { ProfilePlatformBansViewComponent } from 'src/app/shared/modals/profile-
 import { PlayerService } from "../../../services/api/services/player.service";
 import { getWowsNumbersPlayerLink } from "../../../services/helpers";
 import { filterNotNull, mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
+import { ProfileService } from "../../../services/api/services/profile.service";
 
 
 @Component({
@@ -47,6 +48,14 @@ export class ProfileComponent {
     shareReplayRefCount(1)
   );
 
+  profileRoles$ = this.request$.pipe(
+    map(result => this.profileService.apiProfileIdGet$Json({id: result.model!.id!})),
+    switchMapCatchError((profile) => profile),
+    map(profile => profile?.profileRoles ?? []),
+    shareReplayRefCount(1)
+  );
+
+
   // Gets the profile's total karma, as a sum of game + platform karma.
   // Observable profile$ must first successfully emit a profile before calculating the total karma.
   profileTotalKarma$ = this.profile$.pipe(map(profile => (profile?.gameKarma ?? 0) + (profile?.siteKarma ?? 0)));
@@ -61,6 +70,7 @@ export class ProfileComponent {
   constructor(
     private route: ActivatedRoute,
     private playerService: PlayerService,
+    private profileService: ProfileService,
     public authService: AuthService,
     private modActionsService: ModActionService,
     private platformBansService: PlatformBansService,

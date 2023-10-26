@@ -120,3 +120,11 @@ body {
 .invalid {
   outline: 2px solid red;
 }
+
+
+/* Tooltips and popovers
+-------------------------------------------------- */
+.tooltip {
+  --bs-tooltip-color: #fff;
+  --bs-tooltip-bg: #222;
+}

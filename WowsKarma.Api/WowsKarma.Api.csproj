@@ -48,7 +48,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="7.0.0" />
     <PackageReference Include="NodaTime" Version="3.1.9" />
     <PackageReference Include="Nodsoft.Wargaming.Api.Client" Version="0.3.5" />
-    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="1.1.17-gfc59a0dbe8" />
+    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="1.1.21-g89971f3a87" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
     <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />

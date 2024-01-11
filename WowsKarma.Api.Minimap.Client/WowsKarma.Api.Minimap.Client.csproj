@@ -4,7 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.1</Version>
+        <Version>0.1.1</Version>
         
         <Product>WOWS Karma Minimap API Client</Product>
         <Authors>Sakura Akeno Isayeki</Authors>
@@ -15,11 +15,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="JetBrains.Annotations" Version="[2022,)" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="[6.0.0,)" />
-      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="[6.0.0,)" />
-      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="[6.32.0,7)" />
-      <PackageReference Include="System.Net.Http.Json" Version="[6.0.0,)" />
+      <PackageReference Include="JetBrains.Annotations" Version="[2023.3,)" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="[8.0.0,)" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="[8.0.0,)" />
+      <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="[7.2.0,)" />
+      <PackageReference Include="System.Net.Http.Json" Version="[8.0.0,)" />
     </ItemGroup>
 
 

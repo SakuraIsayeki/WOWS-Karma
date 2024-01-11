@@ -59,8 +59,8 @@ public class ReplaysIngestService
 		{
 			Id = replay.Id,
 			PostId = replay.PostId,
-			ChatMessages = replay.ChatMessages.Adapt<IEnumerable<ReplayChatMessageDTO>>()
-				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }),
+			ChatMessages = replay.ChatMessages?.Adapt<IEnumerable<ReplayChatMessageDTO>>()
+				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }) ?? [],
 			Players = replay.Players.Adapt<IEnumerable<ReplayPlayerDTO>>(),
 			DownloadUri = $"{_containerClient.Uri}/{ReplayBlobContainer}/{replay.BlobName}",
 			MinimapUri = replay.MinimapRendered ? $"{_serviceClient.Uri}{MinimapRenderingService.MinimapBlobContainer}/{replay.Id}.mp4" : null

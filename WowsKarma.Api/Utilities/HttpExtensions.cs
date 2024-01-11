@@ -21,10 +21,10 @@ public static class HttpExtensions
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static void AddPaginationHeaders(this HttpResponse response, PageMeta pageMeta)
 	{
-		response.Headers.Add("Content-Page-Current", pageMeta.CurrentPage.ToString());
-		response.Headers.Add("Content-Page-Size", pageMeta.PageSize.ToString());
-		response.Headers.Add("Content-Page-Total", pageMeta.TotalPages.ToString());
-		response.Headers.Add("Content-Items-Total", pageMeta.ItemsCount.ToString());
+		response.Headers.Append("Content-Page-Current", pageMeta.CurrentPage.ToString());
+		response.Headers.Append("Content-Page-Size", pageMeta.PageSize.ToString());
+		response.Headers.Append("Content-Page-Total", pageMeta.TotalPages.ToString());
+		response.Headers.Append("Content-Items-Total", pageMeta.ItemsCount.ToString());
 	}
 	
 	/// <summary>

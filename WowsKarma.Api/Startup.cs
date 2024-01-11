@@ -1,17 +1,13 @@
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Nodsoft.WowsReplaysUnpack;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -236,8 +232,10 @@ public sealed class Startup
 			{
 				options.TypeNameHandling = TypeNameHandling.Auto;
 			});
-				
-			config.UsePostgreSqlStorage(Configuration.GetConnectionString(dbConnectionString), new() { SchemaName = "hangfire", PrepareSchemaIfNecessary = true });
+
+			config.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(Configuration.GetConnectionString(dbConnectionString)));
+			//config.UsePostgreSqlStorage(Configuration.GetConnectionString(dbConnectionString), new() { SchemaName = "hangfire", PrepareSchemaIfNecessary = true });
+			
 			config.UseSerilogLogProvider();
 			config.UseTagsWithPostgreSql();
 		});
@@ -336,7 +334,7 @@ public sealed class Startup
 			endpoints.MapHangfireDashboard("/hangfire", new()
 			{
 				AppPath = ApiRegion.GetRegionWebDomain(),
-				Authorization = new[] { HangfireDashboardAuthorizationFilter.Instance },
+				Authorization = [ HangfireDashboardAuthorizationFilter.Instance ],
 				IsReadOnlyFunc = HangfireDashboardAuthorizationFilter.IsAccessReadOnly,
 				DashboardTitle = $"WOWS Karma API ({ApiRegion.ToRegionString()})"
 			});

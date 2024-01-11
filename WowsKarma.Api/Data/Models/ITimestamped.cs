@@ -2,6 +2,6 @@
 
 public interface ITimestamped
 {
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
+	public DateTimeOffset CreatedAt { get; init; }
+	public DateTimeOffset UpdatedAt { get; set; }
 }

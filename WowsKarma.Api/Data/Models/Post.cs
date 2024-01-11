@@ -4,7 +4,7 @@ using WowsKarma.Api.Data.Models.Replays;
 
 namespace WowsKarma.Api.Data.Models;
 
-public record Post : ITimestamped
+public sealed record Post : ITimestamped
 {
 	[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public Guid Id { get; init; }
@@ -27,11 +27,11 @@ public record Post : ITimestamped
 	public string Content { get; set; }
 
 	public Guid? ReplayId { get; set; }
-	public virtual Replay Replay { get; set; }
+	public Replay Replay { get; set; }
 
 	// Computed by DB Engine (hopefully)
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
+	public DateTimeOffset CreatedAt { get; init; }
+	public DateTimeOffset UpdatedAt { get; set; }
 
 	public bool NegativeKarmaAble { get; internal set; }
 

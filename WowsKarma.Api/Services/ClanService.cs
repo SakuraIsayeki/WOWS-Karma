@@ -75,17 +75,23 @@ public class ClanService
 	internal async Task<Clan> UpdateClanInfoAsync(ApiDbContext context, uint clanId, Clan clan, CancellationToken ct)
 	{
 		ClanInfo apiClan = (await _clansApi.FetchClanViewAsync(clanId, ct))?.Clan;
-		clan = clan is null
-			? apiClan?.Adapt<Clan>()
-			: clan with
+
+		if (clan is null)
+		{
+			clan = apiClan?.Adapt<Clan>();
+		}
+		else
+		{
+			clan = clan with
 			{
 				Tag = apiClan.Tag,
 				Name = apiClan.Name,
 				Description = apiClan.Description,
 				LeagueColor = (uint)ColorTranslator.FromHtml(apiClan.Color).ToArgb()
 			};
+		}
 
-		clan!.UpdatedAt = DateTime.UtcNow;
+		clan!.UpdatedAt = DateTimeOffset.UtcNow;
 		await context.Clans.Upsert(clan).On(c => c.Id).RunAsync(ct);
 
 		return clan;
@@ -111,26 +117,26 @@ public class ClanService
 			
 		foreach (uint id in outdated)
 		{
-			Player dbPlayer = Player.MapFromApi(players[id], await context.Players.FindAsync(new object[] { id }, ct));
-			dbPlayer.UpdatedAt = DateTime.UtcNow;
+			Player dbPlayer = Player.MapFromApi(players[id], await context.Players.FindAsync([id], ct));
+			dbPlayer.UpdatedAt = DateTimeOffset.UtcNow;
 			
 			players[id] = dbPlayer;
 			context.Update(players[id]);
 		}
 
-		clan.Members = new(members.Values.Select(x => new ClanMember
+		clan.Members = [..members.Values.Select(x => new ClanMember
 		{
 			PlayerId = x.Id,
 			Player = players[x.Id],
 			ClanId = clan.Id,
 			JoinedAt = DateOnly.FromDateTime(DateTime.UtcNow - TimeSpan.FromDays(x.DaysInClan)),
 			Role = x.Role.Name
-		}));
+		})];
 		
 		context.RemoveRange(clan.Members.Where(x => x.ClanId == clan.Id && !members.ContainsKey(x.PlayerId)));
 		await context.SaveChangesAsync(ct);
 		
-		clan.MembersUpdatedAt = DateTime.UtcNow;
+		clan.MembersUpdatedAt = DateTimeOffset.UtcNow;
 		
 		// await context.Clans.Upsert(clan).RunAsync(ct);
 		await context.ClanMembers.UpsertRange(clan.Members).On(c => c.PlayerId).RunAsync(ct);
@@ -138,6 +144,6 @@ public class ClanService
 		return clan;
 	}
 
-	public static bool ClanInfoUpdateNeeded(Clan clan) => clan.UpdatedAt + ClanInfoUpdateSpan < DateTime.UtcNow;
-	public static bool ClanMembersUpdateNeeded(Clan clan) => clan.MembersUpdatedAt + ClanMemberUpdateSpan < DateTime.UtcNow;
+	public static bool ClanInfoUpdateNeeded(Clan clan) => clan.UpdatedAt + ClanInfoUpdateSpan < DateTimeOffset.UtcNow;
+	public static bool ClanMembersUpdateNeeded(Clan clan) => clan.MembersUpdatedAt + ClanMemberUpdateSpan < DateTimeOffset.UtcNow;
 }

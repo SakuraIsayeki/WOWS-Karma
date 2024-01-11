@@ -267,7 +267,7 @@ public class PlayerService
 	}
 
 	internal static bool UpdateNeeded(Player player) => player.UpdatedAt + DataUpdateSpan < DateTime.UtcNow;
-	internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange + OptOutCooldownSpan > DateTime.UtcNow;
+	internal static bool IsOptOutOnCooldown(DateTimeOffset lastChange) => lastChange + OptOutCooldownSpan > DateTimeOffset.UtcNow;
 
 	private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
 	{

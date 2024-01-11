@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Linq.Expressions;
 using Mapster;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
@@ -11,6 +12,8 @@ public static class Conversions
 {
 	public static void ConfigureMapping()
 	{
+		TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileWithDebugInfo();
+		
 		TypeAdapterConfig<PlayerPostDTO, Post>
 			.NewConfig()
 			.IgnoreNullValues(true)
@@ -30,7 +33,7 @@ public static class Conversions
 			)
 			.Map(dest => dest.Author.Clan, src => src.Author.ClanMember.Clan)
 			.Map(dest => dest.Player.Clan, src => src.Player.ClanMember.Clan);
-
+		
 		TypeAdapterConfig<PostModActionDTO, PostModAction>
 			.NewConfig()
 			.Ignore(dest => dest.Post)
@@ -40,7 +43,7 @@ public static class Conversions
 			.NewConfig()
 			.IgnoreNullValues(true)
 			.Map(dest => dest.LeagueColor, src => (uint)ColorTranslator.FromHtml(src.Color).ToArgb())
-			.Map(dest => dest.CreatedAt, src => src.CreatedAt.UtcDateTime)
+			.Map(dest => dest.CreatedAt, src => src.CreatedAt.ToUniversalTime())
 			.Ignore(dest => dest.UpdatedAt);
 
 		TypeAdapterConfig<Player, PlayerProfileDTO>
@@ -70,7 +73,6 @@ public static class Conversions
 			.NewConfig()
 			.IgnoreNullValues(true)
 			.Map(dest => dest.Members, src => src.Members)
-				
 			.Fork(fork => 
 				fork.ForType<ClanMember, PlayerClanProfileDTO>()
 					.Ignore(dest => dest.ClanInfo));
@@ -81,6 +83,9 @@ public static class Conversions
 			
 		TypeAdapterConfig<DateTime, DateOnly>.NewConfig().MapWith(x => DateOnly.FromDateTime(x));
 		TypeAdapterConfig<DateOnly?, DateTime>.NewConfig().MapWith(x => x == null ? DateTime.UnixEpoch : x.Value.ToDateTime(TimeOnly.MinValue));
+		
+		TypeAdapterConfig<DateTimeOffset, DateOnly>.NewConfig().MapWith(x => DateOnly.FromDateTime(x.UtcDateTime));
+		TypeAdapterConfig<DateOnly?, DateTimeOffset>.NewConfig().MapWith(x => x == null ? DateTimeOffset.UnixEpoch : new(x.Value.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero));
 	}
 
 	public static AccountListingDTO ToDTO(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);

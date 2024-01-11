@@ -5,7 +5,7 @@ using WowsKarma.Common;
 
 namespace WowsKarma.Api.Data.Models;
 
-public record Player : ITimestamped
+public sealed record Player : ITimestamped
 {
 	internal const int NegativeKarmaAbilityThreshold = -20;
 
@@ -15,10 +15,10 @@ public record Player : ITimestamped
 
 	public string Username { get; set; }
 
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
+	public DateTimeOffset CreatedAt { get; init; }
+	public DateTimeOffset UpdatedAt { get; set; }
 	
-	public virtual ClanMember ClanMember { get; set; }
+	public ClanMember ClanMember { get; set; }
 	
 	public bool WgHidden { get; set; }
 
@@ -29,23 +29,23 @@ public record Player : ITimestamped
 	public int TeamplayRating { get; set; }
 	public int CourtesyRating { get; set; }
 
-	public DateTime WgAccountCreatedAt { get; init; }
-	public DateTime LastBattleTime { get; set; }
+	public DateTimeOffset WgAccountCreatedAt { get; init; }
+	public DateTimeOffset LastBattleTime { get; set; }
 
-	public virtual List<Post> PostsReceived { get; init; } = new();
-	public virtual List<Post> PostsSent { get; init; } = new();
+	public List<Post> PostsReceived { get; init; } = [];
+	public List<Post> PostsSent { get; init; } = [];
 
-	public virtual List<PlatformBan> PlatformBans { get; init; } = new();
+	public List<PlatformBan> PlatformBans { get; init; } = [];
 
 	public bool NegativeKarmaAble => (SiteKarma + GameKarma) > NegativeKarmaAbilityThreshold;
 	public bool PostsBanned { get; set; }
 	public bool OptedOut { get; set; }
-	public DateTime OptOutChanged { get; set; }
+	public DateTimeOffset OptOutChanged { get; set; }
 
 
 	public bool IsBanned()
 		=> PostsBanned
-		|| PlatformBans?.Any(pb => !pb.Reverted && (pb.BannedUntil is null || pb.BannedUntil > DateTime.UtcNow)) is true;
+		|| PlatformBans?.Any(pb => !pb.Reverted && (pb.BannedUntil is null || pb.BannedUntil > DateTimeOffset.Now)) is true;
 
 
 
@@ -57,16 +57,16 @@ public record Player : ITimestamped
 	{
 		Id = value.Id,
 		Username = value.Username,
-		WgAccountCreatedAt = value.WgAccountCreatedAt,
+		WgAccountCreatedAt = value.WgAccountCreatedAt.UtcDateTime,
 		WgHidden = value.WgHidden,
 		OptedOut = value.OptedOut,
-		OptOutChanged = value.OptOutChanged,
+		OptOutChanged = value.OptOutChanged.UtcDateTime,
 		GameKarma = value.GameKarma,
 		SiteKarma = value.SiteKarma,
 		RatingPerformance = value.PerformanceRating,
 		RatingTeamplay = value.TeamplayRating,
 		RatingCourtesy = value.CourtesyRating,
-		LastBattleTime = value.LastBattleTime
+		LastBattleTime = value.LastBattleTime.UtcDateTime
 	};
 
 	public static Player MapFromApi(Player source, Player mod)

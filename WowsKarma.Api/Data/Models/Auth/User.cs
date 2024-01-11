@@ -14,5 +14,5 @@ public record User
 	[Required]
 	public Guid SeedToken { get; set; }
 
-	public DateTime LastTokenRequested { get; set; }
+	public DateTimeOffset LastTokenRequested { get; set; }
 }

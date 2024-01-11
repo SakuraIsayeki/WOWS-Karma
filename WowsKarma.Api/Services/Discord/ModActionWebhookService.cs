@@ -73,7 +73,7 @@ public class ModActionWebhookService : WebhookService
 
 		if (ban.BannedUntil is not null)
 		{
-			embed.AddField("Until", $"<t:{ban.BannedUntil?.ToUnixTimestamp()}:F>");
+			embed.AddField("Until", $"<t:{ban.BannedUntil?.UtcDateTime.ToUnixTimestamp()}:F>");
 		}
 
 		await Client.BroadcastMessageAsync(GetCurrentRegionWebhookBuilder()

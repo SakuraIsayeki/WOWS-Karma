@@ -166,7 +166,7 @@ public class PostService
 		current.Title = edited.Title;
 		current.Content = edited.Content;
 		current.Flairs = edited.Flairs;
-		current.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
+		current.UpdatedAt = DateTimeOffset.Now; // Forcing UpdatedAt refresh
 		current.ReadOnly = current.ReadOnly || modEditLock;
 
 		KarmaService.UpdatePlayerKarma(player, current.ParsedFlairs, previousFlairs, current.NegativeKarmaAble);
@@ -239,8 +239,8 @@ public class PostService
 
 			if (lastAuthoredPost is { CreatedAt: not null })
 			{
-				DateTime endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
-				return endsAt > DateTime.UtcNow;
+				DateTimeOffset endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
+				return endsAt > DateTimeOffset.UtcNow;
 
 			}
 		}

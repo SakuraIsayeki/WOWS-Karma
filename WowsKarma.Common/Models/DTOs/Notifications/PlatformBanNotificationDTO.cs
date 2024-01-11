@@ -3,5 +3,5 @@
 public record PlatformBanNotificationDTO : NotificationBaseDTO
 {
 	public string Reason { get; set; } = string.Empty;
-	public DateTime? Until { get; set; }
+	public DateTimeOffset? Until { get; set; }
 }

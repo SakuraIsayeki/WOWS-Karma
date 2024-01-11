@@ -40,7 +40,7 @@ public sealed class ApiDbContext : DbContext
 		foreach (Type type in modelBuilder.Model.GetEntityTypes().Where(t => t.ClrType.ImplementsInterface(typeof(ITimestamped))).Select(t => t.ClrType))
 		{
 			modelBuilder.Entity(type)
-				.Property<DateTime>(nameof(ITimestamped.CreatedAt))
+				.Property<DateTimeOffset>(nameof(ITimestamped.CreatedAt))
 					.ValueGeneratedOnAdd()
 					.HasDefaultValueSql("NOW()");
 		}
@@ -137,7 +137,7 @@ public static class ApiDbContextExtensions
 			.MapEnum<ModActionType>()
 			.MapEnum<NotificationType>()
 			.MapEnum<ClanRole>();
-
+		
 		dataSourceBuilder.EnableDynamicJson();
 
 		return dataSourceBuilder;

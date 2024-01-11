@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WowsKarma.Api.Data.Models;
 
-public record Clan : ITimestamped
+public sealed record Clan : ITimestamped
 {
 	[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public uint Id { get; init; }
@@ -17,9 +17,9 @@ public record Clan : ITimestamped
 	
 	public bool IsDisbanded { get; set; }
 
-	public virtual List<ClanMember> Members { get; set; } = new();
+	public List<ClanMember> Members { get; set; } = [];
 	
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
-	public DateTime MembersUpdatedAt { get; set; }
+	public DateTimeOffset CreatedAt { get; init; }
+	public DateTimeOffset UpdatedAt { get; set; }
+	public DateTimeOffset MembersUpdatedAt { get; set; }
 }

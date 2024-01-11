@@ -24,6 +24,6 @@ public record PlayerPostDTO
 	public ReplayState ReplayState { get; init; }
 
 	// Computed by DB Engine (hopefully)
-	public DateTime? CreatedAt { get; init; }
-	public DateTime? UpdatedAt { get; init; }
+	public DateTimeOffset? CreatedAt { get; init; }
+	public DateTimeOffset? UpdatedAt { get; init; }
 }

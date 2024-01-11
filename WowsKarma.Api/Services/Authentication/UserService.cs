@@ -43,7 +43,7 @@ public class UserService
 			await context.Users.AddAsync(user);
 		}
 
-		user.LastTokenRequested = DateTime.UtcNow;
+		user.LastTokenRequested = DateTimeOffset.UtcNow;
 		await context.SaveChangesAsync();
 		return user.SeedToken;
 	}

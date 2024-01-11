@@ -16,8 +16,6 @@ public record PostModAction
 	public Post Post { get; init; }
 	public Guid PostId { get; init; }
 
-
-
 	public ModActionType ActionType { get; init; }
 
 	public Player Mod { get; init; }

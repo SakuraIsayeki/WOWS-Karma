@@ -14,7 +14,7 @@ public abstract record NotificationBase : INotification
 
 	public abstract NotificationType Type { get; private protected init; }
 
-	public DateTimeOffset EmittedAt { get; private protected init; } = DateTime.UtcNow;
+	public DateTimeOffset EmittedAt { get; private protected init; } = DateTimeOffset.UtcNow;
 	public DateTimeOffset? AcknowledgedAt { get; set; }
 
 	public virtual NotificationBaseDTO ToDTO() => new()

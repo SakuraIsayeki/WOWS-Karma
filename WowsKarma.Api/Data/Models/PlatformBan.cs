@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-
 namespace WowsKarma.Api.Data.Models;
-
 
 public sealed record PlatformBan : ITimestamped
 {
@@ -12,14 +10,14 @@ public sealed record PlatformBan : ITimestamped
 
 	[Required]
 	public uint UserId { get; init; }
-	public Player User { get; init; }
+	public Player User { get; init; } = null!;
 
 	[Required]
 	public uint ModId { get; init; }
-	public Player Mod { get; init; }
+	public Player Mod { get; init; } = null!;
 
 	[Required]
-	public string Reason { get; set; }
+	public string Reason { get; set; } = "";
 
 	public DateTimeOffset? BannedUntil { get; set; }
 

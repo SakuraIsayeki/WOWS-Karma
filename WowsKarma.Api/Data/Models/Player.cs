@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WowsKarma.Common;
-
 
 namespace WowsKarma.Api.Data.Models;
 
@@ -13,12 +11,12 @@ public sealed record Player : ITimestamped
 	[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public uint Id { get; init; }
 
-	public string Username { get; set; }
+	public string Username { get; set; } = "";
 
 	public DateTimeOffset CreatedAt { get; init; }
 	public DateTimeOffset UpdatedAt { get; set; }
 	
-	public ClanMember ClanMember { get; set; }
+	public ClanMember? ClanMember { get; set; }
 	
 	public bool WgHidden { get; set; }
 
@@ -40,7 +38,7 @@ public sealed record Player : ITimestamped
 	public bool NegativeKarmaAble => (SiteKarma + GameKarma) > NegativeKarmaAbilityThreshold;
 	public bool PostsBanned { get; set; }
 	public bool OptedOut { get; set; }
-	public DateTimeOffset OptOutChanged { get; set; }
+	public DateTimeOffset? OptOutChanged { get; set; }
 
 
 	public bool IsBanned()
@@ -57,16 +55,16 @@ public sealed record Player : ITimestamped
 	{
 		Id = value.Id,
 		Username = value.Username,
-		WgAccountCreatedAt = value.WgAccountCreatedAt.UtcDateTime,
+		WgAccountCreatedAt = value.WgAccountCreatedAt,
 		WgHidden = value.WgHidden,
 		OptedOut = value.OptedOut,
-		OptOutChanged = value.OptOutChanged.UtcDateTime,
+		OptOutChanged = value.OptOutChanged,
 		GameKarma = value.GameKarma,
 		SiteKarma = value.SiteKarma,
 		RatingPerformance = value.PerformanceRating,
 		RatingTeamplay = value.TeamplayRating,
 		RatingCourtesy = value.CourtesyRating,
-		LastBattleTime = value.LastBattleTime.UtcDateTime
+		LastBattleTime = value.LastBattleTime
 	};
 
 	public static Player MapFromApi(Player source, Player mod)

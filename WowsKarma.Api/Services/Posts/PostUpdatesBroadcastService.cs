@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Hangfire;
+﻿using Hangfire;
 using Hangfire.Tags.Attributes;
 using Mapster;
 using Microsoft.AspNetCore.SignalR;
@@ -10,7 +9,6 @@ using WowsKarma.Api.Services.Discord;
 using WowsKarma.Common.Hubs;
 
 
-#nullable enable
 namespace WowsKarma.Api.Services.Posts;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -82,7 +80,7 @@ public sealed class PostUpdatesBroadcastService
 	public async Task LogPostCreationAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
-		Post post = PostService.GetPost(_dbContext, postId);
+		Post post = PostService.GetPost(_dbContext, postId) ?? throw new InvalidOperationException($"Post {postId} not found.");
 		PlayerPostDTO postDto = post.Adapt<PlayerPostDTO>();
 		
 		// Send the webhook.
@@ -93,7 +91,7 @@ public sealed class PostUpdatesBroadcastService
 	public async Task BroadcastPostCreationAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
-		Post post = PostService.GetPost(_dbContext, postId);
+		Post post = PostService.GetPost(_dbContext, postId) ?? throw new InvalidOperationException($"Post {postId} not found.");
 		PlayerPostDTO postDto = post.Adapt<PlayerPostDTO>();
 		
 		// Send the update to the clients.
@@ -104,7 +102,7 @@ public sealed class PostUpdatesBroadcastService
 	public async Task NotifyPostCreationAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
-		Post post = PostService.GetPost(_dbContext, postId);
+		Post post = PostService.GetPost(_dbContext, postId) ?? throw new InvalidOperationException($"Post {postId} not found.");
 
 		// Send the notification.
 		await _notificationService.SendNewNotification(new PostAddedNotification
@@ -122,7 +120,7 @@ public sealed class PostUpdatesBroadcastService
 	public async Task LogPostEditionAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
-		Post post = PostService.GetPost(_dbContext, postId);
+		Post post = PostService.GetPost(_dbContext, postId) ?? throw new InvalidOperationException($"Post {postId} not found.");
 		PlayerPostDTO postDto = post.Adapt<PlayerPostDTO>();
 		
 		// Send the webhook.
@@ -133,7 +131,7 @@ public sealed class PostUpdatesBroadcastService
 	public async Task BroadcastPostEditionAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
-		Post post = PostService.GetPost(_dbContext, postId);
+		Post post = PostService.GetPost(_dbContext, postId) ?? throw new InvalidOperationException($"Post {postId} not found.");
 		PlayerPostDTO postDto = post.Adapt<PlayerPostDTO>();
 		
 		// Send the update to the clients.
@@ -144,7 +142,7 @@ public sealed class PostUpdatesBroadcastService
 	public async Task NotifyPostEditionAsync(Guid postId)
 	{
 		// Get the post from the database, and adapt to DTO.
-		Post post = PostService.GetPost(_dbContext, postId);
+		Post post = PostService.GetPost(_dbContext, postId) ?? throw new InvalidOperationException($"Post {postId} not found.");
 
 		// Send the notification.
 		await _notificationService.SendNewNotification(new PostEditedNotification

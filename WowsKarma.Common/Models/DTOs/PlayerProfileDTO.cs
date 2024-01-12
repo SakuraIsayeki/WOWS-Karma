@@ -20,7 +20,7 @@ public record PlayerProfileDTO
 
 	public DateTimeOffset WgAccountCreatedAt { get; init; }
 	public DateTimeOffset LastBattleTime { get; init; }
-	public DateTimeOffset OptOutChanged { get; init; }
+	public DateTimeOffset? OptOutChanged { get; init; }
 
 	public bool NegativeKarmaAble { get; init; }
 	public bool PostsBanned { get; init; }

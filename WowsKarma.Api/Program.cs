@@ -1,10 +1,5 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
-using System.IO;
-using Serilog.Events;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
@@ -20,7 +15,7 @@ public sealed class Program
 		using IHost host = CreateHostBuilder(args).Build();
 		using IServiceScope scope = host.Services.CreateScope();
 		
-		Log.Information("Region selected : {Region}", Startup.ApiRegion);
+		Log.Information("Region selected : {region}", Startup.ApiRegion);
 		await using (ApiDbContext db = scope.ServiceProvider.GetRequiredService<ApiDbContext>())
 		{
 			await db.Database.MigrateAsync();

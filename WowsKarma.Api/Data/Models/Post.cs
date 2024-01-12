@@ -12,22 +12,22 @@ public sealed record Post : ITimestamped
 	[Required]
 	public uint PlayerId { get; init; }
 	[Required]
-	public Player Player { get; init; }
+	public Player Player { get; init; } = null!;
 	[Required]
 	public uint AuthorId { get; init; }
 	[Required]
-	public Player Author { get; init; }
+	public Player Author { get; init; } = null!;
 
 	public PostFlairs Flairs { get; set; }
-	public PostFlairsParsed ParsedFlairs => Flairs.ParseFlairsEnum();
+	public PostFlairsParsed? ParsedFlairs => Flairs.ParseFlairsEnum();
 
 	[Required]
-	public string Title { get; set; }
+	public string Title { get; set; } = "";
 	[Required]
-	public string Content { get; set; }
+	public string Content { get; set; } = "";
 
 	public Guid? ReplayId { get; set; }
-	public Replay Replay { get; set; }
+	public Replay? Replay { get; set; }
 
 	// Computed by DB Engine (hopefully)
 	public DateTimeOffset CreatedAt { get; init; }

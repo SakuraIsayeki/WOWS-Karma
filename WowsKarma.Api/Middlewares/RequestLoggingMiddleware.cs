@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Microsoft.AspNetCore.Http.Features;
 using Serilog;
 using Serilog.Events;
 using System.Diagnostics;
@@ -8,18 +7,18 @@ using ILogger = Serilog.ILogger;
 
 namespace WowsKarma.Api.Middlewares;
 
-public class RequestLoggingMiddleware
+public sealed class RequestLoggingMiddleware
 {
 	private const string MessageTemplate = "{Protocol} {RequestMethod} {RequestPath} by {RemoteUser}, responded {StatusCode} in {Elapsed:0.00} ms";
 
-	private static readonly ILogger logger = Log.ForContext<RequestLoggingMiddleware>();
-	private static readonly HashSet<string> HeaderWhitelist = new() { "Content-Type", "Content-Length", "User-Agent" };
+	private static readonly ILogger _logger = Log.ForContext<RequestLoggingMiddleware>();
+	private static readonly HashSet<string> _headerWhitelist = new() { "Content-Type", "Content-Length", "User-Agent" };
 
-	private readonly RequestDelegate next;
+	private readonly RequestDelegate _next;
 
 	public RequestLoggingMiddleware(RequestDelegate next)
 	{
-		this.next = next ?? throw new ArgumentNullException(nameof(next));
+		_next = next ?? throw new ArgumentNullException(nameof(next));
 
 	}
 
@@ -31,15 +30,15 @@ public class RequestLoggingMiddleware
 
 		try
 		{
-			await next(context);
+			await _next(context);
 			double elapsedMs = GetElapsedMilliseconds(start, Stopwatch.GetTimestamp());
 
-			int? statusCode = context.Response?.StatusCode;
+			int? statusCode = context.Response.StatusCode;
 			LogEventLevel level = statusCode > 499 ? LogEventLevel.Error : LogEventLevel.Information;
 
 			ILogger log = level is LogEventLevel.Error
 				? LogForErrorContext(context)
-				: logger.ForContext("RequestUser", GetRemoteUser(context));
+				: _logger.ForContext("RequestUser", GetRemoteUser(context));
 
 			log.Write(level, MessageTemplate, context.Request.Protocol, context.Request.Method, GetPath(context), GetRemoteUser(context), statusCode, elapsedMs);
 		}
@@ -60,10 +59,10 @@ public class RequestLoggingMiddleware
 		HttpRequest request = context.Request;
 
 		Dictionary<string, string> loggedHeaders = request.Headers
-			.Where(h => HeaderWhitelist.Contains(h.Key))
+			.Where(h => _headerWhitelist.Contains(h.Key))
 			.ToDictionary(h => h.Key, h => h.Value.ToString());
 
-		return logger
+		return _logger
 			.ForContext("RequestHeaders", loggedHeaders, destructureObjects: true)
 			.ForContext("RequestHost", request.Host)
 			.ForContext("RequestProtocol", request.Protocol);
@@ -73,5 +72,5 @@ public class RequestLoggingMiddleware
 
 	private static string GetPath(HttpContext context) => context.Features.Get<IHttpRequestFeature>()?.RawTarget ?? context.Request.Path.ToString();
 
-	private static string GetRemoteUser(HttpContext context) => context.User?.FindFirstValue(ClaimTypes.Name) ?? context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+	private static string GetRemoteUser(HttpContext context) => context.User.FindFirstValue(ClaimTypes.Name) ?? context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
 }

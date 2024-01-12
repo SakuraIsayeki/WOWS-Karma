@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -31,8 +30,9 @@ public class JwtAuthenticationHandler : JwtBearerHandler
 
 		try
 		{
-			if (new Guid(baseResult.Principal.FindFirstValue("seed")) is var seed
-				&& await userService.ValidateUserSeedTokenAsync(uint.Parse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier)), seed))
+			if (baseResult.Principal.FindFirstValue("seed") is { } seed
+				&& uint.TryParse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier), out uint id)
+				&& await userService.ValidateUserSeedTokenAsync(id, new(seed)))
 			{
 				isValid = true;
 			}

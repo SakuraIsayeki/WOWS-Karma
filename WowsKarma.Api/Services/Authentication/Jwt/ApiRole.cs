@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using JetBrains.Annotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace WowsKarma.Api.Services.Authentication.Jwt;
 
-public class ApiRole : IdentityRole
+[UsedImplicitly]
+public sealed class ApiRole : IdentityRole
 {
 	public ApiRole() : base() { }
 	public ApiRole(string name) : base(name)

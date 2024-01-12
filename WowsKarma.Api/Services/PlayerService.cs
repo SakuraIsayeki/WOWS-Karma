@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using System.Threading;
 using Hangfire;
 using Hangfire.Tags.Attributes;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
@@ -42,7 +41,7 @@ public class PlayerService
 	[Tag("player", "update", "batch"), JobDisplayName("Perform API fetch on player batch")]
 	public async Task<IEnumerable<Player>> GetPlayersAsync(IEnumerable<uint> ids, bool includeRelated = false, bool includeClanInfo = false, CancellationToken ct = default)
 	{
-		List<Player> players = new();
+		List<Player> players = [];
 			
 		foreach (uint id in ids.AsParallel().WithCancellation(ct))
 		{
@@ -144,7 +143,7 @@ public class PlayerService
 		AccountListing[] result = (await _wgApi.ListPlayersAsync(search))?.Data?.ToArray();
 
 		return result is { Length: > 0 }
-			? result.Select(listing => listing.ToDTO())
+			? result.Select(listing => listing.ToDto())
 			: null;
 	}
 
@@ -267,7 +266,7 @@ public class PlayerService
 	}
 
 	internal static bool UpdateNeeded(Player player) => player.UpdatedAt + DataUpdateSpan < DateTime.UtcNow;
-	internal static bool IsOptOutOnCooldown(DateTimeOffset lastChange) => lastChange + OptOutCooldownSpan > DateTimeOffset.UtcNow;
+	internal static bool IsOptOutOnCooldown(DateTimeOffset? lastChange) => lastChange is not null && lastChange + OptOutCooldownSpan > DateTimeOffset.UtcNow;
 
 	private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
 	{

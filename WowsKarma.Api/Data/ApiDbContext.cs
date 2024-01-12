@@ -5,29 +5,27 @@ using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Utilities;
 
-
 namespace WowsKarma.Api.Data;
-
 
 public sealed class ApiDbContext : DbContext
 {
-	public DbSet<Clan> Clans { get; init; }
-	public DbSet<ClanMember> ClanMembers { get; init; }
-	public DbSet<PlatformBan> PlatformBans { get; init; }
-	public DbSet<Player> Players { get; init; }
-	public DbSet<Post> Posts { get; init; }
-	public DbSet<PostModAction> PostModActions { get; init; }
-	public DbSet<Replay> Replays { get; init; }
+	public DbSet<Clan> Clans { get; init; } = null!;
+	public DbSet<ClanMember> ClanMembers { get; init; } = null!;
+	public DbSet<PlatformBan> PlatformBans { get; init; } = null!;
+	public DbSet<Player> Players { get; init; } = null!;
+	public DbSet<Post> Posts { get; init; } = null!;
+	public DbSet<PostModAction> PostModActions { get; init; } = null!;
+	public DbSet<Replay> Replays { get; init; } = null!;
 
 	#region Notifications
-	public DbSet<NotificationBase> Notifications { get; init; }
+	public DbSet<NotificationBase> Notifications { get; init; } = null!;
 
-	public DbSet<PlatformBanNotification> PlatformBanNotifications { get; init; }
-	public DbSet<PostAddedNotification> PostAddedNotifications { get; init; }
-	public DbSet<PostEditedNotification> PostEditedNotifications { get; init; }
-	public DbSet<PostDeletedNotification> PostDeletedNotifications { get; init; }
-	public DbSet<PostModEditedNotification> PostModEditedNotifications { get; init; }
-	public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; init; }
+	public DbSet<PlatformBanNotification> PlatformBanNotifications { get; init; } = null!;
+	public DbSet<PostAddedNotification> PostAddedNotifications { get; init; } = null!;
+	public DbSet<PostEditedNotification> PostEditedNotifications { get; init; } = null!;
+	public DbSet<PostDeletedNotification> PostDeletedNotifications { get; init; } = null!;
+	public DbSet<PostModEditedNotification> PostModEditedNotifications { get; init; } = null!;
+	public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; init; } = null!;
 	#endregion
 
 	public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)

@@ -7,16 +7,16 @@ namespace WowsKarma.Api.Data.Models.Replays;
  *	https://dev.azure.com/wows-monitor/_git/api?path=/wows-monitor.core/appmodels/arenainfo/Arenainfo.cs
  */
 
-public record ReplayArenaInfo
+public sealed record ReplayArenaInfo
 {
 	public short MapId { get; set; }
 	public int PlayerId { get; set; }
 
-	public object MatchGroup { get; set; }
+	public object? MatchGroup { get; set; }
 
-	public List<Ship> Vehicles { get; set; }
-	public object DateTime { get; set; }
-	public string Token { get; set; }
+	public List<Ship> Vehicles { get; set; } = [];
+	public object? DateTime { get; set; }
+	public string? Token { get; set; }
 	public Region Region { get; set; }
 
 
@@ -37,11 +37,10 @@ public record ReplayArenaInfo
 	//public string Logic { get; set; }
 	//public string PlayerVehicle { get; set; }
 
-	[JsonExtensionData]
-	public Dictionary<string, object> ExtendedData { get; set; }
+	[JsonExtensionData] public Dictionary<string, object> ExtendedData { get; set; } = [];
 }
 
-public record Ship : IHasRelation
+public sealed record Ship : IHasRelation
 {
 	public int Id { get; set; }
 
@@ -49,6 +48,6 @@ public record Ship : IHasRelation
 
 	public Relation Relation { get; set; }
 
-	public string Name { get; set; }
+	public string Name { get; set; } = "";
 }
 

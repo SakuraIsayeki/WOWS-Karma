@@ -44,10 +44,15 @@ public static class PostFlairsUtils
 		Courtesy = ParseBalancedFlags(flairs, PostFlairs.CourtesyGood, PostFlairs.CourtesyBad)
 	};
 
-	public static PostFlairs ToEnum(this PostFlairsParsed flairsParsed)
+	public static PostFlairs ToEnum(this PostFlairsParsed? flairsParsed)
 	{
 		int flairCount = 0x00;
 
+		if (flairsParsed is null)
+		{
+			return PostFlairs.Neutral;
+		}
+		
 		flairCount += flairsParsed.Performance is null ? 0x00 : flairsParsed.Performance.Value ? 0x01 : 0x02;
 		flairCount += flairsParsed.Teamplay is null ? 0x00 : flairsParsed.Teamplay.Value ? 0x04 : 0x08;
 		flairCount += flairsParsed.Courtesy is null ? 0x00 : flairsParsed.Courtesy.Value ? 0x10 : 0x20;

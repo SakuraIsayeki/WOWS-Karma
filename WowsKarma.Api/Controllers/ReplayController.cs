@@ -1,11 +1,8 @@
 ﻿using System.Security;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading;
 using Hangfire;
-using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services;
@@ -15,7 +12,6 @@ using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs.Replays;
 
 namespace WowsKarma.Api.Controllers;
-
 
 [ApiController, Route("api/[controller]")]
 public sealed class ReplayController : ControllerBase
@@ -51,7 +47,7 @@ public sealed class ReplayController : ControllerBase
 	/// <param name="replayId">ID of Replay to fetch</param>
 	/// <returns>Replay data</returns>
 	[HttpGet("{replayId:guid}"), ProducesResponseType(typeof(ReplayDTO), 200)]
-	public Task<ReplayDTO> GetAsync(Guid replayId) => _ingestService.GetReplayDTOAsync(replayId);
+	public Task<ReplayDTO?> GetAsync(Guid replayId) => _ingestService.GetReplayDTOAsync(replayId);
 
 	[HttpPost("{postId:guid}"), Authorize, RequestSizeLimit(ReplaysIngestService.MaxReplaySize), ProducesResponseType(201)]
 	public async Task<IActionResult> UploadReplayAsync(Guid postId, IFormFile replay, CancellationToken ct, [FromQuery] bool ignoreChecks = false)
@@ -70,7 +66,7 @@ public sealed class ReplayController : ControllerBase
 		}
 		else
 		{
-			if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+			if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Missing NameIdentifier claim.")))
 			{
 				return StatusCode(403, "Post Author is not authorized to edit post replays on behalf of other users.");
 			}
@@ -79,7 +75,6 @@ public sealed class ReplayController : ControllerBase
 				return StatusCode(403, "Specified Post has been locked by Community Managers. No modification is possible.");
 			}
 		}
-
 
 		try
 		{
@@ -106,7 +101,7 @@ public sealed class ReplayController : ControllerBase
 	/// <param name="start">Start of date/time range</param>
 	/// <param name="end">End of date/time range</param>
 	[HttpPatch("reprocess/replay/all"), Authorize(Roles = ApiRoles.Administrator)]
-	public async Task<IActionResult> ReprocessPostsAsync(DateTime start = default, DateTime end = default, CancellationToken ct = default)
+	public IActionResult ReprocessPosts(DateTime start = default, DateTime end = default, CancellationToken ct = default)
 	{
 		if (start == default)
 		{
@@ -127,7 +122,7 @@ public sealed class ReplayController : ControllerBase
 	/// </summary>
 	/// <returns></returns>
 	[HttpPatch("reprocess/replay/{replayId:guid}"), Authorize(Roles = ApiRoles.Administrator)]
-	public async Task<IActionResult> ReprocessReplayAsync(Guid replayId, CancellationToken ct = default)
+	public IActionResult ReprocessReplay(Guid replayId, CancellationToken ct = default)
 	{
 		try
 		{
@@ -144,7 +139,6 @@ public sealed class ReplayController : ControllerBase
 	/// Triggers minimap rendering on a post's replay (Usable only by Administrators)
 	/// </summary>
 	/// <param name="postId">The ID of the post to render the replay's minimap for.</param>
-	/// <param name="postService"></param>
 	/// <param name="minimapRenderingService"></param>
 	/// <param name="force">Whether to force rendering the minimap, even if it has already been rendered.</param>
 	/// <param name="waitForCompletion">Whether to wait for the job to complete before returning.</param>
@@ -185,7 +179,7 @@ public sealed class ReplayController : ControllerBase
 	/// <param name="ct">Cancellation token</param>
 	/// <response code="202">The job was enqueued successfully.</response>
 	[HttpPatch("reprocess/minimap/all"), Authorize(Roles = ApiRoles.Administrator)]
-	public async Task<IActionResult> RenderMinimapsAsync(DateTime start = default, DateTime end = default, bool force = false, CancellationToken ct = default)
+	public IActionResult RenderMinimaps(DateTime start = default, DateTime end = default, bool force = false, CancellationToken ct = default)
 	{
 		if (start == default)
 		{

@@ -1,7 +1,5 @@
 ﻿namespace WowsKarma.Api.Infrastructure.Data;
 
-#nullable enable
-
 /// <summary>
 /// Represents a paged list of items.
 /// </summary>

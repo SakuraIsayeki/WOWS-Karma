@@ -54,13 +54,13 @@ public sealed class ProfileController : ControllerBase
 	{
 		try
 		{
-			if (flags.Id != User.ToAccountListing().Id && !User.IsInRole(ApiRoles.Administrator))
+			if (flags.Id != User.ToAccountListing()!.Id && !User.IsInRole(ApiRoles.Administrator))
 			{
 				return StatusCode(403, "User can only update their own profile.");
 			}
 
 			await _playerService.UpdateProfileFlagsAsync(flags);
-			return StatusCode(200);
+			return Ok();
 		}
 		catch (CooldownException e)
 		{
@@ -68,7 +68,7 @@ public sealed class ProfileController : ControllerBase
 		}
 		catch (ArgumentException)
 		{
-			return StatusCode(404);
+			return NotFound();
 		}
 	}
 }

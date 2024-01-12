@@ -1,14 +1,11 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data;
 
 namespace WowsKarma.Api.Infrastructure.Authorization;
 
-#nullable enable
-public class PlatformBanAuthorizationHandler : AuthorizationHandler<PlatformBanRequirement>
+public sealed class PlatformBanAuthorizationHandler : AuthorizationHandler<PlatformBanRequirement>
 {
 	private readonly ILogger<PlatformBanAuthorizationHandler> _logger;
 	private readonly ApiDbContext _dbContext;

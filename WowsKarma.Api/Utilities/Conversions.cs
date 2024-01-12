@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Linq.Expressions;
+using Hangfire.Annotations;
 using Mapster;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
@@ -10,6 +11,7 @@ namespace WowsKarma.Api.Utilities;
 
 public static class Conversions
 {
+	[UsedImplicitly]
 	public static void ConfigureMapping()
 	{
 		TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileWithDebugInfo();
@@ -88,7 +90,8 @@ public static class Conversions
 		TypeAdapterConfig<DateOnly?, DateTimeOffset>.NewConfig().MapWith(x => x == null ? DateTimeOffset.UnixEpoch : new(x.Value.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero));
 	}
 
-	public static AccountListingDTO ToDTO(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);
+	[Pure]
+	public static AccountListingDTO ToDto(this AccountListing accountListing) => new(accountListing.AccountId, accountListing.Nickname);
 
 	public static Player ToDbModel(this VortexAccountInfo accountInfo)
 	{
@@ -108,8 +111,4 @@ public static class Conversions
 				LastBattleTime = DateTime.UnixEpoch.AddSeconds(accountInfo.Statistics.Basic!.LastBattleTime)
 			};
 	}
-
-	public static Player[] ToDbModel(this VortexAccountInfo[] accountInfos) => Array.ConvertAll(accountInfos, ToDbModel);
-
-	public static int ToInt(this PostFlairs input) => (int)input;
 }

@@ -1,17 +1,16 @@
-﻿using Mapster;
+﻿using System.Diagnostics;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Services.Discord;
 using WowsKarma.Api.Services.Posts;
 
-
 namespace WowsKarma.Api.Services;
 
-public class ModService
+public sealed class ModService
 {
 	private readonly ILogger<ModService> _logger;
 	private readonly ModActionWebhookService _webhookService;
@@ -28,7 +27,7 @@ public class ModService
 		_notifications = notifications;
 	}
 
-	public Task<PostModAction> GetModActionAsync(Guid id) => _context.PostModActions.AsNoTracking().FirstOrDefaultAsync(ma => ma.Id == id);
+	public Task<PostModAction?> GetModActionAsync(Guid id) => _context.PostModActions.AsNoTracking().FirstOrDefaultAsync(ma => ma.Id == id);
 
 	public IQueryable<PostModAction> GetPostModActions(Guid postId) => _context.PostModActions.AsNoTracking()
 		.Include(ma => ma.Post)
@@ -40,7 +39,7 @@ public class ModService
 		.Include(ma => ma.Mod)
 		.Where(ma => ma.Post.AuthorId == playerId);
 
-	public Task<PlatformBan> GetPlatformBan(Guid id) => _context.PlatformBans.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
+	public Task<PlatformBan?> GetPlatformBan(Guid id) => _context.PlatformBans.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id);
 
 	public IQueryable<PlatformBan> GetPlatformBans(uint userId) => _context.PlatformBans.AsNoTracking().Where(b => b.UserId == userId);
 
@@ -52,11 +51,14 @@ public class ModService
 		switch (modAction.ActionType)
 		{
 			case ModActionType.Deletion:
+			{
 				await _postService.DeletePostAsync(modAction.PostId, true);
 				await _notifications.SendNewNotification(PostModDeletedNotification.FromModAction(entityEntry.Entity));
 				break;
+			}
 
 			case ModActionType.Update:
+			{
 				PlayerPostDTO current = _postService.GetPost(modAction.PostId).Adapt<PlayerPostDTO>();
 
 				await _postService.EditPostAsync(modAction.PostId, current with
@@ -67,6 +69,10 @@ public class ModService
 				}, true);
 
 				break;
+			}
+
+			default:
+				throw new UnreachableException();
 		}
 
 		await entityEntry.Reference(pma => pma.Mod).LoadAsync();
@@ -81,9 +87,8 @@ public class ModService
 
 		_context.PostModActions.Remove(modAction);
 		await _postService.RevertPostModLockAsync(modAction.PostId);
-
 		await _context.SaveChangesAsync();
-
+		
 		await _webhookService.SendModActionRevertedWebhookAsync(modAction);
 	}
 
@@ -126,9 +131,9 @@ public class ModService
 
 	public async Task RevertPlatformBanAsync(Guid id)
 	{
-		PlatformBan ban = await _context.PlatformBans.FindAsync(id);
+		PlatformBan ban = await _context.PlatformBans.FindAsync(id) ?? throw new ArgumentException($"Platform ban with id {id} not found");
 		ban.Reverted = true;
 		await _context.SaveChangesAsync();
-		_logger.LogInformation("Reverted Ban {BanId}.", ban.Id);
+		_logger.LogInformation("Reverted Ban {banId}.", ban.Id);
 	}
 }

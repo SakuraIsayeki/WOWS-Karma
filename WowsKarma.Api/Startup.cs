@@ -43,7 +43,7 @@ namespace WowsKarma.Api;
 public sealed class Startup
 {
 	public static Region ApiRegion { get; private set; }
-	public static string DisplayVersion { get; private set; }
+	public static string DisplayVersion { get; private set; } = "0.0.0";
 	public IConfiguration Configuration { get; }
 
 
@@ -51,7 +51,7 @@ public sealed class Startup
 	{
 		Configuration = configuration;
 		ApiRegion = Common.Utilities.GetRegionConfigString(Configuration["Api:CurrentRegion"] ?? "EU");
-		DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+		DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
 	}
 
 
@@ -302,7 +302,7 @@ public sealed class Startup
 			builder.AllowCredentials();
 		});
 
-		IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToArray();
+		IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToArray() ?? [];
 
 		// Nginx configuration step
 		ForwardedHeadersOptions forwardedHeadersOptions = new()

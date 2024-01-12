@@ -7,32 +7,44 @@ using WowsKarma.Api.Data.Models.Auth;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Services.Authentication.Jwt;
 using WowsKarma.Api.Services.Authentication.Wargaming;
-using WowsKarma.Common;
 using WowsKarma.Common.Hubs;
 
 namespace WowsKarma.Api.Services.Authentication;
 
-public class UserService
+/// <summary>
+/// Provides a service to fetch and update API users.
+/// </summary>
+public sealed class UserService
 {
 	private const string SeedTokenClaimType = "seed";
-	private readonly AuthDbContext context;
+	private readonly AuthDbContext _context;
 	private readonly IHubContext<AuthHub, IAuthHubPush> _hubContext;
 
 	public UserService(AuthDbContext context, IHubContext<AuthHub, IAuthHubPush> hubContext)
 	{
-		this.context = context;
+		_context = context;
 		_hubContext = hubContext;
 	}
 
-	public Task<User> GetUserAsync(uint id) => context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
+	/// <summary>
+	/// Gets a user by their ID.
+	/// </summary>
+	/// <param name="id">The user's ID.</param>
+	/// <returns>The user, or <see langword="null"/> if not found.</returns>
+	public Task<User?> GetUserAsync(uint id) => _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
 
-	public async Task<IEnumerable<Claim>> GetUserClaimsAsync(uint id) => await GetUserAsync(id) is { } user
-		? from role in user.Roles select new Claim(ClaimTypes.Role, role.InternalName)
-		: Enumerable.Empty<Claim>();
+	/// <summary>
+	/// Gets a user's claims
+	/// </summary>
+	/// <param name="id"></param>
+	/// <returns></returns>
+	public async Task<IEnumerable<Claim>> GetUserClaimsAsync(uint id) => await GetUserAsync(id) is { Roles: [..] roles }
+		? from role in roles select new Claim(ClaimTypes.Role, role.InternalName)
+		: [];
 
 	public async Task<Guid> GetUserSeedTokenAsync(uint id)
 	{
-		if (await context.Users.FindAsync(id) is not { } user)
+		if (await _context.Users.FindAsync(id) is not { } user)
 		{
 			user = new()
 			{
@@ -40,22 +52,22 @@ public class UserService
 				SeedToken = Guid.NewGuid()
 			};
 
-			await context.Users.AddAsync(user);
+			await _context.Users.AddAsync(user);
 		}
 
 		user.LastTokenRequested = DateTimeOffset.UtcNow;
-		await context.SaveChangesAsync();
+		await _context.SaveChangesAsync();
 		return user.SeedToken;
 	}
 
-	public async Task<bool> ValidateUserSeedTokenAsync(uint id, Guid seedToken) => await context.Users.FindAsync(id) is { } user && user.SeedToken == seedToken;
+	public async Task<bool> ValidateUserSeedTokenAsync(uint id, Guid seedToken) => await _context.Users.FindAsync(id) is { SeedToken: var st } && st == seedToken;
 
 	public async Task RenewSeedTokenAsync(uint id)
 	{
 		if (await GetUserAsync(id) is { } user)
 		{
 			user.SeedToken = Guid.NewGuid();
-			await context.SaveChangesAsync();
+			await _context.SaveChangesAsync();
 
 			await _hubContext.Clients.All.SeedTokenInvalidated(user.Id);
 		}
@@ -65,7 +77,7 @@ public class UserService
 	{
 		(uint id, _) = identity.GetAccountListing();
 
-		if (identity.Claims.Where(c => c.Type is ClaimTypes.Role).ToArray() is { Length: > 0 } claims)
+		if (identity.Claims.Where(c => c.Type is ClaimTypes.Role).ToArray() is { Length: not 0 } claims)
 		{
 			foreach (Claim c in claims)
 			{

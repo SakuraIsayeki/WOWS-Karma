@@ -4,10 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Attributes;
 using WowsKarma.Api.Infrastructure.Data;
 using WowsKarma.Api.Services;
@@ -22,14 +19,14 @@ namespace WowsKarma.Api.Controllers;
 [ApiController, Route("api/[controller]")]
 public sealed class PostController : ControllerBase
 {
-	private readonly PlayerService playerService;
-	private readonly PostService postService;
+	private readonly PlayerService _playerService;
+	private readonly PostService _postService;
 	private readonly ILogger<PostController> _logger;
 
 	public PostController(PlayerService playerService, PostService postService, ILogger<PostController> logger)
 	{
-		this.playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
-		this.postService = postService ?? throw new ArgumentNullException(nameof(postService));
+		_playerService = playerService ?? throw new ArgumentNullException(nameof(playerService));
+		_postService = postService ?? throw new ArgumentNullException(nameof(postService));
 		_logger = logger;
 	}
 
@@ -38,7 +35,7 @@ public sealed class PostController : ControllerBase
 	/// </summary>
 	/// <returns>List of post IDs.</returns>
 	[HttpGet, ProducesResponseType(StatusCodes.Status200OK)]
-	public IAsyncEnumerable<Guid> GetPostIds() => postService.ListPostIdsAsync();
+	public IAsyncEnumerable<Guid> GetPostIds() => _postService.ListPostIdsAsync();
 
 	/// <summary>
 	/// Fetches player post with given ID
@@ -49,8 +46,8 @@ public sealed class PostController : ControllerBase
 	/// <response code="410">Post is locked by Community Managers.</response>
 	[HttpGet("{postId:guid}"), ProducesResponseType(typeof(PlayerPostDTO), 200), ProducesResponseType(404), ProducesResponseType(410)]
 	public async Task<IActionResult> GetPostAsync(Guid postId)
-		=> await postService.GetPostDTOAsync(postId) is { } post
-			? !post.ModLocked || post.Author.Id == User.ToAccountListing().Id || User.IsInRole(ApiRoles.CM)
+		=> await _postService.GetPostDTOAsync(postId) is { } post
+			? !post.ModLocked || post.Author.Id == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
 				? Ok(post)
 				: StatusCode(410)
 			: NotFound();
@@ -69,11 +66,11 @@ public sealed class PostController : ControllerBase
 		[FromQuery] int page = 1, 
 		[FromQuery] int pageSize = 10
 	) {
-		IQueryable<Post> posts = postService.GetReceivedPosts(userId);
+		IQueryable<Post> posts = _postService.GetReceivedPosts(userId);
 
 		if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			AccountListingDTO currentUser = User.ToAccountListing();
+			AccountListingDTO? currentUser = User.ToAccountListing();
 			posts = posts.Where(p => !p.ModLocked || (currentUser != null && p.AuthorId == currentUser.Id));
 		}
 
@@ -110,14 +107,14 @@ public sealed class PostController : ControllerBase
 		[FromQuery] int page = 1, 
 		[FromQuery] int pageSize = 10
 	) {
-		IQueryable<Post> posts = postService.GetSentPosts(userId);
+		IQueryable<Post> posts = _postService.GetSentPosts(userId);
 
 		if (User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			posts = posts?.Where(static p => !p.ModLocked);
+			posts = posts.Where(static p => !p.ModLocked);
 		}
 
-		posts?.Include(static p => p.Replay);
+		posts.Include(static p => p.Replay);
 		
 		// Get the page of results and set headers
 		Page<Post> pageResults = posts.Page(pageSize, page);
@@ -150,9 +147,9 @@ public sealed class PostController : ControllerBase
 		[FromQuery] bool? hasReplay = null, 
 		[FromQuery] bool hideModActions = false
 	) {
-		AccountListingDTO currentUser = User.ToAccountListing();
+		AccountListingDTO? currentUser = User.ToAccountListing();
 
-		IQueryable<Post> posts = postService.GetLatestPosts();
+		IQueryable<Post> posts = _postService.GetLatestPosts();
 
 		if (!User.IsInRole(ApiRoles.CM))
 		{
@@ -191,7 +188,7 @@ public sealed class PostController : ControllerBase
 	/// <summary>
 	/// Submits a new post for creation.
 	/// </summary>
-	/// <param name="post">Post object to submit</param>
+	/// <param name="postDto">Post object to submit</param>
 	/// <param name="replay">Optional replay file to attach to post</param>
 	/// <param name="ignoreChecks">Bypass API Validation for post creation (Admin only)</param>
 	/// <response code="201">Post was successfuly created.</response>
@@ -204,26 +201,26 @@ public sealed class PostController : ControllerBase
 	public async Task<IActionResult> CreatePost(
 		[FromForm] string postDto, 
 		[FromServices] ReplaysIngestService replaysIngestService,
-		IFormFile replay = null, 
+		IFormFile? replay = null, 
 		[FromQuery] bool ignoreChecks = false)
 	{
 		PlayerPostDTO post;
 			
 		try
 		{
-			post = JsonSerializer.Deserialize<PlayerPostDTO>(postDto, Common.Utilities.ApiSerializerOptions);
+			post = JsonSerializer.Deserialize<PlayerPostDTO>(postDto, Common.Utilities.ApiSerializerOptions) ?? throw new ArgumentNullException(nameof(postDto));
 		}
 		catch (Exception e)
 		{
 			return BadRequest(e.ToString());
 		}
 			
-		if (await playerService.GetPlayerAsync(post.Author.Id) is not { } author)
+		if (await _playerService.GetPlayerAsync(post.Author.Id) is not { } author)
 		{
 			return StatusCode(404, $"Account {post.Author.Id} not found.");
 		}
 
-		if (await playerService.GetPlayerAsync(post.Player.Id) is not { } player)
+		if (await _playerService.GetPlayerAsync(post.Player.Id) is not { } player)
 		{
 			return StatusCode(404, $"Account {post.Player.Id} not found.");
 		}
@@ -237,7 +234,7 @@ public sealed class PostController : ControllerBase
 		}
 		else
 		{
-			if (post.Author.Id != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+			if (post.Author.Id != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim.")))
 			{
 				return StatusCode(403, "Author is not authorized to post on behalf of other users.");
 			}
@@ -255,7 +252,7 @@ public sealed class PostController : ControllerBase
 
 		try
 		{
-			Post created = await postService.CreatePostAsync(post, replay, ignoreChecks);
+			Post created = await _postService.CreatePostAsync(post, replay, ignoreChecks);
 			return StatusCode(201, created.Id);
 		}
 		catch (ArgumentException)
@@ -272,7 +269,7 @@ public sealed class PostController : ControllerBase
 		{
 			// Log this exception, and store the replay with the RCE the samples.
 			_logger.LogWarning(se, "Replay upload failed for post author {author} due to CVE-2022-31265 exploit detection.", post.Author.Id);
-			await replaysIngestService.IngestRceFileAsync(replay);
+			await replaysIngestService.IngestRceFileAsync(replay!);
 
 			throw se;
 		}
@@ -291,7 +288,7 @@ public sealed class PostController : ControllerBase
 	[ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 	public async Task<IActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 	{
-		if (postService.GetPost(post.Id ?? Guid.Empty) is not { } current)
+		if (_postService.GetPost(post.Id ?? Guid.Empty) is not { } current)
 		{
 			return StatusCode(404, $"No post with ID {post.Id} found.");
 		}
@@ -305,7 +302,7 @@ public sealed class PostController : ControllerBase
 		}
 		else
 		{
-			if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+			if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim.")))
 			{
 				return StatusCode(403, "Author is not authorized to edit posts on behalf of other users.");
 			}
@@ -318,8 +315,8 @@ public sealed class PostController : ControllerBase
 
 		try
 		{
-			await postService.EditPostAsync(post.Id ?? Guid.Empty, post);
-			return StatusCode(200);
+			await _postService.EditPostAsync(post.Id ?? Guid.Empty, post);
+			return Ok();
 		}
 		catch (ArgumentException e)
 		{
@@ -339,7 +336,7 @@ public sealed class PostController : ControllerBase
 	[ProducesResponseType(205), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 	public async Task<IActionResult> DeletePost(Guid postId, [FromQuery] bool ignoreChecks = false)
 	{
-		if (postService.GetPost(postId) is not { } post)
+		if (_postService.GetPost(postId) is not { } post)
 		{
 			return StatusCode(404, $"No post with ID {postId} found.");
 		}
@@ -353,7 +350,7 @@ public sealed class PostController : ControllerBase
 		}
 		else
 		{
-			if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))
+			if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim.")))
 			{
 				return StatusCode(403, "Author is not authorized to delete posts on behalf of other users.");
 			}
@@ -363,7 +360,7 @@ public sealed class PostController : ControllerBase
 			}
 		}
 
-		await postService.DeletePostAsync(postId);
+		await _postService.DeletePostAsync(postId);
 		return StatusCode(205);
 	}
 }

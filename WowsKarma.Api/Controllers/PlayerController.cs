@@ -1,17 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading;
 using Hangfire;
 using Mapster;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
 
-
 namespace WowsKarma.Api.Controllers;
 
 [ApiController, Route("api/[controller]")]
-public class PlayerController : ControllerBase
+public sealed class PlayerController : ControllerBase
 {
 	private readonly PlayerService _playerService;
 
@@ -63,7 +61,7 @@ public class PlayerController : ControllerBase
 		Player playerProfile = await _playerService.GetPlayerAsync(id, false, includeClanInfo);
 
 		return playerProfile is null
-			? NoContent()
+			? NotFound()
 			: Ok(playerProfile.Adapt<PlayerProfileDTO>());
 	}
 

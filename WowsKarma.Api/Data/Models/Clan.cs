@@ -8,10 +8,10 @@ public sealed record Clan : ITimestamped
 	[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public uint Id { get; init; }
 
-	public string Tag { get; set; } = string.Empty;
-	public string Name { get; set; } = string.Empty;
+	public string Tag { get; set; } = "";
+	public string Name { get; set; } = "";
 
-	public string Description { get; set; } = string.Empty;
+	public string Description { get; set; } = "";
 	
 	public uint LeagueColor { get; set; }
 	

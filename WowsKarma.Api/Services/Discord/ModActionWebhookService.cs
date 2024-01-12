@@ -4,11 +4,11 @@ using WowsKarma.Common;
 
 namespace WowsKarma.Api.Services.Discord;
 
-public class ModActionWebhookService : WebhookService
+public sealed class ModActionWebhookService : WebhookService
 {
 	public ModActionWebhookService(IConfiguration configuration) : base(configuration)
 	{
-		foreach (string webhookLink in configuration.GetSection($"Discord:Webhooks:{Startup.ApiRegion.ToRegionString()}:ModActions").Get<string[]>())
+		foreach (string webhookLink in configuration.GetSection($"Discord:Webhooks:{Startup.ApiRegion.ToRegionString()}:ModActions").Get<string[]>() ?? [])
 		{
 			Client.AddWebhookAsync(new(webhookLink)).GetAwaiter().GetResult();
 		}
@@ -68,8 +68,8 @@ public class ModActionWebhookService : WebhookService
 			Color = DiscordColor.Red
 		};
 
-		embed.AddField("Banned by", $"[{ban.Mod?.Username ?? "Unknown"}]({ban.Mod.GetPlayerProfileLink()})", true);
-		embed.AddField("Reason", ban.Reason, false);
+		embed.AddField("Banned by", $"[{ban.Mod?.Username ?? "Unknown"}]({ban.Mod?.GetPlayerProfileLink()})", true);
+		embed.AddField("Reason", ban.Reason);
 
 		if (ban.BannedUntil is not null)
 		{
@@ -83,9 +83,9 @@ public class ModActionWebhookService : WebhookService
 
 	private static DiscordEmbedBuilder AddModActionContent(DiscordEmbedBuilder embed, PostModAction modAction)
 	{
-		embed.AddField("Moderated by", $"[{modAction.Mod?.Username ?? "Unknown"}]({modAction.Mod.GetPlayerProfileLink()})", true);
+		embed.AddField("Moderated by", $"[{modAction.Mod?.Username ?? "Unknown"}]({modAction.Mod?.GetPlayerProfileLink()})", true);
 		embed.AddField("Post Author", $"[{modAction.Post.Author?.Username ?? "Unknown"}]({modAction.Post.Author?.GetPlayerProfileLink()})", true);
-		embed.AddField("Reason", modAction.Reason, false);
+		embed.AddField("Reason", modAction.Reason);
 
 		return embed;
 	}

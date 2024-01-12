@@ -1,10 +1,8 @@
-﻿using System.Net.Http;
-using WowsKarma.Api.Services.Authentication.Wargaming;
+﻿using WowsKarma.Api.Services.Authentication.Wargaming;
 using WowsKarma.Common;
 using WowsKarma.Api;
 
-
-
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class WargamingAuthExtensions
@@ -16,9 +14,10 @@ public static class WargamingAuthExtensions
 
 		services.AddHttpClient($"wargaming-auth-{Startup.ApiRegion.ToRegionString()}", c =>
 		{
-			c.BaseAddress = new Uri($"https://{Startup.ApiRegion.ToWargamingSubdomain()}.wargaming.net");
+			c.BaseAddress = new($"https://{Startup.ApiRegion.ToWargamingSubdomain()}.wargaming.net");
 			c.DefaultRequestHeaders.Add("Accept", "application/json");
-		}).ConfigureHttpMessageHandlerBuilder(c => c.PrimaryHandler = new HttpClientHandler() { MaxConnectionsPerServer = 200, UseProxy = false });
+		})
+		.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { MaxConnectionsPerServer = 200, UseProxy = false });
 
 		return services;
 	}

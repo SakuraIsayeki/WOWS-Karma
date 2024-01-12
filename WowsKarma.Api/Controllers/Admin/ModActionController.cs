@@ -6,12 +6,11 @@ using WowsKarma.Api.Services;
 using WowsKarma.Api.Services.Posts;
 using WowsKarma.Common;
 
-
 namespace WowsKarma.Api.Controllers.Admin;
 
 
 [ApiController, Route("api/mod/action"), Authorize(Roles = ApiRoles.CM)]
-public class ModActionController : ControllerBase
+public sealed class ModActionController : ControllerBase
 {
 	private readonly ModService _service;
 
@@ -40,22 +39,22 @@ public class ModActionController : ControllerBase
 	[HttpGet("list"), AllowAnonymous, ProducesResponseType(typeof(IEnumerable<PostModActionDTO>), 200), ProducesResponseType(204)]
 	public IActionResult List([FromQuery] Guid postId = default, [FromQuery] uint userId = default)
 	{
-		IEnumerable<PostModAction> modActions;
+		PostModAction[] modActions = [];
 
 		if (postId != default)
 		{
-			modActions = _service.GetPostModActions(postId).ToArray();
+			modActions = [.. _service.GetPostModActions(postId)];
 		}
 		else if (userId is not 0)
 		{
-			modActions = _service.GetPostModActions(userId).ToArray();
+			modActions = [.. _service.GetPostModActions(userId)];
 		}
 		else
 		{
 			return BadRequest("Please use a search query (Post/User).");
 		}
 
-		return modActions?.Count() is null or 0
+		return modActions is []
 			? base.StatusCode(204)
 			: base.StatusCode(200, modActions.Adapt<IEnumerable<PostModActionDTO>>());
 	}
@@ -73,8 +72,8 @@ public class ModActionController : ControllerBase
 	public async Task<IActionResult> Submit([FromBody] PostModActionDTO modAction,
 		[FromServices] PostService postService)
 	{
-		Post post = postService.GetPost(modAction.PostId);
-		uint modId = uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+		Post post = postService.GetPost(modAction.PostId) ?? throw new InvalidOperationException("Post ID is invalid.");
+		uint modId = uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim."));
 
 		if ((post.AuthorId == modId || post.PlayerId == modId) && !User.IsInRole(ApiRoles.Administrator))
 		{
@@ -82,7 +81,7 @@ public class ModActionController : ControllerBase
 		}
 
 		await _service.SubmitPostModActionAsync(modAction with { ModId = modId });
-		return StatusCode(202);
+		return Accepted();
 	}
 
 	/// <summary>

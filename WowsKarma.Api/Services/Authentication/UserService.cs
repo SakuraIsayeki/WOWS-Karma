@@ -31,7 +31,7 @@ public sealed class UserService
 	/// </summary>
 	/// <param name="id">The user's ID.</param>
 	/// <returns>The user, or <see langword="null"/> if not found.</returns>
-	public Task<User?> GetUserAsync(uint id) => _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
+	public async Task<User?> GetUserAsync(uint id) => await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
 
 	/// <summary>
 	/// Gets a user's claims

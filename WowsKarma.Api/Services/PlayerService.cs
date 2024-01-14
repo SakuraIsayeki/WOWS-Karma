@@ -138,14 +138,10 @@ public class PlayerService
 				.Where(p => accountIds.Contains(p.Id))
 				.Select(p => new AccountKarmaDTO(p.Id, p.SiteKarma)));
 
-	public async Task<IEnumerable<AccountListingDTO>> ListPlayersAsync(string search)
-	{
-		AccountListing[] result = (await _wgApi.ListPlayersAsync(search))?.Data?.ToArray();
-
-		return result is { Length: > 0 }
-			? result.Select(listing => listing.ToDto())
-			: null;
-	}
+	public async Task<AccountListingDTO[]> ListPlayersAsync(string search) 
+		=> (await _wgApi.ListPlayersAsync(search))?.Data?.ToArray() is { Length: not 0 } result
+			? result.Select(Conversions.ToDto).ToArray()
+			: [];
 
 	internal async Task<Player> UpdatePlayerClanStatusAsync(Player player, CancellationToken ct = default)
 	{

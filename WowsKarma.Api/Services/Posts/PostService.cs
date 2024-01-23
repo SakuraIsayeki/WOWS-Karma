@@ -165,13 +165,13 @@ public sealed class PostService
 		ValidatePostContents(edited);
 
 		Post current = await _context.Posts.FindAsync(id) ?? throw new ArgumentException($"Post {id} not found", nameof(id));
-		PostFlairsParsed previousFlairs = current.ParsedFlairs;
+		PostFlairsParsed? previousFlairs = current.ParsedFlairs;
 		Player player = await _context.Players.FindAsync(current.PlayerId) ?? throw new ArgumentException($"Player Account {edited.Player.Id} not found", nameof(edited));
 
 		current.Title = edited.Title;
 		current.Content = edited.Content;
 		current.Flairs = edited.Flairs;
-		current.UpdatedAt = DateTimeOffset.Now; // Forcing UpdatedAt refresh
+		current.UpdatedAt = DateTimeOffset.UtcNow; // Forcing UpdatedAt refresh
 		current.ReadOnly = current.ReadOnly || modEditLock;
 
 		KarmaService.UpdatePlayerKarma(player, current.ParsedFlairs, previousFlairs, current.NegativeKarmaAble);

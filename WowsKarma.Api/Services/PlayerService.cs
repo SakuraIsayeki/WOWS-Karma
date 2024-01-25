@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Hangfire;
 using Hangfire.Tags.Attributes;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
-using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Infrastructure.Exceptions;

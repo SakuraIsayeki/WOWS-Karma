@@ -33,7 +33,7 @@ public sealed class ProfileController : ControllerBase
 		? Ok(player.Adapt<UserProfileFlagsDTO>() with
 			{
 				PostsBanned = player.IsBanned(),
-				ProfileRoles = (await _userService.GetUserAsync(id))?.Roles.Select(r => r.Id) ?? Enumerable.Empty<byte>()
+				ProfileRoles = (await _userService.GetUserAsync(id))?.Roles.Select(r => r.Id) ?? []
 			})
 		: NotFound();
 

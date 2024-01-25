@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Hangfire.Dashboard;
-using Microsoft.AspNetCore.Http;
 using WowsKarma.Common;
 
 namespace WowsKarma.Api.Infrastructure.Authorization;
@@ -9,7 +8,7 @@ namespace WowsKarma.Api.Infrastructure.Authorization;
 /// Simple RBAC auth filter to check if the user has the Admin role, and grant access to the Hangfire dashboard if so.
 /// Also grants readonly access to the Hangfire dashboard if the user has the CM role.
 /// </summary>
-public class HangfireDashboardAuthorizationFilter : IDashboardAuthorizationFilter
+public sealed class HangfireDashboardAuthorizationFilter : IDashboardAuthorizationFilter
 {
 	public static readonly HangfireDashboardAuthorizationFilter Instance = new();
 

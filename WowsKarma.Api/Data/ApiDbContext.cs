@@ -5,47 +5,40 @@ using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Utilities;
 
-
 namespace WowsKarma.Api.Data;
 
-
-public class ApiDbContext : DbContext
+public sealed class ApiDbContext : DbContext
 {
-	public DbSet<Clan> Clans { get; init; }
-	public DbSet<ClanMember> ClanMembers { get; init; }
-	public DbSet<PlatformBan> PlatformBans { get; init; }
-	public DbSet<Player> Players { get; init; }
-	public DbSet<Post> Posts { get; init; }
-	public DbSet<PostModAction> PostModActions { get; init; }
-	public DbSet<Replay> Replays { get; init; }
+	public DbSet<Clan> Clans { get; init; } = null!;
+	public DbSet<ClanMember> ClanMembers { get; init; } = null!;
+	public DbSet<PlatformBan> PlatformBans { get; init; } = null!;
+	public DbSet<Player> Players { get; init; } = null!;
+	public DbSet<Post> Posts { get; init; } = null!;
+	public DbSet<PostModAction> PostModActions { get; init; } = null!;
+	public DbSet<Replay> Replays { get; init; } = null!;
 
 	#region Notifications
-	public DbSet<NotificationBase> Notifications { get; init; }
+	public DbSet<NotificationBase> Notifications { get; init; } = null!;
 
-	public DbSet<PlatformBanNotification> PlatformBanNotifications { get; init; }
-	public DbSet<PostAddedNotification> PostAddedNotifications { get; init; }
-	public DbSet<PostEditedNotification> PostEditedNotifications { get; init; }
-	public DbSet<PostDeletedNotification> PostDeletedNotifications { get; init; }
-	public DbSet<PostModEditedNotification> PostModEditedNotifications { get; init; }
-	public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; init; }
+	public DbSet<PlatformBanNotification> PlatformBanNotifications { get; init; } = null!;
+	public DbSet<PostAddedNotification> PostAddedNotifications { get; init; } = null!;
+	public DbSet<PostEditedNotification> PostEditedNotifications { get; init; } = null!;
+	public DbSet<PostDeletedNotification> PostDeletedNotifications { get; init; } = null!;
+	public DbSet<PostModEditedNotification> PostModEditedNotifications { get; init; } = null!;
+	public DbSet<PostModDeletedNotification> PostModDeletedNotifications { get; init; } = null!;
 	#endregion
 
-
-	static ApiDbContext()
+	public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options)
 	{
-		NpgsqlConnection.GlobalTypeMapper.MapEnum<ModActionType>();
-		NpgsqlConnection.GlobalTypeMapper.MapEnum<NotificationType>();
-		NpgsqlConnection.GlobalTypeMapper.MapEnum<ClanRole>();
+		
 	}
-
-	public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) { }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		foreach (Type type in modelBuilder.Model.GetEntityTypes().Where(t => t.ClrType.ImplementsInterface(typeof(ITimestamped))).Select(t => t.ClrType))
 		{
 			modelBuilder.Entity(type)
-				.Property<DateTime>(nameof(ITimestamped.CreatedAt))
+				.Property<DateTimeOffset>(nameof(ITimestamped.CreatedAt))
 					.ValueGeneratedOnAdd()
 					.HasDefaultValueSql("NOW()");
 		}
@@ -130,5 +123,21 @@ public class ApiDbContext : DbContext
 			.HasForeignKey(pma => pma.PostId);
 
 		#endregion
+	}
+}
+
+
+public static class ApiDbContextExtensions
+{
+	public static NpgsqlDataSourceBuilder ConfigureApiDbDataSourceBuilder(this NpgsqlDataSourceBuilder dataSourceBuilder)
+	{
+		dataSourceBuilder
+			.MapEnum<ModActionType>()
+			.MapEnum<NotificationType>()
+			.MapEnum<ClanRole>();
+		
+		dataSourceBuilder.EnableDynamicJson();
+
+		return dataSourceBuilder;
 	}
 }

@@ -3,39 +3,37 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-
-
 namespace WowsKarma.Api.Services.Authentication.Jwt;
 
-public class JwtService
+public sealed class JwtService
 {
 	internal JwtSecurityTokenHandler TokenHandler { get; private init; }
 
-	private static IConfiguration configuration;
-	private static SymmetricSecurityKey authSigningKey;
+	private static IConfiguration _configuration = null!;
+	private static SymmetricSecurityKey _authSigningKey = null!;
 
 	public JwtService(IConfiguration configuration, JwtSecurityTokenHandler handler)
 	{
-		JwtService.configuration ??= configuration;
+		_configuration = configuration;
 		TokenHandler = handler;
 
-		authSigningKey = new(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+		_authSigningKey = new(Encoding.UTF8.GetBytes(configuration["JWT:Secret"] ?? throw new("Missing JWT:Secret configuration value")));
 	}
 
 	public static JwtSecurityToken GenerateToken(IEnumerable<Claim> authClaims) => new(
-		issuer: configuration["JWT:ValidIssuer"],
-		audience: configuration["JWT:ValidAudience"],
+		issuer: _configuration["JWT:ValidIssuer"],
+		audience: _configuration["JWT:ValidAudience"],
 		expires: DateTime.UtcNow.AddDays(8),
 		claims: authClaims,
-		signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
+		signingCredentials: new(_authSigningKey, SecurityAlgorithms.HmacSha256));
 
-	public ClaimsPrincipal ValidateToken(string token)
+	public ClaimsPrincipal? ValidateToken(string token)
 	{
 		TokenValidationParameters validationParameters = new()
 		{
-			IssuerSigningKey = authSigningKey,
-			ValidAudience = configuration["JWT:ValidAudience"],
-			ValidIssuer = configuration["JWT:ValidIssuer"],
+			IssuerSigningKey = _authSigningKey,
+			ValidAudience = _configuration["JWT:ValidAudience"],
+			ValidIssuer = _configuration["JWT:ValidIssuer"],
 			ValidateLifetime = true,
 			ValidateAudience = true,
 			ValidateIssuer = true,

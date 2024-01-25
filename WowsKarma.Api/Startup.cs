@@ -1,17 +1,13 @@
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Nodsoft.WowsReplaysUnpack;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -25,6 +21,7 @@ using Nodsoft.Wargaming.Api.Client.Clients;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
 using Nodsoft.Wargaming.Api.Common;
 using Nodsoft.WowsReplaysUnpack.ExtendedData;
+using Npgsql;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Authorization;
@@ -46,7 +43,7 @@ namespace WowsKarma.Api;
 public sealed class Startup
 {
 	public static Region ApiRegion { get; private set; }
-	public static string DisplayVersion { get; private set; }
+	public static string DisplayVersion { get; private set; } = "0.0.0";
 	public IConfiguration Configuration { get; }
 
 
@@ -54,7 +51,7 @@ public sealed class Startup
 	{
 		Configuration = configuration;
 		ApiRegion = Common.Utilities.GetRegionConfigString(Configuration["Api:CurrentRegion"] ?? "EU");
-		DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+		DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
 	}
 
 
@@ -186,8 +183,12 @@ public sealed class Startup
 		string dbConnectionString = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
 		int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
+		NpgsqlDataSource apiDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionString))
+			.ConfigureApiDbDataSourceBuilder()
+			.Build();
+		
 		services.AddDbContextPool<ApiDbContext>(
-			o => o.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
+			o => o.UseNpgsql(apiDbDataSourceBuilder,
 				p =>
 				{
 					p.EnableRetryOnFailure();
@@ -231,8 +232,10 @@ public sealed class Startup
 			{
 				options.TypeNameHandling = TypeNameHandling.Auto;
 			});
-				
-			config.UsePostgreSqlStorage(Configuration.GetConnectionString(dbConnectionString), new() { SchemaName = "hangfire", PrepareSchemaIfNecessary = true });
+
+			config.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(Configuration.GetConnectionString(dbConnectionString)));
+			//config.UsePostgreSqlStorage(Configuration.GetConnectionString(dbConnectionString), new() { SchemaName = "hangfire", PrepareSchemaIfNecessary = true });
+			
 			config.UseSerilogLogProvider();
 			config.UseTagsWithPostgreSql();
 		});
@@ -299,7 +302,7 @@ public sealed class Startup
 			builder.AllowCredentials();
 		});
 
-		IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToArray();
+		IPAddress[] allowedProxies = Configuration.GetSection("AllowedProxies").Get<string[]>()?.Select(IPAddress.Parse).ToArray() ?? [];
 
 		// Nginx configuration step
 		ForwardedHeadersOptions forwardedHeadersOptions = new()
@@ -331,7 +334,7 @@ public sealed class Startup
 			endpoints.MapHangfireDashboard("/hangfire", new()
 			{
 				AppPath = ApiRegion.GetRegionWebDomain(),
-				Authorization = new[] { HangfireDashboardAuthorizationFilter.Instance },
+				Authorization = [ HangfireDashboardAuthorizationFilter.Instance ],
 				IsReadOnlyFunc = HangfireDashboardAuthorizationFilter.IsAccessReadOnly,
 				DashboardTitle = $"WOWS Karma API ({ApiRegion.ToRegionString()})"
 			});

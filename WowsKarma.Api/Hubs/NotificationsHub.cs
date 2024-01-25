@@ -2,18 +2,14 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Services;
 using WowsKarma.Common.Hubs;
 
-
-
 namespace WowsKarma.Api.Hubs;
 
-
 [Authorize]
-public class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInvoke
+public sealed class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInvoke
 {
 	private readonly NotificationService _service;
 
@@ -24,7 +20,10 @@ public class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInv
 
 	public Task AcknowledgeNotifications(Guid[] notificationIds)
 	{
-		IQueryable<NotificationBase> notifications = _service.GetNotifications(notificationIds).Where(n => n.AccountId == uint.Parse(Context.UserIdentifier));
+		uint userId = uint.Parse(Context.UserIdentifier ?? throw new InvalidOperationException("No context user identifier. Is the user logged in on the hub?"));
+
+		IQueryable<NotificationBase> notifications = _service.GetNotifications(notificationIds).Where(n => n.AccountId == userId); 
+		
 		_service.AcknowledgeNotifications(notifications);
 		return Task.CompletedTask;
 	}
@@ -43,7 +42,7 @@ public class NotificationsHub : Hub<INotificationsHubPush>, INotificationsHubInv
 			ct.ThrowIfCancellationRequested();
 			object notificationDto = item.ToDTO();
 
-			yield return (notificationDto.GetType().FullName, notificationDto);
+			yield return (notificationDto.GetType().FullName!, notificationDto);
 		}
 	}
 }

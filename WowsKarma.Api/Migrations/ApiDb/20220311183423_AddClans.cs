@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 
 #nullable disable

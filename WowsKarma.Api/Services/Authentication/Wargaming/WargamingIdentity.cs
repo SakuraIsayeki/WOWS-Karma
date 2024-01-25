@@ -4,7 +4,7 @@ using WowsKarma.Common;
 
 namespace WowsKarma.Api.Services.Authentication.Wargaming;
 
-public class WargamingIdentity : ClaimsIdentity
+public sealed class WargamingIdentity : ClaimsIdentity
 {
 	public new const string AuthenticationType = "Wargaming";
 
@@ -18,22 +18,23 @@ public class WargamingIdentity : ClaimsIdentity
 		string accountId = segment[..index];
 		string nickname = segment[(index + 1)..^1].Replace("/", string.Empty);
 
-		List<Claim> claims = new()
-		{
+		List<Claim> claims =
+		[
 			new(ClaimTypes.NameIdentifier, accountId),
 			new(ClaimTypes.Name, nickname),
 			new(WargamingClaimTypes.Region, ((int)region).ToString()),
 			new(WargamingClaimTypes.RegionName, region.ToString())
-		};
+		];
 
 		return new(claims);
 	}
 
-	public AccountListingDTO GetAccountListing()
+	public AccountListingDTO? GetAccountListing()
 	{
-		if (uint.TryParse(Claims.FirstOrDefault(c => c.Type is ClaimTypes.NameIdentifier)?.Value, out uint id))
+		if (uint.TryParse(Claims.FirstOrDefault(c => c.Type is ClaimTypes.NameIdentifier)?.Value, out uint id)
+			&& Claims.FirstOrDefault(c => c.Type is ClaimTypes.Name) is { Value: { Length: not 0 } name })
 		{
-			return new(id, Claims.FirstOrDefault(c => c.Type is ClaimTypes.Name)?.Value);
+			return new(id, name);
 		}
 			
 		return null;

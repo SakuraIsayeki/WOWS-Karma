@@ -1,11 +1,8 @@
-﻿using System.IO;
-using System.Threading;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Hangfire;
 using Hangfire.Tags.Attributes;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Minimap.Client;
@@ -39,7 +36,8 @@ public sealed class MinimapRenderingService
 		_context = context;
 		_logger = logger;
 		
-		string connectionString = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:Azure:Storage:ConnectionString"];
+		string connectionString = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:Azure:Storage:ConnectionString"] 
+			?? throw new ArgumentException("Missing API:{region}:Azure:Storage:ConnectionString configuration value.");
 		BlobServiceClient serviceClient = new(connectionString);
 		_containerClient = serviceClient.GetBlobContainerClient(MinimapBlobContainer);
 

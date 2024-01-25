@@ -6,13 +6,13 @@ public record ClanProfileDTO : ClanListingDTO
 
 	public bool IsDisbanded { get; init; }
 
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; init; }
+	public DateTimeOffset CreatedAt { get; init; }
+	public DateTimeOffset UpdatedAt { get; init; }
 }
 
 public record ClanProfileFullDTO : ClanProfileDTO
 {
 	public virtual List<PlayerProfileDTO> Members { get; init; } = new();
 	
-	public DateTime MembersUpdatedAt { get; init; }
+	public DateTimeOffset MembersUpdatedAt { get; init; }
 }

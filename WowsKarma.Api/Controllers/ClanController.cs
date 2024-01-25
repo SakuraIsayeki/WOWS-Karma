@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Threading;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using WowsKarma.Api.Services;
@@ -8,7 +7,7 @@ using WowsKarma.Common.Models.DTOs.Clans;
 namespace WowsKarma.Api.Controllers;
 
 [ApiController, Route("api/[controller]")]
-public class ClanController : ControllerBase
+public sealed class ClanController : ControllerBase
 {
 	private readonly ClanService _clanService;
 
@@ -34,14 +33,12 @@ public class ClanController : ControllerBase
 	/// <param name="ct"></param>
 	/// <returns>Clan Info, with members (if selected)</returns>
 	[HttpGet("{clanId}"), ProducesResponseType(typeof(ClanProfileDTO), 200), ProducesResponseType(typeof(ClanProfileFullDTO), 200)]
-	public async Task<ClanProfileDTO> GetClan(uint clanId, bool includeMembers = true, CancellationToken ct = default)
-	{
-		Clan clan = await _clanService.GetClanAsync(clanId, includeMembers, ct);
-
-		return includeMembers 
-			? clan.Adapt<ClanProfileFullDTO>()
-			: clan.Adapt<ClanProfileDTO>();
-	}
+	public async Task<ClanProfileDTO?> GetClan(uint clanId, bool includeMembers = true, CancellationToken ct = default) 
+		=> await _clanService.GetClanAsync(clanId, includeMembers, ct) is { } clan
+			? includeMembers
+				? clan.Adapt<ClanProfileFullDTO>()
+				: clan.Adapt<ClanProfileDTO>()
+			: null;
 
 	/// <summary>
 	/// Searches all clans relevant to a given search string.

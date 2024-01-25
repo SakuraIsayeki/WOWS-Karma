@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 using Nodsoft.WowsReplaysUnpack.Core.Models;
@@ -16,9 +17,11 @@ using WowsKarma.Common.Models;
 namespace WowsKarma.Api.Migrations.ApiDb
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240111075051_AddTimestampsOffset")]
+    partial class AddTimestampsOffset
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,7 +44,6 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .HasDefaultValueSql("NOW()");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDisbanded")
@@ -54,11 +56,9 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Tag")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -180,7 +180,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
                     b.Property<DateTimeOffset>("LastBattleTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset?>("OptOutChanged")
+                    b.Property<DateTimeOffset>("OptOutChanged")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("OptedOut")
@@ -202,7 +202,6 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("WgAccountCreatedAt")
@@ -287,7 +286,6 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .HasColumnType("uuid");
 
                     b.Property<string>("Reason")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -306,22 +304,18 @@ namespace WowsKarma.Api.Migrations.ApiDb
                         .HasColumnType("uuid");
 
                     b.Property<ArenaInfo>("ArenaInfo")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<string>("BlobName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<IEnumerable<ReplayChatMessage>>("ChatMessages")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<bool>("MinimapRendered")
                         .HasColumnType("boolean");
 
                     b.Property<IEnumerable<ReplayPlayer>>("Players")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<Guid>("PostId")
@@ -587,8 +581,7 @@ namespace WowsKarma.Api.Migrations.ApiDb
 
             modelBuilder.Entity("WowsKarma.Api.Data.Models.Replays.Replay", b =>
                 {
-                    b.Navigation("Post")
-                        .IsRequired();
+                    b.Navigation("Post");
                 });
 #pragma warning restore 612, 618
         }

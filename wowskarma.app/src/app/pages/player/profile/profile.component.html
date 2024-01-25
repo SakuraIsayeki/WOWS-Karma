@@ -1,9 +1,9 @@
 <ng-container *ngIf="request$ | async as result else loading">
   <ng-container *ngIf="result.model as profile else notFound">
     <div class="text-center mb-5">
-      <h1>
+      <h1 class="d-inline-flex flex-row">
         <ng-container *ngIf="profile.clan?.clanInfo as clan">
-          <div class="d-inline-flex flex-row pe-1 pb-2">
+          <div class="pe-1 pb-2">
             <icon-clan-rank [clanRank]="profile.clan?.clanMemberRole" class="pe-1"></icon-clan-rank>
           </div>
 
@@ -13,11 +13,11 @@
           >[{{clan.tag}}]</a>
         </ng-container>
 
-        <span class="mx-3">{{profile.username}}</span>
+        <span class="mx-lg-3 mx-2">{{profile.username}}</span>
 
-        <ng-container *ngIf="profileTotalKarma$ | async as profileTotalKarma">
+        <div *ngIf="profileTotalKarma$ | async as profileTotalKarma">
           <sup class="text-{{profileTotalKarma | karmaColor}}" ngbTooltip="Total Karma" placement="bottom">{{profileTotalKarma}}</sup>
-        </ng-container>
+        </div>
       </h1>
 
       <div class="h1">

@@ -1,28 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 
 namespace WowsKarma.Api.Data.Models;
 
-public record ClanMember : IComparable<ClanMember>, IComparable<ClanRole>
+public sealed record ClanMember : IComparable<ClanMember>, IComparable<ClanRole>
 {
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public uint PlayerId { get; init; }
-	public virtual Player Player { get; init; }
+	public Player Player { get; init; } = null!;
 
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	public uint ClanId { get; init; }
-	public virtual Clan Clan { get; init; }
+	public Clan Clan { get; init; } = null!;
 
 	public DateOnly JoinedAt { get; init; }
 	public DateOnly? LeftAt { get; set; }
 	
 	public ClanRole Role { get; set; }
 
-	public virtual bool Equals(ClanMember other) => other is not null && other.ClanId == ClanId && other.PlayerId == PlayerId;
+	public bool Equals(ClanMember? other) => other is not null && other.ClanId == ClanId && other.PlayerId == PlayerId;
 
-	public int CompareTo(ClanMember other) => CompareTo(other?.Role ?? ClanRole.Unknown);
+	public int CompareTo(ClanMember? other) => CompareTo(other?.Role ?? ClanRole.Unknown);
 
 	// Alex thinks it's terrible.
 	public int CompareTo(ClanRole other) => Role == other 

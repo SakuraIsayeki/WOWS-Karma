@@ -1,17 +1,14 @@
-using System.Threading;
 using Mapster;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using WowsKarma.Api.Data;
-using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Infrastructure.Exceptions;
 using WowsKarma.Api.Services.Replays;
 
 namespace WowsKarma.Api.Services.Posts;
 
-public class PostService
+public sealed class PostService
 {
 	public const ushort PostTitleMaxSize = 60;
 	public const ushort PostContentMaxSize = 2000;
@@ -38,10 +35,12 @@ public class PostService
 	);
 
 	/// <summary>
-	/// Gets a post by id.
+	/// Gets a post by its ID.
 	/// </summary>
-	public Post GetPost(Guid id) => GetPost(_context, id);
-	internal static Post GetPost(ApiDbContext context, Guid id) => context.Posts
+	/// <param name="id">The post's ID.</param>
+	/// <returns>The post, or <see langword="null"/> if not found.</returns>
+	public Post? GetPost(Guid id) => GetPost(_context, id);
+	internal static Post? GetPost(ApiDbContext context, Guid id) => context.Posts
 		.Include(p => p.Author)
 			.ThenInclude(p => p.ClanMember)
 			.ThenInclude(p => p.Clan)
@@ -53,17 +52,23 @@ public class PostService
 		.Include(p => p.Replay)
 		.FirstOrDefault(p => p.Id == id);
 
-	public async Task<PlayerPostDTO> GetPostDTOAsync(Guid id)
+	/// <summary>
+	/// Gets a post's DTO by its ID.
+	/// </summary>
+	/// <param name="id">The post's ID.</param>
+	/// <returns>The post, or <see langword="null"/> if not found.</returns>
+	public async Task<PlayerPostDTO?> GetPostDTOAsync(Guid id)
 	{
-		Post post = GetPost(id);
-		PlayerPostDTO postDTO = post?.Adapt<PlayerPostDTO>();
+		if (GetPost(id) is not { } post)
+		{
+			return null;
+		}
+			
+		PlayerPostDTO postDto = post.Adapt<PlayerPostDTO>();
 
-		return post?.ReplayId is null
-			? postDTO
-			: postDTO with
-			{
-				Replay = await _replayService.GetReplayDTOAsync(post.ReplayId.Value)
-			};
+		return post.ReplayId is null 
+			? postDto 
+			: postDto with { Replay = await _replayService.GetReplayDTOAsync(post.ReplayId.Value) };
 	}
 
 	public IQueryable<Post> GetReceivedPosts(uint playerId) => _context.Posts.AsNoTracking()
@@ -87,7 +92,7 @@ public class PostService
 			.ThenInclude(p => p.ClanMember)
 			.ThenInclude(p => p.Clan)
 		
-		.Where(p => p.AuthorId == authorId)?
+		.Where(p => p.AuthorId == authorId)
 		.OrderByDescending(p => p.CreatedAt);
 
 	public IQueryable<Post> GetLatestPosts() => _context.Posts.AsNoTracking()
@@ -101,11 +106,11 @@ public class PostService
 			
 		.OrderByDescending(p => p.CreatedAt);
 
-	public async Task<Post> CreatePostAsync(PlayerPostDTO postDto, IFormFile replayFile, bool bypassChecks)
+	public async Task<Post> CreatePostAsync(PlayerPostDTO postDto, IFormFile? replayFile, bool bypassChecks)
 	{
 		bool hasReplay = replayFile is not null;
 
-		Task<Replay> replayIngestTask = hasReplay ? _replayService.IngestReplayAsync(replayFile, CancellationToken.None) : null;
+		Task<Replay>? replayIngestTask = hasReplay ? _replayService.IngestReplayAsync(replayFile, CancellationToken.None) : null;
 
 		try
 		{
@@ -141,7 +146,7 @@ public class PostService
 
 		if (hasReplay)
 		{
-			Replay replay = await replayIngestTask;
+			Replay replay = await replayIngestTask!;
 
 			entry.Entity.ReplayId = replay.Id;
 			entry.Entity.Replay = replay; 
@@ -160,13 +165,13 @@ public class PostService
 		ValidatePostContents(edited);
 
 		Post current = await _context.Posts.FindAsync(id) ?? throw new ArgumentException($"Post {id} not found", nameof(id));
-		PostFlairsParsed previousFlairs = current.ParsedFlairs;
+		PostFlairsParsed? previousFlairs = current.ParsedFlairs;
 		Player player = await _context.Players.FindAsync(current.PlayerId) ?? throw new ArgumentException($"Player Account {edited.Player.Id} not found", nameof(edited));
 
 		current.Title = edited.Title;
 		current.Content = edited.Content;
 		current.Flairs = edited.Flairs;
-		current.UpdatedAt = DateTime.UtcNow; // Forcing UpdatedAt refresh
+		current.UpdatedAt = DateTimeOffset.UtcNow; // Forcing UpdatedAt refresh
 		current.ReadOnly = current.ReadOnly || modEditLock;
 
 		KarmaService.UpdatePlayerKarma(player, current.ParsedFlairs, previousFlairs, current.NegativeKarmaAble);
@@ -181,7 +186,7 @@ public class PostService
 	public async Task DeletePostAsync(Guid id, bool modLock = false)
 	{
 		Post post = await _context.Posts.FindAsync(id) ?? throw new ArgumentException($"Post {id} not found", nameof(id));
-		Player player = await _context.Players.FindAsync(post.PlayerId)!;
+		Player player = await _context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {post.PlayerId} not found", nameof(id));
 
 		if (modLock)
 		{
@@ -235,16 +240,16 @@ public class PostService
 
 		if (filteredPosts.Any())
 		{
-			PlayerPostDTO lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault()?.Adapt<PlayerPostDTO>();
+			PlayerPostDTO? lastAuthoredPost = filteredPosts.OrderBy(p => p.CreatedAt).LastOrDefault()?.Adapt<PlayerPostDTO>();
 
 			if (lastAuthoredPost is { CreatedAt: not null })
 			{
-				DateTime endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
-				return endsAt > DateTime.UtcNow;
+				DateTimeOffset endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
+				return endsAt > DateTimeOffset.UtcNow;
 
 			}
 		}
-			
+
 		return false;
 	}
 }

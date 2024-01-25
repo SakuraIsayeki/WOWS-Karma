@@ -1,50 +1,41 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Net.Http;
+﻿using Microsoft.AspNetCore.Mvc;
 using WowsKarma.Common;
 
 using static WowsKarma.Common.Utilities;
 
-
-
 namespace WowsKarma.Api.Services.Authentication.Wargaming;
 
-internal class WargamingAuthConfig
+public sealed class WargamingAuthService
 {
-	public string VerifyIdentityUri { get; set; }
-}
+	private static readonly Uri _openIdDomain = new($"https://{Startup.ApiRegion.ToWargamingSubdomain()}.wargaming.net/id/openid");
 
-public class WargamingAuthService
-{
-	public static Uri OpenIdDomain { get; } = new($"https://{Startup.ApiRegion.ToWargamingSubdomain()}.wargaming.net/id/openid");
+	private static string? _callbackUrl;
 
-	private static string callbackUrl;
+	private readonly WargamingAuthClientFactory _authClientFactory;
 
-	private readonly WargamingAuthClientFactory authClientFactory;
-
-	public WargamingAuthService(IConfiguration configuration, ILogger<WargamingAuthService> logger, WargamingAuthClientFactory authClientFactory)
+	public WargamingAuthService(IConfiguration configuration, WargamingAuthClientFactory authClientFactory)
 	{
-		callbackUrl ??= configuration[$"Api:{Startup.ApiRegion.ToRegionString()}:WgAuthCallback"];
-		this.authClientFactory = authClientFactory;
+		_callbackUrl ??= configuration[$"Api:{Startup.ApiRegion.ToRegionString()}:WgAuthCallback"];
+		_authClientFactory = authClientFactory;
 	}
 
-	public static IActionResult RedirectToLogin(IDictionary<string, string> extraRedirectParams = null) => new RedirectResult(GetAuthUri(extraRedirectParams).ToString());
+	public static IActionResult RedirectToLogin(IReadOnlyDictionary<string, string?>? extraRedirectParams = null) => new RedirectResult(GetAuthUri(extraRedirectParams).ToString());
 
-	public static Uri GetAuthUri(IDictionary<string, string> extraRedirectParams = null)
+	public static Uri GetAuthUri(IReadOnlyDictionary<string, string?>? extraRedirectParams = null)
 	{
-		string verifyIdentityUri = callbackUrl;
+		string verifyIdentityUri = _callbackUrl!;
 
-		if (extraRedirectParams?.Any() is true)
+		if (extraRedirectParams is { Count: not 0 })
 		{
-			string queryString = string.Join('&', extraRedirectParams
-				.Where(e => !string.IsNullOrEmpty(e.Value))
-				.Select(param => $"{param.Key}={param.Value}"));
+			string queryString = string.Join('&', 
+				from e in extraRedirectParams
+				where e is { Value: not (null or "") }
+				select $"{e.Key}={e.Value}");
 
 			verifyIdentityUri += $"?{queryString}";
 		}
 
-		UriBuilder builder = new(OpenIdDomain)
+		UriBuilder builder = new(_openIdDomain)
 		{
 			Query = BuildQuery(
 				("openid.ns", "http://specs.openid.net/auth/2.0"),
@@ -63,19 +54,19 @@ public class WargamingAuthService
 	{
 		// https://eu.wargaming.net/id/503276471-cpt_stewie/
 
-		Dictionary<string, string> paramDict = context.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault());
+		Dictionary<string, string?> paramDict = context.Query.ToDictionary(kv => kv.Key, kv => kv.Value.FirstOrDefault());
 		bool isValid = await IsValid(paramDict);
 
 		return isValid;
 	}
 
-	private async Task<bool> IsValid(IDictionary<string, string> paramDict)
+	private async Task<bool> IsValid(IDictionary<string, string?> paramDict)
 	{
 		paramDict["openid.mode"] = "check_authentication";
 
 
-		using HttpClient httpClient = authClientFactory.GetClient(Startup.ApiRegion);
-		using HttpResponseMessage response = await httpClient.PostAsync("id/openid" + paramDict.BuildQuery(), null);
+		using HttpClient httpClient = _authClientFactory.GetClient(Startup.ApiRegion);
+		using HttpResponseMessage response = await httpClient.PostAsync($"id/openid{paramDict.BuildQuery()}", null);
 		string stringResponse = await response.Content.ReadAsStringAsync();
 		return stringResponse.Contains("is_valid:true");
 	}

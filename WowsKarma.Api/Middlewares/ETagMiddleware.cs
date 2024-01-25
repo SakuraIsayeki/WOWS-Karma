@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
-using System.IO;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Primitives;
@@ -13,7 +10,7 @@ namespace WowsKarma.Api.Middlewares;
 /// <summary>
 /// Provides an ETag generation middleware.
 /// </summary>
-public class ETagMiddleware
+public sealed class ETagMiddleware
 {
 	private readonly RequestDelegate _next;
 

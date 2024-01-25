@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using WowsKarma.Api.Infrastructure.Attributes;
 
 namespace WowsKarma.Api.Controllers;
@@ -11,7 +8,7 @@ namespace WowsKarma.Api.Controllers;
 /// Provides status endpoints for controlling API lifetime.
 /// </summary>
 [ApiController, Route("api/[controller]"), ETag(false)]
-public class StatusController : Controller
+public sealed class StatusController : Controller
 {
 	/// <summary>
 	/// Provides a HTTP ping endpoint.
@@ -34,8 +31,6 @@ public class StatusController : Controller
 				statusCode: StatusCodes.Status500InternalServerError,
 				type: exceptionHandlerFeature.Error.GetType().ToString()
 			);
-				
-				
 		}
 
 		return Problem(statusCode: StatusCodes.Status500InternalServerError);

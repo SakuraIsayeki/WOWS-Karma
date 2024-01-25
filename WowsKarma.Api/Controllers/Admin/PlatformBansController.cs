@@ -9,7 +9,7 @@ using WowsKarma.Common;
 namespace WowsKarma.Api.Controllers.Admin;
 
 [ApiController, Route("api/mod/bans"), Authorize(Roles = $"{ApiRoles.CM},{ApiRoles.Administrator}")]
-public class PlatformBansController : ControllerBase
+public sealed class PlatformBansController : ControllerBase
 {
 	private readonly ModService _service;
 
@@ -39,23 +39,24 @@ public class PlatformBansController : ControllerBase
 		return Ok(bans.ProjectToType<PlatformBanDTO>().AsAsyncEnumerable());
 	}
 
-	/// <summary>
-	///	Emits a new Platform Ban.
-	/// </summary>
-	/// <param name="submitted">Platform Ban to emit</param>
-	/// <param name="days">(Helper) Sets a temporary ban, to the number of specified days starting from UTC now.</param>
-	/// <response code="202">Platform Ban was successfuly submitted.</response>
+	///  <summary>
+	/// 	Emits a new Platform Ban.
+	///  </summary>
+	///  <param name="submitted">Platform Ban to emit</param>
+	///  <param name="authDb">(DI)</param>
+	///  <param name="days">(Helper) Sets a temporary ban, to the number of specified days starting from UTC now.</param>
+	///  <response code="202">Platform Ban was successfuly submitted.</response>
 	[HttpPost, ProducesResponseType(202)]
 	public async Task<IActionResult> SubmitBan([FromBody] PlatformBanDTO submitted, [FromServices] AuthDbContext authDb, [FromQuery] uint days = 0)
 	{
 		await _service.EmitPlatformBanAsync(submitted with
 		{
-			ModId = User.ToAccountListing().Id,
+			ModId = User.ToAccountListing()!.Id,
 			Reverted = false,
-			BannedUntil = days is 0 ? null : DateTime.UtcNow.AddDays(days)
+			BannedUntil = days is 0 ? null : DateTimeOffset.UtcNow.AddDays(days)
 		}, authDb);
 
-		return StatusCode(202);
+		return Accepted();
 	}
 
 	/// <summary>
@@ -64,7 +65,7 @@ public class PlatformBansController : ControllerBase
 	/// <param name="id">ID of Platform Ban to revert.</param>
 	/// <response code="200">Platform Ban was successfully reverted.</response>
 	[HttpDelete("{id:guid}"), ProducesResponseType(200)]
-	public async Task<IActionResult> RevertBan([FromQuery] Guid id)
+	public async Task<IActionResult> RevertBan(Guid id)
 	{
 		await _service.RevertPlatformBanAsync(id);
 

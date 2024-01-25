@@ -1,12 +1,8 @@
 ﻿using Azure.Storage.Blobs;
 using Mapster;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Logging;
-using System.IO;
 using System.Security;
-using System.Threading;
 using Hangfire;
 using Hangfire.Tags.Attributes;
 using WowsKarma.Api.Data;
@@ -17,7 +13,7 @@ using WowsKarma.Common.Models.DTOs.Replays;
 
 namespace WowsKarma.Api.Services.Replays;
 
-public class ReplaysIngestService
+public sealed class ReplaysIngestService
 {
 	public const string ReplayBlobContainer = "replays";
 	public const string SecurityBlobContainer = "rce-replays";
@@ -32,7 +28,9 @@ public class ReplaysIngestService
 
 	public ReplaysIngestService(ILogger<ReplaysIngestService> logger, IConfiguration configuration, ApiDbContext context, ReplaysProcessService processService)
 	{
-		string connectionString = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:Azure:Storage:ConnectionString"];
+		string connectionString = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:Azure:Storage:ConnectionString"]
+			?? throw new InvalidOperationException("Missing API:Azure:Storage:ConnectionString in configuration.");
+		
 		_serviceClient = new(connectionString);
 		_containerClient = _serviceClient.GetBlobContainerClient(ReplayBlobContainer);
 		_securityContainerClient = _serviceClient.GetBlobContainerClient(SecurityBlobContainer);
@@ -49,18 +47,26 @@ public class ReplaysIngestService
 	private static readonly Func<ApiDbContext, IAsyncEnumerable<Guid>> _listReplaysAsync = EF.CompileAsyncQuery(
 		(ApiDbContext context) => context.Replays.Select(r => r.Id));
 
-	public Replay GetReplay(Guid id) => _context.Replays.Find(id);
+	/// <summary>
+	/// Gets a replay by its ID.
+	/// </summary>
+	/// <param name="id">The replay's ID.</param>
+	/// <returns>The replay, or <see langword="null"/> if not found.</returns>
+	public Replay? GetReplay(Guid id) => _context.Replays.Find(id);
 	
-	public async Task<ReplayDTO> GetReplayDTOAsync(Guid id)
+	public async Task<ReplayDTO?> GetReplayDTOAsync(Guid id)
 	{
-		Replay replay = await _context.Replays.FindAsync(id);
+		if (await _context.Replays.FindAsync(id) is not { } replay)
+		{
+			return null;
+		}
 
 		return new()
 		{
 			Id = replay.Id,
 			PostId = replay.PostId,
-			ChatMessages = replay.ChatMessages.Adapt<IEnumerable<ReplayChatMessageDTO>>()
-				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }),
+			ChatMessages = replay.ChatMessages?.Adapt<IEnumerable<ReplayChatMessageDTO>>()
+				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }) ?? [],
 			Players = replay.Players.Adapt<IEnumerable<ReplayPlayerDTO>>(),
 			DownloadUri = $"{_containerClient.Uri}/{ReplayBlobContainer}/{replay.BlobName}",
 			MinimapUri = replay.MinimapRendered ? $"{_serviceClient.Uri}{MinimapRenderingService.MinimapBlobContainer}/{replay.Id}.mp4" : null
@@ -75,7 +81,8 @@ public class ReplaysIngestService
 			throw new ArgumentOutOfRangeException(nameof(replayFile));
 		}
 
-		Post post = await _context.Posts.FindAsync(new object[] { postId }, cancellationToken: ct);
+		Post post = await _context.Posts.FindAsync([postId], cancellationToken: ct)
+			?? throw new ArgumentException("No post was found for specified GUID.", nameof(postId));
 
 		Replay replay = await _processService.ProcessReplayAsync(new Replay(), replayFile.OpenReadStream(), ct);
 
@@ -83,7 +90,7 @@ public class ReplaysIngestService
 
 		if (post.ReplayId is { } existingReplayId)
 		{
-			await RemoveReplayAsync(GetReplay(existingReplayId));
+			await RemoveReplayAsync(GetReplay(existingReplayId) ?? throw new InvalidOperationException("Post has a replay ID, but no replay was found."));
 		}
 
 		EntityEntry<Replay> entityEntry = _context.Replays.Add(replay with { PostId = postId });
@@ -124,7 +131,7 @@ public class ReplaysIngestService
 	{
 		string blobName = $"{Guid.NewGuid():N}-{replayFile.FileName}";
 		await _securityContainerClient.UploadBlobAsync(blobName, replayFile.OpenReadStream());
-		_logger.LogInformation("Ingested RCE file {BlobName}. Link: {Uri}", blobName, _securityContainerClient.GetBlobClient(blobName).Uri);
+		_logger.LogInformation("Ingested RCE file {blobName}. Link: {uri}", blobName, _securityContainerClient.GetBlobClient(blobName).Uri);
 	}
 	
 	public async Task<MemoryStream> FetchReplayFileAsync(Guid replayId, CancellationToken ct)
@@ -179,11 +186,11 @@ public class ReplaysIngestService
 		// Catch any CVE-2022-31265 related exceptions and log them.
 		catch (InvalidReplayException e) when (e.InnerException is SecurityException se && se.Data["exploit"] is "CVE-2022-31265")
 		{
-			_logger.LogWarning("CVE-2022-31265 exploit detected in replay {ReplayId}. Please delete both post and replay from the platform at once.", replay.Id);
+			_logger.LogWarning("CVE-2022-31265 exploit detected in replay {replayId}. Please delete both post and replay from the platform at once.", replay.Id);
 		}
 		catch (Exception e)
 		{
-			_logger.LogWarning(e, "Failed to reprocess replay {ReplayId}.", replay.Id);
+			_logger.LogWarning(e, "Failed to reprocess replay {replayId}.", replay.Id);
 		}
 
 		return null;
@@ -217,7 +224,7 @@ public class ReplaysIngestService
 	[JobDisplayName("Reprocess all replays within date range"), Tag("replay", "recalculation", "batch")]
 	public async Task ReprocessAllReplaysAsync(DateTime? start, DateTime? end, CancellationToken ct)
 	{
-		_logger.LogWarning("Started reprocessing all replays between {Start:g} and {End:g}", start, end);
+		_logger.LogWarning("Started reprocessing all replays between {start:g} and {end:g}", start, end);
 
 		var replayStubs = await _context.Posts.Include(static p => p.Replay)
 			.Where(r => r.Replay != null && r.CreatedAt >= start && r.CreatedAt <= end)
@@ -229,9 +236,9 @@ public class ReplaysIngestService
 				})
 			.ToArrayAsync(ct);
 		
-		_logger.LogWarning("Database readout complete. {Count} replays will be reprocessed.", replayStubs.Length);
+		_logger.LogWarning("Database readout complete. {count} replays will be reprocessed.", replayStubs.Length);
 
-		List<Replay> replays = new();
+		List<Replay> replays = [];
 
 		foreach (Replay replay in replayStubs)
 		{
@@ -241,11 +248,11 @@ public class ReplaysIngestService
 			}
 		}
 
-		_logger.LogWarning("Finished file reprocessing of {Count} replays. Saving to database...", replayStubs.Length);
+		_logger.LogWarning("Finished file reprocessing of {count} replays. Saving to database...", replayStubs.Length);
 
 		_context.UpdateRange(replays);
 		await _context.SaveChangesAsync(ct);
 
-		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {Count} replays total.", replayStubs.Length);
+		_logger.LogWarning("Replay Files reprocessing complete! Reprocessed {count} replays total.", replayStubs.Length);
 	}
 }

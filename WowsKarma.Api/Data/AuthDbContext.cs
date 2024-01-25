@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using WowsKarma.Api.Data.Models.Auth;
 using WowsKarma.Common;
 
@@ -7,8 +6,8 @@ namespace WowsKarma.Api.Data;
 
 public class AuthDbContext : DbContext
 {
-	public DbSet<User> Users { get; init; }
-	public DbSet<Role> Roles { get; init; }
+	public DbSet<User> Users { get; init; } = null!;
+	public DbSet<Role> Roles { get; init; } = null!;
 
 	public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
 

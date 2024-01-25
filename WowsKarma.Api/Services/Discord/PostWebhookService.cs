@@ -3,14 +3,13 @@ using WowsKarma.Api.Utilities;
 using WowsKarma.Common;
 using WowsKarma.Common.Models.DTOs.Replays;
 
-
 namespace WowsKarma.Api.Services.Discord;
 
-public class PostWebhookService : WebhookService
+public sealed class PostWebhookService : WebhookService
 {
 	public PostWebhookService(IConfiguration configuration) : base(configuration)
 	{
-		foreach (string webhookLink in configuration.GetSection($"Discord:Webhooks:{Startup.ApiRegion.ToRegionString()}:Posts").Get<string[]>())
+		foreach (string webhookLink in configuration.GetSection($"Discord:Webhooks:{Startup.ApiRegion.ToRegionString()}:Posts").Get<string[]>() ?? [])
 		{
 			Client.AddWebhookAsync(new(webhookLink)).GetAwaiter().GetResult();
 		}
@@ -73,7 +72,7 @@ public class PostWebhookService : WebhookService
 		null or _ => "Neutral"
 	};
 
-	private static DiscordEmbedBuilder AddReplayStatus(DiscordEmbedBuilder embed, ReplayDTO replay) => embed.AddField("Replay", replay is null
+	private static DiscordEmbedBuilder AddReplayStatus(DiscordEmbedBuilder embed, ReplayDTO? replay) => embed.AddField("Replay", replay is null
 		? "*No replay provided*"
 		: $"[{replay.Id}]({replay.DownloadUri})"
 	);
@@ -81,7 +80,7 @@ public class PostWebhookService : WebhookService
 	private static DiscordEmbedBuilder AddPostContent(DiscordEmbedBuilder embed, PlayerPostDTO post)
 	{
 		embed.Description = post.Content;
-		PostFlairsParsed parsedFlairs = post.Flairs.ParseFlairsEnum();
+		PostFlairsParsed? parsedFlairs = post.Flairs.ParseFlairsEnum();
 
 		embed.AddField("Performance", GetFlairValueString(parsedFlairs?.Performance), true);
 		embed.AddField("Teamplay", GetFlairValueString(parsedFlairs?.Teamplay), true);

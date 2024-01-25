@@ -1,30 +1,28 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-
 namespace WowsKarma.Api.Data.Models;
 
-
-public record PlatformBan : ITimestamped
+public sealed record PlatformBan : ITimestamped
 {
 	[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public Guid Id { get; init; }
 
 	[Required]
 	public uint UserId { get; init; }
-	public virtual Player User { get; init; }
+	public Player User { get; init; } = null!;
 
 	[Required]
 	public uint ModId { get; init; }
-	public virtual Player Mod { get; init; }
+	public Player Mod { get; init; } = null!;
 
 	[Required]
-	public string Reason { get; set; }
+	public string Reason { get; set; } = "";
 
-	public DateTime? BannedUntil { get; set; }
+	public DateTimeOffset? BannedUntil { get; set; }
 
 	public bool Reverted { get; set; }
 
-	public DateTime CreatedAt { get; init; }
-	public DateTime UpdatedAt { get; set; }
+	public DateTimeOffset CreatedAt { get; init; }
+	public DateTimeOffset UpdatedAt { get; set; }
 }

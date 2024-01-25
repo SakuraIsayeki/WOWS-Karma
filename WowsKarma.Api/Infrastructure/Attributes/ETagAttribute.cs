@@ -4,7 +4,7 @@
 /// Attribute for controlling ETag generation for a given endpoint.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-public class ETagAttribute : Attribute
+public sealed class ETagAttribute : Attribute
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ETagAttribute"/> class.

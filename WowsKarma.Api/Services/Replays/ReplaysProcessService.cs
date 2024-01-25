@@ -1,8 +1,6 @@
 using Mapster;
-using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading;
 using Nodsoft.WowsReplaysUnpack.ExtendedData;
 using Nodsoft.WowsReplaysUnpack.ExtendedData.Models;
 using Nodsoft.WowsReplaysUnpack.Services;
@@ -13,10 +11,9 @@ using ReplayPlayer = WowsKarma.Api.Data.Models.Replays.ReplayPlayer;
 using ReplayPlayerRaw = Nodsoft.WowsReplaysUnpack.ExtendedData.Models.ReplayPlayer;
 
 
-
 namespace WowsKarma.Api.Services.Replays;
 
-public class ReplaysProcessService
+public sealed class ReplaysProcessService
 {
 	public static JsonSerializerOptions SerializerOptions { get; } = new()
 	{
@@ -37,7 +34,7 @@ public class ReplaysProcessService
 
 	public async Task<Replay> ProcessReplayAsync(Guid replayId, Stream replayStream, CancellationToken ct)
 	{
-		Replay replay = await _context.Replays.FindAsync(new object[] { replayId }, cancellationToken: ct) 
+		Replay replay = await _context.Replays.FindAsync([replayId], cancellationToken: ct) 
 			?? throw new ArgumentException("No replay was found for specified GUID.", nameof(replayId));
 
 		await ProcessReplayAsync(replay, replayStream, ct);

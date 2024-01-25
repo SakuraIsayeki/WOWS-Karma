@@ -4,7 +4,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 
 namespace WowsKarma.Api.Infrastructure.Telemetry;
 
-public class HubTelemetryFilter : ITelemetryProcessor
+public sealed class HubTelemetryFilter : ITelemetryProcessor
 {
 	private ITelemetryProcessor Next { get; set; }
 
@@ -15,7 +15,7 @@ public class HubTelemetryFilter : ITelemetryProcessor
 
 	public void Process(ITelemetry item)
 	{
-		if (item is RequestTelemetry request and { Name: not null } && request.Name.Contains("hub"))
+		if (item is RequestTelemetry { Name: not null } request && request.Name.Contains("hub"))
 		{
 			return;
 		}

@@ -2,20 +2,19 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Nodsoft.WowsReplaysUnpack.Core.Models;
 
-
 namespace WowsKarma.Api.Data.Models.Replays;
 
 
-public record Replay
+public sealed record Replay
 {
 	[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public Guid Id { get; init; }
 
 	[Required]
 	public Guid PostId { get; init; }
-	public virtual Post Post { get; init; }
+	public Post Post { get; init; } = null!;
 
-	public string BlobName { get; set; }
+	public string BlobName { get; set; } = "";
 	
 	public bool MinimapRendered { get; set; }
 
@@ -25,11 +24,11 @@ public record Replay
 	 */
 
 	[Column(TypeName = "jsonb")]
-	public virtual ArenaInfo ArenaInfo { get; set; }
+	public ArenaInfo ArenaInfo { get; set; } = null!;
 
 	[Column(TypeName = "jsonb")]
-	public virtual IEnumerable<ReplayPlayer> Players { get; set; }
+	public IEnumerable<ReplayPlayer> Players { get; set; } = [];
 
 	[Column(TypeName = "jsonb")]
-	public virtual IEnumerable<ReplayChatMessage> ChatMessages { get; set; }
+	public IEnumerable<ReplayChatMessage> ChatMessages { get; set; } = [];
 }

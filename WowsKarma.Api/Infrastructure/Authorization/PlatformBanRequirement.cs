@@ -5,7 +5,7 @@ namespace WowsKarma.Api.Infrastructure.Authorization;
 /// <summary>
 /// Provides an authorization requirement to evaluate a user's platform bans.
 /// </summary>
-public class PlatformBanRequirement : IAuthorizationRequirement
+public sealed class PlatformBanRequirement : IAuthorizationRequirement
 {
 	/// <summary>
 	/// Whether the user should be banned from the current platform.

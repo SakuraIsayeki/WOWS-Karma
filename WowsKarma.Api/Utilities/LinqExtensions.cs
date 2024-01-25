@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using WowsKarma.Api.Infrastructure.Data;
+﻿using WowsKarma.Api.Infrastructure.Data;
 
 namespace WowsKarma.Api.Utilities;
 

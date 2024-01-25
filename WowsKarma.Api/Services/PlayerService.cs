@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using System.Threading;
 using Hangfire;
 using Hangfire.Tags.Attributes;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
-using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Public;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Infrastructure.Exceptions;
@@ -42,7 +40,7 @@ public class PlayerService
 	[Tag("player", "update", "batch"), JobDisplayName("Perform API fetch on player batch")]
 	public async Task<IEnumerable<Player>> GetPlayersAsync(IEnumerable<uint> ids, bool includeRelated = false, bool includeClanInfo = false, CancellationToken ct = default)
 	{
-		List<Player> players = new();
+		List<Player> players = [];
 			
 		foreach (uint id in ids.AsParallel().WithCancellation(ct))
 		{
@@ -139,14 +137,10 @@ public class PlayerService
 				.Where(p => accountIds.Contains(p.Id))
 				.Select(p => new AccountKarmaDTO(p.Id, p.SiteKarma)));
 
-	public async Task<IEnumerable<AccountListingDTO>> ListPlayersAsync(string search)
-	{
-		AccountListing[] result = (await _wgApi.ListPlayersAsync(search))?.Data?.ToArray();
-
-		return result is { Length: > 0 }
-			? result.Select(listing => listing.ToDTO())
-			: null;
-	}
+	public async Task<AccountListingDTO[]> ListPlayersAsync(string search) 
+		=> (await _wgApi.ListPlayersAsync(search))?.Data?.ToArray() is { Length: not 0 } result
+			? result.Select(Conversions.ToDto).ToArray()
+			: [];
 
 	internal async Task<Player> UpdatePlayerClanStatusAsync(Player player, CancellationToken ct = default)
 	{
@@ -267,7 +261,7 @@ public class PlayerService
 	}
 
 	internal static bool UpdateNeeded(Player player) => player.UpdatedAt + DataUpdateSpan < DateTime.UtcNow;
-	internal static bool IsOptOutOnCooldown(DateTime lastChange) => lastChange + OptOutCooldownSpan > DateTime.UtcNow;
+	internal static bool IsOptOutOnCooldown(DateTimeOffset? lastChange) => lastChange is not null && lastChange + OptOutCooldownSpan > DateTimeOffset.UtcNow;
 
 	private static void SetPlayerMetrics(Player player, int site, int performance, int teamplay, int courtesy)
 	{

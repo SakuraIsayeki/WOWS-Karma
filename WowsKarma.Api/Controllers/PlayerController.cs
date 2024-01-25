@@ -1,17 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Threading;
 using Hangfire;
 using Mapster;
 using WowsKarma.Api.Services;
 using WowsKarma.Common;
 
-
 namespace WowsKarma.Api.Controllers;
 
 [ApiController, Route("api/[controller]")]
-public class PlayerController : ControllerBase
+public sealed class PlayerController : ControllerBase
 {
 	private readonly PlayerService _playerService;
 
@@ -36,14 +34,10 @@ public class PlayerController : ControllerBase
 	/// <response code="200">Account listings for given search query</response>
 	/// <response code="204">No results found for given search query</response>
 	[HttpGet("search/{query}"), ProducesResponseType(typeof(IEnumerable<AccountListingDTO>), 200), ProducesResponseType(204)]
-	public async Task<IActionResult> SearchAccount([StringLength(100, MinimumLength = 3), RegularExpression(@"^[a-zA-Z0-9_]*$")] string query)
-	{
-		IEnumerable<AccountListingDTO> accounts = await _playerService.ListPlayersAsync(query);
-
-		return accounts is null
-			? NoContent()
-			: Ok(accounts);
-	}
+	public async Task<IActionResult> SearchAccount([StringLength(100, MinimumLength = 3), RegularExpression(@"^[a-zA-Z0-9_]*$")] string query) 
+		=> await _playerService.ListPlayersAsync(query) is { Length: not 0 } accounts
+			? Ok(accounts)
+			: NoContent();
 
 	/// <summary>
 	/// Fetches the player profile for a given Account ID.
@@ -63,7 +57,7 @@ public class PlayerController : ControllerBase
 		Player playerProfile = await _playerService.GetPlayerAsync(id, false, includeClanInfo);
 
 		return playerProfile is null
-			? NoContent()
+			? NotFound()
 			: Ok(playerProfile.Adapt<PlayerProfileDTO>());
 	}
 

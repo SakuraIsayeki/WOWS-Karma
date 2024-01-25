@@ -54,7 +54,7 @@ public sealed class PlayerController : ControllerBase
 			return BadRequest(new ArgumentException(null, nameof(id)));
 		}
 
-		Player playerProfile = await _playerService.GetPlayerAsync(id, false, includeClanInfo);
+		Player? playerProfile = await _playerService.GetPlayerAsync(id, false, includeClanInfo);
 
 		return playerProfile is null
 			? NotFound()

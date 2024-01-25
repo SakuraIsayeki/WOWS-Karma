@@ -57,7 +57,10 @@ public class PlayerService
 			
 		foreach (uint id in ids.AsParallel().WithCancellation(ct))
 		{
-			players.Add(await GetPlayerAsync(id, includeRelated, includeClanInfo, ct));
+			if (await GetPlayerAsync(id, includeRelated, includeClanInfo, ct) is { } player)
+			{
+				players.Add(player);
+			}
 		}
 
 		return players;
@@ -69,7 +72,7 @@ public class PlayerService
 	* Method no longer returns any tracked entity, resulting in dropped changes for EF Core
 	* Do not use unless readonly.
 	*/
-	public async Task<Player> GetPlayerAsync(uint accountId, bool includeRelated = false, bool includeClanInfo = false, CancellationToken ct = default)
+	public async Task<Player?> GetPlayerAsync(uint accountId, bool includeRelated = false, bool includeClanInfo = false, CancellationToken ct = default)
 	{
 		if (accountId is 0)
 		{
@@ -91,13 +94,19 @@ public class PlayerService
 		}
 
 
-		Player player = await dbPlayers.FirstOrDefaultAsync(p => p.Id == accountId, ct);
+		Player? player = await dbPlayers.FirstOrDefaultAsync(p => p.Id == accountId, ct);
 		bool updated = false;
 		bool insert = player is null;
 
 		if (insert || UpdateNeeded(player))
 		{
 			player = await UpdatePlayerRecordAsync(player, accountId);
+
+			if (player is null)
+			{
+				return null;
+			}
+			
 			updated = true;
 
 			if (insert)
@@ -222,14 +231,15 @@ public class PlayerService
 		return player;
 	}
 
-	internal async Task<Player> UpdatePlayerRecordAsync(Player player, uint? accountId = null)
+	internal async Task<Player?> UpdatePlayerRecordAsync(Player? player, uint? accountId = null)
 	{
-		Player apiPlayer = (await _vortex.FetchAccountAsync(player?.Id ?? accountId ?? 0)).ToDbModel() ?? throw new ApplicationException("Account returned null.");
+		if ((await _vortex.FetchAccountAsync(player?.Id ?? accountId ?? 0))?.ToDbModel() is { } apiPlayer)
+		{
+			player = player is null
+				? _context.Players.Add(apiPlayer).Entity
+				: Player.MapFromApi(player, apiPlayer);
+		}
 
-		player = player is null 
-			? _context.Players.Add(apiPlayer).Entity 
-			: Player.MapFromApi(player, apiPlayer);
-			
 		return player;
 	}
 

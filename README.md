@@ -1,4 +1,4 @@
-<img align="right" src="WowsKarma.Web/wwwroot/assets/media/icons/android-chrome-512x512.png" alt="logo" width="256"/>
+<img align="right" src="wowskarma.app/src/assets/media/logo.webp" alt="logo" width="256"/>
 
 # WOWS Karma
 

@@ -25,6 +25,7 @@ using Npgsql;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Hubs;
 using WowsKarma.Api.Infrastructure.Authorization;
+using WowsKarma.Api.Infrastructure.Resilience;
 using WowsKarma.Api.Infrastructure.Telemetry;
 using WowsKarma.Api.Middlewares;
 using WowsKarma.Api.Minimap.Client;
@@ -269,9 +270,10 @@ public sealed class Startup
 
 		services.AddResponseCompression(opts =>
 		{
-			opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-				new[] { "application/octet-stream" });
+			opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]);
 		});
+
+		services.AddResiliencePolicies();
 	}
 
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

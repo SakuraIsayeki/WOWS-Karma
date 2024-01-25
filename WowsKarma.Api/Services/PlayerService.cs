@@ -3,8 +3,11 @@ using Hangfire;
 using Hangfire.Tags.Attributes;
 using Nodsoft.Wargaming.Api.Client.Clients.Wows;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows.Vortex;
+using Polly;
+using Polly.Registry;
 using WowsKarma.Api.Data;
 using WowsKarma.Api.Infrastructure.Exceptions;
+using WowsKarma.Api.Infrastructure.Resilience;
 using WowsKarma.Api.Utilities;
 
 namespace WowsKarma.Api.Services;
@@ -18,14 +21,24 @@ public class PlayerService
 	private readonly WowsPublicApiClient _wgApi;
 	private readonly WowsVortexApiClient _vortex;
 	private readonly ClanService _clanService;
+	private readonly ILogger<PlayerService> _logger;
+	private readonly ResiliencePipeline<bool> _resiliencePipeline;
 
 
-	public PlayerService(ApiDbContext context, WowsPublicApiClient wgApi, WowsVortexApiClient vortex, ClanService clanService)
-	{
+	public PlayerService(
+		ApiDbContext context, 
+		WowsPublicApiClient wgApi, 
+		WowsVortexApiClient vortex, 
+		ClanService clanService,
+		ILogger<PlayerService> logger,
+		ResiliencePipelineProvider<string> resiliencePipelineRegistry
+	) {
 		_context = context;
 		_wgApi = wgApi;
 		_vortex = vortex;
-		_clanService = clanService;
+		_clanService = clanService;	
+		_logger = logger;
+		_resiliencePipeline = resiliencePipelineRegistry.GetPipeline<bool>(ResiliencePipelines.PlayerClansUpdatePolicyName);
 	}
 
 	/// <summary>
@@ -95,8 +108,22 @@ public class PlayerService
 
 		if (includeClanInfo)
 		{
-			player = await UpdatePlayerClanStatusAsync(player, ct);
-			updated = true;
+			ResilienceContext resilienceCtx = ResilienceContextPool.Shared.Get(ct);
+			resilienceCtx.Properties.Set(PollyContextExtensions.ContextItems.Logger, _logger);
+			
+			try
+			{
+				// ReSharper disable once HeapView.CanAvoidClosure
+				updated |= await _resiliencePipeline.ExecuteAsync(async ctx =>
+				{
+					player = await UpdatePlayerClanStatusAsync(player, ctx.CancellationToken);
+					return true;
+				}, resilienceCtx);
+			}
+			finally
+			{
+				ResilienceContextPool.Shared.Return(resilienceCtx);
+			}
 		}
 
 		if (updated)

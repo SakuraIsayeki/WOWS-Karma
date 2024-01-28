@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { ServiceWorkerModule } from "@angular/service-worker";
-import { NgbCollapseModule, NgbPaginationModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule, NgbPaginationModule, NgbTooltipModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ModActionTypeDisplayPipe } from 'src/app/services/pipes/mod-action-type-display.pipe';
 import { AppRoutingModule } from "./app-routing.module";
 import { AppWrapperComponent } from "./app-wrapper.component";
@@ -135,7 +135,8 @@ import { UserRolesComponent } from './shared/components/icons/user-roles/user-ro
     }),
     NgbCollapseModule,
     NgbPaginationModule,
-    NgbTooltipModule
+    NgbTooltipModule,
+    NgbModule
   ],
     providers: [
         AuthService,

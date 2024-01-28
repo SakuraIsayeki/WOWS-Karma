@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, combineLatest, Observable, of } from "rxjs";
 import { map, debounceTime, distinctUntilChanged, shareReplay, startWith, tap } from "rxjs/operators";
@@ -17,6 +17,11 @@ export declare type PostChange = { mode: "new" | "edited" | "deleted", post: Has
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ListLatestComponent {
+  public authService: AuthService = inject(AuthService);
+  private postService: PostService = inject(PostService);
+  private formBuilder: FormBuilder = inject(FormBuilder)
+  private postsHubService: PostsHub = inject(PostsHub);
+
   listFilters = this.formBuilder.group<ListFilters>({
     count: 10,
     hideModActions: false,
@@ -74,10 +79,6 @@ export class ListLatestComponent {
     filterNotNull(),
     mergeAndCache(this.postChanges$, this.merge)
   );
-
-  constructor(public authService: AuthService, private postService: PostService, private formBuilder: FormBuilder, private postsHubService: PostsHub) {
-
-  }
 
   private merge(array: PlayerPostDto[], postChange: PostChange) {
     if (postChange.mode == "new" && !array.find(a => a.id == postChange.post.id)) {

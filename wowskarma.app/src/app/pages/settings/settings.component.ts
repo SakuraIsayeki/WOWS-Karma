@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject } from "rxjs";
@@ -13,6 +13,11 @@ import { SeedTokenChangeComponent } from "../../shared/modals/seed-token-change/
     changeDetection: ChangeDetectionStrategy.Default,
 })
 export class SettingsComponent {
+    public authService: AuthService = inject(AuthService);
+    private profileService: ProfileService = inject(ProfileService);
+    private formBuilder: FormBuilder = inject(FormBuilder);
+    private modalService: NgbModal = inject(NgbModal);
+
     changesSaved$ = new BehaviorSubject(false);
     copiedTokenToClipboard$ = new BehaviorSubject(false);
     optOutOnCooldown$ = this.authService.profileFlags$.pipe(
@@ -31,12 +36,7 @@ export class SettingsComponent {
         optedOut: false,
     });
 
-    constructor(
-        public authService: AuthService,
-        private profileService: ProfileService,
-        private formBuilder: FormBuilder,
-        private modalService: NgbModal,
-    ) {
+    constructor() {
         this.authService.profileFlags$.subscribe((profileFlags) => {
             if (profileFlags) {
                 this.form.patchValue(profileFlags);

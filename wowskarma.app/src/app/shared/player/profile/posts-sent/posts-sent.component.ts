@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, Input} from "@angular/core";
 import { BehaviorSubject, combineLatest, combineLatestWith, Observable, tap, merge, filter, withLatestFrom } from "rxjs";
 import { distinctUntilChanged, map } from "rxjs/operators";
 import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
@@ -17,6 +17,9 @@ export class PostsSentComponent {
   @InputObservable()
   userId!: number;
   userId$!: Observable<number>;
+
+  private postService: PostService = inject(PostService);
+  private postsHub: PostsHub = inject(PostsHub);
 
   pageRequest$ = new BehaviorSubject(1);
   pageInfo = new BehaviorSubject<{ currentPage: number, pageSize: number, totalItems: number, totalPages: number } | null>({ currentPage: 1, pageSize: 10, totalItems: 0, totalPages: 0});
@@ -66,9 +69,6 @@ export class PostsSentComponent {
       }
     }),
   );
-
-  constructor(private postService: PostService, private postsHub: PostsHub) {
-  }
 
   sortByLastCreated(a: PlayerPostDto, b: PlayerPostDto) {
     return sortByCreationDate(a, b, true);

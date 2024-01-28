@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import {Component, inject} from "@angular/core";
 import { map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { anyTrue, shareReplayRefCount } from 'src/app/shared/rxjs-operators';
@@ -13,12 +13,11 @@ import { AppConfigService } from "src/app/services/app-config.service";
 })
 export class FooterComponent {
 
+  public appConfig: AppConfigService = inject(AppConfigService);
+  public authService: AuthService = inject(AuthService);
 
   public currentRegion: ApiRegion | undefined = AppConfigService.GetApiRegionFromLocation();
   public currentApiHost: string = environment.apiHost[this.appConfig.currentRegion];
-
-  constructor(public appConfig: AppConfigService, public authService: AuthService) {
-  }
 
   isAdmin$ = this.authService.userInfo$.pipe(
     map(user => !!(user?.roles && user.roles.includes("admin"))),

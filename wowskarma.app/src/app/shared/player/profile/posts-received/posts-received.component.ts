@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, TemplateRef, ViewChild } from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, Input, TemplateRef, ViewChild} from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, combineLatest, combineLatestWith,  filter, merge, Observable, shareReplay, tap, withLatestFrom } from "rxjs";
 import { distinctUntilChanged, map, startWith, } from "rxjs/operators";
@@ -23,6 +23,11 @@ export class PostsReceivedComponent {
   @ViewChild("optedOut") optedOutTemplate!: TemplateRef<any>;
   @ViewChild("platformBanned") bannedTemplate!: TemplateRef<any>;
   @ViewChild("postsCooldown") cooldownTemplate!: TemplateRef<any>;
+
+  public authService: AuthService = inject(AuthService);
+  private postService: PostService = inject(PostService);
+  private modalService: NgbModal = inject(NgbModal);
+  public postsHub: PostsHub = inject(PostsHub);
 
   pageRequest$ = new BehaviorSubject(1);
   pageInfo = new BehaviorSubject<{ currentPage: number, pageSize: number, totalItems: number, totalPages: number } | null>({ currentPage: 1, pageSize: 10, totalItems: 0, totalPages: 0});
@@ -113,7 +118,7 @@ export class PostsReceivedComponent {
     return {template: this.buttonTemplate};
   }));
 
-  constructor(private postService: PostService, public authService: AuthService, private modalService: NgbModal, public postsHub: PostsHub) {
+  constructor() {
     combineLatest([
       this.userId$,
       merge(this.postsHub.newPost$, this.postsHub.editedPost$, this.postsHub.deletedPost$)

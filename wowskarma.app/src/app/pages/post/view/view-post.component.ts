@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject, combineLatestWith, debounce, debounceTime, distinct, distinctUntilChanged, merge, Subscription, tap, withLatestFrom } from "rxjs";
 import { filter, map } from "rxjs/operators";
@@ -13,6 +13,11 @@ import { filterNotNull, mapApiModelState, reloadWhen, routeParam, shareReplayRef
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewPostComponent implements  OnDestroy {
+    private route: ActivatedRoute = inject(ActivatedRoute);
+    private postService: PostService = inject(PostService);
+    private modActionService: ModActionService = inject(ModActionService);
+    private postsHub: PostsHub = inject(PostsHub);
+
     shouldRefresh$ = new BehaviorSubject<void | null>(null);
 
     request$ = routeParam(this.route).pipe(
@@ -50,8 +55,7 @@ export class ViewPostComponent implements  OnDestroy {
 
     private onChangesSubscription: Subscription;
 
-    constructor(private route: ActivatedRoute, private postService: PostService, private modActionService: ModActionService,
-      private postsHub: PostsHub) {
+    constructor() {
         this.onChangesSubscription = this.onChanges$.subscribe();
     }
 

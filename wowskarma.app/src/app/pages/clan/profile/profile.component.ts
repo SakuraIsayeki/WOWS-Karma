@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
@@ -23,6 +23,8 @@ type ApiModelState<T> = {
 })
 export class ProfileComponent {
   //loaded$ = new BehaviorSubject<boolean>(false);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private clanService: ClanService = inject(ClanService);
 
   // Get the "ID,username" from the route params.
   profile$: Observable<ApiModelState<ClanProfileFullDto>> = routeParam(this.route, "idNamePair").pipe(
@@ -47,7 +49,7 @@ export class ProfileComponent {
     shareReplayRefCount(1),
   );
 
-  constructor(private route: ActivatedRoute, private clanService: ClanService) {
+  constructor() {
     // Empty subscription to preemptively load the clan profile ahead of view tree.
     // (uses shareReplayRefCount to prevent multiple requests)
     this.profile$.subscribe();

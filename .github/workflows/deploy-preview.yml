@@ -1,4 +1,4 @@
-﻿name: deploy-preview.yml
+﻿name: Deploy Preview to Server
 
 on:
   push:

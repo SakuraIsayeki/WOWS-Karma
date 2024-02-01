@@ -29,10 +29,10 @@ jobs:
           # include-prerelease: true
 
       - name: Build .NET project (prod)
-        run: dotnet build --configuration ${{ inputs.build_configuration }}
+        run: dotnet build ./WowsKarma.Api/WowsKarma.Api.csproj --configuration ${{ inputs.build_configuration }}
         
       - name: Package API (prod)
-        run: dotnet publish --configuration ${{ inputs.build_configuration }} --output ./publish
+        run: dotnet publish ./WowsKarma.Api/WowsKarma.Api.csproj --configuration ${{ inputs.build_configuration }} --output ./publish
         
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

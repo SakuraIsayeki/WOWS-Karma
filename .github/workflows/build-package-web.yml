@@ -30,6 +30,9 @@ jobs:
     - name: Install Angular CLI
       run: npm install -g @angular/cli
 
+    - name: Switch working directory to webapp project
+      run: cd ./wowskarma.app
+
     - name: Install dependencies
       run: npm install
 

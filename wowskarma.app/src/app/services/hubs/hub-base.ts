@@ -63,5 +63,5 @@ export abstract class HubBase {
         .withAutomaticReconnect()
         // Disabled the MessagePack serializer, due to casing issues.
         //.withHubProtocol(new signalRMsgPack.MessagePackHubProtocol())
-        .configureLogging(environment.production ? signalR.LogLevel.Warning : signalR.LogLevel.Information)
+        .configureLogging(environment.name !== "development" ? signalR.LogLevel.Warning : signalR.LogLevel.Information)
 }

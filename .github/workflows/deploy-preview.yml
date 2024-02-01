@@ -28,7 +28,7 @@ jobs:
     needs: build-test-solution
     uses: ./.github/workflows/build-package-web.yml
     with:
-      build_configuration: 'Preview'
+      build_configuration: 'preview'
 
   # Deploy to server
   deploy-preview:

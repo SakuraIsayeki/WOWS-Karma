@@ -30,17 +30,16 @@ jobs:
     - name: Install Angular CLI
       run: npm install -g @angular/cli
 
-    - name: Switch working directory to webapp project
-      run: cd ./wowskarma.app
-
     - name: Install dependencies
+      working-directory: wowskarma.app
       run: npm install
 
     - name: Build Angular app
+      working-directory: wowskarma.app
       run: ng build --configuration=${{ inputs.build_configuration }}
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: wowskarma_app
-        path: ./dist
+        path: ./wowskarma.app/dist

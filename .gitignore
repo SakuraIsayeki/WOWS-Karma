@@ -371,3 +371,5 @@ wowskarma.app/pnpm-lock.yaml
 .store/
 
 wowskarma.api.minimap/main.py
+
+WowsKarma.Api/appsettings.Preview.json

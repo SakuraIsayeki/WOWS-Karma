@@ -1,0 +1,66 @@
+﻿name: Deploy Preview to Server
+
+on:
+  push:
+    branches: [ develop ]
+
+permissions: 
+  contents: read
+  packages: read
+  deployments: write
+
+jobs:
+  # First: Make sure dev build ran fine.
+  build-test-solution:
+    name: Build & Test Solution
+    uses: ./.github/workflows/dotnet-build.yml
+  
+  # Build & Package API & Web from 'build-package-api.yml' and 'build-package-web.yml'.
+  build-package-api: 
+    name: Build & Package API
+    needs: build-test-solution
+    uses: ./.github/workflows/build-package-api.yml
+    with:
+      build_configuration: 'Preview'
+
+  build-package-web:
+    name: Build & Package Web App
+    needs: build-test-solution
+    uses: ./.github/workflows/build-package-web.yml
+    with:
+      build_configuration: 'preview'
+
+  # Deploy to server
+  deploy-preview:
+    name: Deploy Preview to server
+    environment: 
+        name: preview
+        url: https://preview.wows-karma.com/
+    needs: 
+      - build-package-api
+      - build-package-web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download packaged API artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: wowskarma_api
+          path: ./api
+          
+      - name: Download packaged Web App artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: wowskarma_app
+          path: ./web
+          
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATEKEY }}
+          known_hosts: '*.nodsoft.net'
+          
+      - name: Add Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy with rsync
+        run: rsync -rvmzOE . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_DEPLOYPATH }}

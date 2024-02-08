@@ -1,5 +1,5 @@
 export const environment = {
-    production: true,
+    name: "production",
 
     apiHost: {
         EU: "https://api.wows-karma.com",

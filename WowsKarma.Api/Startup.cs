@@ -274,6 +274,8 @@ public sealed class Startup
 		});
 
 		services.AddResiliencePolicies();
+
+		services.AddSystemd();
 	}
 
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -281,7 +283,7 @@ public sealed class Startup
 	{
 		app.UseETagger();
 		app.UseResponseCompression();
-
+		
 		app.UseSwagger();
 		app.UseSwaggerUI(c =>
 		{

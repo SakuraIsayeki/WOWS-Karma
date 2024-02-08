@@ -26,7 +26,7 @@ jobs:
     name: Build & Package API
     needs: build-test-solution
     uses: Nodsoft/workflows/.github/workflows/package-dotnet.yml@main
-    strategy: &build-strategy
+    strategy:
       matrix: 
         configuration: ['production', 'preview']
     with:
@@ -39,41 +39,59 @@ jobs:
     name: Build & Package Web App
     needs: build-test-solution
     uses: ./.github/workflows/build-package-web.yml
-    strategy: *build-strategy
+    strategy:
+      matrix: 
+        configuration: ['production', 'preview']
     with:
       build_configuration: ${{ matrix.configuration }}
       artifact_name: 'wowskarma_app_${{ matrix.configuration }}'
 
   
-  deploy-preview: &deploy-job
+  deploy-preview:
     name: Deploy to Preview
-    environment: 
-        name: preview
-        url: https://preview.wows-karma.com/
     needs: 
       - build-package-api
       - build-package-web    
+    environment: 
+        name: preview
+        url: https://preview.wows-karma.com/  
     strategy:
       matrix:
         artifact: [
           { name_pre: 'wowskarma_api', path: './api' },
           { name_pre: 'wowskarma_app', path: './web' }
         ]
-    uses: Nodsoft/workflows/.github/workflows/package-dotnet.yml@main
+    uses: Nodsoft/workflows/.github/workflows/deploy-ssh.yml@main
     with: 
-      artifact_name: ${{ matrix.artifact.name_pre }}_${{ inputs.configuration }}
+      artifact_name: ${{ matrix.artifact.name_pre }}_preview
       artifact_path: ${{ matrix.artifact.path }}
       host: ${{ secrets.SSH_HOST }}
       user: ${{ secrets.SSH_USER }}
       private_key: ${{ secrets.SSH_PRIVATEKEY }}
       remote_path: ${{ secrets.SSH_DEPLOYPATH }}
       post_deploy_cmd: ${{ secrets.SSH_CMD_RESTART_API }}
-
-  deploy-live:
-    <<: *deploy-job
-    name: Deploy to Live
+    
+      
+  deploy-production:
+    name: Deploy to Production
+    needs: 
+      - build-package-api
+      - build-package-web    
     environment: 
         name: live
-        url: https://wows-karma.com/
-    needs: 
-      - deploy-preview
+        url: https://wows-karma.com/  
+    strategy:
+      matrix:
+        artifact: [
+          { name_pre: 'wowskarma_api', path: './api' },
+          { name_pre: 'wowskarma_app', path: './web' }
+        ]
+    uses: Nodsoft/workflows/.github/workflows/deploy-ssh.yml@main
+    with: 
+      artifact_name: ${{ matrix.artifact.name_pre }}_production
+      artifact_path: ${{ matrix.artifact.path }}
+      host: ${{ secrets.SSH_HOST }}
+      user: ${{ secrets.SSH_USER }}
+      private_key: ${{ secrets.SSH_PRIVATEKEY }}
+      remote_path: ${{ secrets.SSH_DEPLOYPATH }}
+      post_deploy_cmd: ${{ secrets.SSH_CMD_RESTART_API }}

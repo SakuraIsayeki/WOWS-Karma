@@ -1,8 +1,10 @@
-﻿name: Deploy Preview to Server
+﻿name: Deploy to Server
 
 on:
   push:
-    branches: [ develop ]
+    branches:
+      - main
+      - develop
 
 permissions: 
   contents: read
@@ -24,53 +26,54 @@ jobs:
     name: Build & Package API
     needs: build-test-solution
     uses: Nodsoft/workflows/.github/workflows/package-dotnet.yml@main
+    strategy: &build-strategy
+      matrix: 
+        configuration: ['production', 'preview']
     with:
       dotnet-version: '8.0'
-      configuration: 'Preview'
+      configuration: ${{ matrix.configuration }}
       project-file: 'WowsKarma.Api/WowsKarma.Api.csproj'
-      artifact-name: 'wowskarma_api'
+      artifact-name: 'wowskarma_api_${{ matrix.configuration }}'
 
   build-package-web:
     name: Build & Package Web App
     needs: build-test-solution
     uses: ./.github/workflows/build-package-web.yml
+    strategy: *build-strategy
     with:
-      build_configuration: 'preview'
+      build_configuration: ${{ matrix.configuration }}
+      artifact_name: 'wowskarma_app_${{ matrix.configuration }}'
 
-  # Deploy to server
-  deploy-preview:
-    name: Deploy Preview to server
+  
+  deploy-preview: &deploy-job
+    name: Deploy to Preview
     environment: 
         name: preview
         url: https://preview.wows-karma.com/
     needs: 
       - build-package-api
-      - build-package-web
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download packaged API artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: wowskarma_api
-          path: ./api
-          
-      - name: Download packaged Web App artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: wowskarma_app
-          path: ./web
-          
-      - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_PRIVATEKEY }}
-          known_hosts: '*.nodsoft.net'
-          
-      - name: Add Known Hosts
-        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - build-package-web    
+    strategy:
+      matrix:
+        artifact: [
+          { name_pre: 'wowskarma_api', path: './api' },
+          { name_pre: 'wowskarma_app', path: './web' }
+        ]
+    uses: Nodsoft/workflows/.github/workflows/package-dotnet.yml@main
+    with: 
+      artifact_name: ${{ matrix.artifact.name_pre }}_${{ inputs.configuration }}
+      artifact_path: ${{ matrix.artifact.path }}
+      host: ${{ secrets.SSH_HOST }}
+      user: ${{ secrets.SSH_USER }}
+      private_key: ${{ secrets.SSH_PRIVATEKEY }}
+      remote_path: ${{ secrets.SSH_DEPLOYPATH }}
+      post_deploy_cmd: ${{ secrets.SSH_CMD_RESTART_API }}
 
-      - name: Deploy with rsync
-        run: rsync -rvmzOE . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_DEPLOYPATH }}
-        
-      - name: Restart API service(s)
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} ${{ vars.SSH_CMD_RESTART_API }}
+  deploy-live:
+    <<: *deploy-job
+    name: Deploy to Live
+    environment: 
+        name: live
+        url: https://wows-karma.com/
+    needs: 
+      - deploy-preview

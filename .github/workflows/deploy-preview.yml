@@ -16,16 +16,19 @@ jobs:
     uses: Nodsoft/workflows/.github/workflows/build-dotnet.yml@main
     with:
       dotnet-version: '8.0'
-      configuration: 'Preview'
+      configuration: 'Release'
       project-file: 'WoWS-Karma.sln'
   
   # Build & Package API & Web from 'build-package-api.yml' and 'build-package-web.yml'.
   build-package-api: 
     name: Build & Package API
     needs: build-test-solution
-    uses: ./.github/workflows/build-package-api.yml
+    uses: Nodsoft/workflows/.github/workflows/package-dotnet.yml@main
     with:
-      build_configuration: 'Preview'
+      dotnet-version: '8.0'
+      configuration: 'Preview'
+      project-file: 'WowsKarma.Api/WowsKarma.Api.csproj'
+      artifact-name: 'wowskarma_api'
 
   build-package-web:
     name: Build & Package Web App

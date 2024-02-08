@@ -64,3 +64,6 @@ jobs:
 
       - name: Deploy with rsync
         run: rsync -rvmzOE . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_DEPLOYPATH }}
+        
+      - name: Restart API service(s)
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} ${{ vars.SSH_CMD_RESTART_API }}

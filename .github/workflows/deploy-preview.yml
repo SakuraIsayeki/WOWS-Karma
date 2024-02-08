@@ -13,7 +13,11 @@ jobs:
   # First: Make sure dev build ran fine.
   build-test-solution:
     name: Build & Test Solution
-    uses: ./.github/workflows/dotnet-build.yml
+    uses: Nodsoft/workflows/.github/workflows/build-dotnet.yml@main
+    with:
+      dotnet-version: '8.0'
+      configuration: 'Preview'
+      project-file: 'WoWS-Karma.sln'
   
   # Build & Package API & Web from 'build-package-api.yml' and 'build-package-web.yml'.
   build-package-api: 

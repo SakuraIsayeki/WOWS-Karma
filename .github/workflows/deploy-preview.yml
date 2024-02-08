@@ -86,6 +86,7 @@ jobs:
 
   deploy-live:
     name: Deploy Live to server
+    if: ${{ github.ref == 'refs/heads/main' }}
     environment: 
         name: live
         url: https://wows-karma.com/

@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output, TemplateRef, ViewChild} from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  input,
+  Input,
+  Output,
+  TemplateRef,
+  ViewChild
+} from "@angular/core";
 import {
   Notification,
   NotificationType,
@@ -17,9 +26,8 @@ import {PostModActionDto} from "../../../services/api/models/post-mod-action-dto
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationComponent {
-  @Input() notification!: Notification;
-  notificationContent!: { title: string, body: string, link?: string, critical?: boolean };
-
+  notification = input.required<Notification>();
+  
   @Output() onClick = new EventEmitter();
   @Output() onDismiss = new EventEmitter();
 

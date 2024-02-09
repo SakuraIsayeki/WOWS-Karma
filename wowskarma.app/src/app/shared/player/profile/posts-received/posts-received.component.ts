@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, Input, TemplateRef, ViewChild} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, signal, TemplateRef, ViewChild } from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, combineLatest, combineLatestWith,  filter, merge, Observable, shareReplay, tap, withLatestFrom } from "rxjs";
 import { distinctUntilChanged, map, startWith, } from "rxjs/operators";
@@ -9,6 +9,7 @@ import { sortByCreationDate } from "../../../../services/helpers";
 import { PostsHub } from "../../../../services/hubs/posts-hub.service";
 import { PostEditorComponent } from "../../../modals/post-editor/post-editor.component";
 import { filterNotNull, InputObservable, reloadWhen, shareReplayRefCount, switchMapCatchError, tapAny, tapPageInfoHeaders } from "../../../rxjs-operators";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 
 @Component({
@@ -38,28 +39,25 @@ export class PostsReceivedComponent {
     shareReplayRefCount(1),
   );
 
-  @Input()
-  @InputObservable()
-  userId!: number;
-  userId$!: Observable<number>;
+  userId = input<number>(0);
 
-  loaded$ = new BehaviorSubject(false);
-  shouldRefresh$ = new BehaviorSubject<void | null>(null); // Set to true to allow initial fetch of posts.
+  loaded = signal(false);
+  shouldRefresh = signal(null); // Set to true to allow initial fetch of posts.
 
   // Get an observable to fetch received posts on component init, and refresh on hub events.
   receivedPosts$ = combineLatest([
-    this.userId$,
+    toObservable(this.userId),
     this.pageRequest$
   ]).pipe(
-    tap(() => this.loaded$.next(false)),
-    reloadWhen(this.shouldRefresh$),
-    filter(([userId,]) => userId != 0 && userId != null),
+    tap(() => this.loaded.set(false)),
+    reloadWhen(toObservable(this.shouldRefresh)),
+    filter(([userId,]) => userId != 0),
     switchMapCatchError(([userId, page]) => this.postService.apiPostUserIdReceivedGet$Json$Response({
       userId,
       page,
       pageSize: 20,
     })),
-    tapAny(() => this.loaded$.next(true)),
+    tapAny(() => this.loaded.set(true)),
     tapPageInfoHeaders(this.pageInfo),
     map(r => r!.body),
     map(posts => posts?.sort(this.sortByLastCreated)),
@@ -70,7 +68,7 @@ export class PostsReceivedComponent {
     combineLatestWith(this.receivedPosts$),
     map(([userInfo, posts]) => {
       // Get all posts made by current user, ordered by creation date (newest first).
-      const currentUserPosts = posts?.filter(p => p.author?.id == userInfo?.id)?.sort(this.sortByLastCreated);
+      const currentUserPosts = posts.filter(p => p.author?.id == userInfo?.id)?.sort(this.sortByLastCreated);
 
       if (currentUserPosts?.length != 0) {
         // Get the last post made by current user.
@@ -106,7 +104,7 @@ export class PostsReceivedComponent {
     }
 
     // Check if same user.
-    if (this.userId == userInfo?.id) {
+    if (this.userId() == userInfo?.id) {
       return {template: this.selfPostTemplate};
     }
 
@@ -120,7 +118,7 @@ export class PostsReceivedComponent {
 
   constructor() {
     combineLatest([
-      this.userId$,
+      toObservable(this.userId),
       merge(this.postsHub.newPost$, this.postsHub.editedPost$, this.postsHub.deletedPost$)
     ]).pipe(
       withLatestFrom(this.receivedPosts$),
@@ -131,7 +129,7 @@ export class PostsReceivedComponent {
       }),
       tap(({posts, userId, post, postId}) => {
         if (post && post.player?.id === userId || postId && posts.find(p => p.id === postId)) {
-          this.shouldRefresh$.next();
+          this.shouldRefresh.set(null);
         }
       }),
     ).subscribe();
@@ -150,7 +148,7 @@ export class PostsReceivedComponent {
 
   openEditor() {
     const modal = PostEditorComponent.OpenEditor(this.modalService, {});
-    combineLatest([this.userId$, this.authService.userInfo$]).subscribe(([userId, userInfo]) => {
+    combineLatest([toObservable(this.userId), this.authService.userInfo$]).subscribe(([userId, userInfo]) => {
       modal.componentInstance.post.player = {id: userId};
       modal.componentInstance.post.author = {id: userInfo?.id};
     });

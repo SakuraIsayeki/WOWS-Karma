@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, Input } from "@angular/core";
 
 @Component({
     selector: "minmax-metric",
@@ -7,8 +7,8 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MinMaxMetricComponent {
-    @Input() metric?: MinMaxMetricObject | null;
-    @Input() name!: string;
+    metric = input<MinMaxMetricObject>();
+    name = input.required<string>();
 
     constructor() { }
 }

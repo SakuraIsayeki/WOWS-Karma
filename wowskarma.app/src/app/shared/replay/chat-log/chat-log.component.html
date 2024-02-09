@@ -1,29 +1,33 @@
-<div class="my-3" *ngIf="whoChatted$ | async as whoChatted">
-  <ng-container *ngIf="!(whoChatted[0] === true && whoChatted[1] === true) else bothInteracted">
-    <ng-container *ngIf="whoChatted[0] === true then authorOnly"></ng-container>
-    <ng-container *ngIf="whoChatted[1] === true then playerOnly"></ng-container>
-    <ng-container *ngIf="(whoChatted[0] === false && whoChatted[1] === false) then noneInteracted"></ng-container>
-  </ng-container>
+<div class="my-3">
+    @if (whoChatted()[0] && whoChatted()[1]) {
+        <p class="h5 text-success">Both players have interacted with chat.</p>
+    } @else if (whoChatted()[0]) {
+        <p class="h5 text-info">Only the Author has interacted with chat.</p>
+    } @else if (whoChatted()[1]) {
+        <p class="h5 text-info">Only the Player has interacted with chat.</p>
+    } @else {
+        <p class="h5 text-warning">Neither player has interacted with chat.</p>
+    }
 </div>
 
 <div class="list-group">
-  <a *ngFor="let msg of (messages$ | async)" class="list-group-item list-group-item-action">
-    <div class="d-flex w-100 justify-content-between">
-      <div>
-        <b class="mb-1"><a [routerLink]="['/player', msg.playerId + ',' + msg.username]">{{msg.username}}</a></b>
-        <span *ngIf="msg.playerId == (authorId$ | async)" class="text-muted small fst-italic ms-4">(Author)</span>
-        <span *ngIf="msg.playerId == (playerId$ | async)" class="text-muted small fst-italic ms-4">(Player)</span>
-      </div>
+    <a *ngFor="let msg of replay().chatMessages" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+            <div>
+                <b class="mb-1"><a [routerLink]="['/player', msg.playerId + ',' + msg.username]">{{ msg.username }}</a></b>
+                
+                @if (msg.playerId === authorId()) {
+                    <span class="text-muted small fst-italic ms-4">(Author)</span>
+                } @else if (msg.playerId === playerId()) {
+                    <span class="text-muted small fst-italic ms-4">(Player)</span>
+                }
+            </div>
 
-      <small *ngIf="msg.messageGroup | chatMessageChannel as channel" [class]="channel.color">({{channel.display}})</small>
-    </div>
+            @if (msg.messageGroup | chatMessageChannel; as channel) {
+                <small [class]="channel.color">({{ channel.display }})</small>
+            }
+        </div>
 
-    <p class="mb-1 text-break">{{msg.messageContent}}</p>
-  </a>
+        <p class="mb-1 text-break">{{ msg.messageContent }}</p>
+    </a>
 </div>
-
-
-<ng-template #bothInteracted><h5 class="text-success">Both players have interacted with chat.</h5></ng-template>
-<ng-template #playerOnly><h5 class="text-info">Only the Player has interacted with chat.</h5></ng-template>
-<ng-template #authorOnly><h5 class="text-info">Only the Author has interacted with chat.</h5></ng-template>
-<ng-template #noneInteracted><h5 class="text-warning">Neither player has interacted with chat.</h5></ng-template>

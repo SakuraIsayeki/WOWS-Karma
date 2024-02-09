@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { ChangeDetectionStrategy, Component, computed, inject, Input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
@@ -10,8 +10,8 @@ import { firstValueFrom } from "rxjs";
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HtmlLoaderComponent {
-    @Input()
-    path!: string;
+    // No requirement, as it can also be loaded from snapshot data.
+    path = input<string>();
 
     private http: HttpClient = inject(HttpClient);
     private route: ActivatedRoute = inject(ActivatedRoute);
@@ -19,7 +19,7 @@ export class HtmlLoaderComponent {
 
     // Get the HTML content from the server, at the path specified by the path$ input.
     content = computed(async () => {
-        const path = this.path || this.route.snapshot.data["path"];
+        const path = this.path() || this.route.snapshot.data["path"];
         
         if (!path) {
             return null;

@@ -1,37 +1,45 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, Input, signal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, of, pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PlatformBansService } from 'src/app/services/api/services/platform-bans.service';
-import { InputObservable, shareReplayRefCount, switchMapCatchError, tapAny } from 'src/app/shared/rxjs-operators';
+import {
+  filterNotNull,
+  InputObservable,
+  shareReplayRefCount,
+  switchMapCatchError,
+  tapAny
+} from 'src/app/shared/rxjs-operators';
+import { PlatformBanDto } from "../../../services/api/models/platform-ban-dto";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 @Component({
   templateUrl: './profile-platform-bans-view.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePlatformBansViewComponent {
-  @Input()
-  @InputObservable()
-  public profileId!: number;
-  public profileId$!: BehaviorSubject<number>;
+  profileId = input<number>()
+  platformBans = input<PlatformBanDto[]>()
 
   @Input() modal!: NgbModalRef;
 
-  loaded$ = new BehaviorSubject(false);
+  loaded = signal(false);
 
-  platformBans$ = this.profileId$.pipe(
+  platformBansService = inject(PlatformBansService);
+
+  platformBans$ = toObservable(this.profileId).pipe(
+    filterNotNull(),
     switchMapCatchError((userId) => this.platformBansService.apiModBansUserIdGet$Json({ userId })),
-    tapAny(() => this.loaded$.next(true)),
+    tapAny(() => this.loaded.set(true)),
     shareReplayRefCount(1),
     map(bans => bans ?? []),
   )
 
-  constructor(private platformBansService: PlatformBansService) { }
-
-  static OpenModal(modalService: NgbModal, profile: { id?: number | null }) {
+  static OpenModal(modalService: NgbModal, platformBans?: PlatformBanDto[], profileId?: number) {
     const modalRef = modalService.open(ProfilePlatformBansViewComponent, { size: "lg", fullscreen: "lg" });
     modalRef.componentInstance.modal = modalRef;
-    modalRef.componentInstance.profileId = profile.id;
+    modalRef.componentInstance.platformBans = input(platformBans);
+    modalRef.componentInstance.profileId = input(profileId);
 
     return modalRef;
   }

@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, combineLatest, firstValueFrom, merge, of, Subject, tap } from "rxjs";
+import { firstValueFrom, merge, Subject } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { ModActionService } from 'src/app/services/api/services/mod-action.service';
 import { PlatformBansService } from 'src/app/services/api/services/platform-bans.service';
@@ -9,8 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { ProfileModActionsViewComponent } from 'src/app/shared/modals/profile-mod-actions-view/profile-mod-actions-view.component';
 import { ProfilePlatformBansViewComponent } from 'src/app/shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
 import { PlayerService } from "../../../services/api/services/player.service";
-import { getWowsNumbersPlayerLink } from "../../../services/helpers";
-import { filterNotNull, mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
+import { mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
 import { ProfileService } from "../../../services/api/services/profile.service";
 
 
@@ -78,13 +77,19 @@ export class ProfileComponent {
     return this.authService.isInRole('mod');
   }
 
-  get openPlatformBansModal() {
-    return this.profile$.subscribe(profile => ProfilePlatformBansViewComponent.OpenModal(this.modalService, profile!));
+  async openPlatformBansModal() {
+    return ProfilePlatformBansViewComponent.OpenModal(
+      this.modalService,
+      await firstValueFrom(this.platformBans$) ?? [],
+      (await firstValueFrom(this.profile$))?.id!
+    );
   }
 
   async openModActionsModal() {
-    const profile = await firstValueFrom(this.profile$);
-    console.debug(profile);
-    return ProfileModActionsViewComponent.OpenModal(this.modalService, await firstValueFrom(this.profileModActions$) ?? [], profile?.id!);
+    return ProfileModActionsViewComponent.OpenModal(
+      this.modalService,
+      await firstValueFrom(this.profileModActions$) ?? [],
+      (await firstValueFrom(this.profile$))?.id!
+    );
   }
 }

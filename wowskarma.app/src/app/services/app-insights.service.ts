@@ -19,7 +19,7 @@ export class AppInsightsService {
 
     this.appInsights.loadAppInsights();
 
-    this.authService.userInfo$.subscribe((auth) => {
+    this.authService.userInfo$.subscribe(auth => {
       if (auth) {
         this.appInsights.setAuthenticatedUserContext(auth.id.toString(), auth.id.toString(), true);
       }
@@ -28,13 +28,12 @@ export class AppInsightsService {
       }
     });
 
-    this.appInsights.addTelemetryInitializer((envelope) => {
-      envelope.tags = envelope.tags || [];
-      envelope.tags.push(
-        {"ai.cloud.role": "wowskarma.app"},
-        {"ai.cloud.roleInstance": "wowskarma.app"},
-        {"region": AppConfigService.GetApiRegionFromLocation()?.toString()}
-      );
+    this.appInsights.addTelemetryInitializer(item => {
+      item.tags ||= []
+
+      item.tags["ai.cloud.role"] = "wowskarma.app";
+      item.tags["ai.cloud.roleInstance"] = "wowskarma.app";
+      item.tags["region"] = AppConfigService.GetApiRegionFromLocation()?.toString();
     });
   }
 

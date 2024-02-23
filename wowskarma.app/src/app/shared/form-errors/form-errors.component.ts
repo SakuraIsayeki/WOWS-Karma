@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, input, Input } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { formatBytesSize } from "../../services/helpers";
 
@@ -7,9 +7,7 @@ import { formatBytesSize } from "../../services/helpers";
     templateUrl: "./form-errors.component.html",
 })
 export class FormErrorsComponent {
-
-    @Input()
-    control?: FormControl;
+    control = input<FormControl>();
 
     formatBytesSize(bytesSize: number) {
         return formatBytesSize(bytesSize);

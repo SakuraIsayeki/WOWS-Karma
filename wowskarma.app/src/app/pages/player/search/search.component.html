@@ -9,19 +9,21 @@
 </div>
 
 <div class="mx-3 my-5">
-  <h4 class="text-info my-5" *ngIf="loading$ | async">Searching...</h4>
+  @if (loading()) {
+    <h4 class="text-info my-5">Searching...</h4>
+  } @else if (result()) {
+    @if (result()!.length > 0) {
+      <h4 class="text-success mb-3">Found {{ result()!.length }} Account(s) :</h4>
 
-  <ng-container *ngIf="result$ | async as result">
-    <h4 class="text-success mb-3" *ngIf="result.length > 0 else noResults">Found {{result.length}} Account(s) :</h4>
-
-    <ng-template #noResults>
+      <ul>
+        @for (item of result(); track $index) {
+          <li>
+            <player-namelink [player]="{id: item.id!, username: item.username!}" />
+          </li>
+        }
+      </ul>
+    } @else {
       <h4 class="text-warning my-5">No results found</h4>
-    </ng-template>
-
-    <ul>
-      <li *ngFor="let item of result">
-        <player-namelink [player]="{id: item.id!, username: item.username!}"></player-namelink>
-      </li>
-    </ul>
-  </ng-container>
+    }
+  }
 </div>

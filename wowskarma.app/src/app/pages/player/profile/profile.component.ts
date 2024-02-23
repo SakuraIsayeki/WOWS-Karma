@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, combineLatest, merge, of, Subject, tap } from "rxjs";
@@ -21,6 +21,14 @@ import { ProfileService } from "../../../services/api/services/profile.service";
 
 export class ProfileComponent {
   // Get the "ID,username" from the route params.
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private playerService: PlayerService = inject(PlayerService);
+  private profileService: ProfileService = inject(ProfileService);
+  public authService: AuthService = inject(AuthService);
+  private modActionsService: ModActionService = inject(ModActionService);
+  private platformBansService: PlatformBansService = inject(PlatformBansService);
+  private modalService: NgbModal = inject(NgbModal);
+
   request$ = routeParam(this.route, "idNamePair")
     .pipe(
       map(idNamePair => parseInt(idNamePair?.split(",")[0]!)),
@@ -66,17 +74,6 @@ export class ProfileComponent {
     this.profile$.pipe(
       map(profile => profile?.optedOut ? "sent" : "received")),
   ).pipe(shareReplayRefCount(1));
-
-  constructor(
-    private route: ActivatedRoute,
-    private playerService: PlayerService,
-    private profileService: ProfileService,
-    public authService: AuthService,
-    private modActionsService: ModActionService,
-    private platformBansService: PlatformBansService,
-    private modalService: NgbModal,
-  ) {
-  }
 
   get isCurrentUserCM() {
     return this.authService.isInRole('mod');

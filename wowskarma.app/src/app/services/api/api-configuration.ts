@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-import {Inject, Injectable} from '@angular/core';
+import {inject, Inject, Injectable} from '@angular/core';
 import { environment } from 'src/environments/environment';
 import {AppConfigService} from "../app-config.service";
 
@@ -11,10 +11,7 @@ import {AppConfigService} from "../app-config.service";
   providedIn: 'root',
 })
 export class ApiConfiguration {
-  constructor(
-    @Inject(AppConfigService) private appConfig: AppConfigService
-  ) { }
-
+  private appConfig: AppConfigService = inject(AppConfigService);
   rootUrl: string = environment.apiHost[this.appConfig.currentRegion];
 }
 

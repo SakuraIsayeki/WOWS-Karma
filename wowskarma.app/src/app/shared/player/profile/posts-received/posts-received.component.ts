@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal, TemplateRef, ViewChild } from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject, combineLatest, combineLatestWith,  filter, merge, Observable, shareReplay, tap, withLatestFrom } from "rxjs";
+import { BehaviorSubject, combineLatest, combineLatestWith, filter, firstValueFrom, merge, Observable, shareReplay, tap, withLatestFrom } from "rxjs";
 import { distinctUntilChanged, map, startWith, } from "rxjs/operators";
 import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
 import { PostService } from "../../../../services/api/services/post.service";
@@ -146,12 +146,10 @@ export class PostsReceivedComponent {
     return sortByCreationDate(a, b, true);
   }
 
-  openEditor() {
+  async openEditor() {
     const modal = PostEditorComponent.OpenEditor(this.modalService, {});
-    combineLatest([toObservable(this.userId), this.authService.userInfo$]).subscribe(([userId, userInfo]) => {
-      modal.componentInstance.post.player = {id: userId};
-      modal.componentInstance.post.author = {id: userInfo?.id};
-    });
+    modal.componentInstance.post.player = { id: this.userId() }
+    modal.componentInstance.post.author = { id: (await firstValueFrom(this.authService.userInfo$))?.id };
   }
 
   getCurrentLocation() {

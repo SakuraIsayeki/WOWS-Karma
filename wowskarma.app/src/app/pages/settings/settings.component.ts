@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject } from "rxjs";
@@ -18,8 +18,8 @@ export class SettingsComponent {
     private formBuilder: FormBuilder = inject(FormBuilder);
     private modalService: NgbModal = inject(NgbModal);
 
-    changesSaved$ = new BehaviorSubject(false);
-    copiedTokenToClipboard$ = new BehaviorSubject(false);
+    changesSaved = signal(false);
+    copiedTokenToClipboard = signal(false);
     optOutOnCooldown$ = this.authService.profileFlags$.pipe(
         map((profileFlags) => {
             // Check if the user is opted out and if they are on cooldown (1 Week after opting out)
@@ -29,7 +29,7 @@ export class SettingsComponent {
         }),
     );
 
-    platformBanned$ = new BehaviorSubject(false);
+    platformBanned = signal(false);
 
     form = this.formBuilder.nonNullable.group({
         id: 0,
@@ -42,7 +42,7 @@ export class SettingsComponent {
                 this.form.patchValue(profileFlags);
 
                 if (profileFlags.postsBanned) {
-                    this.platformBanned$.next(true);
+                    this.platformBanned.set(true);
                     this.form.disable();
                 }
             }
@@ -51,14 +51,14 @@ export class SettingsComponent {
 
     saveChanges() {
         this.profileService.apiProfilePut$Json({ body: this.form.value }).subscribe(() => {
-            this.changesSaved$.next(true);
+            this.changesSaved.set(true);
         });
     }
 
     async copyTokenToClipboard() {
         await window.navigator.clipboard.writeText(this.authService.authToken$.value!)
             .then(() => {
-                this.copiedTokenToClipboard$.next(true);
+                this.copiedTokenToClipboard.set(true);
             });
     }
 

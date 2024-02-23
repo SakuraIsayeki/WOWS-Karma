@@ -65,6 +65,7 @@ import { PlayerNamelinkComponent } from './shared/components/player-namelink/pla
 import { ProfileModActionsViewComponent } from './shared/modals/profile-mod-actions-view/profile-mod-actions-view.component';
 import { ProfilePlatformBansViewComponent } from './shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
 import { UserRolesComponent } from './shared/components/icons/user-roles/user-roles.component';
+import { NgOptimizedImage } from "@angular/common";
 
 @NgModule({
     declarations: [
@@ -136,7 +137,8 @@ import { UserRolesComponent } from './shared/components/icons/user-roles/user-ro
     NgbCollapseModule,
     NgbPaginationModule,
     NgbTooltipModule,
-    NgbModule
+    NgbModule,
+    NgOptimizedImage
   ],
     providers: [
         AuthService,

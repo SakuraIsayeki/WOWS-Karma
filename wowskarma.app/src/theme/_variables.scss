@@ -43,8 +43,8 @@ $min-contrast-ratio:   1.9 !default;
 
 // Body
 
-$body-bg:                   #111111 !default;
-$body-color:                $white !default;
+$body-bg:                   #111111;
+$body-color:                $white;
 
 // Links
 
@@ -171,3 +171,9 @@ $btn-close-hover-opacity:    1 !default;
 // Code
 
 $pre-color:                         inherit !default;
+
+
+// Tables
+
+$table-color:                      $body-color !default;
+

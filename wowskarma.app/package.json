@@ -3,7 +3,7 @@
   "version": "0.17.1",
   "scripts": {
     "ng": "ng",
-    "dev": "ng serve --watch",
+    "dev": "ng serve --watch --ssl true",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",

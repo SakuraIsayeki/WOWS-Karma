@@ -1,19 +1,17 @@
-<ng-container *ngIf="metric else noMetric">
-    <h2 class="my-3 metrics-display">
-        <span title="Total" class="text-{{metric.total | karmaColor}}">{{metric.total}}</span>
+@if (metric(); as m) {
+    <p class="h2 my-3 metrics-display">
+        <span ngbTooltip="Total" title="Total" class="text-{{m.total | karmaColor}}">{{m.total}}</span>
 
         <span class="sup-sub">
-            <sup title="Most" class="text-{{metric.max | karmaColor}}">{{metric.max}}</sup>
-            <sub title="Least" class="text-{{metric.min | karmaColor}}">{{metric.min}}</sub>
+            <sup ngbTooltip="Most" title="Total" class="text-{{m.max | karmaColor}}">{{m.max}}</sup>
+            <sub ngbTooltip="Least" title="Total" class="text-{{m.min | karmaColor}}">{{m.min}}</sub>
         </span>
-    </h2>
+    </p>
 
-    <h4>{{name}}</h4>
-</ng-container>
-
-<ng-template #noMetric>
+    <label class="h4">{{name()}}</label>
+} @else {
     <div class="alert alert-warning">
-        <h2 class="my-3 text-danger">N/A</h2>
-        <h4>{{name}}</h4>
+        <p class="h2 my-3 text-danger">N/A</p>
+        <label class="h4">{{name()}}</label>
     </div>
-</ng-template>
+}

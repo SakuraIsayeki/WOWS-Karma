@@ -3,7 +3,7 @@ import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { ServiceWorkerModule } from "@angular/service-worker";
-import { NgbCollapseModule, NgbPaginationModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule, NgbPaginationModule, NgbTooltipModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ModActionTypeDisplayPipe } from 'src/app/services/pipes/mod-action-type-display.pipe';
 import { AppRoutingModule } from "./app-routing.module";
 import { AppWrapperComponent } from "./app-wrapper.component";
@@ -65,6 +65,7 @@ import { PlayerNamelinkComponent } from './shared/components/player-namelink/pla
 import { ProfileModActionsViewComponent } from './shared/modals/profile-mod-actions-view/profile-mod-actions-view.component';
 import { ProfilePlatformBansViewComponent } from './shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
 import { UserRolesComponent } from './shared/components/icons/user-roles/user-roles.component';
+import { NgOptimizedImage } from "@angular/common";
 
 @NgModule({
     declarations: [
@@ -135,7 +136,9 @@ import { UserRolesComponent } from './shared/components/icons/user-roles/user-ro
     }),
     NgbCollapseModule,
     NgbPaginationModule,
-    NgbTooltipModule
+    NgbTooltipModule,
+    NgbModule,
+    NgOptimizedImage
   ],
     providers: [
         AuthService,

@@ -1,45 +1,43 @@
-<ng-container *ngIf="receivedPosts$ | async as posts else loading">
-  <div class="d-md-flex justify-content-between">
-    <div class="ms-xl-2 m-4" *ngIf="showState$ | async as state">
-      <ng-container [ngTemplateOutlet]="state.template" [ngTemplateOutletContext]="state.context"></ng-container>
+@if (receivedPosts$ | async; as posts) {
+    <div class="d-md-flex justify-content-between">
+        <div class="ms-xl-2 m-4" *ngIf="showState$ | async as state">
+            <ng-container [ngTemplateOutlet]="state.template" [ngTemplateOutletContext]="state.context" />
+        </div>
+
+        <div id="post-view-settings" class="d-flex flex-row-reverse">
+            <div id="page-count">
+                <p class="lead mb-1">Page</p>
+
+                @if (pageInfo$ | async; as pageInfo) {
+                    <ngb-pagination [(page)]="pageInfo.currentPage" [boundaryLinks]="true" [collectionSize]="pageInfo.totalItems" size="sm"
+                                    [maxSize]="5" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)"
+                    />
+                }
+            </div>
+        </div>
     </div>
 
-    <div id="post-view-settings" class="d-flex flex-row-reverse">
-      <div id="page-count">
-        <p class="lead mb-1">Page</p>
+    @if (posts.length > 0) {
+        <div class="row gx-2 gy-3">
+            @for (p of posts; track $index) {
+                <div class="col-lg-4 col-md-6">
+                    <app-post [post]="p" postDisplayType="received"></app-post>
+                </div>
+            }
+        </div>
+    } @else {
+        <h3 class="text-warning">No posts found.</h3>
+    }
+} @else {
+    <h3 class="text-info">Loading...</h3>
+}
 
-        <ng-container *ngIf="pageInfo$ | async as pageInfo">
-          <ngb-pagination [(page)]="pageInfo.currentPage" [boundaryLinks]="true" [collectionSize]="pageInfo.totalItems" size="sm"
-                          [maxSize]="5" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)"
-          >
-          </ngb-pagination>
-        </ng-container>
-      </div>
-    </div>
-  </div>
-
-  <div class="row gx-2 gy-3" *ngIf="posts.length > 0 else noPosts">
-    <div class="col-lg-4 col-md-6" *ngFor="let p of posts">
-      <app-post [post]="p" postDisplayType="received"></app-post>
-    </div>
-  </div>
-</ng-container>
-
-<ng-container *ngIf="shouldRefresh$"></ng-container>
+<ng-container *ngIf="shouldRefresh()" />
 
 <!-- TEMPLATES -->
 
-
-<ng-template #loading>
-  <h3 class="text-info">Loading...</h3>
-</ng-template>
-
 <ng-template #createPostButton>
   <button class="btn btn-success px-4" (click)="openEditor()">New Post</button>
-</ng-template>
-
-<ng-template #noPosts>
-  <h3 class="text-warning">No posts found.</h3>
 </ng-template>
 
 <ng-template #notAuthenticated>

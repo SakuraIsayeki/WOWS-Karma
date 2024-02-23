@@ -1,17 +1,17 @@
-<ng-container *ngIf="request$ | async as result else loading">
-  <ng-container *ngIf="result.model as profile else notFound">
+@if (request$ | async; as result) {
+  @if (result.model; as profile) {
     <div class="text-center mb-5">
       <h1 class="d-inline-flex flex-row">
-        <ng-container *ngIf="profile.clan?.clanInfo as clan">
+        @if (profile.clan?.clanInfo; as clan) {
           <div class="pe-1 pb-2">
-            <icon-clan-rank [clanRank]="profile.clan?.clanMemberRole" class="pe-1"></icon-clan-rank>
+            <icon-clan-rank [clanRank]="profile.clan?.clanMemberRole" class="pe-1" />
           </div>
 
           <a [style.color]="clan.leagueColor | colorHex"
              [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]"
              [title]="clan.name"
           >[{{clan.tag}}]</a>
-        </ng-container>
+        }
 
         <span class="mx-lg-3 mx-2">{{profile.username}}</span>
 
@@ -21,7 +21,7 @@
       </h1>
 
       <div class="h1">
-        <icon-user-roles *ngIf="profileRoles$ | async as profileRoles" [UserRoles]="profileRoles" class="ms-3"></icon-user-roles>
+        <icon-user-roles *ngIf="profileRoles$ | async as profileRoles" [userRoles]="profileRoles" class="ms-3" />
       </div>
     </div>
 
@@ -47,11 +47,9 @@
           <dt class="col-sm-3">Account ID :</dt>
           <dd class="col-sm-9">{{profile.id}}</dd>
 
-          <ng-template #profileHidden>
+          @if (profile.wgHidden) {
             <h3 class="text-danger">Player Details Hidden</h3>
-          </ng-template>
-
-          <ng-container *ngIf="!profile.wgHidden else profileHidden">
+          } @else {
             <dt class="col-sm-3">Created :</dt>
             <dd class="col-sm-9">{{profile.wgAccountCreatedAt | date:"medium"}}</dd>
 
@@ -60,42 +58,43 @@
 
             <dt class="col-sm-3">Statistics :</dt>
             <dd class="col-sm-9"><a href="{{profile | wowsNumbersPlayerLink}}">View on wows-numbers.com</a></dd>
+          }
 
-            <ng-container *ngIf="isCurrentUserCM">
-              <dt class="col-sm-3">Platform Banned ?</dt>
-              <dd class="col-sm-9">
-                <div *ngIf="isPlatformBanned$ | async else notPlatformBanned" class="d-flex flex-row gap-3 align-items-center">
+          @if (isCurrentUserCM) {
+            <dt class="col-sm-3">Platform Banned ?</dt>
+            <dd class="col-sm-9">
+              <div class="d-flex flex-row gap-3 align-items-center">
+                @if (isPlatformBanned$ | async) {
                   <span class="text-danger font-weight-bold">Yes</span>
-                  <button class="btn btn-sm btn-secondary" (click)="openPlatformBansModal">Details</button>
-                </div>
-
-                <ng-template #notPlatformBanned>
+                } @else {
                   <span class="text-success font-weight-bold">No</span>
-                </ng-template>
-              </dd>
+                }
 
-              <dt class="col-sm-3">Mod-Actions :</dt>
-              <dd class="col-sm-9">
-                <div *ngIf="((profileModActions$ | async) ?? []).length > 0 else noModActions" class="d-flex flex-row gap-3 align-items-center">
+                @if (((platformBans$ | async)?.length ?? 0) > 0) {
+                  <button class="btn btn-sm btn-secondary" (click)="openPlatformBansModal()">Details</button>
+                }
+              </div>
+            </dd>
+
+            <dt class="col-sm-3">Mod-Actions :</dt>
+            <dd class="col-sm-9">
+              <div class="d-flex flex-row gap-3 align-items-center">
+                @if (((profileModActions$ | async) ?? []).length > 0) {
                   <span class="text-warning font-weight-bold">{{((profileModActions$ | async) ?? []).length}}</span>
-                  <button class="btn btn-sm btn-secondary" (click)="openModActionsModal">Details</button>
-                </div>
-
-                <ng-template #noModActions>
+                  <button class="btn btn-sm btn-secondary" (click)="openModActionsModal()">Details</button>
+                } @else {
                   <span class="text-success font-weight-bold">None</span>
-                </ng-template>
-              </dd>
-            </ng-container>
-          </ng-container>
+                }
+              </div>
+            </dd>
+          }
         </dl>
       </div>
 
       <div class="col-md-6 mb-3">
-        <ng-template #profileOptedOut>
+        @if (profile.optedOut) {
           <h3 class="text-danger text-center">Player has opted out.</h3>
-        </ng-template>
-
-        <ng-container *ngIf="!profile.optedOut else profileOptedOut">
+        } @else {
           <h2 class="text-center mb-5">Ratings</h2>
 
           <div class="row justify-content-around text-center">
@@ -103,20 +102,22 @@
               <h3 class="text-{{profile.ratingPerformance | karmaColor}}">{{profile.ratingPerformance}}</h3>
               <h5>Performance</h5>
             </div>
+
             <div class="col-4">
               <h3 class="text-{{profile.ratingTeamplay | karmaColor}}">{{profile.ratingTeamplay}}</h3>
               <h5>Teamplay</h5>
             </div>
+
             <div class="col-4">
               <h3 class="text-{{profile.ratingCourtesy | karmaColor}}">{{profile.ratingCourtesy}}</h3>
               <h5>Courtesy</h5>
             </div>
           </div>
-        </ng-container>
+        }
       </div>
     </div>
 
-    <ng-container *ngIf="currentTab$ | async as currentTab">
+    @if (currentTab$ | async; as currentTab) {
       <div class="row my-4 justify-content-between">
         <div class="col-auto">
           <h2 class="mx-5">Posts</h2>
@@ -124,30 +125,29 @@
 
         <div class="col">
           <nav class="nav nav-pills nav-justified">
-            <button *ngIf="!profile.optedOut" class="nav-item nav-link" [class.active]="currentTab == 'received'"
-                    (click)="currentTabChanged$.next('received')"
-            >Received
-            </button>
+            @if (!profile.optedOut) {
+              <button class="nav-item nav-link" [class.active]="currentTab == 'received'" (click)="currentTabChanged$.next('received')">Received</button>
+            }
 
-            <button class="nav-item nav-link" [class.active]="currentTab == 'sent'"
-                    (click)="currentTabChanged$.next('sent')"
-            >Sent
-            </button>
+            <button class="nav-item nav-link" [class.active]="currentTab == 'sent'" (click)="currentTabChanged$.next('sent')">Sent</button>
           </nav>
         </div>
       </div>
 
-      <app-posts-received *ngIf="currentTab === 'received'" [userId]="profile.id!"></app-posts-received>
-      <app-posts-sent *ngIf="currentTab === 'sent'" [userId]="profile.id!"></app-posts-sent>
-    </ng-container>
-  </ng-container>
-</ng-container>
+      @switch (currentTab) {
+        @case ('received') {
+          <app-posts-received [userId]="profile.id!" />
+        }
 
-<ng-template #loading>
+        @case ('sent') {
+          <app-posts-sent [userId]="profile.id!" />
+        }
+      }
+    }
+  } @else {
+    <app-not-found message="Sorry, no player was found." />
+  }
+} @else {
   <h3 class="text-info">Loading...</h3>
-</ng-template>
-
-<ng-template #notFound>
-  <app-not-found message="Sorry, no player was found."></app-not-found>
-</ng-template>
+}
 

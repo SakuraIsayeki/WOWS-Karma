@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ClanRole } from 'src/app/services/api/models/clan-role';
 
 @Component({
@@ -8,10 +8,10 @@ import { ClanRole } from 'src/app/services/api/models/clan-role';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ClanRankComponent {
-  @Input() clanRank? = ClanRole.Unknown;
+  clanRank = input.required();
 
   get clanRankIconName() {
-    switch (this.clanRank) {
+    switch (this.clanRank()) {
       case ClanRole.Commander:
         return 'clanranks-commander';
       case ClanRole.ExecutiveOfficer:
@@ -30,7 +30,7 @@ export class ClanRankComponent {
   }
 
   get clanRankDisplayName() {
-    switch (this.clanRank) {
+    switch (this.clanRank()) {
       case ClanRole.Commander:
         return 'Commander';
       case ClanRole.ExecutiveOfficer:

@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, combineLatest, merge, of, Subject, tap } from "rxjs";
+import { firstValueFrom, merge, Subject } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { ModActionService } from 'src/app/services/api/services/mod-action.service';
 import { PlatformBansService } from 'src/app/services/api/services/platform-bans.service';
@@ -9,8 +9,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { ProfileModActionsViewComponent } from 'src/app/shared/modals/profile-mod-actions-view/profile-mod-actions-view.component';
 import { ProfilePlatformBansViewComponent } from 'src/app/shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
 import { PlayerService } from "../../../services/api/services/player.service";
-import { getWowsNumbersPlayerLink } from "../../../services/helpers";
-import { filterNotNull, mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
+import { mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
 import { ProfileService } from "../../../services/api/services/profile.service";
 
 
@@ -18,9 +17,16 @@ import { ProfileService } from "../../../services/api/services/profile.service";
   templateUrl: "./profile.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class ProfileComponent {
   // Get the "ID,username" from the route params.
+  private route = inject(ActivatedRoute);
+  private playerService = inject(PlayerService);
+  private profileService = inject(ProfileService);
+  public authService = inject(AuthService);
+  private modActionsService = inject(ModActionService);
+  private platformBansService = inject(PlatformBansService);
+  private modalService = inject(NgbModal);
+
   request$ = routeParam(this.route, "idNamePair")
     .pipe(
       map(idNamePair => parseInt(idNamePair?.split(",")[0]!)),
@@ -67,26 +73,23 @@ export class ProfileComponent {
       map(profile => profile?.optedOut ? "sent" : "received")),
   ).pipe(shareReplayRefCount(1));
 
-  constructor(
-    private route: ActivatedRoute,
-    private playerService: PlayerService,
-    private profileService: ProfileService,
-    public authService: AuthService,
-    private modActionsService: ModActionService,
-    private platformBansService: PlatformBansService,
-    private modalService: NgbModal,
-  ) {
-  }
-
   get isCurrentUserCM() {
     return this.authService.isInRole('mod');
   }
 
-  get openPlatformBansModal() {
-    return this.profile$.subscribe(profile => ProfilePlatformBansViewComponent.OpenModal(this.modalService, profile!));
+  async openPlatformBansModal() {
+    return ProfilePlatformBansViewComponent.OpenModal(
+      this.modalService,
+      await firstValueFrom(this.platformBans$) ?? [],
+      (await firstValueFrom(this.profile$))?.id!
+    );
   }
 
-  get openModActionsModal() {
-    return this.profile$.subscribe(profile => ProfileModActionsViewComponent.OpenModal(this.modalService, profile!));
+  async openModActionsModal() {
+    return ProfileModActionsViewComponent.OpenModal(
+      this.modalService,
+      await firstValueFrom(this.profileModActions$) ?? [],
+      (await firstValueFrom(this.profile$))?.id!
+    );
   }
 }

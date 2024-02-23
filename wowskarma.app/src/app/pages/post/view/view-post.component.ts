@@ -1,22 +1,28 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, combineLatestWith, debounce, debounceTime, distinct, distinctUntilChanged, merge, Subscription, tap, withLatestFrom } from "rxjs";
+import { merge, Subscription, tap, withLatestFrom } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { PlayerPostDto } from "../../../services/api/models/player-post-dto";
 import { ModActionService } from "../../../services/api/services/mod-action.service";
 import { PostService } from "../../../services/api/services/post.service";
 import { PostsHub } from "../../../services/hubs/posts-hub.service";
-import { filterNotNull, mapApiModelState, reloadWhen, routeParam, shareReplayRefCount, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
+import { filterNotNull, mapApiModelState, reloadWhen, routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
+import { toObservable } from "@angular/core/rxjs-interop";
 
 @Component({
     templateUrl: "./view-post.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ViewPostComponent implements  OnDestroy {
-    shouldRefresh$ = new BehaviorSubject<void | null>(null);
+    private route: ActivatedRoute = inject(ActivatedRoute);
+    private postService: PostService = inject(PostService);
+    private modActionService: ModActionService = inject(ModActionService);
+    private postsHub: PostsHub = inject(PostsHub);
+
+    shouldRefresh = signal<null>(null);
 
     request$ = routeParam(this.route).pipe(
-        reloadWhen(this.shouldRefresh$),
+        reloadWhen(toObservable(this.shouldRefresh)),
         filter((postId) => postId != ""),
         mapApiModelState((id) => this.postService.apiPostPostIdGet$Json({ postId: id! })),
         shareReplayRefCount(1),
@@ -33,7 +39,7 @@ export class ViewPostComponent implements  OnDestroy {
         }),
         tap(({ post, postId }) => {
             if (post?.id === postId) {
-                this.shouldRefresh$.next();
+                this.shouldRefresh.set(null);
             }
         }),
     );
@@ -50,12 +56,13 @@ export class ViewPostComponent implements  OnDestroy {
 
     private onChangesSubscription: Subscription;
 
-    constructor(private route: ActivatedRoute, private postService: PostService, private modActionService: ModActionService,
-      private postsHub: PostsHub) {
+    constructor() {
         this.onChangesSubscription = this.onChanges$.subscribe();
     }
 
     ngOnDestroy() {
         this.onChangesSubscription.unsubscribe();
     }
+
+    protected readonly JSON = JSON;
 }

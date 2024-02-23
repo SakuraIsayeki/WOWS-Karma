@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, Input, signal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ModActionType } from 'src/app/services/api/models/mod-action-type';
 import { ModActionService } from 'src/app/services/api/services/mod-action.service';
 import { InputObservable, shareReplayRefCount, switchMapCatchError, tapAny } from 'src/app/shared/rxjs-operators';
+import { toObservable } from "@angular/core/rxjs-interop";
+import { PostModActionDto } from "../../../services/api/models/post-mod-action-dto";
 
 @Component({
   selector: 'profile-mod-actions-view-modal',
@@ -12,28 +14,29 @@ import { InputObservable, shareReplayRefCount, switchMapCatchError, tapAny } fro
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileModActionsViewComponent {
-  @Input()
-  @InputObservable()
-  public profileId!: number;
-  public profileId$!: BehaviorSubject<number>;
+  profileId = input<number>()
+  modActions = input<PostModActionDto[]>()
 
-  loaded$ = new BehaviorSubject(false);
+  loaded = signal(false);
 
   @Input() modal!: NgbModalRef;
 
-  modActions$ = this.profileId$.pipe(
+  modActionService = inject(ModActionService)
+
+  modActions$= toObservable(this.profileId).pipe(
     switchMapCatchError((userId) => this.modActionService.apiModActionListGet$Json({ userId })),
-    tapAny(() => this.loaded$.next(true)),
+    tapAny(() => this.loaded.set(true)),
     shareReplayRefCount(1),
     map(modActions => modActions ?? []),
   )
 
-  constructor(private modActionService: ModActionService) { }
-
-  static OpenModal(modalService: NgbModal, profile: { id?: number | null }) {
+  static OpenModal(modalService: NgbModal, modActions?: PostModActionDto[], profileId?: number) {
     const modalRef = modalService.open(ProfileModActionsViewComponent, { size: "xl", fullscreen: "xl" });
     modalRef.componentInstance.modal = modalRef;
-    modalRef.componentInstance.profileId = profile.id;
+    modalRef.componentInstance.modActions = input(modActions);
+    modalRef.componentInstance.profileId = input(profileId);
+    console.debug(modalRef.componentInstance.profileId())
+
 
     return modalRef;
   }

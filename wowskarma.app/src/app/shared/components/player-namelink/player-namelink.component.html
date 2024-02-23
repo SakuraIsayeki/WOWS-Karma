@@ -1,9 +1,9 @@
-<ng-container *ngIf="displayClan">
-  <a *ngIf="player?.clan as clan"
-     [style.color]="clan.leagueColor | colorHex" class="me-1"
-     [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]"
-     [title]="clan.name"
-  >[{{clan.tag}}]</a>
-</ng-container>
+@if (displayClan()) {
+    <a *ngIf="player()?.clan as clan"
+       [style.color]="clan.leagueColor | colorHex" class="me-1"
+       [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]"
+       [title]="clan.name"
+    >[{{clan.tag}}]</a>
+}
 
-<a [routerLink]="['/player', player?.id + ',' + player?.username]">{{player?.username}}</a>
+<a [routerLink]="['/player', player()?.id + ',' + player()?.username]">{{player()?.username}}</a>

@@ -1,13 +1,15 @@
 <div class="row justify-content-around align-items-center">
   <div class="col-lg-4 order-3 order-lg-1">
-    <img src="../../../../assets/media/akatsuki-torp-oops.png"
-         class="my-5 my-lg-1 mx-lg-5 img-fluid rounded h-50"
-         alt="Oops, Akatsuki messed up her salvo."
-         title="Oops, Akatsuki messed up her salvo.">
+    <img
+      ngSrc="../../../../assets/media/akatsuki-torp-oops.png" fill
+      class="position-static my-5 my-lg-1 mx-lg-5 h-50"
+      alt="Oops, Akatsuki messed up her salvo."
+      title="Oops, Akatsuki messed up her salvo."
+    >
   </div>
 
   <div class="col-lg-8 text-center order-1 order-lg-3">
     <h1 class="display-1">404</h1>
-    <h3 class="text-warning">{{message}}</h3>
+    <h3 class="text-warning">{{message()}}</h3>
   </div>
 </div>

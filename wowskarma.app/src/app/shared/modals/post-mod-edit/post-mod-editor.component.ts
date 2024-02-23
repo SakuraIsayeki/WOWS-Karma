@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModActionType, PostModActionDto } from 'src/app/services/api/models';
 import { PlayerPostDto } from 'src/app/services/api/models/player-post-dto';
@@ -15,9 +15,10 @@ import { PlayerPostEditorDto, PostEditorComponent } from 'src/app/shared/modals/
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PostModEditorComponent extends PostEditorComponent {
-  @Input() override post!: ModPostEditorDto;
+  @Input() override post: ModPostEditorDto = new ModPostEditorDto();
 
-  constructor(postService: PostService, private modActionService: ModActionService) {
+  private modActionService: ModActionService = inject(ModActionService);
+  constructor(postService: PostService) {
     super(postService);
   }
 

@@ -1,7 +1,17 @@
 <nav class="navbar fixed-top navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark-acrylic box-shadow mb-5 px-3">
   <div class="container-fluid ps-0">
-    <div class="align-content-center mx-3">
+    <div class="d-flex flex-row align-items-center mx-3">
       <a href="/" class='navbar-brand'>WOWS Karma</a>
+
+      @switch (environmentName) {
+        @case ("development") {
+          <div><strong class="badge rounded-pill text-bg-warning text-uppercase">Dev</strong></div>
+        }
+
+        @case ("preview") {
+          <div><strong class="badge rounded-pill text-bg-info text-uppercase">Preview</strong></div>
+        }
+      }
     </div>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavContent"
@@ -19,7 +29,7 @@
       </ul>
 
       <ul class="navbar-nav flex-grow 0">
-        <navbar-auth></navbar-auth>
+        <navbar-auth />
 
         <!-- TODO: Implement theming
         <li class="nav-item ml-3 msl-5">

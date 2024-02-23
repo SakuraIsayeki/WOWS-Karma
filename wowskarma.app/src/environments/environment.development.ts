@@ -6,10 +6,10 @@ export const environment = {
   name: "development",
 
   apiHost: {
-    EU: "http://localhost:5010",
-    NA: "http://localhost:5010",
-    CIS: "http://localhost:5010",
-    SEA: "http://localhost:5010",
+    EU: "https://localhost:5010",
+    NA: "https://localhost:5010",
+    CIS: "https://localhost:5010",
+    SEA: "https://localhost:5010",
   },
 
   applicationInsights: {

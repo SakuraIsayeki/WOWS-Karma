@@ -80,6 +80,8 @@ public sealed class PostService
 			.ThenInclude(p => p.ClanMember)
 			.ThenInclude(p => p.Clan)
 		
+		.Include(p => p.Replay)
+		
 		.Where(p => p.PlayerId == playerId)
 		.OrderByDescending(p => p.CreatedAt);
 
@@ -91,6 +93,8 @@ public sealed class PostService
 		.Include(p => p.Player)
 			.ThenInclude(p => p.ClanMember)
 			.ThenInclude(p => p.Clan)
+		
+		.Include(p => p.Replay)
 		
 		.Where(p => p.AuthorId == authorId)
 		.OrderByDescending(p => p.CreatedAt);

@@ -66,9 +66,12 @@
               <div class="d-flex flex-row gap-3 align-items-center">
                 @if (isPlatformBanned$ | async) {
                   <span class="text-danger font-weight-bold">Yes</span>
-                  <button class="btn btn-sm btn-secondary" (click)="openPlatformBansModal()">Details</button>
                 } @else {
                   <span class="text-success font-weight-bold">No</span>
+                }
+
+                @if (((platformBans$ | async)?.length ?? 0) > 0) {
+                  <button class="btn btn-sm btn-secondary" (click)="openPlatformBansModal()">Details</button>
                 }
               </div>
             </dd>

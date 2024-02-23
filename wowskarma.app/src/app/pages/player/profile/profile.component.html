@@ -23,124 +23,124 @@
       <div class="h1">
         <icon-user-roles *ngIf="profileRoles$ | async as profileRoles" [userRoles]="profileRoles" class="ms-3" />
       </div>
+    </div>
 
-      <div class="row justify-content-center text-center my-5">
-        <div class="col-4 m-4">
-          <h4>In-Game :</h4>
-          <h2 *ngIf="profile.wgHidden" class="text-danger">N/A</h2>
-          <h2 *ngIf="!profile.wgHidden" class="text-{{profile.gameKarma | karmaColor}}" ngbTooltip="In-Game Karma" placement="bottom">{{profile.gameKarma!}}</h2>
-        </div>
-
-        <div class="col-4 m-4">
-          <h4>Platform :</h4>
-          <h2 *ngIf="profile.optedOut" class="text-danger">N/A</h2>
-          <h2 *ngIf="!profile.optedOut" class="text-{{profile.siteKarma | karmaColor}}" ngbTooltip="Platform Karma" placement="bottom">{{profile.siteKarma!}}</h2>
-        </div>
+    <div class="row justify-content-center text-center my-5">
+      <div class="col-4 m-4">
+        <h4>In-Game :</h4>
+        <h2 *ngIf="profile.wgHidden" class="text-danger">N/A</h2>
+        <h2 *ngIf="!profile.wgHidden" class="text-{{profile.gameKarma | karmaColor}}" ngbTooltip="In-Game Karma" placement="bottom">{{profile.gameKarma!}}</h2>
       </div>
 
-      <div class="row justify-content-between">
-        <div class="col-md-6 mb-3">
-          <h2 class="text-center mb-3">Info</h2>
+      <div class="col-4 m-4">
+        <h4>Platform :</h4>
+        <h2 *ngIf="profile.optedOut" class="text-danger">N/A</h2>
+        <h2 *ngIf="!profile.optedOut" class="text-{{profile.siteKarma | karmaColor}}" ngbTooltip="Platform Karma" placement="bottom">{{profile.siteKarma!}}</h2>
+      </div>
+    </div>
 
-          <dl class="row g-2 my-3 mx-xl-3">
-            <dt class="col-sm-3">Account ID :</dt>
-            <dd class="col-sm-9">{{profile.id}}</dd>
+    <div class="row justify-content-between">
+      <div class="col-md-6 mb-3">
+        <h2 class="text-center mb-3">Info</h2>
 
-            @if (profile.wgHidden) {
-              <h3 class="text-danger">Player Details Hidden</h3>
-            } @else {
-              <dt class="col-sm-3">Created :</dt>
-              <dd class="col-sm-9">{{profile.wgAccountCreatedAt | date:"medium"}}</dd>
+        <dl class="row g-2 my-3 mx-xl-3">
+          <dt class="col-sm-3">Account ID :</dt>
+          <dd class="col-sm-9">{{profile.id}}</dd>
 
-              <dt class="col-sm-3">Last Battle :</dt>
-              <dd class="col-sm-9">{{profile.lastBattleTime | date:"medium"}}</dd>
-
-              <dt class="col-sm-3">Statistics :</dt>
-              <dd class="col-sm-9"><a href="{{profile | wowsNumbersPlayerLink}}">View on wows-numbers.com</a></dd>
-
-              @if (isCurrentUserCM) {
-                <dt class="col-sm-3">Platform Banned ?</dt>
-                <dd class="col-sm-9">
-                  <div class="d-flex flex-row gap-3 align-items-center">
-                    @if (isPlatformBanned$ | async) {
-                      <span class="text-danger font-weight-bold">Yes</span>
-                      <button class="btn btn-sm btn-secondary" (click)="openPlatformBansModal">Details</button>
-                    } @else {
-                      <span class="text-success font-weight-bold">No</span>
-                    }
-                  </div>
-                </dd>
-
-                <dt class="col-sm-3">Mod-Actions :</dt>
-                <dd class="col-sm-9">
-                  <div class="d-flex flex-row gap-3 align-items-center">
-                    @if (((profileModActions$ | async) ?? []).length > 0) {
-                      <span class="text-warning font-weight-bold">{{((profileModActions$ | async) ?? []).length}}</span>
-                      <button class="btn btn-sm btn-secondary" (click)="openModActionsModal">Details</button>
-                    } @else {
-                      <span class="text-success font-weight-bold">None</span>
-                    }
-                  </div>
-                </dd>
-              }
-            }
-          </dl>
-        </div>
-
-        <div class="col-md-6 mb-3">
-          @if (profile.optedOut) {
-            <h3 class="text-danger text-center">Player has opted out.</h3>
+          @if (profile.wgHidden) {
+            <h3 class="text-danger">Player Details Hidden</h3>
           } @else {
-            <h2 class="text-center mb-5">Ratings</h2>
+            <dt class="col-sm-3">Created :</dt>
+            <dd class="col-sm-9">{{profile.wgAccountCreatedAt | date:"medium"}}</dd>
 
-            <div class="row justify-content-around text-center">
-              <div class="col-4">
-                <h3 class="text-{{profile.ratingPerformance | karmaColor}}">{{profile.ratingPerformance}}</h3>
-                <h5>Performance</h5>
-              </div>
+            <dt class="col-sm-3">Last Battle :</dt>
+            <dd class="col-sm-9">{{profile.lastBattleTime | date:"medium"}}</dd>
 
-              <div class="col-4">
-                <h3 class="text-{{profile.ratingTeamplay | karmaColor}}">{{profile.ratingTeamplay}}</h3>
-                <h5>Teamplay</h5>
-              </div>
-
-              <div class="col-4">
-                <h3 class="text-{{profile.ratingCourtesy | karmaColor}}">{{profile.ratingCourtesy}}</h3>
-                <h5>Courtesy</h5>
-              </div>
-            </div>
+            <dt class="col-sm-3">Statistics :</dt>
+            <dd class="col-sm-9"><a href="{{profile | wowsNumbersPlayerLink}}">View on wows-numbers.com</a></dd>
           }
+
+          @if (isCurrentUserCM) {
+            <dt class="col-sm-3">Platform Banned ?</dt>
+            <dd class="col-sm-9">
+              <div class="d-flex flex-row gap-3 align-items-center">
+                @if (isPlatformBanned$ | async) {
+                  <span class="text-danger font-weight-bold">Yes</span>
+                  <button class="btn btn-sm btn-secondary" (click)="openPlatformBansModal">Details</button>
+                } @else {
+                  <span class="text-success font-weight-bold">No</span>
+                }
+              </div>
+            </dd>
+
+            <dt class="col-sm-3">Mod-Actions :</dt>
+            <dd class="col-sm-9">
+              <div class="d-flex flex-row gap-3 align-items-center">
+                @if (((profileModActions$ | async) ?? []).length > 0) {
+                  <span class="text-warning font-weight-bold">{{((profileModActions$ | async) ?? []).length}}</span>
+                  <button class="btn btn-sm btn-secondary" (click)="openModActionsModal()">Details</button>
+                } @else {
+                  <span class="text-success font-weight-bold">None</span>
+                }
+              </div>
+            </dd>
+          }
+        </dl>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        @if (profile.optedOut) {
+          <h3 class="text-danger text-center">Player has opted out.</h3>
+        } @else {
+          <h2 class="text-center mb-5">Ratings</h2>
+
+          <div class="row justify-content-around text-center">
+            <div class="col-4">
+              <h3 class="text-{{profile.ratingPerformance | karmaColor}}">{{profile.ratingPerformance}}</h3>
+              <h5>Performance</h5>
+            </div>
+
+            <div class="col-4">
+              <h3 class="text-{{profile.ratingTeamplay | karmaColor}}">{{profile.ratingTeamplay}}</h3>
+              <h5>Teamplay</h5>
+            </div>
+
+            <div class="col-4">
+              <h3 class="text-{{profile.ratingCourtesy | karmaColor}}">{{profile.ratingCourtesy}}</h3>
+              <h5>Courtesy</h5>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (currentTab$ | async; as currentTab) {
+      <div class="row my-4 justify-content-between">
+        <div class="col-auto">
+          <h2 class="mx-5">Posts</h2>
+        </div>
+
+        <div class="col">
+          <nav class="nav nav-pills nav-justified">
+            @if (!profile.optedOut) {
+              <button class="nav-item nav-link" [class.active]="currentTab == 'received'" (click)="currentTabChanged$.next('received')">Received</button>
+            }
+
+            <button class="nav-item nav-link" [class.active]="currentTab == 'sent'" (click)="currentTabChanged$.next('sent')">Sent</button>
+          </nav>
         </div>
       </div>
 
-      @if (currentTab$ | async; as currentTab) {
-        <div class="row my-4 justify-content-between">
-          <div class="col-auto">
-            <h2 class="mx-5">Posts</h2>
-          </div>
+      @switch (currentTab) {
+        @case ('received') {
+          <app-posts-received [userId]="profile.id!" />
+        }
 
-          <div class="col">
-            <nav class="nav nav-pills nav-justified">
-              @if (!profile.optedOut) {
-                <button class="nav-item nav-link" [class.active]="currentTab == 'received'" (click)="currentTabChanged$.next('received')">Received</button>
-              }
-
-              <button class="nav-item nav-link" [class.active]="currentTab == 'sent'" (click)="currentTabChanged$.next('sent')">Sent</button>
-            </nav>
-          </div>
-        </div>
-
-        @switch (currentTab) {
-          @case ('received') {
-            <app-posts-received [userId]="profile.id!" />
-          }
-
-          @case ('sent') {
-            <app-posts-sent [userId]="profile.id!" />
-          }
+        @case ('sent') {
+          <app-posts-sent [userId]="profile.id!" />
         }
       }
-    </div>
+    }
   } @else {
     <app-not-found message="Sorry, no player was found." />
   }

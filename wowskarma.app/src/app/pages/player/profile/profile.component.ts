@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, combineLatest, merge, of, Subject, tap } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, merge, of, Subject, tap } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { ModActionService } from 'src/app/services/api/services/mod-action.service';
 import { PlatformBansService } from 'src/app/services/api/services/platform-bans.service';
@@ -18,16 +18,15 @@ import { ProfileService } from "../../../services/api/services/profile.service";
   templateUrl: "./profile.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class ProfileComponent {
   // Get the "ID,username" from the route params.
-  private route: ActivatedRoute = inject(ActivatedRoute);
-  private playerService: PlayerService = inject(PlayerService);
-  private profileService: ProfileService = inject(ProfileService);
-  public authService: AuthService = inject(AuthService);
-  private modActionsService: ModActionService = inject(ModActionService);
-  private platformBansService: PlatformBansService = inject(PlatformBansService);
-  private modalService: NgbModal = inject(NgbModal);
+  private route = inject(ActivatedRoute);
+  private playerService = inject(PlayerService);
+  private profileService = inject(ProfileService);
+  public authService = inject(AuthService);
+  private modActionsService = inject(ModActionService);
+  private platformBansService = inject(PlatformBansService);
+  private modalService = inject(NgbModal);
 
   request$ = routeParam(this.route, "idNamePair")
     .pipe(
@@ -83,7 +82,9 @@ export class ProfileComponent {
     return this.profile$.subscribe(profile => ProfilePlatformBansViewComponent.OpenModal(this.modalService, profile!));
   }
 
-  get openModActionsModal() {
-    return this.profile$.subscribe(profile => ProfileModActionsViewComponent.OpenModal(this.modalService, profile!));
+  async openModActionsModal() {
+    const profile = await firstValueFrom(this.profile$);
+    console.debug(profile);
+    return ProfileModActionsViewComponent.OpenModal(this.modalService, await firstValueFrom(this.profileModActions$) ?? [], profile?.id!);
   }
 }

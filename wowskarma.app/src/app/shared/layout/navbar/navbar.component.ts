@@ -1,5 +1,6 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { AuthService } from "src/app/services/auth.service";
+import { environment } from "../../../../environments/environment";
 
 @Component({
   selector: "app-navbar",
@@ -8,7 +9,9 @@ import { AuthService } from "src/app/services/auth.service";
 })
 export class NavbarComponent {
   public isCollapsed = true;
+  environmentName = environment.name;
 
-  constructor(public authService: AuthService) {
-  }
+  authService = inject(AuthService)
+
+
 }

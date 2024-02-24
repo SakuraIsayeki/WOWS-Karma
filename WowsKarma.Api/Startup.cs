@@ -52,7 +52,11 @@ public sealed class Startup
 	{
 		Configuration = configuration;
 		ApiRegion = Common.Utilities.GetRegionConfigString(Configuration["Api:CurrentRegion"] ?? "EU");
-		DisplayVersion = typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+
+		if (typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion is { } fullVersion)
+		{
+			DisplayVersion = fullVersion.Split('+').First();
+		}
 	}
 
 

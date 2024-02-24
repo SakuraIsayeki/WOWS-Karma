@@ -6,6 +6,8 @@ on:
     branches: 
       - main
       - develop
+    paths:
+      - wowskarma_api_minimap/**
 
 env:
   REGISTRY: ghcr.io

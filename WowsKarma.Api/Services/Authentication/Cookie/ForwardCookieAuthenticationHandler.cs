@@ -15,8 +15,8 @@ public sealed class ForwardCookieAuthenticationHandler : JwtAuthenticationHandle
 {
 	private readonly string _cookieName;
 	
-	public ForwardCookieAuthenticationHandler(IOptionsMonitor<JwtBearerOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, UserService userService, IConfiguration configuration)
-		: base(options, logger, encoder, clock, userService)
+	public ForwardCookieAuthenticationHandler(IOptionsMonitor<JwtBearerOptions> options, ILoggerFactory logger, UrlEncoder encoder, UserService userService, IConfiguration configuration)
+		: base(options, logger, encoder, userService)
 	{
 		_cookieName = configuration[$"API:{Startup.ApiRegion.ToRegionString()}:CookieName"] 
 			?? throw new($"Missing configuration value for API:{Startup.ApiRegion.ToRegionString()}:CookieName");

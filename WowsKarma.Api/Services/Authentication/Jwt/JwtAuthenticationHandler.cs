@@ -8,12 +8,12 @@ namespace WowsKarma.Api.Services.Authentication.Jwt;
 
 public class JwtAuthenticationHandler : JwtBearerHandler
 {
-	private readonly UserService userService;
+	private readonly UserService _userService;
 
-	public JwtAuthenticationHandler(IOptionsMonitor<JwtBearerOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, UserService userService)
-		: base(options, logger, encoder, clock)
+	public JwtAuthenticationHandler(IOptionsMonitor<JwtBearerOptions> options, ILoggerFactory logger, UrlEncoder encoder, UserService userService)
+		: base(options, logger, encoder)
 	{
-		this.userService = userService;
+		_userService = userService;
 	}
 
 	protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -26,13 +26,13 @@ public class JwtAuthenticationHandler : JwtBearerHandler
 		}
 
 		bool isValid = false;
-		Exception failure = default;
+		Exception? failure = null;
 
 		try
 		{
 			if (baseResult.Principal.FindFirstValue("seed") is { } seed
 				&& uint.TryParse(baseResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier), out uint id)
-				&& await userService.ValidateUserSeedTokenAsync(id, new(seed)))
+				&& await _userService.ValidateUserSeedTokenAsync(id, new(seed)))
 			{
 				isValid = true;
 			}
@@ -45,7 +45,7 @@ public class JwtAuthenticationHandler : JwtBearerHandler
 
 		return isValid
 			? baseResult
-			: failure == default
+			: failure is null
 				? AuthenticateResult.NoResult()
 				: AuthenticateResult.Fail(failure.Message);
 	}

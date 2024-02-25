@@ -66,6 +66,7 @@ import { ProfileModActionsViewComponent } from './shared/modals/profile-mod-acti
 import { ProfilePlatformBansViewComponent } from './shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
 import { UserRolesComponent } from './shared/components/icons/user-roles/user-roles.component';
 import { NgOptimizedImage } from "@angular/common";
+import { MarkdownComponent, MarkdownModule } from "ngx-markdown";
 
 @NgModule({
     declarations: [
@@ -138,7 +139,8 @@ import { NgOptimizedImage } from "@angular/common";
     NgbPaginationModule,
     NgbTooltipModule,
     NgbModule,
-    NgOptimizedImage
+    NgOptimizedImage,
+    MarkdownModule.forRoot()
   ],
     providers: [
         AuthService,

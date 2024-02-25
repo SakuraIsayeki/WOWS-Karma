@@ -128,3 +128,12 @@ body {
   --bs-tooltip-color: #fff;
   --bs-tooltip-bg: #222;
 }
+
+
+.markdown {
+  img {
+    display: block;
+    width: 100%;
+    object-fit: contain;
+  }
+}

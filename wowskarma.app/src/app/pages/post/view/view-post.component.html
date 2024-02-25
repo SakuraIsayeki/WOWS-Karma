@@ -49,10 +49,10 @@
                 <dd class="col-sm-9 col-lg-10">{{ modAction.modUsername }}</dd>
 
                 <dt class="col-sm-3 col-lg-2">Reason</dt>
-                <dd class="col-sm-9 col-lg-10" style="white-space: pre-wrap;">{{ modAction.reason }}</dd>
+                <dd class="col-sm-9 col-lg-10" markdown [data]="modAction.reason"></dd>
             </dl>
         </div>
-        
+
         <div *ngIf="p.replay as replay">
             <h2>Replay
                 <a class="btn btn-primary btn-lg ms-5 px-4" [href]="p.replay.downloadUri">Download Replay</a>

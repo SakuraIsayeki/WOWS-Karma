@@ -93,7 +93,7 @@
       </div>
 
       <div class="d-flex flex-row gap-5 align-items-center my-5">
-        <button type="submit" class="btn btn-success px-5" [attr.disabled]="platformBanned()">Save</button>
+        <button type="submit" class="btn btn-success px-5" [disabled]="platformBanned()">Save</button>
 
         <p *ngIf="changesSaved()" class="text-success my-0" role="alert">
           Your changes have been saved.

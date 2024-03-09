@@ -1,79 +1,96 @@
 @if (request$ | async; as request) {
-    @if (post$ | async; as p) {
-        <div class="my-5">
-            <div class="row justify-content-between">
-                <div class="col-xl-5 col-md-6">
-                    <div class="mb-5">
-                        <h1>View Post</h1>
-                        <p>Post ID : <code class="ml-3">{{ p.id }}</code></p>
-                    </div>
+  @if (post$ | async; as p) {
+    <div class="my-5">
+      <div class="row justify-content-between">
+        <div class="col-xl-5 col-md-6">
+          <div class="mb-5">
+            <h1>View Post</h1>
+            <p>Post ID : <code class="ml-3">{{ p.id }}</code></p>
+          </div>
 
-                    <app-post [post]="p" [postDisplayType]="'neutral'" />
-                </div>
-
-                <div *ngIf="p.replay" class="col-xl-7 col-md-6">
-                    <!-- Display the minimap video -->
-                    <h2 class="mb-5">Minimap</h2>
-
-                    @if (p.replay.minimapUri; as minimapUri) {
-                        <video class="w-100" controls autoplay muted loop preload="auto">
-                            <source [src]="minimapUri" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    } @else {
-                        <h3 class="text-info"><i>Rendering Replay minimap...</i></h3>
-                    }
-                </div>
-            </div>
+          @defer (on immediate) {
+            <app-post [post]="p" postDisplayType="neutral" />
+          } @loading {
+            <h3 class="text-info">Loading...</h3>
+          } @error {
+            <h3 class="text-danger">Error loading Post.</h3>
+          }
         </div>
 
-        <div class="my-5" *ngIf="lastModAction$ | async as modAction">
-            <div class="mb-3">
-                <h4>Mod Action</h4>
+        <div *ngIf="p.replay" class="col-xl-7 col-md-6">
+          <!-- Display the minimap video -->
+          <h2 class="mb-5">Minimap</h2>
 
-                <p *ngIf="modAction.actionType === 0" class="text-danger lead">
-                    This post was removed by our Community Managers, and is no longer visible on the platform.
-                </p>
+          @if (p.replay.minimapUri; as minimapUri) {
+            <video class="w-100" controls autoplay muted loop>
+              <source [src]="minimapUri" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          } @else {
+            <h3 class="text-info"><i>Rendering Replay minimap...</i></h3>
+          }
+        </div>
+      </div>
+    </div>
 
-                <p *ngIf="modAction.actionType === 1" class="text-warning lead">
-                    This post was Locked by our Community Managers, and can no longer be edited.
-                </p>
-            </div>
+    <div class="my-5" *ngIf="lastModAction$ | async as modAction">
+      <div class="mb-3">
+        <h4>Mod Action</h4>
+
+        <p *ngIf="modAction.actionType === 0" class="text-danger lead">
+          This post was removed by our Community Managers, and is no longer visible on the platform.
+        </p>
+
+        <p *ngIf="modAction.actionType === 1" class="text-warning lead">
+          This post was Locked by our Community Managers, and can no longer be edited.
+        </p>
+      </div>
 
 
-            <dl class="row">
-                <dt class="col-sm-3 col-lg-2">Mod Action ID</dt>
-                <dd class="col-sm-9 col-lg-10">{{ modAction.id }}</dd>
+      <dl class="row">
+        <dt class="col-sm-3 col-lg-2">Mod Action ID</dt>
+        <dd class="col-sm-9 col-lg-10">{{ modAction.id }}</dd>
 
-                <dt class="col-sm-3 col-lg-2">Moderated by</dt>
-                <dd class="col-sm-9 col-lg-10">{{ modAction.modUsername }}</dd>
+        <dt class="col-sm-3 col-lg-2">Moderated by</dt>
+        <dd class="col-sm-9 col-lg-10">{{ modAction.modUsername }}</dd>
 
-                <dt class="col-sm-3 col-lg-2">Reason</dt>
-                <dd class="col-sm-9 col-lg-10" markdown [data]="modAction.reason"></dd>
-            </dl>
+        <dt class="col-sm-3 col-lg-2">Reason</dt>
+        <dd class="col-sm-9 col-lg-10" markdown [data]="modAction.reason"></dd>
+      </dl>
+    </div>
+
+    <div *ngIf="p.replay as replay">
+      <h2>Replay
+        <a class="btn btn-primary btn-lg ms-5 px-4" [href]="p.replay.downloadUri">Download Replay</a>
+      </h2>
+
+      <div class="row justify-content-between my-3">
+        <div class="col-lg-7 mb-5 order-lg-5">
+          <h4 class="my-3">Teams Roster</h4>
+          @defer (on immediate) {
+            <replay-team-roster [replay]="replay" [authorId]="p.author!.id!" [playerId]="p.player!.id!" />
+          } @loading {
+            <h3 class="text-info">Loading...</h3>
+          } @error {
+            <h3 class="text-danger">Error loading Teams Roster.</h3>
+          }
         </div>
 
-        <div *ngIf="p.replay as replay">
-            <h2>Replay
-                <a class="btn btn-primary btn-lg ms-5 px-4" [href]="p.replay.downloadUri">Download Replay</a>
-            </h2>
-
-            <div class="row justify-content-between my-3">
-                <div class="col-lg-7 mb-5 order-lg-5">
-                    <h4 class="my-3">Teams Roster</h4>
-                    <replay-team-roster [replay]="replay" [authorId]="p.author!.id!" [playerId]="p.player!.id!" />
-                </div>
-
-                <div class="col-lg-5 mb-5">
-                    <h4 class="my-3">Chat Messages</h4>
-
-                    <replay-chat-log [replay]="replay" [authorId]="p.author!.id!" [playerId]="p.player!.id!" />
-                </div>
-            </div>
+        <div class="col-lg-5 mb-5">
+          <h4 class="my-3">Chat Messages</h4>
+          @defer (on immediate) {
+            <replay-chat-log [replay]="replay" [authorId]="p.author!.id!" [playerId]="p.player!.id!" />
+          } @loading {
+            <h3 class="text-info">Loading...</h3>
+          } @error {
+            <h3 class="text-danger">Error loading Chat Messages.</h3>
+          }
         </div>
-    } @else {
-        <app-not-found message="Sorry, no post was found." />
-    }
+      </div>
+    </div>
+  } @else {
+    <app-not-found message="Sorry, no post was found." />
+  }
 } @else {
-    <h3 class="text-info">Loading...</h3>
+  <h3 class="text-info">Loading...</h3>
 }

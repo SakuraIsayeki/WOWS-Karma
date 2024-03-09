@@ -64,16 +64,21 @@ button.accept-policy {
 
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
-}
 
-.modal-content, .modal-header, .modal-body, .modal-footer {
-  background-color: $body-bg;
-  border-color: #222;
-}
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
 
+  &-content, &-header, &-body, &-footer {
+    background-color: $body-bg;
+    border-color: #222;
+  }
 
-.modal::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 /* Sticky footer styles

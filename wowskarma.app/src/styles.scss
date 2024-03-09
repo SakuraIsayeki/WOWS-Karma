@@ -136,4 +136,14 @@ body {
     width: 100%;
     object-fit: contain;
   }
+
+  table, .table {
+    border-collapse: collapse;
+    border-spacing: 0;
+
+    th, td {
+      padding: 0.3em 0.6em;
+      border: 1px solid rgba(white, 0.3);
+    }
+  }
 }

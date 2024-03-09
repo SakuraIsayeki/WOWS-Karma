@@ -35,10 +35,18 @@ export class TeamRosterComponent {
 
 
   getMaxPlayersInOneTeam(teams: ReplayPlayerDto[][]) {
-    return Math.max(...teams.map((team) => team.length));
+    return Math.max(...teams
+      .filter(Boolean)
+      .map((team) => team?.length || 0));
   }
 
   createRange(number: number) {
     return new Array(number);
   }
+
+  filterNotNullOrEmpty(value: any[]) {
+    return value && value.length > 0;
+  }
+
+  protected readonly Boolean = Boolean;
 }

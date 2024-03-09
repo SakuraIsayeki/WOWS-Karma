@@ -1,39 +1,42 @@
-<div class="my-3">    
-    @if (author() && player()) {
-        @if (author()!.teamId === player()!.teamId) {
-            <p class="h5 text-success">Players have met in the same team.</p>
-        } @else {
-            <p class="h5 text-info">Players have met in different teams.</p>
-        }
+<div class="my-3">
+  @if (author() && player()) {
+    @if (author()!.teamId === player()!.teamId) {
+      <p class="h5 text-success">Players have met in the same team.</p>
     } @else {
-        <p class="h5 text-danger">Players have not met in battle.</p>
+      <p class="h5 text-info">Players have met in different teams.</p>
     }
+  } @else {
+    <p class="h5 text-danger">Players have not met in battle.</p>
+  }
 </div>
 
-<table aria-label="Teams Roster" class="table table-hover table-bordered bg-dark">
+@if (teams().filter(filterNotNullOrEmpty); as teams) {
+  <table aria-label="Teams Roster" class="table table-hover table-bordered bg-dark">
     <thead>
-        <tr>
-            @for (t of teams(); track $index) {
-                <th class="p-3 lead">Team {{ $index }}</th>
-            }
-        </tr>
+      <tr>
+        @for (t of teams; track t) {
+          <th class="p-3 lead">Team {{ $index + 1 }}</th>
+        }
+      </tr>
     </thead>
 
     <tbody>
-        <tr *ngFor="let x of createRange(getMaxPlayersInOneTeam(teams())); index as i;">
-            <ng-container *ngFor="let t of teams(); index as j;">
-                <td *ngIf="teams()[j][i] as p" class="p-3">
-                    <a *ngIf="p.clanId != 0" class="me-2 text-white-50"
-                       [routerLink]="['/clan', p.clanId + ',' + p.clanTag]">[{{ p.clanTag }}]</a>
-    
-                    <a [routerLink]="['/player', p.accountId + ',' + p.name]">{{ p.name }}</a>
-    
-                    <span *ngIf="p.id === author()?.id"
-                          class="text-muted small fst-italic ms-4">(Author)</span>
-                    <span *ngIf="p.id === player()?.id"
-                          class="text-muted small fst-italic ms-4">(Player)</span>
-                </td>
-            </ng-container>
+      @for (x of createRange(getMaxPlayersInOneTeam(teams)); track x; let i = $index) {
+        <tr>
+          @for (t of teams; track t) {
+            @if (t && t[i]; as p) {
+              <td class="p-3">
+                <a *ngIf="p.clanId != 0" class="me-2 text-white-50" [routerLink]="['/clan', p.clanId + ',' + p.clanTag]">[{{ p.clanTag }}]</a>
+                <a [routerLink]="['/player', p.accountId + ',' + p.name]">{{ p.name }}</a>
+                <span *ngIf="p.id === author()?.id" class="text-muted small fst-italic ms-4">(Author)</span>
+                <span *ngIf="p.id === player()?.id" class="text-muted small fst-italic ms-4">(Player)</span>
+              </td>
+            } @else {
+              <td></td>
+            }
+          }
         </tr>
+      }
     </tbody>
-</table>
+  </table>
+}

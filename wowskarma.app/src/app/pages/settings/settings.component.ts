@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, tap } from "rxjs";
 import { map } from "rxjs/operators";
 import "src/app/services/extensions";
 import { ProfileService } from "../../services/api/services/profile.service";
@@ -27,6 +27,16 @@ export class SettingsComponent {
             const isOnCooldown = (cooldownEnd && cooldownEnd > new Date(Date.now())) ?? false;
             return { isOnCooldown, cooldownEnd };
         }),
+
+        tap(({ isOnCooldown, cooldownEnd }) => {
+          const optOutCtl = this.form.controls.optedOut;
+
+          if (isOnCooldown) {
+            optOutCtl.disable();
+          } else {
+            optOutCtl.enable();
+          }
+        })
     );
 
     platformBanned = signal(false);

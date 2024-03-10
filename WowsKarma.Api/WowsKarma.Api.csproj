@@ -6,8 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     
-    <Version>0.17.3</Version>
-    <ProductVersion>0.17.3</ProductVersion>
+    <Version>0.17.4</Version>
     <Authors>Sakura Akeno Isayeki</Authors>
     <Company>Nodsoft Systems</Company>
     <Product>WOWS Karma (API)</Product>

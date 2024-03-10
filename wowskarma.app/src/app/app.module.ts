@@ -66,7 +66,7 @@ import { ProfileModActionsViewComponent } from './shared/modals/profile-mod-acti
 import { ProfilePlatformBansViewComponent } from './shared/modals/profile-platform-bans-view/profile-platform-bans-view.component';
 import { UserRolesComponent } from './shared/components/icons/user-roles/user-roles.component';
 import { NgOptimizedImage } from "@angular/common";
-import { MarkdownComponent, MarkdownModule } from "ngx-markdown";
+import { MarkdownComponent, MarkdownModule, MARKED_OPTIONS } from "ngx-markdown";
 
 @NgModule({
     declarations: [
@@ -140,7 +140,15 @@ import { MarkdownComponent, MarkdownModule } from "ngx-markdown";
     NgbTooltipModule,
     NgbModule,
     NgOptimizedImage,
-    MarkdownModule.forRoot()
+    MarkdownModule.forRoot({
+      markedOptions: {
+        provide: MARKED_OPTIONS,
+        useValue: {
+          gfm: true,
+          breaks: true
+        }
+      }
+    })
   ],
     providers: [
         AuthService,

@@ -12,6 +12,10 @@ permissions:
   contents: read
   packages: read
     
+env: 
+  dotnet_common_args: |
+    /p:IncludeSourceRevisionInInformationalVersion=false
+    
 jobs:
   # Build prod
   build-api-prod:
@@ -29,10 +33,10 @@ jobs:
           # include-prerelease: true
 
       - name: Build .NET project (prod)
-        run: dotnet build ./WowsKarma.Api/WowsKarma.Api.csproj --configuration ${{ inputs.build_configuration }}
+        run: dotnet build ./WowsKarma.Api/WowsKarma.Api.csproj --configuration ${{ inputs.build_configuration }} ${{ env.dotnet_common_args }}
         
       - name: Package API (prod)
-        run: dotnet publish ./WowsKarma.Api/WowsKarma.Api.csproj --configuration ${{ inputs.build_configuration }} --output ./publish
+        run: dotnet publish ./WowsKarma.Api/WowsKarma.Api.csproj --configuration ${{ inputs.build_configuration }} --output ./publish ${{ env.dotnet_common_args }}
         
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

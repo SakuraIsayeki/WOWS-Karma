@@ -11,7 +11,7 @@
         </div>
 
         <div class="card-body">
-            <p class="card-text" style="white-space: pre-wrap;">{{ p.content }}</p>
+            <markdown class="card-text markdown" [data]="p.content" />
         </div>
 
         <div class="card-body py-0 my-1" style="line-height: normal;">
@@ -28,15 +28,15 @@
                         @case (2) {
                             <a class="text-body" [routerLink]="['/posts', 'view', p.id]">
                                 <i class="bi bi-camera-video text-success lead mx-1"></i>
-                            </a> 
+                            </a>
                         }
-                        
+
                         @case (1) {
                             <a class="text-body" [routerLink]="['/posts', 'view', p.id]" title="Replay minimap is being processed.">
                                 <i class="bi bi-camera-video text-warning lead mx-1"></i>
                             </a>
                         }
-                        
+
                         @case (0) {
                             <i class="bi bi-camera-video-off text-danger lead mx-1"></i>
                         }

@@ -6,22 +6,19 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     
-    <Version>0.17.3</Version>
-    <ProductVersion>0.17.3</ProductVersion>
+    <Version>0.17.4</Version>
     <Authors>Sakura Akeno Isayeki</Authors>
     <Company>Nodsoft Systems</Company>
     <Product>WOWS Karma (API)</Product>
     <PackageProjectUrl>https://wows-karma.com</PackageProjectUrl>
     <RepositoryUrl>https://github.com/SakuraIsayeki/WoWS-Karma</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 
     <UserSecretsId>8247eff5-32cd-4d58-ae32-52f2201e69c5</UserSecretsId>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <StartupObject>WowsKarma.Api.Program</StartupObject>
     <ApplicationInsightsResourceId>/subscriptions/0be2b8e4-3496-4846-848e-778692007b69/resourceGroups/WOWS-Karma/providers/microsoft.insights/components/wows-karma-api</ApplicationInsightsResourceId>
-    <SignAssembly>false</SignAssembly>
-
+    
+    <PublishReadyToRun>true</PublishReadyToRun>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>

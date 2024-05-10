@@ -10,7 +10,7 @@ using Nodsoft.WowsReplaysUnpack;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Reflection;
-using System.Text;
+using System.Text; 
 using Hangfire;
 using Hangfire.PostgreSql;
 using Hangfire.Tags.PostgreSql;
@@ -280,6 +280,8 @@ public sealed class Startup
 		services.AddResiliencePolicies();
 
 		services.AddSystemd();
+
+		services.AddSingleton<UserAtomicLockMiddleware>();
 	}
 
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -334,7 +336,8 @@ public sealed class Startup
 		app.UseAuthorization();
 
 		app.UseMiddleware<RequestLoggingMiddleware>();
-
+		app.UseMiddleware<UserAtomicLockMiddleware>();
+		
 		app.UseEndpoints(endpoints =>
 		{
 			endpoints.MapDefaultControllerRoute();

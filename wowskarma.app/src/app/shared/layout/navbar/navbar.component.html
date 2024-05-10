@@ -22,10 +22,10 @@
 
     <div id="navbarNavContent" class="navbar-collapse collapse" [ngbCollapse]="isCollapsed">
       <ul class="navbar-nav flex-grow-1">
-        <li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>
-        <li class="nav-item"><a class="nav-link" routerLink="/player">Players</a></li>
-        <li class="nav-item"><a class="nav-link" routerLink="/clan">Clans</a></li>
-        <li class="nav-item"><a class="nav-link" routerLink="/posts">Posts</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/player" routerLinkActive="active">Players</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/clan" routerLinkActive="active">Clans</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="/posts" routerLinkActive="active">Posts</a></li>
       </ul>
 
       <ul class="navbar-nav flex-grow 0">

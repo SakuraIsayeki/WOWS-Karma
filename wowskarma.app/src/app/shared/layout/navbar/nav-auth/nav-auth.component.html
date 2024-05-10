@@ -1,18 +1,16 @@
 <ul class="navbar-nav flex-grow-0 me-xl-3">
-  <ng-container *ngIf="authService.userInfo$ | async as user else unauthorized">
-    <li class="navbar-text text-light">Welcome, {{user.username}}.&emsp;</li>
+  @if (authService.userInfo$ | async; as user) {
+    <li class="navbar-text text-white me-3">Welcome, {{user.username}}.</li>
 
     <li class="nav-item">
-      <a class="nav-link text-white" [routerLink]="['/player', user.id +','+ user.username]">Profile</a>
+      <a class="nav-link" [routerLink]="['/player', user.id +','+ user.username]" routerLinkActive="active">Profile</a>
     </li>
 
-    <li class="nav-item"><a class="nav-link text-white" routerLink="/settings">Settings</a></li>
-    <li class="nav-item"><a class="nav-link text-white" routerLink="/logout">Logout</a></li>
-  </ng-container>
-
-  <ng-template #unauthorized>
+    <li class="nav-item"><a class="nav-link" routerLink="/settings" routerLinkActive="active">Settings</a></li>
+    <li class="nav-item"><a class="nav-link" routerLink="/logout" routerLinkActive="active">Logout</a></li>
+  } @else {
     <li class="nav-item">
-      <a class="nav-link text-white" routerLink="/login" [queryParams]="{redirectUri: (currentRelativePath$ | async)}">Login</a>
+      <a class="nav-link text-white" routerLink="/login" [queryParams]="{redirectUri: (currentRelativePath$ | async)}" routerLinkActive="active">Login</a>
     </li>
-  </ng-template>
+  }
 </ul>

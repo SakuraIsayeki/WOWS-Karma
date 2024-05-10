@@ -196,7 +196,7 @@ public sealed class PostController : ControllerBase
 	/// <response code="422">Attached replay is invalid.</response>
 	/// <response code="403">Restrictions are in effect for one of the targeted accounts.</response>
 	/// <response code="404">One of the targeted accounts was not found.</response>
-	[HttpPost, Authorize(RequireNoPlatformBans)]
+	[HttpPost, Authorize(RequireNoPlatformBans), UserAtomicLock]
 	[ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(422), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
 	public async Task<IActionResult> CreatePost(
 		[FromForm] string postDto, 

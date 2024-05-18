@@ -23,7 +23,7 @@ public sealed class ReplaysProcessService
 		IgnoreReadOnlyProperties = true
 	};
 
-	private readonly IReplayUnpackerService _replayUnpacker;
+	private readonly IReplayUnpackerService<ExtendedDataReplay> _replayUnpacker;
 	private readonly ApiDbContext _context;
 
 	public ReplaysProcessService(ReplayUnpackerFactory replayUnpacker, ApiDbContext context)
@@ -49,9 +49,9 @@ public sealed class ReplaysProcessService
 		{
 			ct.ThrowIfCancellationRequested();
 
-			ExtendedDataReplay replayRaw = (ExtendedDataReplay)_replayUnpacker.Unpack(replayStream);
+			ExtendedDataReplay replayRaw = _replayUnpacker.Unpack(replayStream);
 
-			replay.ArenaInfo = replayRaw.ArenaInfo;
+			replay.ArenaInfo = JsonSerializer.SerializeToDocument(replayRaw.ArenaInfo);
 			replay.Players = ProcessReplayPlayers(replayRaw.ReplayPlayers);
 			replay.ChatMessages = replayRaw.ChatMessages.Select(m => new ReplayChatMessage 
 			{

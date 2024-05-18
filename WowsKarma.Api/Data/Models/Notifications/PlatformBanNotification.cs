@@ -11,7 +11,7 @@ public record PlatformBanNotification : NotificationBase
 
 	[Required]
 	public Guid BanId { get; set; }
-	public PlatformBan Ban { get; set; }
+	public PlatformBan Ban { get; set; } = null!;
 
 
 	public override PlatformBanNotificationDTO ToDTO() => new()

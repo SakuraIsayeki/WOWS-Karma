@@ -3,14 +3,25 @@ using WowsKarma.Common.Models.DTOs.Notifications;
 
 namespace WowsKarma.Api.Data.Models.Notifications;
 
-public record PostModDeletedNotification : NotificationBase
+/// <summary>
+/// Represents a notification that a post was deleted by a moderator.
+/// </summary>
+public sealed record PostModDeletedNotification : NotificationBase, IDisposable
 {
+	/// <inheritdoc />
 	public override NotificationType Type { get; private protected init; } = NotificationType.PostModDeleted;
 
-	public virtual Guid ModActionId { get; set; }
-	public virtual PostModAction ModAction { get; set; }
+	/// <summary>
+	/// The unique identifier of the moderation action that deleted the post.
+	/// </summary>
+	public Guid ModActionId { get; set; }
+	
+	/// <summary>
+	/// The moderation action that deleted the post.
+	/// </summary>
+	public PostModAction ModAction { get; set; } = null!;
 
-
+	
 	public static PostModDeletedNotification FromModAction(PostModAction modAction) => modAction?.ActionType is not ModActionType.Deletion
 		? throw new ArgumentException(null, nameof(modAction))
 		: new()
@@ -21,6 +32,7 @@ public record PostModDeletedNotification : NotificationBase
 			ModAction = modAction
 		};
 
+	/// <inheritdoc />
 	public override PostModDeletedNotificationDTO ToDTO() => new()
 	{
 		Id = Id,
@@ -31,4 +43,10 @@ public record PostModDeletedNotification : NotificationBase
 		ModActionId = ModActionId,
 		Type = Type
 	};
+
+	/// <inheritdoc />
+	public void Dispose()
+	{
+		ModAction.Dispose();
+	}
 }

@@ -3,12 +3,12 @@ using WowsKarma.Common.Models.DTOs.Notifications;
 
 namespace WowsKarma.Api.Data.Models.Notifications;
 
-public record PostModEditedNotification : NotificationBase
+public sealed record PostModEditedNotification : NotificationBase, IDisposable
 {
 	public override NotificationType Type { get; private protected init; } = NotificationType.PostModEdited;
 
-	public virtual Guid ModActionId { get; set; }
-	public virtual PostModAction ModAction { get; set; }
+	public Guid ModActionId { get; set; }
+	public PostModAction ModAction { get; set; } = null!;
 
 
 	public static PostModDeletedNotification FromModAction(PostModAction modAction) => modAction?.ActionType is not ModActionType.Deletion
@@ -31,4 +31,9 @@ public record PostModEditedNotification : NotificationBase
 		ModActionId = ModActionId,
 		Type = Type
 	};
+
+	public void Dispose()
+	{
+		ModAction.Dispose();
+	}
 }

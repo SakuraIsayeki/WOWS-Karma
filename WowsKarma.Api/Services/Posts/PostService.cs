@@ -141,7 +141,7 @@ public sealed class PostService
 			}
 		}
 
-		Post post = postDto.Adapt<Post>();
+		using Post post = postDto.Adapt<Post>();
 		post.NegativeKarmaAble = author.NegativeKarmaAble;
 
 		EntityEntry<Post> entry = _context.Posts.Add(post);
@@ -150,7 +150,7 @@ public sealed class PostService
 
 		if (hasReplay)
 		{
-			Replay replay = await replayIngestTask!;
+			using Replay replay = await replayIngestTask!;
 
 			entry.Entity.ReplayId = replay.Id;
 			entry.Entity.Replay = replay; 
@@ -189,7 +189,7 @@ public sealed class PostService
 
 	public async Task DeletePostAsync(Guid id, bool modLock = false)
 	{
-		Post post = await _context.Posts.FindAsync(id) ?? throw new ArgumentException($"Post {id} not found", nameof(id));
+		using Post post = await _context.Posts.FindAsync(id) ?? throw new ArgumentException($"Post {id} not found", nameof(id));
 		Player player = await _context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {post.PlayerId} not found", nameof(id));
 
 		if (modLock)
@@ -212,7 +212,7 @@ public sealed class PostService
 
 	public async Task RevertPostModLockAsync(Guid id)
 	{
-		Post post = await _context.Posts.FindAsync(id);
+		using Post post = await _context.Posts.FindAsync(id) ?? throw new ArgumentException($"Post {id} not found", nameof(id));
 		post.ModLocked = false;
 
 		Player player = await _context.Players.FindAsync(post.PlayerId) ?? throw new ArgumentException($"Player Account {post.PlayerId} not found");
@@ -250,7 +250,6 @@ public sealed class PostService
 			{
 				DateTimeOffset endsAt = lastAuthoredPost.CreatedAt.Value.Add(CooldownPeriod);
 				return endsAt > DateTimeOffset.UtcNow;
-
 			}
 		}
 

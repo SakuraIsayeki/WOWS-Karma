@@ -34,7 +34,7 @@ public sealed class ReplaysProcessService
 
 	public async Task<Replay> ProcessReplayAsync(Guid replayId, Stream replayStream, CancellationToken ct)
 	{
-		Replay replay = await _context.Replays.FindAsync([replayId], cancellationToken: ct) 
+		using Replay replay = await _context.Replays.FindAsync([replayId], cancellationToken: ct) 
 			?? throw new ArgumentException("No replay was found for specified GUID.", nameof(replayId));
 
 		await ProcessReplayAsync(replay, replayStream, ct);

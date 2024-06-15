@@ -58,7 +58,7 @@ public sealed class MinimapRenderingService
 	{
 		_logger.LogDebug("Rendering minimap for post {postId}.", postId);
 		
-		Post post = await _context.Posts.Include(static r => r.Replay).FirstOrDefaultAsync(p => p.Id == postId, cancellationToken: ct) 
+		using Post post = await _context.Posts.Include(static r => r.Replay).FirstOrDefaultAsync(p => p.Id == postId, cancellationToken: ct) 
 			?? throw new ArgumentException($"Post with ID {postId} does not exist.", nameof(postId));
 
 		if (!force && post.Replay is null or { MinimapRendered: true })
@@ -92,7 +92,7 @@ public sealed class MinimapRenderingService
 	{
 		_logger.LogDebug("Uploading minimap for replay {replayId} to Azure storage.", replayId);
 		
-		Post post = await _context.Posts.Include(static r => r.Replay).FirstOrDefaultAsync(p => p.Replay.Id == replayId, ct) 
+		using Post post = await _context.Posts.Include(static r => r.Replay).FirstOrDefaultAsync(p => p.Replay.Id == replayId, ct) 
 			?? throw new ArgumentException($"Post with replay ID {replayId} does not exist.", nameof(replayId));
 
 		if (!force && post.Replay is null or { MinimapRendered: true })
@@ -146,7 +146,7 @@ public sealed class MinimapRenderingService
 	
 	public async ValueTask<Uri> GenerateMinimapUriAsync(Guid replayId)
 	{
-		Replay replay = await _context.Replays.FindAsync(replayId) ?? throw new ArgumentException("No replay was found for specified GUID.", nameof(replayId));
+		using Replay replay = await _context.Replays.FindAsync(replayId) ?? throw new ArgumentException("No replay was found for specified GUID.", nameof(replayId));
 		return _containerClient.GetBlobClient(replay.BlobName).Uri;
 	}
 }

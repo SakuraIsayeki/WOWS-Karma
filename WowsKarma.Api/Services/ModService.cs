@@ -53,7 +53,9 @@ public sealed class ModService
 			case ModActionType.Deletion:
 			{
 				await _postService.DeletePostAsync(modAction.PostId, true);
-				await _notifications.SendNewNotification(PostModDeletedNotification.FromModAction(entityEntry.Entity));
+
+				using PostModDeletedNotification notification = PostModDeletedNotification.FromModAction(entityEntry.Entity);
+				await _notifications.SendNewNotification(notification);
 				break;
 			}
 
@@ -71,8 +73,7 @@ public sealed class ModService
 				break;
 			}
 
-			default:
-				throw new UnreachableException();
+			default: throw new UnreachableException();
 		}
 
 		await entityEntry.Reference(pma => pma.Mod).LoadAsync();
@@ -83,7 +84,7 @@ public sealed class ModService
 
 	public async Task RevertModActionAsync(Guid modActionId)
 	{
-		PostModAction modAction = await _context.PostModActions.FindAsync(modActionId) ?? throw new ArgumentException($"Mod action with id {modActionId} not found");
+		using PostModAction modAction = await _context.PostModActions.FindAsync(modActionId) ?? throw new ArgumentException($"Mod action with id {modActionId} not found");
 
 		_context.PostModActions.Remove(modAction);
 		await _postService.RevertPostModLockAsync(modAction.PostId);

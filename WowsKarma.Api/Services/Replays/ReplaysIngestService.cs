@@ -20,7 +20,7 @@ public sealed class ReplaysIngestService
 	public const int MaxReplaySize = 5242880;
 
 	private readonly BlobServiceClient _serviceClient;
-	private readonly BlobContainerClient _containerClient; // Container for standard replays
+	private readonly BlobContainerClient _replayContainerClient; // Container for standard replays
 	private readonly BlobContainerClient _securityContainerClient; // Container for infected replays
 	private readonly ILogger<ReplaysIngestService> _logger;
 	private readonly ApiDbContext _context;
@@ -32,7 +32,7 @@ public sealed class ReplaysIngestService
 			?? throw new InvalidOperationException("Missing API:Azure:Storage:ConnectionString in configuration.");
 		
 		_serviceClient = new(connectionString);
-		_containerClient = _serviceClient.GetBlobContainerClient(ReplayBlobContainer);
+		_replayContainerClient = _serviceClient.GetBlobContainerClient(ReplayBlobContainer);
 		_securityContainerClient = _serviceClient.GetBlobContainerClient(SecurityBlobContainer);
 		_logger = logger;
 		_context = context;
@@ -68,7 +68,7 @@ public sealed class ReplaysIngestService
 			ChatMessages = replay.ChatMessages?.Adapt<IEnumerable<ReplayChatMessageDTO>>()
 				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }) ?? [],
 			Players = replay.Players.Adapt<IEnumerable<ReplayPlayerDTO>>(),
-			DownloadUri = $"{_containerClient.Uri}/{ReplayBlobContainer}/{replay.BlobName}",
+			DownloadUri = $"{_replayContainerClient.Uri}/{replay.BlobName}",
 			MinimapUri = replay.MinimapRendered ? $"{_serviceClient.Uri}{MinimapRenderingService.MinimapBlobContainer}/{replay.Id}.mp4" : null
 		};
 	}
@@ -99,7 +99,7 @@ public sealed class ReplaysIngestService
 		// Set Post reverse nav to replay
 		post.ReplayId = entityEntry.Entity.Id;
 
-		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
+		await _replayContainerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
 
 		await _context.SaveChangesAsync(ct);
 
@@ -117,7 +117,7 @@ public sealed class ReplaysIngestService
 		Replay replay = await _processService.ProcessReplayAsync(new Replay(), replayFile.OpenReadStream(), ct);
 		EntityEntry<Replay> entityEntry = _context.Replays.Add(replay);
 		entityEntry.Entity.BlobName = $"{entityEntry.Entity.Id:N}-{replayFile.FileName}";
-		await _containerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
+		await _replayContainerClient.UploadBlobAsync(entityEntry.Entity.BlobName, replayFile.OpenReadStream(), ct);
 		await _context.SaveChangesAsync(ct);
 
 		// Introspect the replay players list and add them to the database.
@@ -139,7 +139,7 @@ public sealed class ReplaysIngestService
 		Replay replay = await _context.Replays.FindAsync(new object[] { replayId }, cancellationToken: ct)
 			?? throw new ArgumentException("No replay was found for specified GUID.", nameof(replayId));
 
-		BlobClient blobClient = _containerClient.GetBlobClient(replay.BlobName);
+		BlobClient blobClient = _replayContainerClient.GetBlobClient(replay.BlobName);
 
 		MemoryStream ms = new();
 		await blobClient.DownloadToAsync(ms, ct);
@@ -151,12 +151,12 @@ public sealed class ReplaysIngestService
 	public async Task<Uri> GenerateReplayDownloadLinkAsync(Guid replayId)
 	{
 		Replay replay = await _context.Replays.FindAsync(replayId) ?? throw new ArgumentException("No replay was found for specified GUID.", nameof(replayId));
-		return _containerClient.GetBlobClient(replay.BlobName).Uri;
+		return _replayContainerClient.GetBlobClient(replay.BlobName).Uri;
 	}
 
 	public async Task RemoveReplayAsync(Replay replay)
 	{
-		await _containerClient.DeleteBlobAsync(replay.BlobName);
+		await _replayContainerClient.DeleteBlobAsync(replay.BlobName);
 
 		_context.Replays.Remove(replay);
 		await _context.SaveChangesAsync();
@@ -176,7 +176,7 @@ public sealed class ReplaysIngestService
 	public async Task<Replay?> ReprocessReplayAsync(Replay replay, CancellationToken ct)
 	{
 		await using MemoryStream ms = new();
-		await _containerClient.GetBlobClient(replay.BlobName).DownloadToAsync(ms, ct);
+		await _replayContainerClient.GetBlobClient(replay.BlobName).DownloadToAsync(ms, ct);
 		ms.Position = 0;
 
 		try

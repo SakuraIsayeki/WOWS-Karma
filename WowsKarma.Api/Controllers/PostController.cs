@@ -252,7 +252,7 @@ public sealed class PostController : ControllerBase
 
 		try
 		{
-			Post created = await _postService.CreatePostAsync(post, replay, ignoreChecks);
+			using Post created = await _postService.CreatePostAsync(post, replay, ignoreChecks);
 			return StatusCode(201, created.Id);
 		}
 		catch (ArgumentException)
@@ -320,7 +320,7 @@ public sealed class PostController : ControllerBase
 		}
 		catch (ArgumentException e)
 		{
-			return StatusCode(400, e.ToString());
+			return BadRequest(e);
 		}
 	}
 

@@ -23,7 +23,7 @@ public sealed class ReplaysProcessService
 		IgnoreReadOnlyProperties = true
 	};
 
-	private readonly IReplayUnpackerService _replayUnpacker;
+	private readonly IReplayUnpackerService<ExtendedDataReplay> _replayUnpacker;
 	private readonly ApiDbContext _context;
 
 	public ReplaysProcessService(ReplayUnpackerFactory replayUnpacker, ApiDbContext context)
@@ -34,7 +34,7 @@ public sealed class ReplaysProcessService
 
 	public async Task<Replay> ProcessReplayAsync(Guid replayId, Stream replayStream, CancellationToken ct)
 	{
-		Replay replay = await _context.Replays.FindAsync([replayId], cancellationToken: ct) 
+		using Replay replay = await _context.Replays.FindAsync([replayId], cancellationToken: ct) 
 			?? throw new ArgumentException("No replay was found for specified GUID.", nameof(replayId));
 
 		await ProcessReplayAsync(replay, replayStream, ct);
@@ -49,9 +49,9 @@ public sealed class ReplaysProcessService
 		{
 			ct.ThrowIfCancellationRequested();
 
-			ExtendedDataReplay replayRaw = (ExtendedDataReplay)_replayUnpacker.Unpack(replayStream);
+			ExtendedDataReplay replayRaw = _replayUnpacker.Unpack(replayStream);
 
-			replay.ArenaInfo = replayRaw.ArenaInfo;
+			replay.ArenaInfo = JsonSerializer.SerializeToDocument(replayRaw.ArenaInfo);
 			replay.Players = ProcessReplayPlayers(replayRaw.ReplayPlayers);
 			replay.ChatMessages = replayRaw.ChatMessages.Select(m => new ReplayChatMessage 
 			{

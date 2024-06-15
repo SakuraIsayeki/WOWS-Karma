@@ -6,7 +6,7 @@ namespace WowsKarma.Api.Data.Models;
 /**
  *	Conversion Mapping done in <see cref="Utilities.Conversions"/>.
  **/
-public sealed record PostModAction
+public sealed record PostModAction : IDisposable
 {
 	[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public Guid Id { get; init; }
@@ -20,4 +20,9 @@ public sealed record PostModAction
 	public uint ModId { get; init; }
 
 	public string Reason { get; set; } = "";
+
+	public void Dispose()
+	{
+		Post.Dispose();
+	}
 }

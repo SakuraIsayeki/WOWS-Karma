@@ -24,7 +24,11 @@ public sealed class ModActionController : ControllerBase
 	/// </summary>
 	/// <param name="id">ID of ModAction to fetch.</param>
 	[HttpGet("{id:guid}"), AllowAnonymous]
-	public async Task<PostModActionDTO> Fetch(Guid id) => (await _service.GetModActionAsync(id)).Adapt<PostModActionDTO>();
+	public async Task<PostModActionDTO> Fetch(Guid id)
+	{
+		using PostModAction? pma = await _service.GetModActionAsync(id);
+		return pma.Adapt<PostModActionDTO>();
+	}
 
 	/// <summary>
 	/// Lists ModActions by Post or User IDs.
@@ -39,7 +43,7 @@ public sealed class ModActionController : ControllerBase
 	[HttpGet("list"), AllowAnonymous, ProducesResponseType(typeof(IEnumerable<PostModActionDTO>), 200), ProducesResponseType(204)]
 	public IActionResult List([FromQuery] Guid postId = default, [FromQuery] uint userId = default)
 	{
-		PostModAction[] modActions = [];
+		PostModAction[] modActions;
 
 		if (postId != default)
 		{
@@ -55,8 +59,8 @@ public sealed class ModActionController : ControllerBase
 		}
 
 		return modActions is []
-			? base.StatusCode(204)
-			: base.StatusCode(200, modActions.Adapt<IEnumerable<PostModActionDTO>>());
+			? NoContent()
+			: Ok(modActions.Adapt<IEnumerable<PostModActionDTO>>());
 	}
 
 	/// <summary>
@@ -72,7 +76,7 @@ public sealed class ModActionController : ControllerBase
 	public async Task<IActionResult> Submit([FromBody] PostModActionDTO modAction,
 		[FromServices] PostService postService)
 	{
-		Post post = postService.GetPost(modAction.PostId) ?? throw new InvalidOperationException("Post ID is invalid.");
+		using Post post = postService.GetPost(modAction.PostId) ?? throw new InvalidOperationException("Post ID is invalid.");
 		uint modId = uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim."));
 
 		if ((post.AuthorId == modId || post.PlayerId == modId) && !User.IsInRole(ApiRoles.Administrator))

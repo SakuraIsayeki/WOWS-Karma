@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, Input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, Input, model, signal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject, of, pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -18,8 +18,8 @@ import { toObservable } from "@angular/core/rxjs-interop";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePlatformBansViewComponent {
-  profileId = input<number>()
-  platformBans = input<PlatformBanDto[]>()
+  profileId = model<number>()
+  platformBans = model<PlatformBanDto[]>()
 
   @Input() modal!: NgbModalRef;
 
@@ -38,8 +38,8 @@ export class ProfilePlatformBansViewComponent {
   static OpenModal(modalService: NgbModal, platformBans?: PlatformBanDto[], profileId?: number) {
     const modalRef = modalService.open(ProfilePlatformBansViewComponent, { size: "lg", fullscreen: "lg" });
     modalRef.componentInstance.modal = modalRef;
-    modalRef.componentInstance.platformBans = input(platformBans);
-    modalRef.componentInstance.profileId = input(profileId);
+    modalRef.componentInstance.platformBans.set(platformBans);
+    modalRef.componentInstance.profileId.set(profileId);
 
     return modalRef;
   }

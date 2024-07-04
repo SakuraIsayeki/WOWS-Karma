@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, Input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, Input, model, signal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -14,8 +14,8 @@ import { PostModActionDto } from "../../../services/api/models/post-mod-action-d
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfileModActionsViewComponent {
-  profileId = input<number>()
-  modActions = input<PostModActionDto[]>()
+  profileId = model<number>()
+  modActions = model<PostModActionDto[]>()
 
   loaded = signal(false);
 
@@ -33,8 +33,8 @@ export class ProfileModActionsViewComponent {
   static OpenModal(modalService: NgbModal, modActions?: PostModActionDto[], profileId?: number) {
     const modalRef = modalService.open(ProfileModActionsViewComponent, { size: "xl", fullscreen: "xl" });
     modalRef.componentInstance.modal = modalRef;
-    modalRef.componentInstance.modActions = input(modActions);
-    modalRef.componentInstance.profileId = input(profileId);
+    modalRef.componentInstance.modActions.set(modActions);
+    modalRef.componentInstance.profileId.set(profileId);
     console.debug(modalRef.componentInstance.profileId())
 
 

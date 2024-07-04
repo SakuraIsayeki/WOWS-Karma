@@ -25,7 +25,7 @@
     <div class="form-group mb-3">
       <div class="d-flex justify-content-between" #contentError>
         <label for="content" class="mb-2">Content</label>
-        <form-errors [control]="form.controls.content"></form-errors>
+        <form-errors [control]="form.controls.content" />
       </div>
 
       <textarea id="content" required minlength="50" maxlength="2000" [formControl]="form.controls.content"
@@ -92,8 +92,7 @@
       >
 
       <label class="form-check-label">
-        I hereby affirm to have read and followed the <a [routerLink]="'/guidelines'" target="_blank">Posting
-        Guidelines</a>.
+        I hereby affirm to have read and followed the <a [routerLink]="'/guidelines'" target="_blank">Posting Guidelines</a>.
       </label>
     </div>
 

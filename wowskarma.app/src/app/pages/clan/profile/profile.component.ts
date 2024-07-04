@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { ClanProfileFullDto } from "src/app/services/api/models/clan-profile-full-dto";
@@ -8,8 +8,15 @@ import { ClanListingDto } from "src/app/services/api/models/clan-listing-dto";
 import { ClanRole } from "src/app/services/api/models/clan-role";
 import { PlayerProfileDto } from "src/app/services/api/models/player-profile-dto";
 import { ClanService } from "src/app/services/api/services/clan.service";
-import { MinMaxMetricObject } from "src/app/shared/components/minmax-metric/min-max-metric.component";
+import { MinMaxMetricComponent, MinMaxMetricObject } from "src/app/shared/components/minmax-metric/min-max-metric.component";
 import { mapApiModelState, routeParam, shareReplayRefCount } from "src/app/shared/rxjs-operators";
+import { AsyncPipe, DatePipe, NgForOf, NgIf } from "@angular/common";
+import { MarkdownComponent } from "ngx-markdown";
+import { WowsNumbersClanLinkPipe } from "../../../services/pipes/wows-numbers-clan-link.pipe";
+import { KarmaColorPipe } from "../../../services/pipes/karma-color.pipe";
+import { ClanRankComponent } from "../../../shared/components/icons/clan-rank/clan-rank.component";
+import { NotFoundComponent } from "../../fallbacks/not-found/not-found.component";
+import { ColorHexPipe } from "../../../services/pipes/colorHex.pipe";
 
 type ApiModelState<T> = {
   notFound?: true,
@@ -18,8 +25,23 @@ type ApiModelState<T> = {
 
 
 @Component({
+  standalone: true,
   templateUrl: "./profile.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AsyncPipe,
+    NgIf,
+    MarkdownComponent,
+    DatePipe,
+    WowsNumbersClanLinkPipe,
+    MinMaxMetricComponent,
+    KarmaColorPipe,
+    ClanRankComponent,
+    RouterLink,
+    NotFoundComponent,
+    ColorHexPipe,
+    NgForOf
+  ]
 })
 export class ProfileComponent {
   //loaded$ = new BehaviorSubject<boolean>(false);

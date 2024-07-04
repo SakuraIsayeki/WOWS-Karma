@@ -1,24 +1,26 @@
 <!-- Modal Header -->
 <div class="modal-header">
-    <h4 class="modal-title">Remove Post by Moderation ?</h4>
+  <h4 class="modal-title">Remove Post by Moderation ?</h4>
 </div>
 
 <form #f="ngForm" (ngSubmit)="f.form.valid && onSubmit()">
-    <!-- Modal body -->
-    <div class="modal-body">
-        <div class="d-flex justify-content-between" #reasonError>
-            <label for="reason" class="mb-2">Reason</label>
-            <form-errors [control]="form.controls.reason"></form-errors>
-        </div>
-        <textarea name="reason" id="reason" class="form-control"
-                  [formControl]="form.controls.reason"
-                  [formControlExtensions]="reasonError"
-                  style="height: 10rem;"></textarea>
+  <!-- Modal body -->
+  <div class="modal-body">
+    <div class="d-flex justify-content-between" #reasonError>
+      <label for="reason" class="mb-2">Reason</label>
+      <form-errors [control]="form.controls.reason" />
     </div>
+    <textarea
+      name="reason" id="reason" class="form-control"
+      [formControl]="form.controls.reason"
+      [formControlExtensions]="reasonError"
+      style="height: 10rem;"
+    ></textarea>
+  </div>
 
-    <!-- Modal footer -->
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary px-3" (click)="this.modal.close()">Cancel</button>
-        <button type="submit" class="btn btn-danger px-3">Delete</button>
-    </div>
+  <!-- Modal footer -->
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary px-3" (click)="this.modal.close()">Cancel</button>
+    <button type="submit" class="btn btn-danger px-3">Delete</button>
+  </div>
 </form>

@@ -2,6 +2,7 @@ import { Directive, ElementRef, Host, HostBinding, HostListener, Input } from "@
 import { FormControl, FormControlDirective } from "@angular/forms";
 
 @Directive({
+  standalone: true,
   selector: '[formControlExtensions]'
 })
 export class ControlExtensionsDirective {

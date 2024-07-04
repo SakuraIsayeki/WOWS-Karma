@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { getWowsNumbersClanLink } from "../helpers";
 
 @Pipe({
+  standalone: true,
   name: 'wowsNumbersClanLink'
 })
 export class WowsNumbersClanLinkPipe implements PipeTransform {

@@ -43,8 +43,7 @@
           <ng-container *ngIf="pageInfo$ | async as pageInfo">
             <ngb-pagination [(page)]="pageInfo.currentPage" [boundaryLinks]="true" [collectionSize]="pageInfo.totalItems"
                             [maxSize]="5" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)"
-            >
-            </ngb-pagination>
+            />
           </ng-container>
         </div>
 
@@ -82,7 +81,7 @@
 <div *ngIf="posts$ | async as posts else loadingPosts">
   <div *ngIf="posts.length > 0 else noPosts" class="row gx-2 gy-3">
     <div *ngFor="let post of posts" class="col-lg-4 col-md-6">
-      <app-post [post]="post" [postDisplayType]="'neutral'"></app-post>
+      <app-post [post]="post" [postDisplayType]="'neutral'" />
     </div>
   </div>
 

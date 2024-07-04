@@ -18,7 +18,7 @@ import { AuthGuard } from "./services/guards/auth.guard";
 import { HtmlLoaderComponent } from "./shared/components/html-loader/html-loader.component";
 import { LayoutComponent } from "./shared/layout/layout.component";
 
-const routes: Routes = [
+export const routes: Routes = [
   // Set defaults for the app.
   {
     path: "",
@@ -81,10 +81,3 @@ const routes: Routes = [
     ],
   },
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {
-}

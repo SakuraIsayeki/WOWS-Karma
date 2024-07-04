@@ -1,12 +1,23 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { BehaviorSubject, debounceTime, distinctUntilChanged, tap } from "rxjs";
 import { map } from "rxjs/operators";
 import { ClanService } from "../../../services/api/services/clan.service";
 import { filterNotNull, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
+import { AsyncPipe, NgForOf } from "@angular/common";
+import { ColorHexPipe } from "../../../services/pipes/colorHex.pipe";
+import { RouterLink } from "@angular/router";
 
 @Component({
+  standalone: true,
   templateUrl: "./search.component.html",
+  imports: [
+    ReactiveFormsModule,
+    AsyncPipe,
+    ColorHexPipe,
+    RouterLink,
+    NgForOf
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchComponent {

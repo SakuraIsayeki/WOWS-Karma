@@ -1,12 +1,15 @@
 import { Component } from "@angular/core";
-import { ActivatedRouteSnapshot, ResolveEnd, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, ResolveEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AppInitService } from "./services/app-init.service";
 import { AppInsightsService } from "./services/app-insights.service";
 
 @Component({
-  template: "<router-outlet></router-outlet>",
-
+  standalone: true,
+  template: "<router-outlet />",
+  imports: [
+    RouterOutlet
+  ]
 })
 export class AppComponent {
   constructor(

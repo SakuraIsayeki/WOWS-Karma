@@ -34,14 +34,14 @@
         <h2>Clan Metrics</h2>
 
         <div class="row justify-content-center my-5">
-          <div class="col"><minmax-metric [metric]="clanMetrics['game']" name="In-Game Karma"></minmax-metric></div>
-          <div class="col"><minmax-metric [metric]="clanMetrics['platform']" name="Platform Karma"></minmax-metric></div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['game']" name="In-Game Karma" /></div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['platform']" name="Platform Karma" /></div>
         </div>
 
         <div class="row justify-content-center my-5">
-          <div class="col"><minmax-metric [metric]="clanMetrics['performance']" name="Performance"></minmax-metric></div>
-          <div class="col"><minmax-metric [metric]="clanMetrics['teamplay']" name="Teamplay"></minmax-metric></div>
-          <div class="col"><minmax-metric [metric]="clanMetrics['courtesy']" name="Courtesy"></minmax-metric></div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['performance']" name="Performance" /></div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['teamplay']" name="Teamplay" /></div>
+          <div class="col"><minmax-metric [metric]="clanMetrics['courtesy']" name="Courtesy" /></div>
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@
 
       <tbody>
         <tr *ngFor="let member of clan.members!.sort(sortByRankThenJoinDate)">
-          <td><icon-clan-rank [clanRank]="member.clan!.clanMemberRole"></icon-clan-rank></td>
+          <td><icon-clan-rank [clanRank]="member.clan!.clanMemberRole" /></td>
           <td><a [routerLink]="['/player', member.id + ',' + member.username]">{{member.username}}</a></td>
           <td class="small">{{member.wgAccountCreatedAt | date:"short"}}</td>
           <td class="small">{{member.clan!.joinedClanAt | date:"short"}}</td>
@@ -81,7 +81,7 @@
 </ng-container>
 
 <ng-template #notFound>
-  <app-not-found message="Sorry, no clan was found."></app-not-found>
+  <app-not-found message="Sorry, no clan was found." />
 </ng-template>
 
 <ng-template #loading>

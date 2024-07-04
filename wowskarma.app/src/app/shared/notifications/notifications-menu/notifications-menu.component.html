@@ -1,13 +1,17 @@
 <ng-template #content let-offcanvas>
-    <div class="offcanvas-header">
-        <h4 class="offcanvas-title">Notifications</h4>
-        <button id="clear-all" type="button" class="btn btn-primary" (click)="clearAllNotifications(); offcanvas.close('Close click');">Clear all</button>
-    </div>
+  <div class="offcanvas-header">
+    <h4 class="offcanvas-title">Notifications</h4>
+    <button id="clear-all" type="button" class="btn btn-primary" (click)="clearAllNotifications(); offcanvas.close('Close click');">Clear all</button>
+  </div>
 
-    <div class="offcanvas-body">
-        <div class="d-flex flex-column gap-3">
-            <app-notification *ngFor="let notification of notifications$ | async" [notification]="notification"
-                              (onClick)="closeMenu()" (onDismiss)="clearNotification(notification.id)"></app-notification>
-        </div>
+  <div class="offcanvas-body">
+    <div class="d-flex flex-column gap-3">
+      <app-notification
+        *ngFor="let notification of notifications$ | async"
+        [notification]="notification"
+        (onClick)="closeMenu()"
+        (onDismiss)="clearNotification(notification.id)"
+      />
     </div>
+  </div>
 </ng-template>

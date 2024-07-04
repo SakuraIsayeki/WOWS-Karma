@@ -7,11 +7,27 @@ import { PostService } from 'src/app/services/api/services/post.service';
 import { markTouchedDirtyAndValidate } from 'src/app/services/helpers';
 import { parseFlairsEnum, toEnum } from 'src/app/services/metricsHelpers';
 import { PlayerPostEditorDto, PostEditorComponent } from 'src/app/shared/modals/post-editor/post-editor.component';
+import { ControlExtensionsDirective } from "../../directives/control-extensions.directive";
+import { NgClass, NgForOf, NgIf } from "@angular/common";
+import { FormErrorsComponent } from "../../form-errors/form-errors.component";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-post-mod-edit',
   templateUrl: './post-mod-editor.component.html',
   styleUrls: ['./post-mod-editor.component.scss'],
+  standalone: true,
+  imports: [
+    FormErrorsComponent,
+    FormsModule,
+    NgIf,
+    ReactiveFormsModule,
+    ControlExtensionsDirective,
+    NgClass,
+    RouterLink,
+    NgForOf
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PostModEditorComponent extends PostEditorComponent {

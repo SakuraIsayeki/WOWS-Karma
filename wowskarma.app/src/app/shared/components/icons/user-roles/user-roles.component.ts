@@ -1,9 +1,14 @@
 import { ChangeDetectionStrategy, Component, input, Input } from '@angular/core';
+import { NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
+  standalone: true,
   selector: 'icon-user-roles',
   templateUrl: './user-roles.component.html',
   styleUrls: ['./user-roles.component.scss'],
+  imports: [
+    NgbTooltip
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UserRolesComponent {

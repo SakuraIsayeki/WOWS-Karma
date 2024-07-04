@@ -7,11 +7,21 @@ import { sortByCreationDate } from "../../../../services/helpers";
 import { PostsHub } from "../../../../services/hubs/posts-hub.service";
 import { filterNotNull, InputObservable, reloadWhen, shareReplayRefCount, switchMapCatchError, tapAny, tapPageInfoHeaders } from "../../../rxjs-operators";
 import { toObservable } from "@angular/core/rxjs-interop";
+import { AsyncPipe, NgIf } from "@angular/common";
+import { NgbPagination } from "@ng-bootstrap/ng-bootstrap";
+import { PostComponent } from "../../../post/post.component";
 
 @Component({
+  standalone: true,
   selector: "app-posts-sent",
   templateUrl: "./posts-sent.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AsyncPipe,
+    NgbPagination,
+    NgIf,
+    PostComponent
+  ]
 })
 export class PostsSentComponent {
   userId = input(0)

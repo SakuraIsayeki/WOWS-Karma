@@ -1,16 +1,16 @@
 <header>
-    <app-navbar></app-navbar>
+    <app-navbar />
 </header>
 
 <div class="container-lg" style="margin-top: 100px !important">
     <div id="psa-header" role="alert" class="mb-5">
-        <html-loader path="/assets/psa.global.html"></html-loader>
-        <html-loader path="/assets/psa.{{currentRegion.toString().toLocaleLowerCase()}}.html"></html-loader>
+        <html-loader path="/assets/psa.global.html" />
+        <html-loader path="/assets/psa.{{currentRegion.toString().toLocaleLowerCase()}}.html" />
     </div>
 
     <main role="main" class="my-5">
-        <router-outlet></router-outlet>
+        <router-outlet />
     </main>
 </div>
 
-<app-footer></app-footer>
+<app-footer />

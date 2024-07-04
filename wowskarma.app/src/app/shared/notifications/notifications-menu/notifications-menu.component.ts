@@ -7,13 +7,21 @@ import { AuthService } from "../../../services/auth.service";
 import { sortByDateField } from "../../../services/helpers";
 import { NotificationsHub } from "../../../services/hubs/notifications-hub.service";
 import { filterNotNull } from "../../rxjs-operators";
+import { NotificationComponent } from "../notification/notification.component";
+import { AsyncPipe, NgForOf } from "@angular/common";
 
 @Component({
+    standalone: true,
     selector: "app-notifications-menu",
     templateUrl: "./notifications-menu.component.html",
     styleUrls: ["./notifications-menu.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.None,
+  imports: [
+    NotificationComponent,
+    AsyncPipe,
+    NgForOf
+  ]
 })
 export class NotificationsMenuComponent {
     @ViewChild("content")

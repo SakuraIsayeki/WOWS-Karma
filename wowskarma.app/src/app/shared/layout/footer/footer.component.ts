@@ -5,11 +5,15 @@ import { anyTrue, shareReplayRefCount } from 'src/app/shared/rxjs-operators';
 import { environment } from "src/environments/environment";
 import { ApiRegion } from "src/app/models/ApiRegion";
 import { AppConfigService } from "src/app/services/app-config.service";
+import { RouterLink } from "@angular/router";
 
 @Component({
+  standalone: true,
   selector: "app-footer",
   templateUrl: "./footer.component.html",
-  styleUrls: ["./footer.component.scss"],
+  imports: [
+    RouterLink
+  ]
 })
 export class FooterComponent {
 

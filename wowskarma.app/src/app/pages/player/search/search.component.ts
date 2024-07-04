@@ -1,14 +1,20 @@
 import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { BehaviorSubject, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from "rxjs";
 import { map } from "rxjs/operators";
 import { PlayerService } from "../../../services/api/services";
 import { filterNotNull, switchMapCatchError, tapAny } from "../../../shared/rxjs-operators";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { PlayerNamelinkComponent } from "../../../shared/components/player-namelink/player-namelink.component";
 
 @Component({
+  standalone: true,
   selector: "app-search",
   templateUrl: "./search.component.html",
+  imports: [
+    ReactiveFormsModule,
+    PlayerNamelinkComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SearchComponent {

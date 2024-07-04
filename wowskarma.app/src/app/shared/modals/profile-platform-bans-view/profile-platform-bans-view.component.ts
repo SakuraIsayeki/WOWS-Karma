@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input, Input, model, signal } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { BehaviorSubject, of, pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PlatformBansService } from 'src/app/services/api/services/platform-bans.service';
 import {
@@ -10,11 +9,20 @@ import {
   switchMapCatchError,
   tapAny
 } from 'src/app/shared/rxjs-operators';
-import { PlatformBanDto } from "../../../services/api/models/platform-ban-dto";
 import { toObservable } from "@angular/core/rxjs-interop";
+import { PlatformBanDto } from 'src/app/services/api/models';
+import { AsyncPipe, DatePipe, NgIf } from "@angular/common";
+import { PlayerNamelinkComponent } from "../../components/player-namelink/player-namelink.component";
 
 @Component({
+  standalone: true,
   templateUrl: './profile-platform-bans-view.component.html',
+  imports: [
+    AsyncPipe,
+    NgIf,
+    PlayerNamelinkComponent,
+    DatePipe
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProfilePlatformBansViewComponent {

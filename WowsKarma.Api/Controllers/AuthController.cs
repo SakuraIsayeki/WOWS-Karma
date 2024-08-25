@@ -35,8 +35,8 @@ public sealed class AuthController : ControllerBase
 	/// </summary>
 	/// <response code="200">Authentication successful.</response>
 	/// <response code="401">Authentication failed.</response>
-	[HttpHead, Authorize, ProducesResponseType(200), ProducesResponseType(401)]
-	public IActionResult ValidateAuth() => StatusCode(200);
+	[HttpHead, Authorize]
+	public ActionResult ValidateAuth() => Ok();
 
 	/// <summary>
 	/// Provides redirection to Wargaming OpenID Authentication.
@@ -52,13 +52,13 @@ public sealed class AuthController : ControllerBase
 	/// <response code="200">Authentication successful.</response>
 	/// <response code="403">Invalid callback request.</response>
 	[HttpGet("wg-callback"), ProducesResponseType(302), ProducesResponseType(200), ProducesResponseType(403)]
-	public async Task<IActionResult> WgAuthCallback()
+	public async Task<IActionResult> WgAuthCallbackAsync()
 	{
 		bool valid = await _wargamingAuthService.VerifyIdentity(Request);
 
 		if (!valid)
 		{
-			return StatusCode(403);
+			return Forbid();
 		}
 
 		JwtSecurityToken token = await _userService.CreateTokenAsync(WargamingIdentity.FromUri(new(Request.Query["openid.identity"].FirstOrDefault()
@@ -89,10 +89,9 @@ public sealed class AuthController : ControllerBase
 	/// <response code="200">Seed Token successfully reset.</response>
 	/// <response code="401">Authentication failed.</response>
 	[HttpPost("renew-seed"), Authorize, ProducesResponseType(200), ProducesResponseType(401)]
-	public async Task<IActionResult> RenewSeed()
+	public async Task RenewSeed()
 	{
 		await _userService.RenewSeedTokenAsync(uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim.")));
-		return Ok();
 	}
 
 	/// <summary>
@@ -101,9 +100,9 @@ public sealed class AuthController : ControllerBase
 	/// <response code="200">Token successfully refreshed.</response>
 	/// <response code="401">Authentication failed.</response>
 	[HttpGet("refresh-token"), Authorize, ProducesResponseType(typeof(string), 200), ProducesResponseType(401)]
-	public async Task<IActionResult> RefreshToken()
+	public async Task<string> RefreshToken()
 	{
 		JwtSecurityToken token = await _userService.CreateTokenAsync(new(User.Claims));
-		return StatusCode(200, _jwtService.TokenHandler.WriteToken(token));
+		return _jwtService.TokenHandler.WriteToken(token);
 	}
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using WowsKarma.Api.Infrastructure.Attributes;
 using WowsKarma.Api.Infrastructure.Data;
@@ -44,8 +45,8 @@ public sealed class PostController : ControllerBase
 	/// <response code="200">Returns <see cref="PlayerPostDTO"/> object of Post with specified ID</response>
 	/// <response code="404">No post was found with given ID.</response>
 	/// <response code="410">Post is locked by Community Managers.</response>
-	[HttpGet("{postId:guid}"), ProducesResponseType(typeof(PlayerPostDTO), 200), ProducesResponseType(404), ProducesResponseType(410)]
-	public async Task<IActionResult> GetPostAsync(Guid postId)
+	[HttpGet("{postId:guid}")]
+	public async Task<ActionResult<PlayerPostDTO>> GetPostAsync(Guid postId)
 		=> await _postService.GetPostDTOAsync(postId) is { } post
 			? !post.ModLocked || post.Author.Id == User.ToAccountListing()?.Id || User.IsInRole(ApiRoles.CM)
 				? Ok(post)
@@ -60,8 +61,8 @@ public sealed class PostController : ControllerBase
 	/// <param name="pageSize">Number of posts per page</param>
 	/// <response code="200">List of posts received by player.</response>
 	/// <response code="404">No player found for given Account ID.</response>
-	[HttpGet("{userId}/received"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200)]
-	public IActionResult GetReceivedPosts(
+	[HttpGet("{userId}/received")]
+	public ActionResult<PlayerPostDTO[]> GetReceivedPosts(
 		[FromRoute] uint userId, 
 		[FromQuery] int page = 1, 
 		[FromQuery] int pageSize = 10
@@ -89,7 +90,7 @@ public sealed class PostController : ControllerBase
 			}
 		}
 		
-		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
+		return Ok(pageResults.Items.Adapt<PlayerPostDTO[]>());
 	}
 
 	/// <summary>
@@ -101,8 +102,8 @@ public sealed class PostController : ControllerBase
 	/// <response code="200">List of posts sent by player</response>
 	/// <response code="204">No posts sent by given player.</response>
 	/// <response code="404">No player found for given Account ID.</response>
-	[HttpGet("{userId}/sent"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200), ProducesResponseType(204), ProducesResponseType(typeof(string), 404)]
-	public IActionResult GetSentPosts(
+	[HttpGet("{userId}/sent")]
+	public ActionResult<PlayerPostDTO[]> GetSentPosts(
 		[FromRoute] uint userId, 
 		[FromQuery] int page = 1, 
 		[FromQuery] int pageSize = 10
@@ -129,7 +130,7 @@ public sealed class PostController : ControllerBase
 			}
 		}
 		
-		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
+		return Ok(pageResults.Items.Adapt<PlayerPostDTO[]>());
 	}
 
 	/// <summary>
@@ -140,8 +141,8 @@ public sealed class PostController : ControllerBase
 	/// <param name="hasReplay">Filters returned posts by Replay attachment.</param>
 	/// <param name="hideModActions">Hides posts containing Mod Actions (visible only to CMs).</param>
 	/// <response code="200">List of latest posts, sorted by Submission time.</response>
-	[HttpGet("latest"), ProducesResponseType(typeof(IEnumerable<PlayerPostDTO>), 200)]
-	public IActionResult GetLatestPosts(
+	[HttpGet("latest")]
+	public ActionResult<PlayerPostDTO[]> GetLatestPosts(
 		[FromQuery] int page = 1, 
 		[FromQuery] int pageSize = 10, 
 		[FromQuery] bool? hasReplay = null, 
@@ -182,7 +183,7 @@ public sealed class PostController : ControllerBase
 			}
 		}
 		
-		return Ok(pageResults.Items.Adapt<List<PlayerPostDTO>>());
+		return Ok(pageResults.Items.Adapt<PlayerPostDTO[]>());
 	}
 
 	/// <summary>
@@ -192,18 +193,16 @@ public sealed class PostController : ControllerBase
 	/// <param name="replay">Optional replay file to attach to post</param>
 	/// <param name="ignoreChecks">Bypass API Validation for post creation (Admin only)</param>
 	/// <response code="201">Post was successfuly created.</response>
-	/// <response code="400">Post contents validation has failed.</response>
+	/// <response code="400">Post validation has failed.</response>
 	/// <response code="422">Attached replay is invalid.</response>
-	/// <response code="403">Restrictions are in effect for one of the targeted accounts.</response>
 	/// <response code="404">One of the targeted accounts was not found.</response>
 	[HttpPost, Authorize(RequireNoPlatformBans), UserAtomicLock]
-	[ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(422), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
-	public async Task<IActionResult> CreatePost(
+	public async Task<ActionResult<PlayerPostDTO>> CreatePostAsync(
 		[FromForm] string postDto, 
 		[FromServices] ReplaysIngestService replaysIngestService,
 		IFormFile? replay = null, 
-		[FromQuery] bool ignoreChecks = false)
-	{
+		[FromQuery] bool ignoreChecks = false
+	) {
 		PlayerPostDTO post;
 			
 		try
@@ -212,52 +211,60 @@ public sealed class PostController : ControllerBase
 		}
 		catch (Exception e)
 		{
-			return BadRequest(e.ToString());
+			ModelState.TryAddModelException(nameof(postDto), e);
+			return BadRequest(ModelState);
 		}
 			
 		if (await _playerService.GetPlayerAsync(post.Author.Id) is not { } author)
 		{
-			return StatusCode(404, $"Account {post.Author.Id} not found.");
+			ModelState.AddModelError(nameof(post.Author.Id), $"Account {post.Author.Id} not found.");
+			return BadRequest(ModelState);
 		}
 
 		if (await _playerService.GetPlayerAsync(post.Player.Id) is not { } player)
 		{
-			return StatusCode(404, $"Account {post.Player.Id} not found.");
+			ModelState.AddModelError(nameof(post.Player.Id), $"Account {post.Player.Id} not found.");
+			return BadRequest(ModelState);
 		}
 
 		if (ignoreChecks)
 		{
 			if (!(User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator)))
 			{
-				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
+				ModelState.AddModelError(nameof(ignoreChecks), "Post Author is not authorized to bypass Post checks.");
+				return BadRequest(ModelState);
 			}
 		}
 		else
 		{
 			if (post.Author.Id != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim.")))
 			{
-				return StatusCode(403, "Author is not authorized to post on behalf of other users.");
+				ModelState.AddModelError(nameof(post.Author.Id), "Author is not authorized to post on behalf of other users.");
+				return BadRequest(ModelState);
 			}
 				
 			if (author.OptedOut)
 			{
-				return StatusCode(403, "Post Author has opted-out from using this platform.");
+				ModelState.AddModelError(nameof(post.Author.Id), "Post Author has opted-out from using this platform.");
+				return BadRequest(ModelState);
 			}
 
 			if (player.OptedOut)
 			{
-				return StatusCode(403, "Targeted player has opted-out from using this platform.");
+				ModelState.AddModelError(nameof(post.Player.Id), "Targeted player has opted-out from using this platform.");
+				return BadRequest(ModelState);
 			}
 		}
 
 		try
 		{
 			using Post created = await _postService.CreatePostAsync(post, replay, ignoreChecks);
-			return StatusCode(201, created.Id);
+			return CreatedAtAction("GetPost", new { postId = created.Id }, created.Adapt<PlayerPostDTO>());
 		}
-		catch (ArgumentException)
+		catch (ArgumentException e)
 		{
-			return BadRequest();
+			ModelState.TryAddModelException(nameof(post), e);
+			return BadRequest(ModelState);
 		}
 			
 		catch (InvalidReplayException e) when (e.InnerException is Nodsoft.WowsReplaysUnpack.Core.Exceptions.InvalidReplayException)
@@ -267,8 +274,8 @@ public sealed class PostController : ControllerBase
 		// Handle InvalidReplayException when the Inner exception is a SecurityException and its Data contains an exploit with value "CVE-2022-31265".
 		catch (InvalidReplayException e) when (e.InnerException is SecurityException se && se.Data["exploit"] is "CVE-2022-31265")
 		{
-			// Log this exception, and store the replay with the RCE the samples.
-			_logger.LogWarning(se, "Replay upload failed for post author {author} due to CVE-2022-31265 exploit detection.", post.Author.Id);
+			// Log this exception, and store the replay with the RCE samples.
+			_logger.LogWarning(se, "Replay upload failed for post author {Author} due to CVE-2022-31265 exploit detection", post.Author.Id);
 			await replaysIngestService.IngestRceFileAsync(replay!);
 
 			throw se;
@@ -285,31 +292,34 @@ public sealed class PostController : ControllerBase
 	/// <response code="403">Restrictions are in effect for the existing post.</response>
 	/// <response code="404">Targeted post was not found.</response>
 	[HttpPut, Authorize(RequireNoPlatformBans), ETag(false)]
-	[ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
-	public async Task<IActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
+	public async Task<ActionResult> EditPost([FromBody] PlayerPostDTO post, [FromQuery] bool ignoreChecks = false)
 	{
 		if (_postService.GetPost(post.Id ?? Guid.Empty) is not { } current)
 		{
-			return StatusCode(404, $"No post with ID {post.Id} found.");
+			ModelState.AddModelError(nameof(post.Id), $"No post with ID {post.Id} found.");
+			return NotFound(ModelState);
 		}
 
 		if (ignoreChecks)
 		{
 			if (!(User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator)))
 			{
-				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
+				ModelState.AddModelError(nameof(ignoreChecks), "Post Author is not authorized to bypass Post checks.");
+				return BadRequest(ModelState);
 			}
 		}
 		else
 		{
 			if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim.")))
 			{
-				return StatusCode(403, "Author is not authorized to edit posts on behalf of other users.");
+				ModelState.AddModelError(nameof(post.Id), "Author is not authorized to edit posts on behalf of other users.");
+				return BadRequest(ModelState);
 			}
 				
 			if (current is { ModLocked: true } or { ReadOnly: true })
 			{
-				return StatusCode(403, "Post has been locked by Community Managers. No modification is possible.");
+				ModelState.AddModelError(nameof(post.Id), "Post has been locked by Community Managers. No modification is possible.");
+				return BadRequest(ModelState);
 			}
 		}
 
@@ -320,7 +330,8 @@ public sealed class PostController : ControllerBase
 		}
 		catch (ArgumentException e)
 		{
-			return BadRequest(e);
+			ModelState.TryAddModelException(nameof(post), e);
+			return BadRequest(ModelState);
 		}
 	}
 
@@ -333,34 +344,37 @@ public sealed class PostController : ControllerBase
 	/// <response code="403">Restrictions are in effect for the existing post.</response>
 	/// <response code="404">Targeted post was not found.</response>
 	[HttpDelete("{postId:guid}"), Authorize(RequireNoPlatformBans)]
-	[ProducesResponseType(205), ProducesResponseType(typeof(string), 403), ProducesResponseType(typeof(string), 404)]
-	public async Task<IActionResult> DeletePost(Guid postId, [FromQuery] bool ignoreChecks = false)
+	public async Task<ActionResult> DeletePost(Guid postId, [FromQuery] bool ignoreChecks = false)
 	{
 		if (_postService.GetPost(postId) is not { } post)
 		{
-			return StatusCode(404, $"No post with ID {postId} found.");
+			ModelState.AddModelError(nameof(postId), $"No post with ID {postId} found.");
+			return NotFound(ModelState);
 		}
 
 		if (ignoreChecks)
 		{
 			if (!(User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator)))
 			{
-				return StatusCode(403, "Post Author is not authorized to bypass Post checks.");
+				ModelState.AddModelError(nameof(ignoreChecks), "Post Author is not authorized to bypass Post checks.");
+				return BadRequest(ModelState);
 			}
 		}
 		else
 		{
 			if (post.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new BadHttpRequestException("Missing NameIdentifier claim.")))
 			{
-				return StatusCode(403, "Author is not authorized to delete posts on behalf of other users.");
+				ModelState.AddModelError(nameof(postId), "Author is not authorized to delete posts on behalf of other users.");
+				return BadRequest(ModelState);
 			}
 			if (post.ModLocked)
 			{
-				return StatusCode(403, "Post has been locked by Community Managers. No deletion is possible.");
+				ModelState.AddModelError(nameof(postId), "Post has been locked by Community Managers. No deletion is possible.");
+				return BadRequest(ModelState);
 			}
 		}
 
 		await _postService.DeletePostAsync(postId);
-		return StatusCode(205);
+		return StatusCode(StatusCodes.Status205ResetContent);
 	}
 }

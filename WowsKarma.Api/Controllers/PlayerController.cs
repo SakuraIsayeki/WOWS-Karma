@@ -1,3 +1,4 @@
+using System.Collections;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -23,7 +24,7 @@ public sealed class PlayerController : ControllerBase
 	/// </summary>
 	/// <returns>A list of all players in the database.</returns>
 	/// <response code="200">Returns all players in the database.</response>
-	[HttpGet, ProducesResponseType(typeof(IEnumerable<uint>), 200)]
+	[HttpGet]
 	public IAsyncEnumerable<uint> ListPlayers() => _playerService.ListPlayerIds();
 
 	/// <summary>
@@ -34,7 +35,7 @@ public sealed class PlayerController : ControllerBase
 	/// <response code="200">Account listings for given search query</response>
 	/// <response code="204">No results found for given search query</response>
 	[HttpGet("search/{query}"), ProducesResponseType(typeof(IEnumerable<AccountListingDTO>), 200), ProducesResponseType(204)]
-	public async Task<IActionResult> SearchAccount([StringLength(100, MinimumLength = 3), RegularExpression(@"^[a-zA-Z0-9_]*$")] string query) 
+	public async Task<ActionResult<AccountListingDTO>> SearchAccount([StringLength(100, MinimumLength = 3), RegularExpression(@"^[a-zA-Z0-9_]*$")] string query) 
 		=> await _playerService.ListPlayersAsync(query) is { Length: not 0 } accounts
 			? Ok(accounts)
 			: NoContent();
@@ -46,12 +47,13 @@ public sealed class PlayerController : ControllerBase
 	/// <param name="includeClanInfo">Include clan membership info while fetching player profile.</param>
 	/// <response code="200">Returns player profile</response>
 	/// <response code="204">No profile found</response>
-	[HttpGet("{id}"), ProducesResponseType(typeof(PlayerProfileDTO), 200), ProducesResponseType(204)]
-	public async Task<IActionResult> GetAccount(uint id, bool includeClanInfo = true)
+	[HttpGet("{id}")]
+	public async Task<ActionResult<PlayerProfileDTO>> GetAccount(uint id, bool includeClanInfo = true)
 	{
 		if (id is 0)
 		{
-			return BadRequest(new ArgumentException(null, nameof(id)));
+			ModelState.AddModelError(nameof(id), "Account ID cannot be zero.");
+			return BadRequest(ModelState);
 		}
 
 		Player? playerProfile = await _playerService.GetPlayerAsync(id, false, includeClanInfo);
@@ -67,15 +69,15 @@ public sealed class PlayerController : ControllerBase
 	/// <param name="ids">List of Account IDs</param>
 	/// <response code="200">Returns "Account":"SiteKarma" Dictionary of Karma metrics for available accounts (may be empty).</response>
 	[HttpPost("karmas"), ProducesResponseType(typeof(Dictionary<uint, int>), 200)]
-	public IActionResult FetchKarmas([FromBody] uint[] ids) => Ok(AccountKarmaDTO.ToDictionary(_playerService.GetPlayersKarma(ids)));
+	public Dictionary<uint, int> FetchKarmas([FromBody] uint[] ids) => AccountKarmaDTO.ToDictionary(_playerService.GetPlayersKarma(ids));
 
 	/// <summary>
 	/// Fetches full Karma metrics (Site Karma and Flairs) for each provided Account ID, where available.
 	/// </summary>
 	/// <param name="ids">List of Account IDs</param>
 	/// <response code="200">Returns Full Karma metrics for available accounts (may be empty).</response>
-	[HttpPost("karmas-full"), ProducesResponseType(typeof(IEnumerable<AccountFullKarmaDTO>), 200)]
-	public IActionResult FetchFullKarmas([FromBody] uint[] ids) => Ok(_playerService.GetPlayersFullKarma(ids));
+	[HttpPost("karmas-full")]
+	public IEnumerable<AccountFullKarmaDTO> FetchFullKarmas([FromBody] uint[] ids) => _playerService.GetPlayersFullKarma(ids);
 
 	/// <summary>
 	/// Triggers recalculation of Karma metrics for a given account.
@@ -86,8 +88,10 @@ public sealed class PlayerController : ControllerBase
 	/// <param name="playerId">Account ID of player profile</param>
 	/// <param name="ct"></param>
 	/// <response code="205">Profile Karma recalculation was processed.</response>
-	[HttpPatch("recalculate"), Authorize(Roles = ApiRoles.Administrator), ProducesResponseType(205), ProducesResponseType(401), ProducesResponseType(403)]
-	public IActionResult RecalculateMetrics([FromQuery] uint playerId, CancellationToken ct)
+	/// <response code="401">Unauthorized</response>
+	/// <response code="403">Forbidden</response>
+	[HttpPatch("recalculate"), Authorize(Roles = ApiRoles.Administrator)]
+	public AcceptedResult RecalculateMetrics([FromQuery] uint playerId, CancellationToken ct)
 	{
 		BackgroundJob.Enqueue<PlayerService>(p => p.RecalculatePlayerMetrics(playerId, ct));
 		return Accepted();

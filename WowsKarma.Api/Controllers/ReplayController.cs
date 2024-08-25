@@ -49,37 +49,41 @@ public sealed class ReplayController : ControllerBase
 	[HttpGet("{replayId:guid}"), ProducesResponseType(typeof(ReplayDTO), 200)]
 	public Task<ReplayDTO?> GetAsync(Guid replayId) => _ingestService.GetReplayDTOAsync(replayId);
 
-	[HttpPost("{postId:guid}"), Authorize, RequestSizeLimit(ReplaysIngestService.MaxReplaySize), ProducesResponseType(201)]
-	public async Task<IActionResult> UploadReplayAsync(Guid postId, IFormFile replay, CancellationToken ct, [FromQuery] bool ignoreChecks = false)
+	[HttpPost("{postId:guid}"), Authorize, RequestSizeLimit(ReplaysIngestService.MaxReplaySize)]
+	public async Task<ActionResult> UploadReplayAsync(Guid postId, IFormFile replay, CancellationToken ct, [FromQuery] bool ignoreChecks = false)
 	{
 		if (_postService.GetPost(postId) is not { } current)
 		{
-			return StatusCode(404, $"No post with GUID {postId} found.");
+			ModelState.AddModelError("postId", $"No post with GUID {postId} found.");
+			return BadRequest(ModelState);
 		}
 
 		if (ignoreChecks)
 		{
 			if (!(User.IsInRole(ApiRoles.CM) || User.IsInRole(ApiRoles.Administrator)))
 			{
-				return StatusCode(403, "Post Author is not authorized to bypass Replay checks.");
+				ModelState.AddModelError("ignoreChecks", "Only Community Managers and Administrators are allowed to bypass Replay checks.");
+				return BadRequest(ModelState);
 			}
 		}
 		else
 		{
 			if (current.AuthorId != uint.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new InvalidOperationException("Missing NameIdentifier claim.")))
 			{
-				return StatusCode(403, "Post Author is not authorized to edit post replays on behalf of other users.");
+				ModelState.AddModelError("postId", "Post Author is not authorized to upload replays on behalf of other users.");
+				return BadRequest(ModelState);
 			}
 			if (current.ModLocked)
 			{
-				return StatusCode(403, "Specified Post has been locked by Community Managers. No modification is possible.");
+				ModelState.AddModelError("postId", "Specified Post has been locked by Community Managers. No modification is possible.");
+				return BadRequest(ModelState);
 			}
 		}
 
 		try
 		{
 			Replay ingested = await _ingestService.IngestReplayAsync(postId, replay, ct);
-			return StatusCode(201, _ingestService.GetReplayDTOAsync(ingested.Id));
+			return CreatedAtAction("Get", new { replayId = ingested.Id }, _ingestService.GetReplayDTOAsync(ingested.Id));
 		}
 		catch (InvalidReplayException e)
 		{
@@ -89,7 +93,7 @@ public sealed class ReplayController : ControllerBase
 		catch (SecurityException se) when (se.Data["exploit"] is "CVE-2022-31265")
 		{
 			// Log this exception, and store the replay with the RCE the samples.
-			_logger.LogWarning(se, "Replay upload failed due to CVE-2022-31265 exploit detection.");
+			_logger.LogWarning(se, "Replay upload failed due to CVE-2022-31265 exploit detection");
 			await _ingestService.IngestRceFileAsync(replay);
 			return BadRequest(se);
 		}
@@ -101,7 +105,7 @@ public sealed class ReplayController : ControllerBase
 	/// <param name="start">Start of date/time range</param>
 	/// <param name="end">End of date/time range</param>
 	[HttpPatch("reprocess/replay/all"), Authorize(Roles = ApiRoles.Administrator)]
-	public IActionResult ReprocessPosts(DateTime start = default, DateTime end = default, CancellationToken ct = default)
+	public AcceptedResult ReprocessPosts(DateTime start = default, DateTime end = default)
 	{
 		if (start == default)
 		{
@@ -113,25 +117,24 @@ public sealed class ReplayController : ControllerBase
 			end = DateTime.UtcNow;
 		}
 		
-		BackgroundJob.Enqueue<ReplaysIngestService>(s => s.ReprocessAllReplaysAsync(start.ToUniversalTime(), end.ToUniversalTime(), ct));
-		return StatusCode(202);
+		BackgroundJob.Enqueue<ReplaysIngestService>(s => s.ReprocessAllReplaysAsync(start.ToUniversalTime(), end.ToUniversalTime(), HttpContext.RequestAborted));
+		return Accepted();
 	}
 	
 	/// <summary>
 	/// Triggers reporessing on a replay (Usable only by Administrators)
 	/// </summary>
-	/// <returns></returns>
 	[HttpPatch("reprocess/replay/{replayId:guid}"), Authorize(Roles = ApiRoles.Administrator)]
-	public IActionResult ReprocessReplay(Guid replayId, CancellationToken ct = default)
+	public IActionResult ReprocessReplay(Guid replayId)
 	{
 		try
 		{
-			BackgroundJob.Enqueue<ReplaysIngestService>(s => s.ReprocessReplayAsync(replayId, ct));
-			return StatusCode(202);
+			BackgroundJob.Enqueue<ReplaysIngestService>(s => s.ReprocessReplayAsync(replayId, HttpContext.RequestAborted));
+			return AcceptedAtAction("Get", routeValues: new { replayId }, null);
 		}
 		catch (ArgumentException)
 		{
-			return StatusCode(404, $"No replay with GUID {replayId} found.");
+			return NotFound();
 		}
 	}
 
@@ -142,32 +145,30 @@ public sealed class ReplayController : ControllerBase
 	/// <param name="minimapRenderingService"></param>
 	/// <param name="force">Whether to force rendering the minimap, even if it has already been rendered.</param>
 	/// <param name="waitForCompletion">Whether to wait for the job to complete before returning.</param>
-	/// <param name="ct">The cancellation token.</param>
 	/// <response code="200">The minimap was rendered successfully.</response>
 	/// <response code="202">The job was enqueued successfully.</response>
 	/// <response code="404">No post with the specified GUID was found.</response>
 	[HttpPatch("reprocess/minimap/{postId:guid}"), Authorize(Roles = ApiRoles.Administrator)]
-	public async ValueTask<IActionResult> RenderMinimap(Guid postId,
+	public async ValueTask<ActionResult> RenderMinimap(Guid postId,
 		[FromServices] MinimapRenderingService minimapRenderingService,
 		[FromQuery] bool force = false,
-		[FromQuery] bool waitForCompletion = false,
-		CancellationToken ct = default
+		[FromQuery] bool waitForCompletion = false
 	) {
 		if (_postService.GetPost(postId) is not { } post)
 		{
-			return StatusCode(404, $"No post with GUID {postId} found.");
+			return NotFound();
 		}
 
 		if (waitForCompletion)
 		{
-			await minimapRenderingService.RenderPostReplayMinimapAsync(post.Id, force, ct);
+			await minimapRenderingService.RenderPostReplayMinimapAsync(post.Id, force, HttpContext.RequestAborted);
+			return Ok();
 		}
 		else
 		{
-			BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(post.Id, force, ct));
+			BackgroundJob.Enqueue<MinimapRenderingService>(s => s.RenderPostReplayMinimapAsync(post.Id, force, HttpContext.RequestAborted));
+			return AcceptedAtAction("Get", routeValues: new { postId }, null);
 		}
-        
-		return StatusCode(waitForCompletion ? 200 : 202);
 	}
 	
 	/// <summary>
@@ -176,10 +177,9 @@ public sealed class ReplayController : ControllerBase
 	/// <param name="start">Start of date/time range</param>
 	/// <param name="end">End of date/time range</param>
 	/// <param name="force">Whether to force rendering a minimap, even if it has already been rendered.</param>
-	/// <param name="ct">Cancellation token</param>
 	/// <response code="202">The job was enqueued successfully.</response>
 	[HttpPatch("reprocess/minimap/all"), Authorize(Roles = ApiRoles.Administrator)]
-	public IActionResult RenderMinimaps(DateTime start = default, DateTime end = default, bool force = false, CancellationToken ct = default)
+	public AcceptedResult RenderMinimaps(DateTime start = default, DateTime end = default, bool force = false)
 	{
 		if (start == default)
 		{
@@ -191,7 +191,7 @@ public sealed class ReplayController : ControllerBase
 			end = DateTime.UtcNow;
 		}
 		
-		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.ReprocessAllMinimapsAsync(start.ToUniversalTime(), end.ToUniversalTime(), force, ct));
-		return StatusCode(202);
+		BackgroundJob.Enqueue<MinimapRenderingService>(s => s.ReprocessAllMinimapsAsync(start.ToUniversalTime(), end.ToUniversalTime(), force, HttpContext.RequestAborted));
+		return Accepted();
 	}
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,12 +14,14 @@ using WowsKarma.Common.Models;
 
 #nullable disable
 
-namespace WowsKarma.Api.Migrations.ApiDb
+namespace WowsKarma.Api.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240901093435_AddCSTicketId")]
+    partial class AddCSTicketId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

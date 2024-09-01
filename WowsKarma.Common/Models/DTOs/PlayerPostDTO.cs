@@ -35,7 +35,7 @@ public record PlayerPostDTO
 	/// <summary>
 	/// Defines the status of the Customer Support ticket associated with the post when applicable.
 	/// </summary>
-	public struct CustomerSupportStatus
+	public readonly struct CustomerSupportStatus
 	{
 		/// <summary>
 		/// Whether the post has an associated Customer Support ticket.

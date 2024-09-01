@@ -106,6 +106,9 @@ export class PostEditorComponent {
             this.post.replayFile = this.form.controls.replayFile.value;
         }
 
+        const ticketId = this.form.controls.supportTicketStatus.controls.ticketId.value;
+        this.post.supportTicketStatus = { hasTicket: !!ticketId, ticketId };
+
 
         if (create) {
             // Create the body as a form data

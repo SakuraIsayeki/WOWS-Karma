@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, HostListener, inject, Input } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { AccountClanListingDto } from "src/app/services/api/models/account-clan-listing-dto";
@@ -9,6 +9,7 @@ import { PostService } from "src/app/services/api/services/post.service";
 import { markTouchedDirtyAndValidate, TypedFormControls, TypedFormGroup } from "src/app/services/helpers";
 import { parseFlairsEnum, toEnum } from "src/app/services/metricsHelpers";
 import * as ReplayValidators from "../../validation/replay-validators";
+import { CsTicketIdHelpComponent } from "../cs-ticket-id-help/cs-ticket-id-help.component";
 
 @Component({
     selector: "post-editor",
@@ -18,6 +19,8 @@ import * as ReplayValidators from "../../validation/replay-validators";
 export class PostEditorComponent {
     @Input() post!: PlayerPostEditorDto;
     @Input() modal!: NgbModalRef;
+
+    modalService = inject(NgbModal);
 
     form = new FormBuilder().nonNullable.group({
       id: "",
@@ -30,7 +33,11 @@ export class PostEditorComponent {
       }),
       replayFile: [null as File | null, [ReplayValidators.requireReplay]],
       guidelinesAccepted: [false, Validators.requiredTrue],
-      modReason: ""
+      modReason: "",
+      supportTicketStatus: new FormBuilder().group({
+        hasTicket: [false],
+        ticketId: [null as number | null, Validators.maxLength(9)],
+      })
     })
 
     protected readonly flairsOptions = [
@@ -130,6 +137,10 @@ export class PostEditorComponent {
 
         console.debug("Submitting post", this.post);
     }
+
+    openCsTicketHelp() {
+        CsTicketIdHelpComponent.OpenModal(this.modalService);
+    }
 }
 
 export class PlayerPostEditorDto implements PlayerPostDto {
@@ -149,6 +160,7 @@ export class PlayerPostEditorDto implements PlayerPostDto {
     replayFile: File | null = null;
     guidelinesAccepted: boolean = false;
 
+    supportTicketStatus: { hasTicket: boolean, ticketId: number | null } = { hasTicket: false, ticketId: null };
 
     static fromDto(dto: PlayerPostDto): PlayerPostEditorDto {
         let p = dto as PlayerPostEditorDto;

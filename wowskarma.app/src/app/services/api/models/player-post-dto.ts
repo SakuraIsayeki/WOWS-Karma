@@ -20,6 +20,10 @@ export interface PlayerPostDto {
   replayState?: ReplayState
   title?: null | string;
   updatedAt?: null | string;
+  supportTicketStatus?: {
+    hasTicket: boolean;
+    ticketId: number | null;
+  }
 }
 
 enum ReplayState {

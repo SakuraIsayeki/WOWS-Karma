@@ -86,6 +86,11 @@ public sealed class PostWebhookService : WebhookService
 		embed.AddField("Teamplay", GetFlairValueString(parsedFlairs?.Teamplay), true);
 		embed.AddField("Courtesy", GetFlairValueString(parsedFlairs?.Courtesy), true);
 
+		if (post.SupportTicketStatus.HasTicket)
+		{
+			embed.AddField("CS Ticket ID", $"`{post.SupportTicketStatus.TicketId:D}`");
+		}
+		
 		return embed;
 	}
 }

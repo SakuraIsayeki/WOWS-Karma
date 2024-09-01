@@ -1,0 +1,63 @@
+<div class="modal-header">
+  <h4 class="modal-title">Customer Support Tickets</h4>
+
+  <div>
+    <button type="button" class="btn-close mx-2" aria-label="Close" (click)="this.modal.close()"></button>
+  </div>
+</div>
+
+<div class="modal-body d-flex flex-column gap-3">
+  <div>
+    <h4>What is a Customer Support Ticket ?</h4>
+
+    <p class="text-body">
+      Wargaming's Customer Support (aka CS or Player Support) helps players with any issue related to the game.
+      Submitting a ticket to CS is the best way to get help with your issue, may it be a bug, a technical problem, or a report.
+    </p>
+  </div>
+
+  <div>
+    <h4>How is this related to WOWS Karma ?</h4>
+
+    <p class="text-body">
+      WOWS Karma is a community-based platform that is separate from the Customer Support system.
+      While endorsed, we are not affiliated to Wargaming. This means that our posts aren't systematically sent to WG for reporting.
+    </p>
+
+    <p class="text-body">
+      While CS does occasionally receive some of our posts through tickets,
+      insight from Wargaming shows that this is only a minuscule percentage of the posts currently on our platform.
+    </p>
+  </div>
+
+  <div>
+    <h4>Why should I submit a ticket to Customer Support ?</h4>
+
+    <p class="text-body">
+      WOWS Karma has no power whatsoever on negative events, and <b>our staff is unable to take action on players</b>.
+      The only party able to effectively take action on players is Wargaming's Customer Support.
+    </p>
+
+    <p class="text-body">
+      If you encounter a player that is acting negatively, submitting a ticket to CS is the best way to get them sanctioned.
+      This is why, <strong>if you feel that the player you're posting on has broken the rules, we <u>strongly</u> encourage you to submit a ticket right away</strong>.
+    </p>
+  </div>
+
+  <div>
+    <h4>How do I submit a ticket to Customer Support ?</h4>
+    <p class="text-body">
+      To submit a ticket to WG's {{ region() }} Customer Support, you can follow these links depending on your issue :
+    </p>
+
+    <ul>
+      <li><a [href]="csLinks()[0]" rel="external" target="_blank">Report : Gameplay Violation / Collusions</a></li>
+      <li><a [href]="csLinks()[1]" rel="external" target="_blank">Report : Chat Issues / Inappropriate Behaviour</a></li>
+    </ul>
+
+    <p>
+      Once reported, then come back here with your Ticket ID.
+      This will help us, Wargaming, and others know that the affected user has already been reported for a given issue.
+    </p>
+  </div>
+</div>

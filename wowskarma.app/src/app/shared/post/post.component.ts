@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { PostModEditorComponent } from 'src/app/shared/modals/post-mod-edit/post-mod-editor.component';
 import { PlayerPostDto } from "../../services/api/models/player-post-dto";
@@ -16,6 +16,12 @@ import { PostModDeleteComponent } from "../modals/post-mod-delete/post-mod-delet
 export class PostComponent {
   public post = input<PlayerPostDto>();
   public postDisplayType = input.required<"neutral" | "received" | "sent">();
+  public isOwnerOrPrivileged = computed(() =>
+    this.authService.userInfo$.value?.id === this.post()?.author?.id
+    || this.authService.userInfo$.value?.roles?.includes("mod")
+    || this.authService.userInfo$.value?.roles?.includes("admin")
+    || this.authService.userInfo$.value?.roles?.includes("wg")
+  );
 
   constructor(public authService: AuthService, private modalService: NgbModal) {
   }

@@ -15,12 +15,17 @@ public static class Conversions
 	public static void ConfigureMapping()
 	{
 		TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileWithDebugInfo();
-		
+
 		TypeAdapterConfig<PlayerPostDTO, Post>
 			.NewConfig()
 			.IgnoreNullValues(true)
 			.Ignore(dest => dest.Author)
-			.Ignore(dest => dest.Player);
+			.Ignore(dest => dest.Player)
+			.Map(
+				dest => dest.CustomerSupportTicketId, 
+				src => src.SupportTicketStatus.TicketId, 
+				srcCond => srcCond.SupportTicketStatus.TicketId != null
+			);
 			
 		TypeAdapterConfig<Post, PlayerPostDTO>
 			.NewConfig()
@@ -34,7 +39,12 @@ public static class Conversions
 						: ReplayState.Processing
 			)
 			.Map(dest => dest.Author.Clan, src => src.Author.ClanMember.Clan)
-			.Map(dest => dest.Player.Clan, src => src.Player.ClanMember.Clan);
+			.Map(dest => dest.Player.Clan, src => src.Player.ClanMember.Clan)
+			.Map(dest => dest.SupportTicketStatus, src => new PlayerPostDTO.CustomerSupportStatus
+			{
+				HasTicket = src.CustomerSupportTicketId != null,
+				TicketId = src.CustomerSupportTicketId
+			});
 		
 		TypeAdapterConfig<PostModActionDTO, PostModAction>
 			.NewConfig()

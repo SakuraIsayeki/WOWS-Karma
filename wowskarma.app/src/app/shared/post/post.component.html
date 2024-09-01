@@ -1,78 +1,84 @@
 <div *ngIf="post() as p" class="m-2 vstack" [id]="p.id">
-    <p *ngIf="postDisplayType() === 'neutral'" class="text-body">
-        <player-namelink [player]="p.author" [displayClan]="true" />
-        &gt;
-        <player-namelink [player]="p.player" [displayClan]="true" />
-    </p>
+  <p *ngIf="postDisplayType() === 'neutral'" class="text-body">
+    <player-namelink [player]="p.author" [displayClan]="true" />
+    &gt;
+    <player-namelink [player]="p.player" [displayClan]="true" />
+  </p>
 
-    <div class="card post-card border-{{p.flairs! | postBorderColor}}">
-        <div class="card-header">
-            <h5 class="my-2">{{ p.title }}</h5>
-        </div>
-
-        <div class="card-body">
-            <markdown class="card-text markdown" [data]="p.content" />
-        </div>
-
-        <div class="card-body py-0 my-1" style="line-height: normal;">
-            <div class="row justify-content-between align-items-end">
-                <div class="col-auto">
-                    <flairs-markup [flairsEnum]="p.flairs" />
-                </div>
-
-                <div class="col-auto px-1">
-                    <i *ngIf="p.readOnly" class="bi bi-asterisk text-warning lead mx-1"></i>
-                    <i *ngIf="p.modLocked" class="bi bi-x-circle text-danger lead mx-1"></i>
-
-                    @switch (p.replayState) {
-                        @case (2) {
-                            <a class="text-body" [routerLink]="['/posts', 'view', p.id]">
-                                <i class="bi bi-camera-video text-success lead mx-1"></i>
-                            </a>
-                        }
-
-                        @case (1) {
-                            <a class="text-body" [routerLink]="['/posts', 'view', p.id]" title="Replay minimap is being processed.">
-                                <i class="bi bi-camera-video text-warning lead mx-1"></i>
-                            </a>
-                        }
-
-                        @case (0) {
-                            <i class="bi bi-camera-video-off text-danger lead mx-1"></i>
-                        }
-                    }
-
-                    <a class="text-body" [routerLink]="['/posts', 'view', p.id]">
-                        <i class="bi bi-link-45deg lead"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <div class="card-footer">
-            <p class="blockquote-footer my-1">
-                <ng-container *ngIf="postDisplayType() === 'received'">
-                    From
-                    <player-namelink [player]="p.author" [displayClan]="true" />
-                </ng-container>
-
-                <ng-container *ngIf="postDisplayType() === 'sent'">
-                    To
-                    <player-namelink [player]="p.player" [displayClan]="true" />
-                </ng-container>
-
-                {{ p.createdAt | date:'medium' }}
-            </p>
-
-            <div class="d-flex flex-row my-1 gap-2">
-                <button *ngIf="canEdit" class="btn btn-warning btn-sm" (click)="openEditor()">Edit</button>
-                <button *ngIf="canDelete" class="btn btn-danger btn-sm" (click)="openDeleteModal()">Delete</button>
-
-                <div class="d-flex flex-row gap-1" *ngIf="this.authService.isInRole('mod')">
-                    <button class="btn btn-outline-warning btn-sm" (click)="openModEditor()">Mod Edit</button>
-                    <button class="btn btn-outline-danger btn-sm" (click)="openModDeleteModal()">Mod Delete</button>
-                </div>
-            </div>
-        </div>
+  <div class="card post-card border-{{p.flairs! | postBorderColor}}">
+    <div class="card-header">
+      <h5 class="my-2">{{ p.title }}</h5>
     </div>
+
+    <div class="card-body">
+      <markdown class="card-text markdown" [data]="p.content" />
+    </div>
+
+    <div class="card-body py-0 my-1" style="line-height: normal;">
+      <div class="row justify-content-between align-items-end">
+        <div class="col-auto">
+          <flairs-markup [flairsEnum]="p.flairs" />
+        </div>
+
+        <div class="col-auto px-1">
+          <i *ngIf="p.readOnly" class="bi bi-asterisk text-warning lead mx-1"></i>
+          <i *ngIf="p.modLocked" class="bi bi-x-circle text-danger lead mx-1"></i>
+
+          @switch (p.replayState) {
+            @case (2) {
+              <a class="text-body" [routerLink]="['/posts', 'view', p.id]">
+                <i class="bi bi-camera-video text-success lead mx-1"></i>
+              </a>
+            }
+            @case (1) {
+              <a class="text-body" [routerLink]="['/posts', 'view', p.id]" title="Replay minimap is being processed.">
+                <i class="bi bi-camera-video text-warning lead mx-1"></i>
+              </a>
+            }
+            @case (0) {
+              <i class="bi bi-camera-video-off text-danger lead mx-1"></i>
+            }
+          }
+
+          @if (p.supportTicketStatus?.hasTicket) {
+            @if (p.supportTicketStatus?.ticketId && isOwnerOrPrivileged()) {
+              <i class="bi bi-flag text-success lead mx-1" ngbTooltip="CS Ticket ID : {{ p.supportTicketStatus!.ticketId }}"></i>
+            } @else {
+              <i class="bi bi-flag text-success lead mx-1" ngbTooltip="Reported to Customer Support"></i>
+            }
+          }
+
+          <a class="text-body" [routerLink]="['/posts', 'view', p.id]">
+            <i class="bi bi-link-45deg lead"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <p class="blockquote-footer my-1 d-inline-flex gap-1">
+        @if (postDisplayType() === 'received') {
+          <span>From <player-namelink [player]="p.author" [displayClan]="true" /></span>
+        }
+
+        @if (postDisplayType() === 'sent') {
+          <span>To <player-namelink [player]="p.player" [displayClan]="true" /></span>
+        }
+
+        <span>{{ p.createdAt | date:'medium' }}</span>
+      </p>
+
+      <div class="d-flex flex-row my-1 gap-2">
+        <div class="d-flex flex-row gap-1">
+          <button *ngIf="canEdit" class="btn btn-warning btn-sm" (click)="openEditor()">Edit</button>
+          <button *ngIf="canDelete" class="btn btn-danger btn-sm" (click)="openDeleteModal()">Delete</button>
+        </div>
+
+        <div class="d-flex flex-row gap-1" *ngIf="this.authService.isInRole('mod')">
+          <button class="btn btn-outline-warning btn-sm" (click)="openModEditor()">Mod Edit</button>
+          <button class="btn btn-outline-danger btn-sm" (click)="openModDeleteModal()">Mod Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

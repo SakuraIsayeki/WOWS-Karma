@@ -7,7 +7,6 @@ import { AppConfigService } from "../../../services/app-config.service";
 @Component({
     selector: "modal-seed-token-change",
     templateUrl: "./seed-token-change.component.html",
-    styleUrls: ["./seed-token-change.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SeedTokenChangeComponent {

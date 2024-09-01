@@ -41,10 +41,10 @@
           }
 
           @if (p.supportTicketStatus?.hasTicket) {
-            @if (p.supportTicketStatus?.ticketId) {
+            @if (p.supportTicketStatus?.ticketId && isOwnerOrPrivileged()) {
               <i class="bi bi-flag text-success lead mx-1" ngbTooltip="CS Ticket ID : {{ p.supportTicketStatus!.ticketId }}"></i>
             } @else {
-              <i class="bi bi-flag text-success lead mx-1" ngbTooltip="Reported to CS"></i>
+              <i class="bi bi-flag text-success lead mx-1" ngbTooltip="Reported to Customer Support"></i>
             }
           }
 

@@ -1,6 +1,6 @@
 {
   "name": "wowskarma.app",
-  "version": "0.17.4",
+  "version": "0.17.5",
   "scripts": {
     "ng": "ng",
     "dev": "ng serve --watch --ssl true",

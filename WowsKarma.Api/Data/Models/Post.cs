@@ -92,6 +92,18 @@ public sealed record Post : ITimestamped, IDisposable
 	/// </summary>
 	public bool ModLocked { get; set; }
 
+	/// <summary>
+	/// The Customer Support ticket ID associated with this post.
+	/// </summary>
+	/// <remarks>
+	/// This is used by WG staff to track and manage player reports.
+	/// </remarks>
+	/// <value>
+	/// Set as <see langword="null"/> if no ticket is associated.
+	/// When present, takes form as a positive integer, up to 9 digits.
+	/// </value>
+	[Range(1, 999_999_999)]
+	public int? CustomerSupportTicketId { get; set; }
 	
 	/// <inheritdoc />
 	public void Dispose()

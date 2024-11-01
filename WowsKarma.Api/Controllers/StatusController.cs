@@ -15,15 +15,15 @@ public sealed class StatusController : Controller
 	/// </summary>
 	/// <response code="200">Service is healthy.</response>
 	[HttpGet, ProducesResponseType(200)]
-	public IActionResult Status() => Ok();
+	public OkResult Status() => Ok();
 		
 	[Route("/error"), ApiExplorerSettings(IgnoreApi = true)]
-	public IActionResult HandleError()
+	public ObjectResult HandleError()
 	{
-		if (HttpContext.Features.Get<IExceptionHandlerFeature>() is { Error: not null } exceptionHandlerFeature)
+		if (HttpContext.Features.Get<IExceptionHandlerFeature>() is { } exceptionHandlerFeature)
 		{
 			Uri fullPath = new UriBuilder(Request.Scheme, Request.Host.Host, Request.Host.Port ?? 80, exceptionHandlerFeature.Path).Uri;
-				
+			
 			return Problem(
 				detail: exceptionHandlerFeature.Error.StackTrace,
 				instance: fullPath.ToString(),

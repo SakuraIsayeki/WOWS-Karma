@@ -26,4 +26,29 @@ public record PlayerPostDTO
 	// Computed by DB Engine (hopefully)
 	public DateTimeOffset? CreatedAt { get; init; }
 	public DateTimeOffset? UpdatedAt { get; init; }
+	
+	/// <summary>
+	/// The status of the Customer Support ticket associated with the post when applicable.
+	/// </summary>
+	public CustomerSupportStatus SupportTicketStatus { get; init; }
+	
+	/// <summary>
+	/// Defines the status of the Customer Support ticket associated with the post when applicable.
+	/// </summary>
+	public readonly struct CustomerSupportStatus
+	{
+		/// <summary>
+		/// Whether the post has an associated Customer Support ticket.
+		/// </summary>
+		public bool HasTicket { get; init; }
+		
+		/// <summary>
+		/// The Customer Support ticket ID associated with this post.
+		/// </summary>
+		/// <remarks>
+		/// This is only available when <see cref="HasTicket"/> is <see langword="true"/>,
+		/// and only visible to the post's author, platform staff, and Wargaming staff.
+		/// </remarks>
+		public int? TicketId { get; init; }
+	}
 }

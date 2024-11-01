@@ -69,20 +69,41 @@
         </dl>
       </div>
 
-      <div class="col" id="replay-upload">
-        <h4 class="mb-2">Replay File</h4>
+      <div class="col">
+        <div id="replay-upload">
+          <h4 class="mb-2">Replay File</h4>
 
-        <input name="replay-file" type="file" class="form-control" accept=".wowsreplay"
-               [formControl]="form.controls.replayFile" [formControlExtensions]="replayErrors"
-        >
+          <input name="replay-file" type="file" class="form-control" accept=".wowsreplay"
+                 [formControl]="form.controls.replayFile" [formControlExtensions]="replayErrors"
+          >
 
-        <div class="my-2" #replayErrors>
-          <form-errors [control]="form.controls.replayFile"></form-errors>
+          <div class="my-2" #replayErrors>
+            <form-errors [control]="form.controls.replayFile"></form-errors>
+          </div>
         </div>
+
+        <!-- If the second/third group of flairs is set to false, display the CS ticket field -->
+        @if (flairGroups.length > 1 && (flairGroups[1].control.value === false || flairGroups[2].control.value === false)) {
+          <div class="form-group my-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="d-inline-flex gap-2 align-items-center">
+                <label for="ticket-id">CS Ticket ID</label>
+                <small class="text-muted"><i>(optional)</i></small>
+              </span>
+
+              <!-- Help button w/ popup -->
+                <button type="button" class="btn btn-sm text-info d-inline-flex gap-1" (click)="openCsTicketHelp()">
+                  <span>What is this</span>
+                  <i class="bi bi-question-circle"></i>
+                </button>
+            </div>
+
+            <input type="text" id="ticket-id" class="form-control" name="ticketId" placeholder="CS Ticket ID (optional)"
+                   [formControl]="form.controls.supportTicketStatus.controls.ticketId">
+          </div>
+        }
       </div>
     </div>
-
-
   </div>
 
   <div class="modal-footer d-flex flex-column flex-md-row justify-content-between align-content-center">

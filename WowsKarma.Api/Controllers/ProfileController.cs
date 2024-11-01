@@ -28,8 +28,8 @@ public sealed class ProfileController : ControllerBase
 	/// <param name="id">Player ID to fetch profile flags from.</param>
 	/// <response code="200">Returns player profile flags for given ID.</response>
 	/// <response code="404">No player Profile was found.</response>
-	[HttpGet("{id}"), ProducesResponseType(typeof(UserProfileFlagsDTO), 200), ProducesResponseType(404)]
-	public async Task<IActionResult> GetProfileFlagsAsync(uint id) => await _playerService.GetPlayerAsync(id, true) is { } player
+	[HttpGet("{id}")]
+	public async Task<ActionResult<UserProfileFlagsDTO>> GetProfileFlagsAsync(uint id) => await _playerService.GetPlayerAsync(id, true) is { } player
 		? Ok(player.Adapt<UserProfileFlagsDTO>() with
 			{
 				PostsBanned = player.IsBanned(),
@@ -48,23 +48,24 @@ public sealed class ProfileController : ControllerBase
 	/// <response code="403">User cannot update a profile other than their own.</response>
 	/// <response code="404">User profile was not found.</response>
 	/// <response code="423">A cooldown is currently in effect for one of the values edited.</response>
-	[HttpPut, Authorize(RequireNoPlatformBans), ETag(false), ProducesResponseType(typeof(UserProfileFlagsDTO), 200)]
-	[ProducesResponseType(423), ProducesResponseType(typeof(string), 403), ProducesResponseType(404)]
-	public async Task<IActionResult> UpdateProfileFlagsAsync([FromBody] UserProfileFlagsDTO flags)
+	[HttpPut, Authorize(RequireNoPlatformBans), ETag(false)]
+	public async Task<ActionResult> UpdateProfileFlagsAsync([FromBody] UserProfileFlagsDTO flags)
 	{
 		try
 		{
 			if (flags.Id != User.ToAccountListing()!.Id && !User.IsInRole(ApiRoles.Administrator))
 			{
-				return StatusCode(403, "User can only update their own profile.");
+				ModelState.AddModelError(nameof(flags.Id), "User can only update their own profile.");
+				return BadRequest(ModelState);
 			}
 
 			await _playerService.UpdateProfileFlagsAsync(flags);
-			return Ok();
+			return NoContent();
 		}
 		catch (CooldownException e)
 		{
-			return StatusCode(423, e);
+			ModelState.TryAddModelException(nameof(flags), e);
+			return StatusCode(StatusCodes.Status423Locked, ModelState);
 		}
 		catch (ArgumentException)
 		{

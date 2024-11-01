@@ -177,6 +177,7 @@ public sealed class PostService
 		current.Flairs = edited.Flairs;
 		current.UpdatedAt = DateTimeOffset.UtcNow; // Forcing UpdatedAt refresh
 		current.ReadOnly = current.ReadOnly || modEditLock;
+		current.CustomerSupportTicketId = edited.SupportTicketStatus.TicketId;
 
 		KarmaService.UpdatePlayerKarma(player, current.ParsedFlairs, previousFlairs, current.NegativeKarmaAble);
 		KarmaService.UpdatePlayerRatings(player, current.ParsedFlairs, previousFlairs);

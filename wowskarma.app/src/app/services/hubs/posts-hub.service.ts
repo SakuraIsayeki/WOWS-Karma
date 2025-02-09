@@ -1,11 +1,7 @@
 import { Injectable } from "@angular/core";
-import * as signalR from "@microsoft/signalr";
-import { HubConnectionState } from "@microsoft/signalr";
 import { Subject } from "rxjs";
-import { environment } from "../../../environments/environment";
 import { PlayerPostDto } from "../api/models/player-post-dto";
 import { AppConfigService } from "../app-config.service";
-import { AuthService } from "../auth.service";
 import { HubBase } from "./hub-base";
 
 @Injectable({
@@ -24,8 +20,8 @@ export class PostsHub extends HubBase {
 
 
 
-    constructor(appConfigService: AppConfigService, authService: AuthService) {
-        super(appConfigService, authService);
+    constructor(appConfigService: AppConfigService) {
+        super(appConfigService);
 
         this.connection.on("newPost", x => this.onNewPost.next(x));
         this.connection.on("editedPost", x => this.onEditedPost.next(x));

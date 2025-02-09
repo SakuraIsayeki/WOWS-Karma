@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, Input } from '@angular/core';
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
-import { AuthService } from "../../../services/api/services/auth.service";
 import { AppConfigService } from "../../../services/app-config.service";
 
 @Component({

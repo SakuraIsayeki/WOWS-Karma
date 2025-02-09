@@ -17,12 +17,6 @@ import { PlayerProfileDto } from '../models/player-profile-dto';
   providedIn: 'root',
 })
 export class PlayerService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
-    super(config, http);
-  }
 
   /**
    * Path part for operation apiPlayerGet

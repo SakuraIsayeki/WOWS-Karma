@@ -16,12 +16,6 @@ import { ClanProfileFullDto } from '../models/clan-profile-full-dto';
   providedIn: 'root',
 })
 export class ClanService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
-    super(config, http);
-  }
 
   /**
    * Path part for operation apiClanGet

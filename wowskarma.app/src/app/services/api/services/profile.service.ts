@@ -15,12 +15,6 @@ import { UserProfileFlagsDto } from '../models/user-profile-flags-dto';
   providedIn: 'root',
 })
 export class ProfileService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
-    super(config, http);
-  }
 
   /**
    * Path part for operation apiProfileIdGet

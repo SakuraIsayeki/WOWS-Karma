@@ -5,14 +5,15 @@ import { Subject } from "rxjs";
 import { environment } from "../../../environments/environment";
 import { AppConfigService } from "../app-config.service";
 import { AuthService } from "../auth.service";
+import { inject } from "@angular/core";
 
 export abstract class HubBase {
     abstract connection: HubConnection;
-
+    protected authService: AuthService = inject(AuthService);
     onConnected$ = new Subject();
 
 
-    protected constructor(protected appConfigService: AppConfigService, protected authService: AuthService) { }
+    protected constructor(protected appConfigService: AppConfigService) { }
 
     buildHubConnection(url: URL | string, authenticate = false, builderFunc = HubBase.defaultHubBuilder): HubConnection {
         url = url instanceof URL ? url.href : new URL(url, environment.apiHost[this.appConfigService.currentRegion]).href;

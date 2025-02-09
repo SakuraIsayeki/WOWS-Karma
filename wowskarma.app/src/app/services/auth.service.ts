@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { map } from "rxjs/operators";
 import { environment } from "../../environments/environment";
@@ -12,7 +12,7 @@ declare type JwtParsed =
     { [key: string]: string }
     & { "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string[] }
 
-@Injectable()
+@Injectable({providedIn: "root"})
 export class AuthService {
     /**
      * Defines if authentication was resolved.
@@ -31,10 +31,10 @@ export class AuthService {
      * Provides the raw token, for use outside of the Angular context.
      */
     authToken$ = new BehaviorSubject<string | null>(null);
+    private apiAuthService: ApiAuthService = inject(ApiAuthService);
 
     constructor(
         private appConfigService: AppConfigService,
-        private apiAuthService: ApiAuthService,
         private profileService: ProfileService,
     ) {
         this.load().then(() => {

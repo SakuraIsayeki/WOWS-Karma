@@ -1,20 +1,18 @@
 /* tslint:disable */
 /* eslint-disable */
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiConfiguration } from './api-configuration';
 
 /**
  * Base class for services
  */
-@Injectable()
+@Injectable({providedIn: "root"})
 export class BaseService {
-  constructor(
-    protected config: ApiConfiguration,
-    protected http: HttpClient
-  ) {
-  }
 
+
+  protected config: ApiConfiguration = inject(ApiConfiguration);
+  protected http: HttpClient = inject(HttpClient);
   private _rootUrl: string = '';
 
   /**

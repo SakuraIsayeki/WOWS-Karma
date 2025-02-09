@@ -15,12 +15,6 @@ import { PlayerPostDto } from '../models/player-post-dto';
   providedIn: 'root',
 })
 export class PostService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
-    super(config, http);
-  }
 
   /**
    * Path part for operation apiPostGet

@@ -14,12 +14,6 @@ import { map, filter } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class StatusService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
-    super(config, http);
-  }
 
   /**
    * Path part for operation apiStatusGet

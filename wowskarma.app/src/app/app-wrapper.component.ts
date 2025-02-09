@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { AppInitService } from "./services/app-init.service";
 import { RouterOutlet } from "@angular/router";
 import { AsyncPipe } from "@angular/common";
@@ -13,5 +13,5 @@ import { AsyncPipe } from "@angular/common";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppWrapperComponent {
-  constructor(public appInit: AppInitService) { }
+  public appInit: AppInitService = inject(AppInitService);
 }

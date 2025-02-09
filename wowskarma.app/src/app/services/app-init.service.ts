@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, startWith } from "rxjs";
 
-@Injectable()
+@Injectable({providedIn: "root"})
 export class AppInitService {
 
   private isInitialized = new BehaviorSubject<boolean>(false);

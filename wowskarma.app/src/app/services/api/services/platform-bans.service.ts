@@ -15,12 +15,6 @@ import { PlatformBanDto } from '../models/platform-ban-dto';
   providedIn: 'root',
 })
 export class PlatformBansService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
-    super(config, http);
-  }
 
   /**
    * Path part for operation apiModBansUserIdGet

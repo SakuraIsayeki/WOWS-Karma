@@ -103,10 +103,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "wowskarma-app:build:production"
+              "buildTarget": "wowskarma-app:build:production"
             },
             "development": {
-              "browserTarget": "wowskarma-app:build:development"
+              "buildTarget": "wowskarma-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -114,7 +114,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "wowskarma-app:build"
+            "buildTarget": "wowskarma-app:build"
           }
         },
         "test": {

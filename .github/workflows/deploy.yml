@@ -20,7 +20,7 @@ jobs:
     with:
       dotnet-version: '8.0'
       configuration: 'Release'
-      project-file: 'WoWS-Karma.sln'
+      project-file: 'WowsKarma.slnx'
   
   # Build & Package API & Web from 'build-package-api.yml' and 'build-package-web.yml'.
   build-package-api: 

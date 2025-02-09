@@ -4,7 +4,7 @@ permissions:
   contents: read
 
 env:
-  SOLUTION: 'WoWS-Karma.sln'
+  SOLUTION: 'WowsKarma.slnx'
 
 on:
   - push

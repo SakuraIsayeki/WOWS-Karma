@@ -1,0 +1,12 @@
+﻿<Solution>
+  <Folder Name="/Solution Files/">
+    <File Path=".dockerignore" />
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="docker-compose.dcproj" />
+  <Project Path="WowsKarma.Api.Minimap.Client\WowsKarma.Api.Minimap.Client.csproj" />
+  <Project Path="WowsKarma.Api\WowsKarma.Api.csproj" />
+  <Project Path="WowsKarma.Common\WowsKarma.Common.csproj" />
+</Solution>

@@ -51,12 +51,12 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.1" />
     <PackageReference Include="NodaTime" Version="3.2.0" />
     <PackageReference Include="Nodsoft.Wargaming.Api.Client" Version="0.3.5" />
-    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="3.0.20-beta" />
+    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="3.0.21-beta" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
     <PackageReference Include="Polly.Extensions" Version="8.4.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,14 +1,23 @@
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, FormControlDirective, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { ModActionType } from "../../../services/api/models";
 import { ModActionService } from "../../../services/api/services/mod-action.service";
+import { CommonModule } from "@angular/common";
+import { FormErrorsComponent } from "../../form-errors/form-errors.component";
+import { ControlExtensionsDirective } from "../../directives/control-extensions.directive";
 
 @Component({
     selector: "app-post-mod-delete",
     templateUrl: "./post-mod-delete.component.html",
     styleUrls: ["./post-mod-delete.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        ReactiveFormsModule,
+        CommonModule,
+        FormErrorsComponent,
+        ControlExtensionsDirective,
+    ]
 })
 export class PostModDeleteComponent {
     @Input() form = new FormBuilder().nonNullable.group({

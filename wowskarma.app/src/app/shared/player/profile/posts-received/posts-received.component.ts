@@ -1,21 +1,30 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal, TemplateRef, ViewChild } from "@angular/core";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbPagination } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, combineLatest, combineLatestWith, filter, firstValueFrom, merge, Observable, shareReplay, tap, withLatestFrom } from "rxjs";
-import { distinctUntilChanged, map, startWith, } from "rxjs/operators";
+import { distinctUntilChanged, map } from "rxjs/operators";
 import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
 import { PostService } from "../../../../services/api/services/post.service";
 import { AuthService } from "../../../../services/auth.service";
 import { sortByCreationDate } from "../../../../services/helpers";
 import { PostsHub } from "../../../../services/hubs/posts-hub.service";
 import { PostEditorComponent } from "../../../modals/post-editor/post-editor.component";
-import { filterNotNull, InputObservable, reloadWhen, shareReplayRefCount, switchMapCatchError, tapAny, tapPageInfoHeaders } from "../../../rxjs-operators";
+import { filterNotNull, reloadWhen, shareReplayRefCount, switchMapCatchError, tapAny, tapPageInfoHeaders } from "../../../rxjs-operators";
 import { toObservable } from "@angular/core/rxjs-interop";
+import { CommonModule } from "@angular/common";
+import { PostComponent } from "src/app/shared/post/post.component";
+import { RouterLink } from "@angular/router";
 
 
 @Component({
     selector: "app-posts-received",
     templateUrl: "./posts-received.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+      CommonModule,
+      NgbPagination,
+      PostComponent,
+      RouterLink
+    ]
 })
 export class PostsReceivedComponent {
   @ViewChild("createPostButton") buttonTemplate!: TemplateRef<any>;

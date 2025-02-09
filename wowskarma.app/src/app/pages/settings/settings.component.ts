@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, tap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -7,10 +7,17 @@ import "src/app/services/extensions";
 import { ProfileService } from "../../services/api/services/profile.service";
 import { AuthService } from "../../services/auth.service";
 import { SeedTokenChangeComponent } from "../../shared/modals/seed-token-change/seed-token-change.component";
+import { AsyncPipe, DatePipe, NgIf } from "@angular/common";
 
 @Component({
     templateUrl: "./settings.component.html",
     changeDetection: ChangeDetectionStrategy.Default,
+    imports: [
+        AsyncPipe,
+        ReactiveFormsModule,
+        DatePipe,
+        NgIf
+    ]
 })
 export class SettingsComponent {
     public authService: AuthService = inject(AuthService);

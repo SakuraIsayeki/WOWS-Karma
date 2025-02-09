@@ -1,11 +1,15 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { ClanRole } from 'src/app/services/api/models/clan-role';
 
 @Component({
   selector: 'icon-clan-rank',
   template: `<i [className]="clanRankIconName" [ngbTooltip]="clanRankDisplayName" placement="bottom" [title]="clanRankDisplayName"></i>`,
   styleUrls: ['./clan-rank.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    NgbTooltip
+  ]
 })
 export class ClanRankComponent {
   clanRank = input.required();

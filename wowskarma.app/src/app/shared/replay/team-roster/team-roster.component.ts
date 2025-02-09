@@ -4,11 +4,17 @@ import { map } from "rxjs/operators";
 import { ReplayDto } from "../../../services/api/models/replay-dto";
 import { ReplayPlayerDto } from "../../../services/api/models/replay-player-dto";
 import { InputObservable, shareReplayRefCount } from "../../rxjs-operators";
+import { CommonModule } from "@angular/common";
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: "replay-team-roster",
   templateUrl: "./team-roster.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    RouterLink
+  ]
 })
 export class TeamRosterComponent {
   replay = input.required<ReplayDto>()

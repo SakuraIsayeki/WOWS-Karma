@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { firstValueFrom, merge, Subject } from "rxjs";
 import { filter, map } from "rxjs/operators";
@@ -11,11 +11,35 @@ import { ProfilePlatformBansViewComponent } from 'src/app/shared/modals/profile-
 import { PlayerService } from "../../../services/api/services/player.service";
 import { mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
 import { ProfileService } from "../../../services/api/services/profile.service";
+import { CommonModule } from "@angular/common";
+import { MarkdownModule } from "ngx-markdown";
+import { ColorHexPipe } from "src/app/services/pipes/colorHex.pipe";
+import { KarmaColorPipe } from "src/app/services/pipes/karma-color.pipe";
+import { ClanRankComponent } from "src/app/shared/components/icons/clan-rank/clan-rank.component";
+import { NotFoundComponent } from "../../fallbacks/not-found/not-found.component";
+import { UserRolesComponent } from "src/app/shared/components/icons/user-roles/user-roles.component";
+import { WowsNumbersPlayerLinkPipe } from "src/app/services/pipes/wows-numbers-player-link.pipe";
+import { PostsReceivedComponent } from "src/app/shared/player/profile/posts-received/posts-received.component";
+import { PostsSentComponent } from "src/app/shared/player/profile/posts-sent/posts-sent.component";
+
 
 
 @Component({
   templateUrl: "./profile.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ColorHexPipe,
+    KarmaColorPipe,
+    ClanRankComponent,
+    RouterLink,
+    NotFoundComponent,
+    MarkdownModule,
+    UserRolesComponent,
+    WowsNumbersPlayerLinkPipe,
+    PostsReceivedComponent,
+    PostsSentComponent,
+    CommonModule
+  ],
 })
 export class ProfileComponent {
   // Get the "ID,username" from the route params.

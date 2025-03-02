@@ -11,6 +11,7 @@ import { CommonModule } from "@angular/common";
   selector: "app-footer",
   templateUrl: "./footer.component.html",
   styleUrls: ["./footer.component.scss"],
+  standalone: true,
   imports: [
     CommonModule
   ]

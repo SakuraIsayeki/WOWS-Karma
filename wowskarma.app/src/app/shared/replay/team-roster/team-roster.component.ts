@@ -10,7 +10,9 @@ import { RouterLink } from "@angular/router";
 @Component({
   selector: "replay-team-roster",
   templateUrl: "./team-roster.component.html",
+  styleUrls: ['./team-roster.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     CommonModule,
     RouterLink
@@ -53,6 +55,4 @@ export class TeamRosterComponent {
   filterNotNullOrEmpty(value: any[]) {
     return value && value.length > 0;
   }
-
-  protected readonly Boolean = Boolean;
 }

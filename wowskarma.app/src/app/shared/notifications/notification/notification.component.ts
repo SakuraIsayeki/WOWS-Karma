@@ -3,7 +3,7 @@ import {
   Component,
   EventEmitter,
   input,
-  Input,
+  Input, output,
   Output,
   TemplateRef,
   ViewChild
@@ -27,6 +27,7 @@ import { BypassHtmlPipe } from "src/app/services/pipes/bypass-html.pipe";
   styleUrls: ["./notification.component.scss"],
   templateUrl: "./notification.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     RouterLink,
     BypassHtmlPipe,
@@ -34,10 +35,10 @@ import { BypassHtmlPipe } from "src/app/services/pipes/bypass-html.pipe";
   ]
 })
 export class NotificationComponent {
-  notification = input.required<Notification>();
-  
-  @Output() onClick = new EventEmitter();
-  @Output() onDismiss = new EventEmitter();
+  public readonly notification = input.required<Notification>();
+
+  public readonly onClick = output();
+  public readonly onDismiss = output();
 
   _onClick(e: Event) {
     e.stopPropagation()

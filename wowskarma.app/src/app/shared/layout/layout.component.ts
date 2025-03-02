@@ -8,6 +8,7 @@ import { NavbarComponent } from "./navbar/navbar.component";
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
+  standalone: true,
   imports: [
     RouterOutlet,
     FooterComponent,

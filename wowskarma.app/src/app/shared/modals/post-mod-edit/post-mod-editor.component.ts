@@ -18,6 +18,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './post-mod-editor.component.html',
   styleUrls: ['./post-mod-editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     CommonModule,
     FormErrorsComponent,

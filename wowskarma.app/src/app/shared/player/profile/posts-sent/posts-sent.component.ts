@@ -15,6 +15,7 @@ import { NgbPagination } from "@ng-bootstrap/ng-bootstrap";
   selector: "app-posts-sent",
   templateUrl: "./posts-sent.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     AsyncPipe,
     PostComponent,

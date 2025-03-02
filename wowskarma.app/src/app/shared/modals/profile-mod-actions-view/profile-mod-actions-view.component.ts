@@ -16,6 +16,7 @@ import { PlayerNamelinkComponent } from '../../components/player-namelink/player
   selector: 'profile-mod-actions-view-modal',
   templateUrl: './profile-mod-actions-view.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     CommonModule,
     RouterLink,

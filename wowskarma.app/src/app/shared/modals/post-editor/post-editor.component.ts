@@ -19,6 +19,7 @@ import { RouterLink } from "@angular/router";
     selector: "post-editor",
     templateUrl: "./post-editor.component.html",
     changeDetection: ChangeDetectionStrategy.Default,
+    standalone: true,
     imports: [
         FormErrorsComponent,
         ReactiveFormsModule,

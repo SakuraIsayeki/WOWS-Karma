@@ -19,6 +19,7 @@ import { RouterLink } from "@angular/router";
     selector: "app-posts-received",
     templateUrl: "./posts-received.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
     imports: [
       CommonModule,
       NgbPagination,

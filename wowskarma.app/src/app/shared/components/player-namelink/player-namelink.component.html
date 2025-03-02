@@ -1,5 +1,5 @@
-@if (displayClan()) {
-    <a *ngIf="player()?.clan as clan"
+@if (displayClan() && player()?.clan; as clan) {
+    <a
        [style.color]="clan.leagueColor | colorHex" class="me-1"
        [routerLink]="['/clan', clan.id + ',' + clan.tag + '-' + clan.name]"
        [title]="clan.name"

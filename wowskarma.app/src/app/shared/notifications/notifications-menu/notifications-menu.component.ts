@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Output, TemplateRef, ViewChild, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, Output, TemplateRef, viewChild, ViewChild, ViewEncapsulation } from "@angular/core";
 import { NgbOffcanvas, NgbOffcanvasRef } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
@@ -19,11 +19,11 @@ import { CommonModule } from "@angular/common";
     imports: [
         NotificationComponent,
         CommonModule
-    ]
+    ],
+    standalone: true
 })
 export class NotificationsMenuComponent {
-    @ViewChild("content")
-    contentTemplate!: TemplateRef<any>;
+    protected readonly contentTemplate = viewChild<any>("content");
 
     private menuRef!: NgbOffcanvasRef;
 

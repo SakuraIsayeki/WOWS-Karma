@@ -6,11 +6,10 @@ import { CommonModule } from "@angular/common";
 @Component({
   selector: "flairs-markup",
   templateUrl: "./flair-markups.component.html",
+  styleUrls: ["./flair-markups.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  inputs: ["flairsEnum"],
-  imports: [
-    CommonModule
-  ]
+  standalone: true,
+  imports: [CommonModule]
 })
 export class FlairMarkupsComponent implements OnInit {
   // Post Flairs

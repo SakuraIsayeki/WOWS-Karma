@@ -40,12 +40,11 @@
         <div id="page-count">
           <p class="lead">Page</p>
 
-          <ng-container *ngIf="pageInfo$ | async as pageInfo">
+          @if (pageInfo$ | async; as pageInfo) {
             <ngb-pagination [(page)]="pageInfo.currentPage" [boundaryLinks]="true" [collectionSize]="pageInfo.totalItems"
                             [maxSize]="5" [pageSize]="pageInfo.pageSize" [rotate]="true" (pageChange)="onPageChanged($event)"
-            >
-            </ngb-pagination>
-          </ng-container>
+            />
+          }
         </div>
 
         <div id="view-count">
@@ -79,18 +78,17 @@
 
 <hr class="my-sm-5 mt-md-3 rounded" style="border: 2px solid;"/>
 
-<div *ngIf="posts$ | async as posts else loadingPosts">
-  <div *ngIf="posts.length > 0 else noPosts" class="row gx-2 gy-3">
-    <div *ngFor="let post of posts" class="col-lg-4 col-md-6">
-      <app-post [post]="post" [postDisplayType]="'neutral'"></app-post>
-    </div>
+
+@if (posts$ | async; as posts) {
+  <div class="row gx-2 gy-3">
+    @for (post of posts; track post.id) {
+      <div class="col-lg-4 col-md-6">
+        <app-post [post]="post" [postDisplayType]="'neutral'" />
+      </div>
+    } @empty {
+      <h4 class="text-warning mb-5">No Posts found.</h4>
+    }
   </div>
-
-  <ng-template #noPosts>
-    <h4 class="text-warning mb-5">No Posts found.</h4>
-  </ng-template>
-</div>
-
-<ng-template #loadingPosts>
+} @else {
   <h3 class="text-info">Loading posts...</h3>
-</ng-template>
+}

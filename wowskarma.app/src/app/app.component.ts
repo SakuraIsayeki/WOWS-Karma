@@ -6,6 +6,7 @@ import { AppInsightsService } from "./services/app-insights.service";
 
 @Component({
   template: "<router-outlet />",
+  standalone: true,
 
   imports: [
     RouterOutlet

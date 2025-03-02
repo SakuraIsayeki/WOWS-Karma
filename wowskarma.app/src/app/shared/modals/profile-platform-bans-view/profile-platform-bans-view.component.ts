@@ -16,8 +16,10 @@ import { CommonModule } from '@angular/common';
 import { PlayerNamelinkComponent } from '../../components/player-namelink/player-namelink.component';
 
 @Component({
+  selector: 'profile-platform-bans-view-modal',
   templateUrl: './profile-platform-bans-view.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     CommonModule,
     PlayerNamelinkComponent

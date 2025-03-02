@@ -9,6 +9,7 @@ import { AuthService } from "src/app/services/auth.service";
   selector: "navbar-auth",
   templateUrl: "./nav-auth.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   imports: [
     CommonModule,
     RouterLink,

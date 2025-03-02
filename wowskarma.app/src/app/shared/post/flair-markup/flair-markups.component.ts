@@ -6,7 +6,6 @@ import { CommonModule } from "@angular/common";
 @Component({
   selector: "flairs-markup",
   templateUrl: "./flair-markups.component.html",
-  styleUrls: ["./flair-markups.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [CommonModule]

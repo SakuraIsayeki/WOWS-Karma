@@ -7,7 +7,6 @@ import { ChatMessageChannelPipe } from "src/app/services/pipes/chat-message-chan
 @Component({
   selector: 'replay-chat-log',
   templateUrl: './chat-log.component.html',
-  styleUrls: ['./chat-log.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [

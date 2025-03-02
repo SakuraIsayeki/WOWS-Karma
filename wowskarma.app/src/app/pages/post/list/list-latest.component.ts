@@ -30,7 +30,6 @@ export declare type ListFilters = {
   imports: [
     ReactiveFormsModule,
     NgIf,
-    NgFor,
     AsyncPipe,
     NgbPagination,
     PostComponent

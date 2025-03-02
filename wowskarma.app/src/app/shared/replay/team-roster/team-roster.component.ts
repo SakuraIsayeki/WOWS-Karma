@@ -10,7 +10,6 @@ import { RouterLink } from "@angular/router";
 @Component({
   selector: "replay-team-roster",
   templateUrl: "./team-roster.component.html",
-  styleUrls: ['./team-roster.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [

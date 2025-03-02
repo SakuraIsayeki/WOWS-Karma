@@ -1,20 +1,39 @@
-import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
-import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, combineLatest, Observable, of } from "rxjs";
-import { map, debounceTime, distinctUntilChanged, shareReplay, startWith, tap } from "rxjs/operators";
+import {ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { BehaviorSubject, combineLatest } from "rxjs";
+import { map, distinctUntilChanged, startWith, tap } from "rxjs/operators";
 import { PlayerPostDto } from "src/app/services/api/models/player-post-dto";
 import { PostService } from "src/app/services/api/services/post.service";
 import { AuthService } from "src/app/services/auth.service";
 import { PostsHub } from "src/app/services/hubs/posts-hub.service";
-import { filterNotNull, filterPartials, mergeAndCache, shareReplayRefCount, startFrom, switchMapCatchError, tapAny, tapPageInfoHeaders } from "../../../shared/rxjs-operators";
+import { filterNotNull, filterPartials, mergeAndCache, shareReplayRefCount, switchMapCatchError, tapPageInfoHeaders } from "../../../shared/rxjs-operators";
+import { AsyncPipe, NgFor, NgIf } from "@angular/common";
+import { NgbPagination } from "@ng-bootstrap/ng-bootstrap";
+import { PostComponent } from "src/app/shared/post/post.component";
 
 export declare type HasId = { id: string };
-export declare type PostChange = { mode: "new" | "edited" | "deleted", post: HasId };
 
+export declare type PostChange = {
+  mode: "new" | "edited" | "deleted",
+  post: HasId
+};
+
+export declare type ListFilters = {
+  count?: number,
+  hasReplay?: boolean,
+  hideModActions: boolean
+};
 
 @Component({
   templateUrl: "./list-latest.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    NgIf,
+    AsyncPipe,
+    NgbPagination,
+    PostComponent
+  ]
 })
 export class ListLatestComponent {
   public authService: AuthService = inject(AuthService);
@@ -28,7 +47,7 @@ export class ListLatestComponent {
     hasReplay: undefined,
   });
 
-  loaded$ = new BehaviorSubject<boolean>(false);
+  loaded = signal(false);
 
   pageRequest$ = new BehaviorSubject(1);
 
@@ -41,7 +60,7 @@ export class ListLatestComponent {
   );
 
 
- _posts$ = combineLatest([
+  _posts$ = combineLatest([
     this.listFilters.valueChanges.pipe(startWith(this.listFilters.value)),
     this.pageRequest$
   ]).pipe(
@@ -49,7 +68,7 @@ export class ListLatestComponent {
     distinctUntilChanged(),
     filterPartials(),
     filterNotNull(),
-    tap(() => this.loaded$.next(false)),
+    tap(() => this.loaded.set(false)),
     switchMapCatchError(([filters, page]) => this.postService.apiPostLatestGet$Json$Response({
       pageSize: filters.count!,
       page: page,
@@ -97,9 +116,3 @@ export class ListLatestComponent {
     console.debug("page changed", page);
   }
 }
-
-export type ListFilters = {
-  count?: number,
-  hasReplay?: boolean,
-  hideModActions: boolean
-};

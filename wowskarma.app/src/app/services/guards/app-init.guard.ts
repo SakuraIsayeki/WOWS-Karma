@@ -1,15 +1,12 @@
-import { Injectable, Injector } from "@angular/core";
+import { inject, Injectable, Injector } from "@angular/core";
 import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from "@angular/router";
 import { combineLatest, first, Observable, of, take } from "rxjs";
 import { map } from "rxjs/operators";
 import { AuthService } from "../auth.service";
 
-@Injectable()
+@Injectable({providedIn: "root"})
 export class AppInitGuard  {
-
-
-  constructor(private authService: AuthService) {
-  }
+  private authService: AuthService = inject(AuthService);
 
   canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     return this.activate();
@@ -20,9 +17,6 @@ export class AppInitGuard  {
   }
 
   private activate() {
-    // combineLatest([
-    //
-    // ])
 
      return this.authService.isLoaded$.pipe(
        first(),

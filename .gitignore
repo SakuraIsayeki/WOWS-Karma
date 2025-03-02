@@ -373,3 +373,5 @@ wowskarma.app/pnpm-lock.yaml
 wowskarma.api.minimap/main.py
 
 WowsKarma.Api/appsettings.Preview.json
+
+wowskarma.app/.ssl/

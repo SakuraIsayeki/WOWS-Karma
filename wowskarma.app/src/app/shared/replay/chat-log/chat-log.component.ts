@@ -1,20 +1,26 @@
-import { ChangeDetectionStrategy, Component, computed, input, Input } from "@angular/core";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 import { ReplayDto } from "../../../services/api/models/replay-dto";
-import { InputObservable } from "../../rxjs-operators";
+import { CommonModule } from "@angular/common";
+import { RouterLink } from "@angular/router";
+import { ChatMessageChannelPipe } from "src/app/services/pipes/chat-message-channel.pipe";
 
 @Component({
   selector: 'replay-chat-log',
   templateUrl: './chat-log.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    ChatMessageChannelPipe
+  ]
 })
 export class ChatLogComponent {
-  public replay = input.required<ReplayDto>();
-  public authorId = input.required<number>();
-  public playerId = input.required<number>();
+  public readonly replay = input.required<ReplayDto>();
+  public readonly authorId = input.required<number>();
+  public readonly playerId = input.required<number>();
 
-  public whoChatted = computed(() => [
+  public readonly whoChatted = computed(() => [
     this.replay().chatMessages?.some(msg => msg.playerId === this.authorId()) ?? false,
     this.replay().chatMessages?.some(msg => msg.playerId === this.playerId()) ?? false
   ]);

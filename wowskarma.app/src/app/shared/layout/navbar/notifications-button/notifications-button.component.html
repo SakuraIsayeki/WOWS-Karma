@@ -1,6 +1,12 @@
-<app-notifications-menu #menu (notificationsCount$)="count$.next($event)"></app-notifications-menu>
+@defer (on immediate) {
+  <app-notifications-menu (notificationsCount$)="count.set($event)" />
+}
 
-<button class="btn btn-link text-light dropdown-toggle" type="button" id="notifications-dropdown" (click)="menu.openMenu()">
-    <i class="bi bi-bell-fill"></i>
-    <span *ngIf="count$ | async as count" class="badge bg-primary rounded-pill ms-2 me-1">{{count}}</span>
+<button class="btn btn-link text-light dropdown-toggle" type="button" id="notifications-dropdown" (click)="menu()?.openMenu()">
+  <i class="bi bi-bell-fill"></i>
+
+  @if (count()) {
+    <span class="badge bg-primary rounded-pill ms-2 me-1">{{ count() }}</span>
+  }
+
 </button>

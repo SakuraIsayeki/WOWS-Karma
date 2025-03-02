@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, Input } from "@angular/core";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { PostService } from "../../../services/api/services/post.service";
 
@@ -6,11 +6,13 @@ import { PostService } from "../../../services/api/services/post.service";
   selector: 'app-post-delete',
   templateUrl: './post-delete.component.html',
   styleUrls: ['./post-delete.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: []
 })
 export class PostDeleteComponent {
-  @Input() public postId!: number;
-  @Input() modal!: NgbModalRef;
+  public readonly postId = input.required<number>();
+  public readonly modal = input.required<NgbModalRef>();
 
   constructor(private postService: PostService) {}
 
@@ -22,7 +24,7 @@ export class PostDeleteComponent {
 
   onSubmit() {
     this.postService.apiPostPostIdDelete$Response({ postId: this.postId.toString() }).subscribe(() => {
-        this.modal.close();
+        this.modal().close();
         window.location.reload();
     });
   }

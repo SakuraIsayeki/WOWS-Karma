@@ -15,12 +15,6 @@ import { ReplayDto } from '../models/replay-dto';
   providedIn: 'root',
 })
 export class ReplayService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
-    super(config, http);
-  }
 
   /**
    * Path part for operation apiReplayGet

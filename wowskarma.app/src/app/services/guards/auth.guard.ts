@@ -1,14 +1,14 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from "@angular/router";
 import { combineLatestWith, Observable, of, switchMap, tap } from "rxjs";
 import { combineLatest, filter } from "rxjs/operators";
 import { AuthService } from "../auth.service";
 
-@Injectable()
+@Injectable({providedIn: "root"})
 export class AuthGuard  {
+  private authService: AuthService = inject(AuthService);
 
-  constructor(private authService: AuthService,
-    private router: Router) {
+  constructor(private router: Router) {
   }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {

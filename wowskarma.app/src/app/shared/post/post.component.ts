@@ -1,19 +1,36 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { PostModEditorComponent } from 'src/app/shared/modals/post-mod-edit/post-mod-editor.component';
 import { PlayerPostDto } from "../../services/api/models/player-post-dto";
 import { AuthService } from "../../services/auth.service";
 import { PostDeleteComponent } from "../modals/post-delete/post-delete.component";
 import { PostEditorComponent } from "../modals/post-editor/post-editor.component";
 import { PostModDeleteComponent } from "../modals/post-mod-delete/post-mod-delete.component";
+import { PostBorderColorPipe } from "../../services/pipes/post-border-color.pipe";
+import { PlayerNamelinkComponent } from "../components/player-namelink/player-namelink.component";
+import { FlairMarkupsComponent } from "./flair-markup/flair-markups.component";
+import { MarkdownComponent } from "ngx-markdown";
+import { CommonModule } from "@angular/common";
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: "app-post",
   templateUrl: "./post.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [
+    PostBorderColorPipe,
+    PlayerNamelinkComponent,
+    FlairMarkupsComponent,
+    MarkdownComponent,
+    CommonModule,
+    RouterLink,
+    NgbTooltip
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true
 })
 
 export class PostComponent {
+  public authService: AuthService = inject(AuthService);
   public post = input<PlayerPostDto>();
   public postDisplayType = input.required<"neutral" | "received" | "sent">();
   public isOwnerOrPrivileged = computed(() =>
@@ -23,7 +40,7 @@ export class PostComponent {
     || this.authService.userInfo$.value?.roles?.includes("wg")
   );
 
-  constructor(public authService: AuthService, private modalService: NgbModal) {
+  constructor(private modalService: NgbModal) {
   }
 
   get canDelete() {

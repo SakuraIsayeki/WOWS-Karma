@@ -8,10 +8,28 @@ import { PostService } from "../../../services/api/services/post.service";
 import { PostsHub } from "../../../services/hubs/posts-hub.service";
 import { filterNotNull, mapApiModelState, reloadWhen, routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
 import { toObservable } from "@angular/core/rxjs-interop";
+import { PostComponent } from "src/app/shared/post/post.component";
+import { AsyncPipe, CommonModule, NgIf } from "@angular/common";
+import { ReactiveFormsModule } from "@angular/forms";
+import { MarkdownComponent } from "ngx-markdown";
+import { NotFoundComponent } from "../../fallbacks/not-found/not-found.component";
+import { TeamRosterComponent } from "src/app/shared/replay/team-roster/team-roster.component";
+import { ChatLogComponent } from "src/app/shared/replay/chat-log/chat-log.component";
 
 @Component({
     templateUrl: "./view-post.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [
+        PostComponent,
+        AsyncPipe,
+        NgIf,
+        CommonModule,
+        ReactiveFormsModule,
+        MarkdownComponent,
+        NotFoundComponent,
+        TeamRosterComponent,
+        ChatLogComponent
+    ]
 })
 export class ViewPostComponent implements  OnDestroy {
     private route: ActivatedRoute = inject(ActivatedRoute);

@@ -3,7 +3,7 @@
     <h4 class="modal-title">Remove Post by Moderation ?</h4>
 </div>
 
-<form #f="ngForm" (ngSubmit)="f.form.valid && onSubmit()">
+<form [formGroup]="form" (ngSubmit)="form.valid && onSubmit()">
     <!-- Modal body -->
     <div class="modal-body">
         <div class="d-flex justify-content-between" #reasonError>

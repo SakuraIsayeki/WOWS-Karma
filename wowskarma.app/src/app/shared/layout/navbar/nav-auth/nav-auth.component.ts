@@ -1,5 +1,6 @@
+import { CommonModule } from "@angular/common";
 import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
-import { NavigationEnd, Router } from "@angular/router";
+import { NavigationEnd, Router, RouterLink } from "@angular/router";
 import { shareReplay, startWith } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { AuthService } from "src/app/services/auth.service";
@@ -8,6 +9,12 @@ import { AuthService } from "src/app/services/auth.service";
   selector: "navbar-auth",
   templateUrl: "./nav-auth.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterLink,
+    
+  ]
 })
 export class NavAuthComponent {
   public authService: AuthService = inject(AuthService);

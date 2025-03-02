@@ -12,10 +12,18 @@ import {
 } from 'src/app/shared/rxjs-operators';
 import { PlatformBanDto } from "../../../services/api/models/platform-ban-dto";
 import { toObservable } from "@angular/core/rxjs-interop";
+import { CommonModule } from '@angular/common';
+import { PlayerNamelinkComponent } from '../../components/player-namelink/player-namelink.component';
 
 @Component({
+  selector: 'profile-platform-bans-view-modal',
   templateUrl: './profile-platform-bans-view.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    CommonModule,
+    PlayerNamelinkComponent
+  ]
 })
 export class ProfilePlatformBansViewComponent {
   profileId = model<number>()

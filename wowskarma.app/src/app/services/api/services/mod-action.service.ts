@@ -15,12 +15,6 @@ import { PostModActionDto } from '../models/post-mod-action-dto';
   providedIn: 'root',
 })
 export class ModActionService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
-    super(config, http);
-  }
 
   /**
    * Path part for operation apiModActionIdGet

@@ -3,7 +3,7 @@
   "version": "0.17.5",
   "scripts": {
     "ng": "ng",
-    "dev": "ng serve --watch --ssl true",
+    "dev": "ng serve --watch --ssl true --ssl-cert ./.ssl/localhost.crt --ssl-key ./.ssl/localhost.key",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",

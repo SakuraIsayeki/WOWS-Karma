@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // Darkly 5.2.1
 // Bootswatch
 
@@ -113,12 +115,12 @@ $pagination-bg:                     $secondary !default;
 $pagination-border-width:           0 !default;
 $pagination-border-color:           transparent !default;
 $pagination-hover-color:            $pagination-color !default;
-$pagination-hover-bg:               darken($pagination-bg, 5%) !default;
+$pagination-hover-bg:               color.adjust($pagination-bg, $lightness: -5%) !default;
 $pagination-hover-border-color:     transparent !default;
 $pagination-active-bg:              $pagination-hover-bg !default;
 $pagination-active-border-color:    transparent !default;
-$pagination-disabled-color:         darken($pagination-color, 30%) !default;
-$pagination-disabled-bg:            darken($pagination-bg, 10%) !default;
+$pagination-disabled-color:         color.adjust($pagination-color, $lightness: -30%) !default;
+$pagination-disabled-bg:            color.adjust($pagination-bg, $lightness: -10%) !default;
 $pagination-disabled-border-color:  transparent !default;
 
 // Cards

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { firstValueFrom, merge, Subject } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { ModActionService } from 'src/app/services/api/services/mod-action.service';
@@ -11,11 +11,35 @@ import { ProfilePlatformBansViewComponent } from 'src/app/shared/modals/profile-
 import { PlayerService } from "../../../services/api/services/player.service";
 import { mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
 import { ProfileService } from "../../../services/api/services/profile.service";
+import { KarmaColorPipe } from "../../../services/pipes/karma-color.pipe";
+import { ColorHexPipe } from "../../../services/pipes/colorHex.pipe";
+import { WowsNumbersPlayerLinkPipe } from "../../../services/pipes/wows-numbers-player-link.pipe";
+import { AsyncPipe, DatePipe, NgIf } from "@angular/common";
+import { PostsReceivedComponent } from "../../../shared/player/profile/posts-received/posts-received.component";
+import { PostsSentComponent } from "../../../shared/player/profile/posts-sent/posts-sent.component";
+import { UserRolesComponent } from "../../../shared/components/icons/user-roles/user-roles.component";
+import { NotFoundComponent } from "../../fallbacks/not-found/not-found.component";
+import { ClanRankComponent } from "../../../shared/components/icons/clan-rank/clan-rank.component";
 
 
 @Component({
   templateUrl: "./profile.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    KarmaColorPipe,
+    ColorHexPipe,
+    WowsNumbersPlayerLinkPipe,
+    AsyncPipe,
+    DatePipe,
+    PostsReceivedComponent,
+    PostsSentComponent,
+    UserRolesComponent,
+    NotFoundComponent,
+    ClanRankComponent,
+    RouterLink,
+    NgbTooltip,
+    NgIf
+  ]
 })
 export class ProfileComponent {
   // Get the "ID,username" from the route params.

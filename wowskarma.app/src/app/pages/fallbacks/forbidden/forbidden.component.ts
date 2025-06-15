@@ -5,11 +5,7 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
   templateUrl: './forbidden.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ForbiddenComponent implements OnInit {
-
+export class ForbiddenComponent {
   constructor() { }
-
-  ngOnInit(): void {
-  }
 
 }

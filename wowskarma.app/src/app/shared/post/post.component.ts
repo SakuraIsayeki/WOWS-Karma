@@ -1,15 +1,31 @@
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { PostModEditorComponent } from 'src/app/shared/modals/post-mod-edit/post-mod-editor.component';
 import { PlayerPostDto } from "../../services/api/models/player-post-dto";
 import { AuthService } from "../../services/auth.service";
 import { PostDeleteComponent } from "../modals/post-delete/post-delete.component";
 import { PostEditorComponent } from "../modals/post-editor/post-editor.component";
 import { PostModDeleteComponent } from "../modals/post-mod-delete/post-mod-delete.component";
+import { PlayerNamelinkComponent } from "../components/player-namelink/player-namelink.component";
+import { PostBorderColorPipe } from "../../services/pipes/post-border-color.pipe";
+import { MarkdownComponent } from "ngx-markdown";
+import { FlairMarkupsComponent } from "./flair-markup/flair-markups.component";
+import { DatePipe, NgIf } from "@angular/common";
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: "app-post",
   templateUrl: "./post.component.html",
+  imports: [
+    PlayerNamelinkComponent,
+    PostBorderColorPipe,
+    MarkdownComponent,
+    FlairMarkupsComponent,
+    NgIf,
+    RouterLink,
+    NgbTooltip,
+    DatePipe
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 

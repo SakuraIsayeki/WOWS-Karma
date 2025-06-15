@@ -3,11 +3,15 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
+import { AsyncPipe } from "@angular/common";
 
 @Component({
-    selector: "html-loader",
-    template: '<div [innerHtml]="content() | async"></div>',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+  selector: "html-loader",
+  template: '<div [innerHtml]="content() | async"></div>',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    AsyncPipe
+  ]
 })
 export class HtmlLoaderComponent {
     // No requirement, as it can also be loaded from snapshot data.
@@ -20,11 +24,11 @@ export class HtmlLoaderComponent {
     // Get the HTML content from the server, at the path specified by the path$ input.
     content = computed(async () => {
         const path = this.path() || this.route.snapshot.data["path"];
-        
+
         if (!path) {
             return null;
         }
-        
+
         let html = await firstValueFrom(this.http.get(path, {responseType: "text"}));
         return this.sanitizer.bypassSecurityTrustHtml(html);
     });

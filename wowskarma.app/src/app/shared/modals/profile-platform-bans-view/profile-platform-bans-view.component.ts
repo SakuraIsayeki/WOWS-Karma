@@ -12,10 +12,14 @@ import {
 } from 'src/app/shared/rxjs-operators';
 import { PlatformBanDto } from "../../../services/api/models/platform-ban-dto";
 import { toObservable } from "@angular/core/rxjs-interop";
+import { NgIf, AsyncPipe, DatePipe } from '@angular/common';
+import { PlayerNamelinkComponent } from '../../components/player-namelink/player-namelink.component';
 
 @Component({
-  templateUrl: './profile-platform-bans-view.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    templateUrl: './profile-platform-bans-view.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [NgIf, PlayerNamelinkComponent, AsyncPipe, DatePipe]
 })
 export class ProfilePlatformBansViewComponent {
   profileId = model<number>()

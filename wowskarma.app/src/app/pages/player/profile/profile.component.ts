@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { NgbModal, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { firstValueFrom, merge, Subject } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { ModActionService } from 'src/app/services/api/services/mod-action.service';
@@ -11,11 +11,36 @@ import { ProfilePlatformBansViewComponent } from 'src/app/shared/modals/profile-
 import { PlayerService } from "../../../services/api/services/player.service";
 import { mapApiModelState, routeParam, shareReplayRefCount, switchMapCatchError } from "../../../shared/rxjs-operators";
 import { ProfileService } from "../../../services/api/services/profile.service";
+import { ClanRankComponent } from "../../../shared/components/icons/clan-rank/clan-rank.component";
+import { NgIf, AsyncPipe, DatePipe } from "@angular/common";
+import { UserRolesComponent } from "../../../shared/components/icons/user-roles/user-roles.component";
+import { PostsReceivedComponent } from "../../../shared/player/profile/posts-received/posts-received.component";
+import { PostsSentComponent } from "../../../shared/player/profile/posts-sent/posts-sent.component";
+import { NotFoundComponent } from "../../fallbacks/not-found/not-found.component";
+import { ColorHexPipe } from "../../../services/pipes/colorHex.pipe";
+import { KarmaColorPipe } from "../../../services/pipes/karma-color.pipe";
+import { WowsNumbersPlayerLinkPipe } from "../../../services/pipes/wows-numbers-player-link.pipe";
 
 
 @Component({
-  templateUrl: "./profile.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: "./profile.component.html",
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        ClanRankComponent,
+        RouterLink,
+        NgIf,
+        NgbTooltip,
+        UserRolesComponent,
+        PostsReceivedComponent,
+        PostsSentComponent,
+        NotFoundComponent,
+        AsyncPipe,
+        DatePipe,
+        ColorHexPipe,
+        KarmaColorPipe,
+        WowsNumbersPlayerLinkPipe,
+    ],
 })
 export class ProfileComponent {
   // Get the "ID,username" from the route params.

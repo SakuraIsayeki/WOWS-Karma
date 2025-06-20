@@ -7,11 +7,17 @@ import { ModActionService } from 'src/app/services/api/services/mod-action.servi
 import { InputObservable, shareReplayRefCount, switchMapCatchError, tapAny } from 'src/app/shared/rxjs-operators';
 import { toObservable } from "@angular/core/rxjs-interop";
 import { PostModActionDto } from "../../../services/api/models/post-mod-action-dto";
+import { RouterLink } from '@angular/router';
+import { PlayerNamelinkComponent } from '../../components/player-namelink/player-namelink.component';
+import { NgIf, AsyncPipe } from '@angular/common';
+import { ModActionTypeDisplayPipe } from 'src/app/services/pipes/mod-action-type-display.pipe';
 
 @Component({
-  selector: 'profile-mod-actions-view-modal',
-  templateUrl: './profile-mod-actions-view.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'profile-mod-actions-view-modal',
+    templateUrl: './profile-mod-actions-view.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [RouterLink, PlayerNamelinkComponent, NgIf, AsyncPipe, ModActionTypeDisplayPipe]
 })
 export class ProfileModActionsViewComponent {
   profileId = model<number>()

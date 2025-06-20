@@ -1,10 +1,13 @@
 import { ChangeDetectionStrategy, Component, input, Input } from '@angular/core';
+import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'icon-user-roles',
-  templateUrl: './user-roles.component.html',
-  styleUrls: ['./user-roles.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'icon-user-roles',
+    templateUrl: './user-roles.component.html',
+    styleUrls: ['./user-roles.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [NgbTooltip]
 })
 export class UserRolesComponent {
   userRoles = input<number[]>([]);

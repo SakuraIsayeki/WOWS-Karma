@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { BehaviorSubject, combineLatest, Observable, of } from "rxjs";
 import { map, debounceTime, distinctUntilChanged, shareReplay, startWith, tap } from "rxjs/operators";
 import { PlayerPostDto } from "src/app/services/api/models/player-post-dto";
@@ -7,14 +7,26 @@ import { PostService } from "src/app/services/api/services/post.service";
 import { AuthService } from "src/app/services/auth.service";
 import { PostsHub } from "src/app/services/hubs/posts-hub.service";
 import { filterNotNull, filterPartials, mergeAndCache, shareReplayRefCount, startFrom, switchMapCatchError, tapAny, tapPageInfoHeaders } from "../../../shared/rxjs-operators";
+import { NgIf, NgFor, AsyncPipe } from "@angular/common";
+import { NgbPagination } from "@ng-bootstrap/ng-bootstrap";
+import { PostComponent } from "../../../shared/post/post.component";
 
 export declare type HasId = { id: string };
 export declare type PostChange = { mode: "new" | "edited" | "deleted", post: HasId };
 
 
 @Component({
-  templateUrl: "./list-latest.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: "./list-latest.component.html",
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        ReactiveFormsModule,
+        NgIf,
+        NgbPagination,
+        NgFor,
+        PostComponent,
+        AsyncPipe,
+    ],
 })
 export class ListLatestComponent {
   public authService: AuthService = inject(AuthService);

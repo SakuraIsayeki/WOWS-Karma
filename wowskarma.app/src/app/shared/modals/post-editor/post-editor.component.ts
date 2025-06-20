@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, HostListener, inject, Input } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { AccountClanListingDto } from "src/app/services/api/models/account-clan-listing-dto";
 import { PlayerPostDto } from "src/app/services/api/models/player-post-dto";
@@ -10,11 +10,26 @@ import { markTouchedDirtyAndValidate, TypedFormControls, TypedFormGroup } from "
 import { parseFlairsEnum, toEnum } from "src/app/services/metricsHelpers";
 import * as ReplayValidators from "../../validation/replay-validators";
 import { CsTicketIdHelpComponent } from "../cs-ticket-id-help/cs-ticket-id-help.component";
+import { NgIf, NgFor, NgClass } from "@angular/common";
+import { FormErrorsComponent } from "../../form-errors/form-errors.component";
+import { ControlExtensionsDirective } from "../../directives/control-extensions.directive";
+import { RouterLink } from "@angular/router";
 
 @Component({
     selector: "post-editor",
     templateUrl: "./post-editor.component.html",
     changeDetection: ChangeDetectionStrategy.Default,
+    standalone: true,
+    imports: [
+        NgIf,
+        ReactiveFormsModule,
+        FormsModule,
+        FormErrorsComponent,
+        ControlExtensionsDirective,
+        NgFor,
+        NgClass,
+        RouterLink,
+    ],
 })
 export class PostEditorComponent {
     @Input() post!: PlayerPostEditorDto;

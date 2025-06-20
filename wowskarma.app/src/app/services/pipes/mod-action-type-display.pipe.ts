@@ -5,6 +5,7 @@ import { getKarmaColor, getPostBorderColor } from "../helpers";
 
 @Pipe({
     name: "modActionTypeDisplay",
+    standalone: true,
 })
 export class ModActionTypeDisplayPipe implements PipeTransform {
     transform(value: ModActionType) {

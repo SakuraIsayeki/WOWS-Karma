@@ -3,6 +3,7 @@ import { getWowsNumbersPlayerLink } from "../helpers";
 
 @Pipe({
     name: "wowsNumbersPlayerLink",
+    standalone: true,
 })
 export class WowsNumbersPlayerLinkPipe implements PipeTransform {
 

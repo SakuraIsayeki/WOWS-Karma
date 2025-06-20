@@ -3,6 +3,7 @@ import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
 
 @Pipe({
     name: "bypassHtml",
+    standalone: true,
 })
 export class BypassHtmlPipe implements PipeTransform {
 

@@ -18,12 +18,22 @@ import {
 } from "../../../services/api/models/notification";
 import {PlayerPostDto} from "../../../services/api/models/player-post-dto";
 import {PostModActionDto} from "../../../services/api/models/post-mod-action-dto";
+import { NgIf, DatePipe } from "@angular/common";
+import { RouterLink } from "@angular/router";
+import { BypassHtmlPipe } from "../../../services/pipes/bypass-html.pipe";
 
 @Component({
-  selector: "app-notification",
-  styleUrls: ["./notification.component.scss"],
-  templateUrl: "./notification.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: "app-notification",
+    styleUrls: ["./notification.component.scss"],
+    templateUrl: "./notification.component.html",
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgIf,
+        RouterLink,
+        DatePipe,
+        BypassHtmlPipe,
+    ],
 })
 export class NotificationComponent {
   notification = input.required<Notification>();

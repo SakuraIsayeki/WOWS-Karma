@@ -6,6 +6,7 @@ import { AppConfigService } from "../../services/app-config.service";
 @Component({
     template: ``,
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
 })
 export class LoginComponent implements OnInit {
 

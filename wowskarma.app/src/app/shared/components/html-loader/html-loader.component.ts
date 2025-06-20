@@ -3,11 +3,14 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
+import { AsyncPipe } from "@angular/common";
 
 @Component({
     selector: "html-loader",
     template: '<div [innerHtml]="content() | async"></div>',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [AsyncPipe],
 })
 export class HtmlLoaderComponent {
     // No requirement, as it can also be loaded from snapshot data.

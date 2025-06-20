@@ -3,10 +3,11 @@ import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { PostService } from "../../../services/api/services/post.service";
 
 @Component({
-  selector: 'app-post-delete',
-  templateUrl: './post-delete.component.html',
-  styleUrls: ['./post-delete.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-post-delete',
+    templateUrl: './post-delete.component.html',
+    styleUrls: ['./post-delete.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true
 })
 export class PostDeleteComponent {
   @Input() public postId!: number;

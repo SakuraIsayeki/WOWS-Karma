@@ -3,7 +3,8 @@ import { PostFlairs } from "../api/models/post-flairs";
 import { getPostBorderColor } from "../helpers";
 
 @Pipe({
-  name: 'postBorderColor'
+    name: 'postBorderColor',
+    standalone: true
 })
 export class PostBorderColorPipe implements PipeTransform {
 

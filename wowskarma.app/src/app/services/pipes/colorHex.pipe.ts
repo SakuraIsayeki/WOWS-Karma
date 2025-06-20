@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'colorHex'
+    name: 'colorHex',
+    standalone: true
 })
 export class ColorHexPipe implements PipeTransform {
 

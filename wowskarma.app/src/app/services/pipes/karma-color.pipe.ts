@@ -4,6 +4,7 @@ import { getKarmaColor, getPostBorderColor } from "../helpers";
 
 @Pipe({
     name: "karmaColor",
+    standalone: true,
 })
 export class KarmaColorPipe implements PipeTransform {
     transform(value: number | undefined | null): "success" | "danger" | "warning" {

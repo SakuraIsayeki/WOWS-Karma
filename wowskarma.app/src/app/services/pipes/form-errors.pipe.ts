@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { ValidationErrors } from '@angular/forms';
 
 @Pipe({
-    name: 'formErrors'
+    name: 'formErrors',
+    standalone: true
 })
 export class FormErrorsPipe implements PipeTransform {
 

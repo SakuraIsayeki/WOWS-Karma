@@ -2,7 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { ReplayChatMessageDto } from "../api/models/replay-chat-message-dto";
 
 @Pipe({
-  name: 'chatMessageChannel'
+    name: 'chatMessageChannel',
+    standalone: true
 })
 export class ChatMessageChannelPipe implements PipeTransform {
 

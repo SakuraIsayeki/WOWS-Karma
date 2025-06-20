@@ -8,6 +8,7 @@ import { AppConfigService } from "../../../services/app-config.service";
     selector: "modal-seed-token-change",
     templateUrl: "./seed-token-change.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
 })
 export class SeedTokenChangeComponent {
     @Input() modal!: NgbModalRef;

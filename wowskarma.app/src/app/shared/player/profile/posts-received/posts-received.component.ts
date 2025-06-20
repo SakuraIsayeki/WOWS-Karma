@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal, TemplateRef, ViewChild } from "@angular/core";
-import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbPagination } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, combineLatest, combineLatestWith, filter, firstValueFrom, merge, Observable, shareReplay, tap, withLatestFrom } from "rxjs";
 import { distinctUntilChanged, map, startWith, } from "rxjs/operators";
 import { PlayerPostDto } from "../../../../services/api/models/player-post-dto";
@@ -10,12 +10,25 @@ import { PostsHub } from "../../../../services/hubs/posts-hub.service";
 import { PostEditorComponent } from "../../../modals/post-editor/post-editor.component";
 import { filterNotNull, InputObservable, reloadWhen, shareReplayRefCount, switchMapCatchError, tapAny, tapPageInfoHeaders } from "../../../rxjs-operators";
 import { toObservable } from "@angular/core/rxjs-interop";
+import { NgIf, NgTemplateOutlet, AsyncPipe, DatePipe } from "@angular/common";
+import { PostComponent } from "../../../post/post.component";
+import { RouterLink } from "@angular/router";
 
 
 @Component({
     selector: "app-posts-received",
     templateUrl: "./posts-received.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [
+        NgIf,
+        NgTemplateOutlet,
+        NgbPagination,
+        PostComponent,
+        RouterLink,
+        AsyncPipe,
+        DatePipe,
+    ],
 })
 export class PostsReceivedComponent {
   @ViewChild("createPostButton") buttonTemplate!: TemplateRef<any>;

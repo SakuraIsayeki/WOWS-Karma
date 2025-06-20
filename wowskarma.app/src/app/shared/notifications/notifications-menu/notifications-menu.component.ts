@@ -7,6 +7,8 @@ import { AuthService } from "../../../services/auth.service";
 import { sortByDateField } from "../../../services/helpers";
 import { NotificationsHub } from "../../../services/hubs/notifications-hub.service";
 import { filterNotNull } from "../../rxjs-operators";
+import { NgFor, AsyncPipe } from "@angular/common";
+import { NotificationComponent } from "../notification/notification.component";
 
 @Component({
     selector: "app-notifications-menu",
@@ -14,6 +16,12 @@ import { filterNotNull } from "../../rxjs-operators";
     styleUrls: ["./notifications-menu.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     encapsulation: ViewEncapsulation.None,
+    standalone: true,
+    imports: [
+        NgFor,
+        NotificationComponent,
+        AsyncPipe,
+    ],
 })
 export class NotificationsMenuComponent {
     @ViewChild("content")

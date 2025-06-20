@@ -3,11 +3,12 @@
   "version": "0.17.5",
   "scripts": {
     "ng": "ng",
-    "dev": "ng serve --watch --ssl true",
+    "dev": "ng serve --watch --ssl true --ssl-cert ./.ssl/localhost.crt --ssl-key ./.ssl/localhost.key",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "tools/ssl-gen": "@pwsh -File ./tools/ssl-gen.ps1"
   },
   "private": true,
   "dependencies": {
@@ -38,7 +39,7 @@
     "zone.js": "~0.14.10"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.2",
+    "@angular/build": "^18.2.20",
     "@angular/cli": "~18.0.7",
     "@angular/compiler-cli": "^18.2.2",
     "typescript": "~5.4.5"

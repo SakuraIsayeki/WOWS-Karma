@@ -1,28 +1,17 @@
 /// <reference types="@angular/localize" />
 
 import { enableProdMode, importProvidersFrom } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-
-
 import { environment } from './environments/environment';
-import { AuthService } from './app/services/auth.service';
-import { AppConfigService } from './app/services/app-config.service';
-import { AppInsightsService } from './app/services/app-insights.service';
-import { AppInitService } from './app/services/app-init.service';
-import { AppInitGuard } from './app/services/guards/app-init.guard';
-import { AuthGuard } from './app/services/guards/auth.guard';
-import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from '@angular/common/http';
-import { AuthenticationInterceptor } from './app/services/interceptors/authentication.interceptor';
-import { ErrorInterceptor } from './app/services/interceptors/error.interceptor';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authenticationInterceptor } from './app/services/interceptors/authentication.interceptor';
+import { errorInterceptor } from './app/services/interceptors/error.interceptor';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
-import { AppRoutingModule } from './app/app-routing.module';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { ApiModule } from './app/services/api/api.module';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { NgbCollapseModule, NgbPaginationModule, NgbTooltipModule, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgOptimizedImage } from '@angular/common';
-import { MarkdownModule, MARKED_OPTIONS } from 'ngx-markdown';
-import { AppWrapperComponent } from './app/app-wrapper.component';
+import { provideServiceWorker } from '@angular/service-worker';
+import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
+import { provideRouter } from "@angular/router";
+import { routes } from "./app/routes";
+import { AppComponent } from "./app/app.component";
+import { AppWrapperComponent } from "./app/app-wrapper.component";
 
 if (environment.name === "production") {
   enableProdMode();
@@ -31,12 +20,15 @@ if (environment.name === "production") {
 
 bootstrapApplication(AppWrapperComponent, {
   providers: [
-    importProvidersFrom(BrowserModule, AppRoutingModule, ReactiveFormsModule, FormsModule, ApiModule, ServiceWorkerModule.register("ngsw-worker.js", {
-      // enabled: environment.production,
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: "registerWhenStable:30000",
-    }), NgbCollapseModule, NgbPaginationModule, NgbTooltipModule, NgbModule, NgOptimizedImage, MarkdownModule.forRoot({
+    provideRouter(routes),
+    importProvidersFrom(BrowserModule),
+    provideHttpClient(
+      withInterceptors([
+        authenticationInterceptor,
+        errorInterceptor
+      ])
+    ),
+    provideMarkdown({
       markedOptions: {
         provide: MARKED_OPTIONS,
         useValue: {
@@ -44,16 +36,13 @@ bootstrapApplication(AppWrapperComponent, {
           breaks: true
         }
       }
-    })),
-    AuthService,
-    AppConfigService,
-    AppInsightsService,
-    AppInitService,
-    AppInitGuard,
-    AuthGuard,
-    {provide: HTTP_INTERCEPTORS, multi: true, useClass: AuthenticationInterceptor},
-    {provide: HTTP_INTERCEPTORS, multi: true, useClass: ErrorInterceptor},
-    provideHttpClient(withInterceptorsFromDi()),
+    }),
+    provideServiceWorker("ngsw-worker.js", {
+      // enabled: environment.production,
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: "registerWhenStable:30000"
+    }),
   ]
 })
   .catch(err => console.error(err));

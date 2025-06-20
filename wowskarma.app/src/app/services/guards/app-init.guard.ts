@@ -4,7 +4,7 @@ import { combineLatest, first, Observable, of, take } from "rxjs";
 import { map } from "rxjs/operators";
 import { AuthService } from "../auth.service";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class AppInitGuard  {
 
 

@@ -12,11 +12,4 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppWrapperComponent {
   appInit = inject(AppInitService);
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-
-  constructor() {
-  }
 }

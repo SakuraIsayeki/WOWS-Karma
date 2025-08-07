@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, type OnInit } from "@angular/core";
 import { ActivatedRouteSnapshot, ResolveEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AppInitService } from "./services/app-init.service";
@@ -9,14 +9,12 @@ import { AppInsightsService } from "./services/app-insights.service";
     standalone: true,
     imports: [RouterOutlet],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private router = inject(Router);
   private appInitService = inject(AppInitService);
   private appInsightsService = inject(AppInsightsService);
 
-  constructor() {}
-
-  ngOnInit(): void {
+  ngOnInit() {
     setTimeout(() => this.appInitService.initialized(), 0);
 
     this.router.events

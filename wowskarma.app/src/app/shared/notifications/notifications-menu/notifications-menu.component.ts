@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Output, TemplateRef, ViewChild, ViewEncapsulation, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Output, TemplateRef, ViewChild, ViewEncapsulation, inject, viewChild } from "@angular/core";
 import { NgbOffcanvas, NgbOffcanvasRef } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
@@ -28,8 +28,7 @@ export class NotificationsMenuComponent {
     private authService = inject(AuthService);
     private offCanvasService = inject(NgbOffcanvas);
 
-    @ViewChild("content")
-    contentTemplate!: TemplateRef<any>;
+    protected readonly contentTemplate = viewChild<TemplateRef<any>>("content");
 
     private menuRef!: NgbOffcanvasRef;
 
@@ -42,9 +41,6 @@ export class NotificationsMenuComponent {
     @Output() notificationsCount$ = this.notifications$.pipe(
         map(notifications => notifications.length),
     );
-
-    /** Inserted by Angular inject() migration for backwards compatibility */
-    constructor(...args: unknown[]);
 
     constructor() {
         const notificationsHubService = this.notificationsHubService;
@@ -82,7 +78,7 @@ export class NotificationsMenuComponent {
     }
 
     openMenu() {
-        this.menuRef = this.offCanvasService.open(this.contentTemplate, {
+        this.menuRef = this.offCanvasService.open(this.contentTemplate(), {
             position: "end",
             //panelClass: "bg-body-menu"
             panelClass: "bg-menu-acrylic"

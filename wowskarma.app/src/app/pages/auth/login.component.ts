@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { environment } from "../../../environments/environment";
 import { AppConfigService } from "../../services/app-config.service";
@@ -9,8 +9,14 @@ import { AppConfigService } from "../../services/app-config.service";
     standalone: true,
 })
 export class LoginComponent implements OnInit {
+    private route = inject(ActivatedRoute);
+    private appConfigService = inject(AppConfigService);
 
-    constructor(private route: ActivatedRoute, private appConfigService: AppConfigService) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+
+    constructor() {
     }
 
     ngOnInit(): void {

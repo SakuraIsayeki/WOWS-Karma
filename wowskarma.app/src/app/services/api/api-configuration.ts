@@ -14,10 +14,3 @@ export class ApiConfiguration {
   private appConfig: AppConfigService = inject(AppConfigService);
   rootUrl: string = environment.apiHost[this.appConfig.currentRegion];
 }
-
-/**
- * Parameters for `ApiModule.forRoot()`
- */
-export interface ApiConfigurationParams {
-  rootUrl?: string;
-}

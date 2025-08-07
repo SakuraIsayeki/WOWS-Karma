@@ -1,5 +1,5 @@
 import { resolve } from "@angular/compiler-cli";
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { IStreamSubscriber } from "@microsoft/signalr";
 import { Subject } from "rxjs";
 import { Notification } from "../api/models/notification";
@@ -20,7 +20,11 @@ export class NotificationsHub extends HubBase {
     onNewNotification$ = this.onNewNotification.asObservable();
     onDeletedNotification$ = this.onDeletedNotification.asObservable();
 
-    constructor(appConfigService: AppConfigService, authService: AuthService) {
+    
+    constructor() {
+        const appConfigService = inject(AppConfigService);
+        const authService = inject(AuthService);
+
         super(appConfigService, authService);
         this.connect().then(() => {
             console.log("Connected to Notifications hub.");

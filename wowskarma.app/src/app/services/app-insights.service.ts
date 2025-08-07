@@ -1,15 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import { AuthModel } from 'src/app/models/AuthModel';
 import { AppConfigService } from 'src/app/services/app-config.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { environment } from "../../environments/environment";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AppInsightsService {
+  private authService = inject(AuthService);
+
   appInsights: ApplicationInsights;
 
-  constructor(private authService: AuthService) {
+  constructor() {
     this.appInsights = new ApplicationInsights({
       config: {
         connectionString: environment.applicationInsights.connectionString,

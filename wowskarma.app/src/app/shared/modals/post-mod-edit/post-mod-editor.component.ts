@@ -25,7 +25,12 @@ export class PostModEditorComponent extends PostEditorComponent {
   @Input() override post: ModPostEditorDto = new ModPostEditorDto();
 
   private modActionService: ModActionService = inject(ModActionService);
-  constructor(postService: PostService) {
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+  constructor() {
+    const postService = inject(PostService);
+
     super(postService);
   }
 

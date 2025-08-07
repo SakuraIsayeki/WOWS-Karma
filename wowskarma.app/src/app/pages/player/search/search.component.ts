@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, signal, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { BehaviorSubject, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -15,6 +15,8 @@ import { PlayerNamelinkComponent } from "../../../shared/components/player-namel
     imports: [ReactiveFormsModule, PlayerNamelinkComponent]
 })
 export class SearchComponent {
+  playerService = inject(PlayerService);
+
   search = new FormGroup({
     username: new FormControl(""),
   });
@@ -33,7 +35,8 @@ export class SearchComponent {
     tapAny(() => this.loading.set(false)) // Sets loading to false when the search results are received, regardless of whether the search was successful or not.
   ));
 
-  constructor(
-    public playerService: PlayerService,
-  ) { }
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() { }
 }

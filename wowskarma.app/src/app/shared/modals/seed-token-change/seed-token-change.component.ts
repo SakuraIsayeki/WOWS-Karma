@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, inject } from "@angular/core";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { environment } from "../../../../environments/environment";
 import { AuthService } from "../../../services/api/services/auth.service";
@@ -11,9 +11,15 @@ import { AppConfigService } from "../../../services/app-config.service";
     standalone: true,
 })
 export class SeedTokenChangeComponent {
+    private apiAuthService = inject(AuthService);
+    private appConfigService = inject(AppConfigService);
+
     @Input() modal!: NgbModalRef;
 
-    constructor(private apiAuthService: AuthService, private appConfigService: AppConfigService) {}
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {}
 
     static OpenModal(modalService: NgbModal) {
         const modalRef = modalService.open(SeedTokenChangeComponent, {});

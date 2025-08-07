@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Output, TemplateRef, ViewChild, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Output, TemplateRef, ViewChild, ViewEncapsulation, inject } from "@angular/core";
 import { NgbOffcanvas, NgbOffcanvasRef } from "@ng-bootstrap/ng-bootstrap";
 import { BehaviorSubject, combineLatest } from "rxjs";
 import { map } from "rxjs/operators";
@@ -24,6 +24,10 @@ import { NotificationComponent } from "../notification/notification.component";
     ],
 })
 export class NotificationsMenuComponent {
+    private notificationsHubService = inject(NotificationsHub);
+    private authService = inject(AuthService);
+    private offCanvasService = inject(NgbOffcanvas);
+
     @ViewChild("content")
     contentTemplate!: TemplateRef<any>;
 
@@ -39,7 +43,12 @@ export class NotificationsMenuComponent {
         map(notifications => notifications.length),
     );
 
-    constructor(private notificationsHubService: NotificationsHub, private authService: AuthService, private offCanvasService: NgbOffcanvas) {
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {
+        const notificationsHubService = this.notificationsHubService;
+
         // Fetch pending notifications on init.
         combineLatest([this.authService.userInfo$, notificationsHubService.onConnected$]).pipe(
             filterNotNull(),

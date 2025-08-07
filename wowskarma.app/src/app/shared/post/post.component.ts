@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, inject } from "@angular/core";
 import { NgbModal, NgbTooltip } from "@ng-bootstrap/ng-bootstrap";
 import { PostModEditorComponent } from 'src/app/shared/modals/post-mod-edit/post-mod-editor.component';
 import { PlayerPostDto } from "../../services/api/models/player-post-dto";
@@ -22,6 +22,9 @@ import { PostBorderColorPipe } from "../../services/pipes/post-border-color.pipe
 })
 
 export class PostComponent {
+  authService = inject(AuthService);
+  private modalService = inject(NgbModal);
+
   public post = input<PlayerPostDto>();
   public postDisplayType = input.required<"neutral" | "received" | "sent">();
   public isOwnerOrPrivileged = computed(() =>
@@ -31,7 +34,10 @@ export class PostComponent {
     || this.authService.userInfo$.value?.roles?.includes("wg")
   );
 
-  constructor(public authService: AuthService, private modalService: NgbModal) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
   }
 
   get canDelete() {

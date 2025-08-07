@@ -32,6 +32,8 @@ import { RouterLink } from "@angular/router";
     ],
 })
 export class PostEditorComponent {
+    private postService = inject(PostService);
+
     @Input() post!: PlayerPostEditorDto;
     @Input() modal!: NgbModalRef;
 
@@ -79,8 +81,11 @@ export class PostEditorComponent {
         },
     ];
 
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
 
-    constructor(private postService: PostService) {
+
+    constructor() {
     }
 
     static OpenEditor(modalService: NgbModal, post: PlayerPostDto) {

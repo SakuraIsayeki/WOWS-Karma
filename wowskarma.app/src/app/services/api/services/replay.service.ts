@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse, HttpContext } from '@angular/common/http';
 import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
@@ -15,10 +15,14 @@ import { ReplayDto } from '../models/replay-dto';
   providedIn: 'root',
 })
 export class ReplayService extends BaseService {
-  constructor(
-    config: ApiConfiguration,
-    http: HttpClient
-  ) {
+
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
+    const config = inject(ApiConfiguration);
+    const http = inject(HttpClient);
+
     super(config, http);
   }
 

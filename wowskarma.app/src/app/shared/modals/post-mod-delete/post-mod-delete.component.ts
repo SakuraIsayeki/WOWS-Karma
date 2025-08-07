@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, inject } from "@angular/core";
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { ModActionType } from "../../../services/api/models";
@@ -20,6 +20,8 @@ import { ControlExtensionsDirective } from "../../directives/control-extensions.
     ],
 })
 export class PostModDeleteComponent {
+    private modActionService = inject(ModActionService);
+
     @Input() form = new FormBuilder().nonNullable.group({
         postId: "",
         // actionType: ModActionType.$0,
@@ -27,7 +29,10 @@ export class PostModDeleteComponent {
     });
     @Input() modal!: NgbModalRef;
 
-    constructor(private modActionService: ModActionService) {}
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
+
+    constructor() {}
 
     static OpenModal(modalService: NgbModal, post: { id?: string | null }) {
         const modalRef = modalService.open(PostModDeleteComponent, {});

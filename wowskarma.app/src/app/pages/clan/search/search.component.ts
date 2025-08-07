@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { BehaviorSubject, debounceTime, distinctUntilChanged, tap } from "rxjs";
 import { map } from "rxjs/operators";
@@ -15,6 +15,8 @@ import { ColorHexPipe } from '../../../services/pipes/colorHex.pipe';
     imports: [ReactiveFormsModule, NgIf, NgFor, RouterLink, AsyncPipe, ColorHexPipe]
 })
 export class SearchComponent {
+  clanService = inject(ClanService);
+
   search = new FormGroup({
     clanName: new FormControl(""),
   });
@@ -32,10 +34,11 @@ export class SearchComponent {
       tapAny(() => this.loading$.next(false)) // Sets loading to false when the search results are received, regardless of whether the search was successful or not.
   );
 
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
 
-  constructor(
-      public clanService: ClanService,
-  ) { }
+
+  constructor() { }
 
   /*
   onSubmit() {

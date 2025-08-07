@@ -1,4 +1,4 @@
-import { Directive, ElementRef, Host, HostBinding, HostListener, Input } from "@angular/core";
+import { Directive, ElementRef, HostBinding, HostListener, Input, inject } from "@angular/core";
 import { FormControl, FormControlDirective } from "@angular/forms";
 
 @Directive({
@@ -6,6 +6,8 @@ import { FormControl, FormControlDirective } from "@angular/forms";
     standalone: true
 })
 export class ControlExtensionsDirective {
+  private formControl = inject(FormControlDirective, { host: true });
+
 
 
   //@Input('formControlExtensions')
@@ -29,7 +31,10 @@ export class ControlExtensionsDirective {
     this.element?.classList.add('blurred');
   }
 
-  constructor(@Host() private formControl: FormControlDirective) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {
 
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import * as signalR from "@microsoft/signalr";
 import { HubConnectionState } from "@microsoft/signalr";
 import { Subject } from "rxjs";
@@ -23,8 +23,10 @@ export class PostsHub extends HubBase {
     deletedPost$ = this.onDeletedPost.asObservable();
 
 
+    constructor() {
+        const appConfigService = inject(AppConfigService);
+        const authService = inject(AuthService);
 
-    constructor(appConfigService: AppConfigService, authService: AuthService) {
         super(appConfigService, authService);
 
         this.connection.on("newPost", x => this.onNewPost.next(x));

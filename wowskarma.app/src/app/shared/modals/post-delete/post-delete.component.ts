@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input} from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, inject } from "@angular/core";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { PostService } from "../../../services/api/services/post.service";
 
@@ -10,10 +10,15 @@ import { PostService } from "../../../services/api/services/post.service";
     standalone: true
 })
 export class PostDeleteComponent {
+  private postService = inject(PostService);
+
   @Input() public postId!: number;
   @Input() modal!: NgbModalRef;
 
-  constructor(private postService: PostService) {}
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+  constructor() {}
 
   static OpenModal(modalService: NgbModal, post: { id?: string | null }) {
     const modalRef = modalService.open(PostDeleteComponent, {});

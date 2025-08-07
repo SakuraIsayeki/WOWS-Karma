@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { AppInitService } from "./services/app-init.service";
 import { NgIf, AsyncPipe } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
@@ -11,7 +11,12 @@ import { RouterOutlet } from '@angular/router';
     imports: [NgIf, RouterOutlet, AsyncPipe]
 })
 export class AppWrapperComponent {
+  appInit = inject(AppInitService);
 
-  constructor(public appInit: AppInitService) {
+  /** Inserted by Angular inject() migration for backwards compatibility */
+  constructor(...args: unknown[]);
+
+
+  constructor() {
   }
 }

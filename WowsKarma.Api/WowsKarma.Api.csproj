@@ -28,14 +28,14 @@
     <PackageReference Include="DSharpPlus" Version="4.5.0" />
     <PackageReference Include="ExpressionDebugger" Version="2.2.1" />
     <PackageReference Include="FlexLabs.EntityFrameworkCore.Upsert" Version="8.0.0" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.15" />
-    <PackageReference Include="Hangfire.PostgreSql" Version="1.20.10" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.21" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.20.12" />
     <PackageReference Include="Hangfire.Tags.PostgreSql" Version="1.9.6" />
-    <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2025.2.2" />
     <PackageReference Include="Mapster" Version="7.4.0" />
     <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
     <PackageReference Include="Mapster.EFCore" Version="5.1.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="8.0.10" />
@@ -51,7 +51,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.1" />
     <PackageReference Include="NodaTime" Version="3.2.0" />
     <PackageReference Include="Nodsoft.Wargaming.Api.Client" Version="0.3.5" />
-    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="3.0.30-beta" />
+    <PackageReference Include="Nodsoft.WowsReplaysUnpack.ExtendedData" Version="3.0.31-beta" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
     <PackageReference Include="Polly.Extensions" Version="8.4.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />

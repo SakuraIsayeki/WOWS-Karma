@@ -196,9 +196,10 @@ public sealed class Startup
 			o => o.UseNpgsql(apiDbDataSourceBuilder,
 				p =>
 				{
+					p.MapApplicationEnums();
 					p.EnableRetryOnFailure();
 				}
-			), 
+			).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)), 
 			dbPoolSize is 0 ? 64 : dbPoolSize);
 
 		services.AddDbContextPool<AuthDbContext>(
@@ -207,7 +208,7 @@ public sealed class Startup
 				{
 					p.EnableRetryOnFailure();
 				}
-			), 
+			).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)), 
 			dbPoolSize is 0 ? 64 : dbPoolSize);
 
 		services.AddThrottledApiClient<WowsPublicApiClient>((_, client) => client.BaseAddress = new(ApiHostUtilities.GetApiHost(Game.WOWS, ApiRegion)), 20);

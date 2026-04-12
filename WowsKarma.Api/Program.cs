@@ -21,10 +21,10 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddCommandLine(args);
 
-builder.Services.AddSerilog(logger => logger
-	.ReadFrom.Configuration(builder.Configuration)
-	.Enrich.WithProperty("_Region", Startup.ApiRegion.ToRegionString())
-);
+builder.Host.UseSerilog((context, services, logger) => logger
+	.ReadFrom.Configuration(context.Configuration)
+	.Enrich.WithProperty("_Region", Startup.ApiRegion.ToRegionString()),
+	preserveStaticLogger: true);
 
 builder.Host.UseSystemd();
 

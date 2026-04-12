@@ -43,14 +43,17 @@ namespace WowsKarma.Api;
 
 public sealed class Startup
 {
+	public WebApplicationBuilder Builder { get; }
 	public static Region ApiRegion { get; private set; }
 	public static string DisplayVersion { get; private set; } = "0.0.0";
+	
 	public IConfiguration Configuration { get; }
 
 
-	public Startup(IConfiguration configuration)
+	public Startup(WebApplicationBuilder builder)
 	{
-		Configuration = configuration;
+		Builder = builder;
+		Configuration = builder.Configuration;
 		ApiRegion = Common.Utilities.GetRegionConfigString(Configuration["Api:CurrentRegion"] ?? "EU");
 
 		if (typeof(Startup).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion is { } fullVersion)
@@ -196,9 +199,10 @@ public sealed class Startup
 			o => o.UseNpgsql(apiDbDataSourceBuilder,
 				p =>
 				{
+					p.MapApplicationEnums();
 					p.EnableRetryOnFailure();
 				}
-			), 
+			).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)), 
 			dbPoolSize is 0 ? 64 : dbPoolSize);
 
 		services.AddDbContextPool<AuthDbContext>(
@@ -207,7 +211,7 @@ public sealed class Startup
 				{
 					p.EnableRetryOnFailure();
 				}
-			), 
+			).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)), 
 			dbPoolSize is 0 ? 64 : dbPoolSize);
 
 		services.AddThrottledApiClient<WowsPublicApiClient>((_, client) => client.BaseAddress = new(ApiHostUtilities.GetApiHost(Game.WOWS, ApiRegion)), 20);
@@ -285,7 +289,7 @@ public sealed class Startup
 	}
 
 	// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-	public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+	public void Configure(IApplicationBuilder app)
 	{
 		app.UseETagger();
 		app.UseResponseCompression();

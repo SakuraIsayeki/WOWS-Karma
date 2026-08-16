@@ -188,10 +188,10 @@ public sealed class Startup
 #endif
 		});
 
-		string dbConnectionString = $"api-db-{ApiRegion.ToRegionString().ToLowerInvariant()}";
+		string dbConnectionStringKey = $"api-db-{ApiRegion.ToRegionString().ToLowerInvariant()}";
 		int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
-		NpgsqlDataSource apiDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionString))
+		NpgsqlDataSource apiDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionStringKey))
 			.ConfigureApiDbDataSourceBuilder()
 			.Build();
 		
@@ -205,7 +205,7 @@ public sealed class Startup
 			).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)), 
 			dbPoolSize is 0 ? 64 : dbPoolSize);
 
-		NpgsqlDataSource authDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionString))
+		NpgsqlDataSource authDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionStringKey))
 			// .ConfigureAuthDbDataSourceBuilder() // Unneeded
 			.Build();
 		
@@ -246,7 +246,7 @@ public sealed class Startup
 				options.TypeNameHandling = TypeNameHandling.Auto;
 			});
 
-			config.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(Configuration.GetConnectionString(dbConnectionString)));
+			config.UsePostgreSqlStorage(options => options.UseNpgsqlConnection(Configuration.GetConnectionString(dbConnectionStringKey)));
 			//config.UsePostgreSqlStorage(Configuration.GetConnectionString(dbConnectionString), new() { SchemaName = "hangfire", PrepareSchemaIfNecessary = true });
 			
 			config.UseSerilogLogProvider();

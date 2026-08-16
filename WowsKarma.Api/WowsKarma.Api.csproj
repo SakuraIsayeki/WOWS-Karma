@@ -58,6 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WowsKarma.ServiceDefaults\WowsKarma.ServiceDefaults.csproj" />
     <ProjectReference Include="..\WowsKarma.Api.Minimap.Client\WowsKarma.Api.Minimap.Client.csproj" />
     <ProjectReference Include="..\WowsKarma.Common\WowsKarma.Common.csproj" />
   </ItemGroup>

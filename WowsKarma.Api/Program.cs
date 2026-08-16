@@ -14,6 +14,8 @@ Conversions.ConfigureMapping();
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 Startup startup = new(builder);
 
+builder.AddServiceDefaults();
+
 builder.Configuration.SetBasePath(Directory.GetCurrentDirectory());
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)

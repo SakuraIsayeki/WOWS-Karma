@@ -30,6 +30,16 @@ services:
       - wowskarma-seq:/data
     ports:
     - 5341:80
+    
+  postgres:
+    hostname: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=wowskarma
+      - POSTGRES_PASSWORD=wowskarma
+      - POSTGRES_DB=wowskarma_api_eu
+    ports:
+    - 5432:5432
 
 volumes:
   wowskarma-seq:

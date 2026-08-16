@@ -188,7 +188,7 @@ public sealed class Startup
 #endif
 		});
 
-		string dbConnectionString = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
+		string dbConnectionString = $"api-db-{ApiRegion.ToRegionString().ToLowerInvariant()}";
 		int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
 		NpgsqlDataSource apiDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionString))
@@ -205,8 +205,12 @@ public sealed class Startup
 			).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)), 
 			dbPoolSize is 0 ? 64 : dbPoolSize);
 
+		NpgsqlDataSource authDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionString))
+			// .ConfigureAuthDbDataSourceBuilder() // Unneeded
+			.Build();
+		
 		services.AddDbContextPool<AuthDbContext>(
-			o => o.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
+			o => o.UseNpgsql(authDbDataSourceBuilder,
 				p =>
 				{
 					p.EnableRetryOnFailure();

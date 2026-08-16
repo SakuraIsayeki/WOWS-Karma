@@ -1,0 +1,8 @@
+{
+  "appHost": {
+    "path": "WoWS_Karma.AppHost.csproj"
+  },
+  "parameters": {
+    "region": "EU"
+  }
+}

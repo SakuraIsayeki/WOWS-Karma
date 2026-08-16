@@ -188,7 +188,7 @@ public sealed class Startup
 #endif
 		});
 
-		string dbConnectionStringKey = $"api-db-{ApiRegion.ToRegionString().ToLowerInvariant()}";
+		string dbConnectionStringKey = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
 		int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
 
 		NpgsqlDataSource apiDbDataSourceBuilder = new NpgsqlDataSourceBuilder(Configuration.GetConnectionString(dbConnectionStringKey))
@@ -224,7 +224,7 @@ public sealed class Startup
 			
 		services.AddSingleton(s => new PublicApiOptions
 		{
-			AppId = s.GetRequiredService<IConfiguration>()[$"Api:{ApiRegion.ToRegionString()}:AppId"] 
+			AppId = s.GetRequiredService<IConfiguration>()[$"API:{ApiRegion.ToRegionString()}:AppId"] 
 			        ?? throw new InvalidOperationException("AppId not found in configuration"),
 		});
 		

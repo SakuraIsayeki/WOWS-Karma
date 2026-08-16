@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Nodsoft.Wargaming.Api.Common.Data.Responses.Wows;
 using Npgsql;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using WowsKarma.Api.Data.Models.Replays;
 using WowsKarma.Api.Data.Models.Notifications;
 using WowsKarma.Api.Utilities;
@@ -129,6 +130,11 @@ public sealed class ApiDbContext : DbContext
 
 public static class ApiDbContextExtensions
 {
+	public static NpgsqlDbContextOptionsBuilder MapApplicationEnums(this NpgsqlDbContextOptionsBuilder dataSourceBuilder) => dataSourceBuilder
+		.MapEnum<ModActionType>()
+		.MapEnum<NotificationType>()
+		.MapEnum<ClanRole>();
+	
 	public static NpgsqlDataSourceBuilder ConfigureApiDbDataSourceBuilder(this NpgsqlDataSourceBuilder dataSourceBuilder)
 	{
 		dataSourceBuilder

@@ -1,0 +1,18 @@
+FROM python:3.10-slim-bookworm
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ca-certificates ffmpeg git \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt 'pydantic<2' 'fastapi==0.119.1' 'bcrypt==4.0.1'
+# The renderer imports these packages without declaring them in its package metadata.
+RUN pip install --no-cache-dir 'langdetect==1.0.9' 'hanzidentifier==1.3.0'
+ENV IMAGEIO_FFMPEG_EXE=/usr/bin/ffmpeg
+
+COPY src ./src
+COPY settings.toml ./
+RUN useradd --system --no-create-home minimap && chown minimap /app
+USER minimap
+
+CMD ["python", "-m", "uvicorn", "src.aspire_app:app", "--host", "0.0.0.0", "--port", "8080"]

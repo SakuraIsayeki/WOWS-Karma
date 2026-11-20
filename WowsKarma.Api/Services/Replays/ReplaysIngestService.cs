@@ -69,7 +69,9 @@ public sealed class ReplaysIngestService
 				.Select(m => m with { Username = replay.Players.FirstOrDefault(p => p.AccountId == m.PlayerId).Name }) ?? [],
 			Players = replay.Players.Adapt<IEnumerable<ReplayPlayerDTO>>(),
 			DownloadUri = $"{_replayContainerClient.Uri}/{replay.BlobName}",
-			MinimapUri = replay.MinimapRendered ? $"{_serviceClient.Uri}{MinimapRenderingService.MinimapBlobContainer}/{replay.Id}.mp4" : null
+			MinimapUri = replay.MinimapRendered
+				? _serviceClient.GetBlobContainerClient(MinimapRenderingService.MinimapBlobContainer).GetBlobClient($"{replay.Id}.mp4").Uri.AbsoluteUri
+				: null
 		};
 	}
 

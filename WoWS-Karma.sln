@@ -10,7 +10,7 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowsKarma.Api.Minimap.Client", "WowsKarma.Api.Minimap.Client\WowsKarma.Api.Minimap.Client.csproj", "{088E8F75-834F-4314-8E6C-C1397B9DD5E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWS-Karma.AppHost", "WoWS-Karma.AppHost\WoWS-Karma.AppHost.csproj", "{EA4724EE-798A-4204-88D2-5565653B565B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowsKarma.AppHost", "WowsKarma.AppHost\WowsKarma.AppHost.csproj", "{EA4724EE-798A-4204-88D2-5565653B565B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WowsKarma.ServiceDefaults", "WowsKarma.ServiceDefaults\WowsKarma.ServiceDefaults.csproj", "{D0DE080B-CC5A-4981-9570-F52F4A2C40C7}"
 EndProject

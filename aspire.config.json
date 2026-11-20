@@ -1,5 +1,5 @@
 {
   "appHost": {
-    "path": "WoWS-Karma.AppHost/WoWS-Karma.AppHost.csproj"
+    "path": "WowsKarma.AppHost/WowsKarma.AppHost.csproj"
   }
 }

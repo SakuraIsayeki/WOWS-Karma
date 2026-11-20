@@ -33,9 +33,6 @@ builder.Host.UseSerilog((context, services, logger) =>
 	logger.ReadFrom.Configuration(context.Configuration)
 		.Enrich.WithProperty("_Region", Startup.ApiRegion.ToRegionString());
 
-	if (context.Configuration["Aspire:SeqUrl"] is { Length: > 0 } seqUrl)
-		logger.WriteTo.Seq(seqUrl);
-
 	if (context.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] is { Length: > 0 })
 		logger.WriteTo.OpenTelemetry();
 }, preserveStaticLogger: true);

@@ -5,6 +5,7 @@
     "ng": "ng",
     "dev": "ng serve --watch --ssl true --ssl-cert ./.ssl/localhost.crt --ssl-key ./.ssl/localhost.key",
     "start": "ng serve",
+    "aspire": "node tools/aspire-serve.cjs",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

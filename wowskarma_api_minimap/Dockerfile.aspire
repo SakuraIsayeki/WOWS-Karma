@@ -1,0 +1,42 @@
+FROM python:3.10-slim-bookworm AS source-wheels
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements-aspire-build.lock /tmp/
+RUN python -m pip install --no-cache-dir --only-binary=:all: --require-hashes \
+    --force-reinstall -r /tmp/requirements-aspire-build.lock
+
+# PyPI has no Python 3 wheel for this release. Verify the sdist before building it.
+RUN python -m pip wheel --no-cache-dir --no-index --no-deps --no-build-isolation --require-hashes \
+    --wheel-dir /wheels \
+    'https://files.pythonhosted.org/packages/0e/72/a3add0e4eec4eb9e2569554f7c70f4a3c27712f40e3284d483e88094cc0e/langdetect-1.0.9.tar.gz#sha256=cbc1fef89f8d062739774bd51eda3da3274006b3661d199c2655f6b3f6d605a0'
+
+# The renderer is the only floating Python dependency. Git ADD resolves upstream
+# HEAD at build time so the wheel layer follows changes to the renderer and assets.
+ADD https://github.com/SakuraIsayeki/wowskarma_minimap_renderer.git /tmp/minimap-renderer/
+RUN python -m pip wheel --no-cache-dir --no-index --no-deps --no-build-isolation \
+    --wheel-dir /wheels /tmp/minimap-renderer
+
+FROM python:3.10-slim-bookworm
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y ca-certificates ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY requirements-aspire.lock /tmp/
+RUN python -m pip install --no-cache-dir --only-binary=:all: --require-hashes \
+    --force-reinstall -r /tmp/requirements-aspire.lock
+COPY --from=source-wheels /wheels/ /tmp/wheels/
+RUN python -m pip install --no-cache-dir --only-binary=:all: --no-index --no-deps /tmp/wheels/*.whl \
+    && python -m pip check \
+    && rm -rf /tmp/wheels
+ENV IMAGEIO_FFMPEG_EXE=/usr/bin/ffmpeg
+
+COPY src ./src
+COPY settings.toml ./
+RUN useradd --system --no-create-home minimap && chown minimap /app
+USER minimap
+
+CMD ["python", "-m", "uvicorn", "src.aspire_app:app", "--host", "0.0.0.0", "--port", "8080"]

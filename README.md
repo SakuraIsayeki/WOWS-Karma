@@ -42,4 +42,8 @@ Clicking on a player on the Monitor will open up his profile on WOWS Karma. Easy
 
 <hr />
 
+## Contributing
+
+See the [developer onboarding guide](docs/contributing.md) to run WOWS Karma locally and prepare a contribution.
+
 ###### (WIP)

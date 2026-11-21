@@ -181,12 +181,17 @@ public sealed class Startup
 
 
 
-		services.AddApplicationInsightsTelemetry(options =>
+		if (!Configuration.GetValue<bool>("Aspire:DisableApplicationInsights"))
 		{
+			services.AddApplicationInsightsTelemetry(options =>
+			{
 #if DEBUG
-			options.DeveloperMode = true;
+				options.DeveloperMode = true;
 #endif
-		});
+			});
+			services.AddSingleton<ITelemetryInitializer, TelemetryEnrichment>();
+			services.AddApplicationInsightsTelemetryProcessor<HubTelemetryFilter>();
+		}
 
 		string dbConnectionString = $"ApiDbConnectionString:{ApiRegion.ToRegionString()}";
 		int dbPoolSize = Configuration.GetValue<int>("Database:PoolSize");
@@ -256,7 +261,6 @@ public sealed class Startup
 		services.AddSingleton<JwtSecurityTokenHandler>();
 		services.AddSingleton<PostWebhookService>();
 		services.AddSingleton<ModActionWebhookService>();
-		services.AddSingleton<ITelemetryInitializer, TelemetryEnrichment>();
 
 		services.AddTransient<PostHub>();
 
@@ -274,7 +278,6 @@ public sealed class Startup
 
 		services.AddScoped<IAuthorizationHandler, PlatformBanAuthorizationHandler>();
 
-		services.AddApplicationInsightsTelemetryProcessor<HubTelemetryFilter>();
 
 		services.AddResponseCompression(opts =>
 		{

@@ -1,0 +1,95 @@
+# Contributing to WOWS Karma
+
+## Run the EU stack locally
+
+Install [Git](https://git-scm.com/downloads), the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), [Aspire CLI 17](https://aspire.dev/get-started/install-cli/), [Node.js 22](https://nodejs.org/en/download), and [pnpm 12](https://pnpm.io/installation). Put the tools on your `PATH` and start [Docker or Podman](https://aspire.dev/get-started/prerequisites/). Aspire builds the minimap container with Python and FFmpeg inside it.
+
+Sign in to the [Wargaming Developer Room](https://developers.wargaming.net/applications/), add a development application, and copy its `application_id` for EU API requests. Use an EU World of Warships account to test OpenID sign-in. [Wargaming registration guide](https://developers.wargaming.net/documentation/guide/getting-started/)
+
+Clone the repository, or use your fork’s URL if you plan to open a pull request.
+
+```sh
+git clone https://github.com/SakuraIsayeki/WOWS-Karma.git
+cd WOWS-Karma
+```
+
+If you use Podman, select it in the shell where you will run Aspire. On Windows or macOS, start the Podman machine first if it is stopped.
+
+| Shell | Select Podman |
+| --- | --- |
+| PowerShell | `$env:ASPIRE_CONTAINER_RUNTIME = "podman"` |
+| Bash or Zsh | `export ASPIRE_CONTAINER_RUNTIME=podman` |
+
+From the repository root, run the following commands. Enter the application ID at the secret prompt.
+
+```sh
+aspire certs trust
+aspire secret set "Parameters:wargaming-app-id"
+aspire run
+```
+
+Follow the dashboard URL in the terminal. Wait for `web` to become healthy, then open its HTTPS endpoint. Check the API at `/api/status` and open `/swagger` on the API’s HTTPS endpoint. A request to `/api/post/latest` exercises PostgreSQL and can return an empty list on a fresh database. Use the dashboard endpoints because Aspire assigns the ports.
+
+The first run restores .NET and Angular dependencies, pulls infrastructure images, and builds the minimap renderer with its game assets. The API applies its data and authentication migrations and creates the Azurite containers before serving requests. PostgreSQL and Azurite persist their local data in container volumes. The API sends logs, metrics, and traces to the Aspire dashboard over OTLP. Press Ctrl+C in the terminal to stop the foreground run.
+
+## Configure your local stack
+
+Store overrides with `aspire secret set "Parameters:<name>"`, or supply them through AppHost configuration using `Parameters__<name>` environment variables. For an indexed value, use a key such as `Parameters:discord-post-webhooks:0` or an environment variable such as `Parameters__discord-post-webhooks__0`. Restart Aspire after changing settings. Keep credentials in local configuration and redact them from logs, screenshots, and pull requests.
+
+| Parameters | Defaults and usage |
+| --- | --- |
+| `wargaming-app-id` | Required EU application ID. You can register for a new application ID on the [Wargaming Developer Portal](https://developers.wargaming.net/applications/). |
+| `wargaming-auth-callback` | Defaults to `/api/auth/wg-callback` on the Aspire API HTTPS endpoint. Supply a full URL if your setup uses a fixed callback. |
+| `auth-cookie-name`, `auth-cookie-domain` | `Auth_EU` and `localhost`. The API and Angular share these settings. |
+| `jwt-secret`, `jwt-issuer`, `jwt-audience` | Generated signing key and `localhost` for issuer and audience. Supply at least 32 bytes if overriding the key. |
+| `postgres-password`, `database-pool-size` | Generated password and a pool size of 32. An existing PostgreSQL volume retains its original password. |
+| `replay-storage-connection-string` | Azurite by default. An external Azure Blob Storage account must provide the `replays`, `rce-replays`, and `minimaps` containers. |
+| `minimap-base-url`, `minimap-login`, `minimap-password` | Local renderer, `karma-api`, and a generated password. Supply the matching credentials if you use a remote renderer. |
+| `minimap-signing-key`, `minimap-fps`, `minimap-quality`, `minimap-max-file-size` | Generated signing key, 15 frames per second, quality 5, and a 5 MiB upload limit for the local renderer. |
+| `discord-webhook-avatar`, `discord-post-webhooks:0`, `discord-mod-action-webhooks:0` | WOWS Karma logo and optional EU webhook URLs. Use successive indices for multiple URLs. |
+| `api-application-insights`, `web-application-insights` | Optional Application Insights connection strings. The web value is visible in the browser bundle. |
+| `allowed-proxies:0` | Optional trusted proxy IPs. Use successive indices for multiple addresses. |
+
+## Find your way around the code
+
+| Directory | Start here for |
+| --- | --- |
+| [`WowsKarma.AppHost/`](../WowsKarma.AppHost/) | Local resources, parameters, startup order, and endpoints. |
+| [`WowsKarma.Api/`](../WowsKarma.Api/) | ASP.NET Core API, Wargaming sign-in, data models and migrations, replay ingestion, and background jobs. |
+| [`wowskarma.app/`](../wowskarma.app/) | Angular UI, routing, and browser API integration. |
+| [`WowsKarma.Common/`](../WowsKarma.Common/) and [`WowsKarma.Api.Minimap.Client/`](../WowsKarma.Api.Minimap.Client/) | Shared API contracts and the .NET client for the minimap service. |
+| [`wowskarma_api_minimap/`](../wowskarma_api_minimap/) | Python API and replay-to-video rendering. |
+| [`WowsKarma.ServiceDefaults/`](../WowsKarma.ServiceDefaults/) | OpenTelemetry instrumentation and export setup. |
+
+## Validate a change
+
+For a .NET change, build the affected entry point from the root. Stop any running instance of the project before building if Windows reports locked output files.
+
+```sh
+dotnet build WowsKarma.Api/WowsKarma.Api.csproj
+dotnet build WowsKarma.AppHost/WowsKarma.AppHost.csproj
+```
+
+For a web change, run the Angular development build from the root. Aspire normally installs dependencies on startup, so you can skip the install step if it has already completed and dependencies have stayed the same.
+
+```sh
+pnpm --dir wowskarma.app install
+pnpm --dir wowskarma.app build --configuration development
+```
+
+For changes to startup, authentication, storage, or replays, run the stack and exercise the affected flow through the dashboard endpoints. For replay changes, use a supported `.wowsreplay` fixture and check that the resulting minimap video plays. For the Python test and lint commands, see the [minimap contributor guide](../wowskarma_api_minimap/CONTRIBUTING.md). [Repository CI workflows](../.github/workflows/)
+
+## Troubleshoot startup
+
+| Symptom | What to check |
+| --- | --- |
+| Aspire cannot resolve the AppHost | Run from the repository root and check that `aspire ls` finds `WowsKarma.AppHost`. Use `aspire doctor` to check the local toolchain. |
+| The dashboard waits for an installer or dependency | Open the earliest unhealthy resource’s console logs. The Angular installer needs `pnpm` on the same `PATH` as Aspire. The first minimap build needs registry, Python package index, and GitHub access. |
+| Containers fail to start | Confirm that `docker info` or `podman info` can reach the engine from the same shell. On Podman, check `ASPIRE_CONTAINER_RUNTIME`. |
+| Local HTTPS fails | Run `aspire certs trust` again and use the HTTPS URLs in the dashboard. |
+| Wargaming requests or sign-in fail | Check that the application ID is set on the AppHost and works for EU. For sign-in, check the EU account, callback URL, and shared cookie domain. |
+| PostgreSQL rejects the password | Check that the configured password matches the one used when the local volume was initialized. |
+
+## Open a pull request
+
+Create a topic branch from the intended target branch. Keep changes focused and include any relevant migration, configuration, or setup documentation. In the pull request, describe what changed, how you verified it, and any setup needed to reproduce the result.

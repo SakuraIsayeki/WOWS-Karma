@@ -1,10 +1,10 @@
 # Contributing to WOWS Karma
 
-## Run the EU stack locally
+## Run the stack locally
 
 Install [Git](https://git-scm.com/downloads), the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), [Aspire CLI 17](https://aspire.dev/get-started/install-cli/), [Node.js 22](https://nodejs.org/en/download), and [pnpm 12](https://pnpm.io/installation). Put the tools on your `PATH` and start [Docker or Podman](https://aspire.dev/get-started/prerequisites/). The minimap image contains Python and FFmpeg and uses Git `ADD`, which requires Docker with BuildKit enabled or Podman 5.3 or later.
 
-Sign in to the [Wargaming Developer Room](https://developers.wargaming.net/applications/), add a development application, and copy its `application_id` for EU API requests. Use an EU World of Warships account to test OpenID sign-in. [Wargaming registration guide](https://developers.wargaming.net/documentation/guide/getting-started/)
+Sign in to the [Wargaming Developer Room](https://developers.wargaming.net/applications/), add a development application, and copy its `application_id` for your selected region's API requests. Use a World of Warships account in that region to test OpenID sign-in. [Wargaming registration guide](https://developers.wargaming.net/documentation/guide/getting-started/)
 
 Clone the repository, or use your fork’s URL if you plan to open a pull request.
 
@@ -34,19 +34,29 @@ The first run restores .NET and Angular dependencies, pulls infrastructure image
 
 ## Configure your local stack
 
+The AppHost runs one region at a time and defaults to EU. Select `EU`, `NA`, or `SEA` with `Parameters:region` in AppHost configuration. For example, in PowerShell:
+
+```powershell
+$env:Parameters__region = "NA"
+aspire run
+```
+
+Region values are case-insensitive; unsupported values fail at startup. Restart Aspire after switching regions. The AppHost selects the API configuration sections, Wargaming callback, Discord webhook sections, replay storage settings, and Angular region, API URL, and cookie name. No API or Angular configuration files need editing. The default database is `wowskarma_eu`, `wowskarma_na`, or `wowskarma_sea`, so switching regions keeps their records separate in the PostgreSQL volume. Existing parameter overrides apply to the selected region; update application IDs, external storage, callbacks, and webhook URLs as needed when switching.
+
 Store overrides with `aspire secret set "Parameters:<name>"`, or supply them through AppHost configuration using `Parameters__<name>` environment variables. For an indexed value, use a key such as `Parameters:discord-post-webhooks:0` or an environment variable such as `Parameters__discord-post-webhooks__0`. Restart Aspire after changing settings. Keep credentials in local configuration and redact them from logs, screenshots, and pull requests.
 
 | Parameters | Defaults and usage |
 | --- | --- |
-| `wargaming-app-id` | Required EU application ID. You can register for a new application ID on the [Wargaming Developer Portal](https://developers.wargaming.net/applications/). |
+| `region` | `EU` by default; also supports `NA` and `SEA`. Evaluated by the AppHost at startup. |
+| `wargaming-app-id` | Required application ID for the selected region. You can register for a new application ID on the [Wargaming Developer Portal](https://developers.wargaming.net/applications/). |
 | `wargaming-auth-callback` | Defaults to `/api/auth/wg-callback` on the Aspire API HTTPS endpoint. Supply a full URL if your setup uses a fixed callback. |
-| `auth-cookie-name`, `auth-cookie-domain` | `Auth_EU` and `localhost`. The API and Angular share these settings. |
+| `auth-cookie-name`, `auth-cookie-domain` | `Auth_<region>` and `localhost`. The API and Angular share these settings. |
 | `jwt-secret`, `jwt-issuer`, `jwt-audience` | Generated signing key and `localhost` for issuer and audience. Supply at least 32 bytes if overriding the key. |
 | `postgres-password`, `database-pool-size` | Generated password and a pool size of 32. An existing PostgreSQL volume retains its original password. |
 | `replay-storage-connection-string` | Azurite by default. An external Azure Blob Storage account must provide the `replays`, `rce-replays`, and `minimaps` containers. |
 | `minimap-base-url`, `minimap-login`, `minimap-password` | Local renderer, `karma-api`, and a generated password. Supply the matching credentials if you use a remote renderer. |
 | `minimap-signing-key`, `minimap-fps`, `minimap-quality`, `minimap-max-file-size` | Generated signing key, 15 frames per second, quality 5, and a 5 MiB upload limit for the local renderer. |
-| `discord-webhook-avatar`, `discord-post-webhooks:0`, `discord-mod-action-webhooks:0` | WOWS Karma logo and optional EU webhook URLs. Use successive indices for multiple URLs. |
+| `discord-webhook-avatar`, `discord-post-webhooks:0`, `discord-mod-action-webhooks:0` | WOWS Karma logo and optional webhook URLs for the selected region. Use successive indices for multiple URLs. |
 | `api-application-insights`, `web-application-insights` | Optional Application Insights connection strings. The web value is visible in the browser bundle. |
 | `allowed-proxies:0` | Optional trusted proxy IPs. Use successive indices for multiple addresses. |
 
@@ -77,6 +87,8 @@ pnpm --dir wowskarma.app install
 pnpm --dir wowskarma.app build --configuration development
 ```
 
+For the Aspire frontend configuration checks, run `node --test wowskarma.app/tools/aspire-serve.test.cjs` from the root. These cover EU, NA, SEA, invalid regions, and hostname detection outside Aspire.
+
 For changes to startup, authentication, storage, or replays, run the stack and exercise the affected flow through the dashboard endpoints. For replay changes, use a supported `.wowsreplay` fixture and check that the resulting minimap video plays. For the Python test and lint commands, see the [minimap contributor guide](../wowskarma_api_minimap/CONTRIBUTING.md). [Repository CI workflows](../.github/workflows/)
 
 ## Troubleshoot startup
@@ -87,7 +99,7 @@ For changes to startup, authentication, storage, or replays, run the stack and e
 | The dashboard waits for an installer or dependency | Open the earliest unhealthy resource’s console logs. The Angular installer needs `pnpm` on the same `PATH` as Aspire. The first minimap build needs registry, Python package index, and GitHub access. |
 | Containers fail to start | Confirm that `docker info` or `podman info` can reach the engine from the same shell. On Podman, check `ASPIRE_CONTAINER_RUNTIME`. |
 | Local HTTPS fails | Run `aspire certs trust` again and use the HTTPS URLs in the dashboard. |
-| Wargaming requests or sign-in fail | Check that the application ID is set on the AppHost and works for EU. For sign-in, check the EU account, callback URL, and shared cookie domain. |
+| Wargaming requests or sign-in fail | Check that the application ID is set on the AppHost and works for the selected region. For sign-in, check the account's region, callback URL, and shared cookie domain. |
 | PostgreSQL rejects the password | Check that the configured password matches the one used when the local volume was initialized. |
 
 ## Open a pull request

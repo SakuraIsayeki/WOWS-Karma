@@ -41,24 +41,11 @@ $env:Parameters__region = "NA"
 aspire run
 ```
 
-Region values are case-insensitive; unsupported values fail at startup. Restart Aspire after switching regions. The AppHost selects the API configuration sections, Wargaming callback, Discord webhook sections, replay storage settings, and Angular region, API URL, and cookie name. No API or Angular configuration files need editing. The default database is `wowskarma_eu`, `wowskarma_na`, or `wowskarma_sea`, so switching regions keeps their records separate in the PostgreSQL volume. Existing parameter overrides apply to the selected region; update application IDs, external storage, callbacks, and webhook URLs as needed when switching.
+Region values are case-insensitive. Unsupported values fail at startup. Restart Aspire after switching regions. The AppHost selects the API configuration sections, Wargaming callback, Discord webhook sections, replay storage settings, and Angular region, API URL, and cookie name. The dashboard shows the database as `api-db-<region>`, using the lowercase region code. Each region uses its own database in the PostgreSQL volume. Existing parameter overrides apply to the selected region. Update application IDs, external storage, callbacks, and webhook URLs as needed when switching.
 
 Store overrides with `aspire secret set "Parameters:<name>"`, or supply them through AppHost configuration using `Parameters__<name>` environment variables. For an indexed value, use a key such as `Parameters:discord-post-webhooks:0` or an environment variable such as `Parameters__discord-post-webhooks__0`. Restart Aspire after changing settings. Keep credentials in local configuration and redact them from logs, screenshots, and pull requests.
 
-| Parameters | Defaults and usage |
-| --- | --- |
-| `region` | `EU` by default; also supports `NA` and `SEA`. Evaluated by the AppHost at startup. |
-| `wargaming-app-id` | Required application ID for the selected region. You can register for a new application ID on the [Wargaming Developer Portal](https://developers.wargaming.net/applications/). |
-| `wargaming-auth-callback` | Defaults to `/api/auth/wg-callback` on the Aspire API HTTPS endpoint. Supply a full URL if your setup uses a fixed callback. |
-| `auth-cookie-name`, `auth-cookie-domain` | `Auth_<region>` and `localhost`. The API and Angular share these settings. |
-| `jwt-secret`, `jwt-issuer`, `jwt-audience` | Generated signing key and `localhost` for issuer and audience. Supply at least 32 bytes if overriding the key. |
-| `postgres-password`, `database-pool-size` | Generated password and a pool size of 32. An existing PostgreSQL volume retains its original password. |
-| `replay-storage-connection-string` | Azurite by default. An external Azure Blob Storage account must provide the `replays`, `rce-replays`, and `minimaps` containers. |
-| `minimap-base-url`, `minimap-login`, `minimap-password` | Local renderer, `karma-api`, and a generated password. Supply the matching credentials if you use a remote renderer. |
-| `minimap-signing-key`, `minimap-fps`, `minimap-quality`, `minimap-max-file-size` | Generated signing key, 15 frames per second, quality 5, and a 5 MiB upload limit for the local renderer. |
-| `discord-webhook-avatar`, `discord-post-webhooks:0`, `discord-mod-action-webhooks:0` | WOWS Karma logo and optional webhook URLs for the selected region. Use successive indices for multiple URLs. |
-| `api-application-insights`, `web-application-insights` | Optional Application Insights connection strings. The web value is visible in the browser bundle. |
-| `allowed-proxies:0` | Optional trusted proxy IPs. Use successive indices for multiple addresses. |
+See the service-specific configuration for the [API](aspire/api.md), [Angular web app](aspire/web.md), [PostgreSQL](aspire/postgres.md), [replay storage](aspire/replay-storage.md), and [minimap renderer](aspire/minimap.md). For preview and production, see the [deployment guide](deployment.md).
 
 ## Find your way around the code
 

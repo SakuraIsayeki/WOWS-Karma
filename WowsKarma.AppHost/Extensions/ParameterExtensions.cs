@@ -12,18 +12,18 @@ internal static class ParameterExtensions
     extension(IDistributedApplicationBuilder builder)
     {
         /// <summary>
-        /// Adds a secret parameter with a generated default that is persisted for reuse across runs.
+        /// Creates a secret value with a generated default that is persisted for reuse across runs.
         /// </summary>
         /// <param name="name">The Aspire parameter name, configurable through <c>Parameters:{name}</c>.</param>
         /// <param name="length">The minimum length of the generated default, which excludes special characters.</param>
-        /// <returns>The secret parameter resource builder.</returns>
+        /// <returns>The secret value provider for resource configuration.</returns>
         /// <remarks>
         /// An explicitly configured value takes precedence over generation. The length and character
         /// settings apply to generated defaults; they do not validate supplied values.
         /// </remarks>
-        public IResourceBuilder<ParameterResource> AddGeneratedSecret(string name, int length) =>
-            builder.AddParameter(name, new GenerateParameterDefault { MinLength = length, Special = false },
-                secret: true, persist: true);
+        public IExpressionValue CreateGeneratedSecret(string name, int length) =>
+            ParameterResourceBuilderExtensions.CreateGeneratedParameter(builder, name, secret: true,
+                new GenerateParameterDefault { MinLength = length, Special = false });
 
         /// <summary>
         /// Registers an optional parameter and returns it only when its configuration value is nonblank.

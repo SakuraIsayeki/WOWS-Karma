@@ -48,42 +48,44 @@ internal static class ApiExtensions
         /// </summary>
         /// <returns>The API resource builder for further configuration.</returns>
         /// <remarks>
-        /// Credentials are configured in both modes. When <c>Parameters:minimap-base-url</c> is nonblank,
-        /// the external service must accept those credentials. Otherwise, the local Dockerfile resource
-        /// receives the same credentials, a generated signing key, and configurable rendering limits;
-        /// the API uses its HTTP endpoint and waits for it before starting.
+        /// When <c>Parameters:minimap-base-url</c> is supplied, the API uses credentials for that service.
+        /// The local Dockerfile resource uses a fixed login and generated secrets. The API uses its HTTP
+        /// endpoint and waits for it before starting.
         /// </remarks>
         public IResourceBuilder<DotnetProjectResource> WithMinimapApi()
         {
             var builder = api.ApplicationBuilder;
 
-            var minimapLogin = builder.AddParameter("minimap-login", "karma-api");
-            var minimapPassword = builder.AddGeneratedSecret("minimap-password", 32);
-            api.WithEnvironment("MinimapApi__Login", minimapLogin)
-                .WithEnvironment("MinimapApi__Password", minimapPassword);
+            const string defaultLogin = "karma-api";
 
             if (builder.AddOptionalParameter("minimap-base-url") is { } minimapUrl)
             {
-                api.WithEnvironment("MinimapApi__BaseUrl", minimapUrl);
+                var minimapPassword = builder.AddParameter("minimap-password", secret: true);
+
+                api.WithEnvironment("MinimapApi__BaseUrl", minimapUrl)
+                    .WithEnvironment("MinimapApi__Password", minimapPassword);
+
+                if (builder.AddOptionalParameter("minimap-login") is { } minimapLogin)
+                    api.WithEnvironment("MinimapApi__Login", minimapLogin);
+                else
+                    api.WithEnvironment("MinimapApi__Login", defaultLogin);
             }
             else
             {
-                var minimapSigningKey = builder.AddGeneratedSecret("minimap-signing-key", 48);
-                var minimapFps = builder.AddParameter("minimap-fps", "15");
-                var minimapQuality = builder.AddParameter("minimap-quality", "5");
-                var minimapMaxFileSize = builder.AddParameter("minimap-max-file-size", "5242880");
+                var minimapSigningKey = builder.CreateGeneratedSecret("minimap-signing-key", 48);
+                var minimapPassword = builder.CreateGeneratedSecret("minimap-password", 32);
 
                 var minimap = builder.AddDockerfile("minimap", "../wowskarma_api_minimap", "Dockerfile.aspire")
                     .WithHttpEndpoint(targetPort: 8080)
                     .WithHttpHealthCheck("/")
                     .WithEnvironment("WOWSKARMA_API_MINIMAP_SECURITY__SECRET_KEY", minimapSigningKey)
-                    .WithEnvironment("WOWSKARMA_API_MINIMAP_REPLAY__FPS", minimapFps)
-                    .WithEnvironment("WOWSKARMA_API_MINIMAP_REPLAY__QUALITY", minimapQuality)
-                    .WithEnvironment("WOWSKARMA_API_MINIMAP_REPLAY__MAX_FILE_SIZE", minimapMaxFileSize)
-                    .WithEnvironment("WOWSKARMA_MINIMAP_LOGIN", minimapLogin)
+                    .WithEnvironment("WOWSKARMA_MINIMAP_LOGIN", defaultLogin)
                     .WithEnvironment("WOWSKARMA_MINIMAP_PASSWORD", minimapPassword);
 
-                api.WithEnvironment("MinimapApi__BaseUrl", minimap.GetEndpoint("http")).WaitFor(minimap);
+                api.WithEnvironment("MinimapApi__BaseUrl", minimap.GetEndpoint("http"))
+                    .WithEnvironment("MinimapApi__Login", defaultLogin)
+                    .WithEnvironment("MinimapApi__Password", minimapPassword)
+                    .WaitFor(minimap);
             }
 
             return api;

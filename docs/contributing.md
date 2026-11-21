@@ -2,7 +2,7 @@
 
 ## Run the EU stack locally
 
-Install [Git](https://git-scm.com/downloads), the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), [Aspire CLI 17](https://aspire.dev/get-started/install-cli/), [Node.js 22](https://nodejs.org/en/download), and [pnpm 12](https://pnpm.io/installation). Put the tools on your `PATH` and start [Docker or Podman](https://aspire.dev/get-started/prerequisites/). Aspire builds the minimap container with Python and FFmpeg inside it.
+Install [Git](https://git-scm.com/downloads), the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), [Aspire CLI 17](https://aspire.dev/get-started/install-cli/), [Node.js 22](https://nodejs.org/en/download), and [pnpm 12](https://pnpm.io/installation). Put the tools on your `PATH` and start [Docker or Podman](https://aspire.dev/get-started/prerequisites/). The minimap image contains Python and FFmpeg and uses Git `ADD`, which requires Docker with BuildKit enabled or Podman 5.3 or later.
 
 Sign in to the [Wargaming Developer Room](https://developers.wargaming.net/applications/), add a development application, and copy its `application_id` for EU API requests. Use an EU World of Warships account to test OpenID sign-in. [Wargaming registration guide](https://developers.wargaming.net/documentation/guide/getting-started/)
 
@@ -30,7 +30,7 @@ aspire run
 
 Follow the dashboard URL in the terminal. Wait for `web` to become healthy, then open its HTTPS endpoint. Check the API at `/api/status` and open `/swagger` on the API’s HTTPS endpoint. A request to `/api/post/latest` exercises PostgreSQL and can return an empty list on a fresh database. Use the dashboard endpoints because Aspire assigns the ports.
 
-The first run restores .NET and Angular dependencies, pulls infrastructure images, and builds the minimap renderer with its game assets. The API applies its data and authentication migrations and creates the Azurite containers before serving requests. PostgreSQL and Azurite persist their local data in container volumes. The API sends logs, metrics, and traces to the Aspire dashboard over OTLP. Press Ctrl+C in the terminal to stop the foreground run.
+The first run restores .NET and Angular dependencies, pulls infrastructure images, and builds the minimap renderer with its game assets. Each minimap image build resolves the latest commit on the renderer repository’s default branch. The API applies its data and authentication migrations and creates the Azurite containers before serving requests. PostgreSQL and Azurite persist their local data in container volumes. The API sends logs, metrics, and traces to the Aspire dashboard over OTLP. Press Ctrl+C in the terminal to stop the foreground run.
 
 ## Configure your local stack
 

@@ -3,10 +3,24 @@ using Aspire.Hosting.Dotnet;
 
 namespace WowsKarma.AppHost.Extensions;
 
+/// <summary>
+/// Configures the API's replay storage and minimap renderer, using external services when supplied
+/// and local Aspire-managed resources otherwise.
+/// </summary>
 internal static class ApiExtensions
 {
     extension(IResourceBuilder<DotnetProjectResource> api)
     {
+        /// <summary>
+        /// Connects the API to replay blob storage for the selected region.
+        /// </summary>
+        /// <param name="region">The validated region code used in the API's configuration keys (EU, NA, or SEA).</param>
+        /// <returns>The API resource builder for further configuration.</returns>
+        /// <remarks>
+        /// A nonblank <c>Parameters:replay-storage-connection-string</c> selects external storage.
+        /// Otherwise, a persistent Azurite emulator is added, container initialization is enabled,
+        /// and the API waits for blob storage before starting. External storage is not initialized here.
+        /// </remarks>
         public IResourceBuilder<DotnetProjectResource> WithReplayStorage(string region)
         {
             var builder = api.ApplicationBuilder;
@@ -29,6 +43,16 @@ internal static class ApiExtensions
             return api;
         }
 
+        /// <summary>
+        /// Configures minimap client credentials and selects an external renderer or a local container.
+        /// </summary>
+        /// <returns>The API resource builder for further configuration.</returns>
+        /// <remarks>
+        /// Credentials are configured in both modes. When <c>Parameters:minimap-base-url</c> is nonblank,
+        /// the external service must accept those credentials. Otherwise, the local Dockerfile resource
+        /// receives the same credentials, a generated signing key, and configurable rendering limits;
+        /// the API uses its HTTP endpoint and waits for it before starting.
+        /// </remarks>
         public IResourceBuilder<DotnetProjectResource> WithMinimapApi()
         {
             var builder = api.ApplicationBuilder;

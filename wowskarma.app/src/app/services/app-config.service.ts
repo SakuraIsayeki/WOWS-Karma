@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import packageJson from "package.json";
 import { ApiRegion } from "../models/ApiRegion";
+import { environment } from "../../environments/environment";
 
 @Injectable({
     providedIn: "root",
@@ -54,7 +55,7 @@ export class AppConfigService {
     }
 
     /**
-     * Gets the API region from the subdomain of the request URL.
+     * Gets the configured API region, falling back to the subdomain of the request URL.
      * Uses the {@link getApiRegion} function to get the region.
      * Uses the browser's location to get the URL.
      * @returns The API region.
@@ -63,7 +64,8 @@ export class AppConfigService {
      * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Location}
      * */
     static GetApiRegionFromLocation(): ApiRegion | undefined {
-        return AppConfigService.getApiRegion(window.location.host);
+        return (environment as { currentRegion?: ApiRegion }).currentRegion
+            ?? AppConfigService.getApiRegion(window.location.host);
     }
 }
 

@@ -7,13 +7,13 @@ internal static class ApiExtensions
 {
     extension(IResourceBuilder<DotnetProjectResource> api)
     {
-        public IResourceBuilder<DotnetProjectResource> WithReplayStorage()
+        public IResourceBuilder<DotnetProjectResource> WithReplayStorage(string region)
         {
             var builder = api.ApplicationBuilder;
 
             if (builder.AddOptionalParameter("replay-storage-connection-string", secret: true) is { } storageConnection)
             {
-                api.WithEnvironment("Api__EU__Azure__Storage__ConnectionString", storageConnection);
+                api.WithEnvironment($"Api__{region}__Azure__Storage__ConnectionString", storageConnection);
             }
             else
             {
@@ -21,8 +21,8 @@ internal static class ApiExtensions
                     .RunAsEmulator(azurite => azurite.WithDataVolume())
                     .AddBlobs("replay-storage");
 
-                api.WithEnvironment("Api__EU__Azure__Storage__ConnectionString", blobs.Resource.ConnectionStringExpression)
-                    .WithEnvironment("Api__EU__Azure__Storage__InitializeContainers", "true")
+                api.WithEnvironment($"Api__{region}__Azure__Storage__ConnectionString", blobs.Resource.ConnectionStringExpression)
+                    .WithEnvironment($"Api__{region}__Azure__Storage__InitializeContainers", "true")
                     .WaitFor(blobs);
             }
 

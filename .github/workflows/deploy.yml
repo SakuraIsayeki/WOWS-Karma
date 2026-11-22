@@ -76,7 +76,8 @@ jobs:
           path: ./web
           
       - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2.8.1
+        # Pin the external action to the full commit SHA.
+        uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.SSH_PRIVATEKEY }}
           known_hosts: '*.nodsoft.net'
@@ -115,7 +116,8 @@ jobs:
           path: ./web
           
       - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2.8.1
+        # Pin the external action to the full commit SHA.
+        uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.SSH_PRIVATEKEY }}
           known_hosts: '*.nodsoft.net'

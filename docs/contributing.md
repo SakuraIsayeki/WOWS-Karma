@@ -2,9 +2,11 @@
 
 ## Run the stack locally
 
-Install [Git](https://git-scm.com/downloads), the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), [Aspire CLI 17](https://aspire.dev/get-started/install-cli/), [Node.js 22](https://nodejs.org/en/download), and [pnpm 12](https://pnpm.io/installation). Put the tools on your `PATH` and start [Docker or Podman](https://aspire.dev/get-started/prerequisites/). The minimap image contains Python and FFmpeg and uses Git `ADD`, which requires Docker with BuildKit enabled or Podman 5.3 or later.
+Install [Git](https://git-scm.com/downloads), the [.NET 11 SDK](https://dotnet.microsoft.com/download/dotnet/11.0), [Aspire CLI 17](https://aspire.dev/get-started/install-cli/), [Node.js 22](https://nodejs.org/en/download), and [pnpm 12](https://pnpm.io/installation). Put the tools on your `PATH` and start [Docker or Podman](https://aspire.dev/get-started/prerequisites/). The minimap image contains Python and FFmpeg and uses Git `ADD`, which requires Docker with BuildKit enabled or Podman 5.3 or later.
 
 Sign in to the [Wargaming Developer Room](https://developers.wargaming.net/applications/), add a development application, and copy its `application_id` for your selected region's API requests. Use a World of Warships account in that region to test OpenID sign-in. [Wargaming registration guide](https://developers.wargaming.net/documentation/guide/getting-started/)
+
+Dependency and deployment compatibility checks are in the [.NET 11 upgrade notes](dotnet-11-upgrade.md).
 
 Clone the repository, or use your fork’s URL if you plan to open a pull request.
 

@@ -12,7 +12,7 @@ the tests pass.
 
 ## Run
 
-Install the .NET 10 SDK and run Docker or Podman with a working container engine.
+Install the .NET 11 SDK and run Docker or Podman with a working container engine.
 The first run downloads the PostgreSQL and Azurite images. For Podman, set
 `ASPIRE_CONTAINER_RUNTIME=podman` in the shell before running the commands.
 
@@ -34,7 +34,7 @@ run. [Microsoft's coverage tool documentation](https://learn.microsoft.com/en-us
 
 ```shell
 dotnet tool restore
-dotnet tool run dotnet-coverage collect --settings tests/api-coverage.xml --include-files "$PWD/WowsKarma.Api/bin/Debug/net10.0/WowsKarma.Api.dll" --output-format cobertura --output tests/TestResults/api-coverage.cobertura.xml "dotnet run --project tests/WowsKarma.Api.E2E --no-build -- --report-trx --results-directory tests/TestResults"
+dotnet tool run dotnet-coverage collect --settings tests/api-coverage.xml --include-files "$PWD/WowsKarma.Api/bin/Debug/net11.0/WowsKarma.Api.dll" --output-format cobertura --output tests/TestResults/api-coverage.cobertura.xml "dotnet run --project tests/WowsKarma.Api.E2E --no-build -- --report-trx --results-directory tests/TestResults"
 pwsh -File tests/Measure-ApiCoverage.ps1
 ```
 

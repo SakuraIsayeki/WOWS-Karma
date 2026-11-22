@@ -44,7 +44,9 @@ Set `Database__PoolSize` to tune the EF Core context pools. The API uses 64 when
 
 ## Build and install the release
 
-Use the .NET 10 SDK on the build machine and the ASP.NET Core 10 runtime on the API host. Build the frontend with Node.js 22 and pnpm. The Angular build fetches the Lato stylesheet from `fonts.googleapis.com` to inline its font definitions. Run these commands from the repository root.
+Check the host OS and CPU before upgrading. The .NET 11 x64 runtime requires the x86-64-v2 instruction set, and ReadyToRun code targets x86-64-v3 on Linux and Windows. Virtual machines must expose the required CPU features to the guest. [Supported operating systems](https://github.com/dotnet/core/blob/main/release-notes/11.0/supported-os.md), [Minimum hardware requirements](https://learn.microsoft.com/en-us/dotnet/core/compatibility/jit/11/minimum-hardware-requirements)
+
+Use the .NET 11 SDK on the build machine and install the ASP.NET Core 11 runtime on each API host before deploying the new artifacts. Build the frontend with Node.js 22 and pnpm. The Angular build fetches the Lato stylesheet from `fonts.googleapis.com` to inline its font definitions. Run these commands from the repository root.
 
 ```sh
 dotnet publish WowsKarma.Api/WowsKarma.Api.csproj --configuration Release --no-self-contained -p:PublishReadyToRun=false --output WowsKarma.Api/bin/deploy
@@ -54,11 +56,13 @@ pnpm --dir wowskarma.app build --configuration production
 
 For preview, build Angular with `--configuration preview`. The [production](../wowskarma.app/src/environments/environment.prod.ts) and [preview](../wowskarma.app/src/environments/environment.preview.ts) files supply API origins, cookie names, and browser Application Insights settings at build time. Any value in the browser bundle is public. Rebuild the frontend after changing these settings.
 
-Copy the API publish directory to the API host. Run `dotnet WowsKarma.Api.dll` from the published directory under a dedicated service account. Use a process manager such as `systemd` to set the working directory, inject the service configuration, and restart the API. Ensure PostgreSQL, replay storage, and the renderer are reachable from the API host. The first successful API startup applies pending migrations before it begins listening. [ASP.NET Core hosting with Nginx and systemd](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/linux-nginx?view=aspnetcore-10.0)
+Copy the API publish directory to the API host. Run `dotnet WowsKarma.Api.dll` from the published directory under a dedicated service account. Use a process manager such as `systemd` to set the working directory, inject the service configuration, and restart the API. Ensure PostgreSQL, replay storage, and the renderer are reachable from the API host. The first successful API startup applies pending migrations before it begins listening. [ASP.NET Core hosting with Nginx and systemd](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/linux-nginx?view=aspnetcore-11.0)
+
+When deploying the API image, build it from the repository root with `docker build -f WowsKarma.Api/Dockerfile -t wowskarma-api .`. The .NET 11 Linux image uses Ubuntu 26.04 and runs the API as the non-root `app` user on HTTP port `8080`. Map that port and terminate TLS at the reverse proxy. Grant the `app` user read access to configuration mounted into the container. [Microsoft .NET container tags](https://github.com/dotnet/dotnet-docker/blob/main/samples/selecting-tags.md)
 
 Serve the contents of `wowskarma.app/dist/wowskarma.app/browser/` from the web document root. Configure a fallback to `index.html` for Angular routes so that direct links and reloads work. Deploy all generated files together, including the service worker manifest and hashed assets. [Angular deployment guide](https://angular.dev/tools/cli/deployment)
 
-Route the public API hostname to the private API listener. Forward the `Host`, `X-Forwarded-For`, and `X-Forwarded-Proto` headers, and allow WebSocket upgrades on `/api/hubs/` for SignalR. Set the proxy request body limit above the 5 MiB replay limit to allow multipart form overhead. Enable HTTPS on the web and API origins. [ASP.NET Core reverse proxy configuration](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-10.0)
+Route the public API hostname to the private API listener. Forward the `Host`, `X-Forwarded-For`, and `X-Forwarded-Proto` headers, and allow WebSocket upgrades on `/api/hubs/` for SignalR. Set the proxy request body limit above the 5 MiB replay limit to allow multipart form overhead. Enable HTTPS on the web and API origins. [ASP.NET Core reverse proxy configuration](https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-11.0)
 
 ## Release through GitHub Actions
 
@@ -71,7 +75,7 @@ Configure the following GitHub Actions settings in each of the `preview` and `li
 | Secrets | `SSH_PRIVATEKEY`, `SSH_HOST`, `SSH_USER`, and `SSH_DEPLOYPATH` provide the SSH identity, server, user, and destination. The deployment account needs write access to that path. |
 | Variable | `SSH_CMD_RESTART_API` is the server-side restart command. The SSH account needs permission to run it. |
 
-The checked-in workflow still requests .NET 8 for solution and API packaging. Update its SDK inputs to .NET 10 before using it with the current `net10.0` projects. The root [Compose file](../docker-compose.yml) also predates the current stack. It references a web Dockerfile that is absent and an API Dockerfile based on .NET 6. Use the manual build and installation steps above for the current checkout. The separate [Minimap image workflow](../.github/workflows/minimap-api-push.yml) publishes `Dockerfile.dev`, which uses a different entry point from `Dockerfile.aspire`.
+The root [Compose file](../docker-compose.yml) still references a missing web Dockerfile. Use Aspire for local full-stack development or follow the build and installation steps above for a release. The separate [Minimap image workflow](../.github/workflows/minimap-api-push.yml) publishes `Dockerfile.dev`, which uses a different entry point from `Dockerfile.aspire`.
 
 ## Verify a release and recover from a failure
 

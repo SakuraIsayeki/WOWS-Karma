@@ -4,6 +4,7 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
@@ -17,8 +18,8 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
       DOTNET_COVERAGE_TELEMETRY_OPTOUT: '1'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
       - name: Build test harness and API
@@ -38,7 +39,7 @@ jobs:
         run: ./tests/Measure-ApiCoverage.ps1 | Tee-Object -FilePath $env:GITHUB_STEP_SUMMARY -Append
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: api-e2e-results
           path: tests/TestResults/

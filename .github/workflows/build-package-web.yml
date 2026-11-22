@@ -23,12 +23,12 @@ jobs:
     name: Build Web App
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         submodules: 'recursive'
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
         node-version: '20.x'
 
@@ -44,7 +44,7 @@ jobs:
       run: ng build --configuration=${{ inputs.build_configuration }}
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ inputs.artifact_name }}
         path: ./wowskarma.app/dist/wowskarma.app

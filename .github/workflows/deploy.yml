@@ -1,4 +1,4 @@
-﻿name: Deploy to Server
+name: Deploy to Server
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
     name: Build & Test Solution
     uses: Nodsoft/workflows/.github/workflows/build-dotnet.yml@main
     with:
-      dotnet-version: '8.0'
+      dotnet-version: '10.0'
       configuration: 'Release'
       project-file: 'WoWS-Karma.sln'
   
@@ -31,7 +31,7 @@ jobs:
       matrix: 
         configuration: ['production', 'preview']
     with:
-      dotnet-version: '8.0'
+      dotnet-version: '10.0'
       configuration: ${{ matrix.configuration }}
       project-file: 'WowsKarma.Api/WowsKarma.Api.csproj'
       artifact-name: 'wowskarma_api_${{ matrix.configuration }}'
@@ -59,19 +59,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download packaged API artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wowskarma_api_preview
           path: ./api
           
       - name: Download packaged Web App artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wowskarma_app_preview
           path: ./web
           
       - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
+        uses: shimataro/ssh-key-action@v2.8.1
         with:
           key: ${{ secrets.SSH_PRIVATEKEY }}
           known_hosts: '*.nodsoft.net'
@@ -97,19 +97,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download packaged API artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wowskarma_api_production
           path: ./api
           
       - name: Download packaged Web App artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wowskarma_app_production
           path: ./web
           
       - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
+        uses: shimataro/ssh-key-action@v2.8.1
         with:
           key: ${{ secrets.SSH_PRIVATEKEY }}
           known_hosts: '*.nodsoft.net'

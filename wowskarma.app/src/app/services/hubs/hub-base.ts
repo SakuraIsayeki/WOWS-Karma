@@ -1,6 +1,5 @@
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";
 import * as signalR from "@microsoft/signalr";
-import { createLogger } from "@microsoft/signalr/dist/esm/Utils";
 import { Subject } from "rxjs";
 import { environment } from "../../../environments/environment";
 import { AppConfigService } from "../app-config.service";

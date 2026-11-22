@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Nodsoft.WowsReplaysUnpack;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -153,7 +153,8 @@ public sealed class Startup
 			options.IncludeXmlComments(xmlPath);
 
 			// Bearer token authentication
-			options.AddSecurityDefinition("jwt_auth", new()
+			const string securitySchemeName = "jwt_auth";
+			options.AddSecurityDefinition(securitySchemeName, new OpenApiSecurityScheme
 			{
 				Name = "bearer",
 				BearerFormat = "JWT",
@@ -163,19 +164,9 @@ public sealed class Startup
 				Type = SecuritySchemeType.Http,
 			});
 
-			// Make sure swagger UI requires a Bearer token specified
-			OpenApiSecurityScheme securityScheme = new()
+			options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
 			{
-				Reference = new()
-				{
-					Id = "jwt_auth",
-					Type = ReferenceType.SecurityScheme
-				}
-			};
-
-			options.AddSecurityRequirement(new()
-			{
-				{ securityScheme, Array.Empty<string>() },
+				[new OpenApiSecuritySchemeReference(securitySchemeName, document)] = [],
 			});
 		});
 
@@ -200,11 +191,13 @@ public sealed class Startup
 			.ConfigureApiDbDataSourceBuilder()
 			.Build();
 		
+		// Keep EF's SQL generation compatible with the PostgreSQL 14 baseline used before Npgsql 11.
 		services.AddDbContextPool<ApiDbContext>(
 			o => o.UseNpgsql(apiDbDataSourceBuilder,
 				p =>
 				{
 					p.MapApplicationEnums();
+					p.SetPostgresVersion(14, 0);
 					p.EnableRetryOnFailure();
 				}
 			).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)), 
@@ -214,6 +207,7 @@ public sealed class Startup
 			o => o.UseNpgsql(Configuration.GetConnectionString(dbConnectionString),
 				p =>
 				{
+					p.SetPostgresVersion(14, 0);
 					p.EnableRetryOnFailure();
 				}
 			).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)), 

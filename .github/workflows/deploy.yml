@@ -1,4 +1,4 @@
-name: Deploy to Server
+﻿name: Deploy to Server
 
 on:
   workflow_dispatch:
@@ -13,6 +13,10 @@ permissions:
   deployments: write
 
 jobs:
+  api-e2e:
+    name: Validate API end to end
+    uses: ./.github/workflows/api-e2e.yml
+
   # First: Make sure dev build ran fine.
   build-test-solution:
     name: Build & Test Solution
@@ -54,6 +58,7 @@ jobs:
         name: preview
         url: https://preview.wows-karma.com/
     needs: 
+      - api-e2e
       - build-package-api
       - build-package-web
     runs-on: ubuntu-latest
@@ -92,6 +97,7 @@ jobs:
         name: live
         url: https://wows-karma.com/
     needs: 
+      - api-e2e
       - build-package-api
       - build-package-web
     runs-on: ubuntu-latest

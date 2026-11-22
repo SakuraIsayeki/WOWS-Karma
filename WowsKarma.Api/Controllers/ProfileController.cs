@@ -62,10 +62,10 @@ public sealed class ProfileController : ControllerBase
 			await _playerService.UpdateProfileFlagsAsync(flags);
 			return NoContent();
 		}
-		catch (CooldownException e)
+		catch (CooldownException)
 		{
-			ModelState.TryAddModelException(nameof(flags), e);
-			return StatusCode(StatusCodes.Status423Locked, ModelState);
+			ModelState.AddModelError(nameof(flags.OptedOut), "The opt-out setting is on cooldown.");
+			return ValidationProblem(statusCode: StatusCodes.Status423Locked);
 		}
 		catch (ArgumentException)
 		{

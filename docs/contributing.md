@@ -92,3 +92,7 @@ For changes to startup, authentication, storage, or replays, run the stack and e
 ## Open a pull request
 
 Create a topic branch from the intended target branch. Keep changes focused and include any relevant migration, configuration, or setup documentation. In the pull request, describe what changed, how you verified it, and any setup needed to reproduce the result.
+
+## API regression tests
+
+See [testing.md](testing.md) for the TUnit/Aspire end-to-end baseline and local run commands.

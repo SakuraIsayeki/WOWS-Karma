@@ -31,9 +31,9 @@ public sealed class PlatformBansController : ControllerBase
 	{
 		IQueryable<PlatformBan> bans = _service.GetPlatformBans(userId);
 
-		if (currentOnly || User.ToAccountListing()!.Id != userId || !User.IsInRole(ApiRoles.CM))
+		if (currentOnly || User.ToAccountListing()?.Id != userId || !User.IsInRole(ApiRoles.CM))
 		{
-			bans = bans.Where(b => b.BannedUntil == null || b.BannedUntil > DateTime.UtcNow);
+			bans = bans.Where(b => !b.Reverted && (b.BannedUntil == null || b.BannedUntil > DateTime.UtcNow));
 		}
 
 		return Ok(bans.ProjectToType<PlatformBanDTO>().AsAsyncEnumerable());

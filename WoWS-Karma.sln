@@ -14,6 +14,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowsKarma.AppHost", "WowsKa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WowsKarma.ServiceDefaults", "WowsKarma.ServiceDefaults\WowsKarma.ServiceDefaults.csproj", "{D0DE080B-CC5A-4981-9570-F52F4A2C40C7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowsKarma.Api.TestHost", "tests\WowsKarma.Api.TestHost\WowsKarma.Api.TestHost.csproj", "{9C7065C4-7BD7-4BA3-94EE-59850C376422}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowsKarma.Api.E2E", "tests\WowsKarma.Api.E2E\WowsKarma.Api.E2E.csproj", "{DA990178-B7E9-4FBF-B50A-FF0675F1CC8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WowsKarma.Api.TestOverrides", "tests\WowsKarma.Api.TestOverrides\WowsKarma.Api.TestOverrides.csproj", "{04AF7FFE-558E-4C83-993A-49F324F3AC6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,9 +52,26 @@ Global
 		{D0DE080B-CC5A-4981-9570-F52F4A2C40C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0DE080B-CC5A-4981-9570-F52F4A2C40C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0DE080B-CC5A-4981-9570-F52F4A2C40C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C7065C4-7BD7-4BA3-94EE-59850C376422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C7065C4-7BD7-4BA3-94EE-59850C376422}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C7065C4-7BD7-4BA3-94EE-59850C376422}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C7065C4-7BD7-4BA3-94EE-59850C376422}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA990178-B7E9-4FBF-B50A-FF0675F1CC8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA990178-B7E9-4FBF-B50A-FF0675F1CC8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA990178-B7E9-4FBF-B50A-FF0675F1CC8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA990178-B7E9-4FBF-B50A-FF0675F1CC8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04AF7FFE-558E-4C83-993A-49F324F3AC6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04AF7FFE-558E-4C83-993A-49F324F3AC6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04AF7FFE-558E-4C83-993A-49F324F3AC6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04AF7FFE-558E-4C83-993A-49F324F3AC6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9C7065C4-7BD7-4BA3-94EE-59850C376422} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{DA990178-B7E9-4FBF-B50A-FF0675F1CC8D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{04AF7FFE-558E-4C83-993A-49F324F3AC6C} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5C335E4D-4A8D-4A28-85E6-2849FCD2C33F}

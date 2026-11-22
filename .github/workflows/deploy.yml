@@ -34,7 +34,7 @@ jobs:
       matrix:
         configuration: [ 'production', 'preview' ]
     with:
-      dotnet-version: '10.0'
+      dotnet-version: '11.0'
       configuration: ${{ matrix.configuration }}
       project-file: 'WowsKarma.Api/WowsKarma.Api.csproj'
       artifact-name: 'wowskarma_api_${{ matrix.configuration }}'

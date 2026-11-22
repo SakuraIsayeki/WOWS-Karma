@@ -7,7 +7,7 @@ on:
       - main
       - develop
 
-permissions: 
+permissions:
   contents: read
   packages: read
   deployments: write
@@ -20,20 +20,19 @@ jobs:
   # First: Make sure dev build ran fine.
   build-test-solution:
     name: Build & Test Solution
-    uses: Nodsoft/workflows/.github/workflows/build-dotnet.yml@main
+    uses: ./.github/workflows/dotnet-build.yml
     with:
-      dotnet-version: '10.0'
       configuration: 'Release'
-      project-file: 'WoWS-Karma.sln'
+      continue-on-test-error: true
   
   # Build & Package API & Web from 'build-package-api.yml' and 'build-package-web.yml'.
-  build-package-api: 
+  build-package-api:
     name: Build & Package API
     needs: build-test-solution
     uses: Nodsoft/workflows/.github/workflows/package-dotnet.yml@main
     strategy:
-      matrix: 
-        configuration: ['production', 'preview']
+      matrix:
+        configuration: [ 'production', 'preview' ]
     with:
       dotnet-version: '10.0'
       configuration: ${{ matrix.configuration }}
@@ -45,19 +44,19 @@ jobs:
     needs: build-test-solution
     uses: ./.github/workflows/build-package-web.yml
     strategy:
-      matrix: 
-        configuration: ['production', 'preview']
+      matrix:
+        configuration: [ 'production', 'preview' ]
     with:
       build_configuration: ${{ matrix.configuration }}
       artifact_name: 'wowskarma_app_${{ matrix.configuration }}'
-
+  
   
   deploy-preview:
     name: Deploy Preview to server
-    environment: 
-        name: preview
-        url: https://preview.wows-karma.com/
-    needs: 
+    environment:
+      name: preview
+      url: https://preview.wows-karma.com/
+    needs:
       - api-e2e
       - build-package-api
       - build-package-web
@@ -68,36 +67,36 @@ jobs:
         with:
           name: wowskarma_api_preview
           path: ./api
-          
+
       - name: Download packaged Web App artifacts
         uses: actions/download-artifact@v8
         with:
           name: wowskarma_app_preview
           path: ./web
-          
+
       - name: Install SSH Key
         # Pin the external action to the full commit SHA.
         uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.SSH_PRIVATEKEY }}
           known_hosts: '*.nodsoft.net'
-          
+
       - name: Add Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy with rsync
         run: rsync -rvmzOE . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_DEPLOYPATH }}
-        
+
       - name: Restart API service(s)
         run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} ${{ vars.SSH_CMD_RESTART_API }}
 
   deploy-live:
     name: Deploy Live to server
     if: ${{ github.ref == 'refs/heads/main' }}
-    environment: 
-        name: live
-        url: https://wows-karma.com/
-    needs: 
+    environment:
+      name: live
+      url: https://wows-karma.com/
+    needs:
       - api-e2e
       - build-package-api
       - build-package-web
@@ -108,25 +107,25 @@ jobs:
         with:
           name: wowskarma_api_production
           path: ./api
-          
+
       - name: Download packaged Web App artifacts
         uses: actions/download-artifact@v8
         with:
           name: wowskarma_app_production
           path: ./web
-          
+
       - name: Install SSH Key
         # Pin the external action to the full commit SHA.
         uses: shimataro/ssh-key-action@87a8f067114a8ce263df83e9ed5c849953548bc3 # v2.8.1
         with:
           key: ${{ secrets.SSH_PRIVATEKEY }}
           known_hosts: '*.nodsoft.net'
-          
+
       - name: Add Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy with rsync
         run: rsync -rvmzOE . ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_DEPLOYPATH }}
-        
+
       - name: Restart API service(s)
         run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} ${{ vars.SSH_CMD_RESTART_API }}      

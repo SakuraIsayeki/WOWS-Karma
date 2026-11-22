@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/WowsKarma.Api.E2E/WowsKarma.Api.E2E.csproj" />
+    <Project Path="tests/WowsKarma.Api.TestHost/WowsKarma.Api.TestHost.csproj" />
+    <Project Path="tests/WowsKarma.Api.TestOverrides/WowsKarma.Api.TestOverrides.csproj" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+  <Project Path="WowsKarma.Api.Minimap.Client/WowsKarma.Api.Minimap.Client.csproj" />
+  <Project Path="WowsKarma.Api/WowsKarma.Api.csproj" />
+  <Project Path="WowsKarma.AppHost/WowsKarma.AppHost.csproj" />
+  <Project Path="WowsKarma.Common/WowsKarma.Common.csproj" />
+  <Project Path="WowsKarma.ServiceDefaults/WowsKarma.ServiceDefaults.csproj" />
+</Solution>

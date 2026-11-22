@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <CodeCoverage>
+    <CollectFromChildProcesses>True</CollectFromChildProcesses>
+    <ModulePaths>
+      <Include>
+        <!-- Match the API launched by Aspire. The test runner loads its own copy for database fixtures. -->
+        <ModulePath>[\\/]WowsKarma\.Api[\\/]bin[\\/].*[\\/]WowsKarma\.Api\.dll$</ModulePath>
+      </Include>
+    </ModulePaths>
+    <Sources>
+      <Exclude>
+        <!-- EF migration history and snapshots are outside the API application coverage scope. -->
+        <Source>[\\/]Migrations[\\/]</Source>
+      </Exclude>
+    </Sources>
+  </CodeCoverage>
+</Configuration>

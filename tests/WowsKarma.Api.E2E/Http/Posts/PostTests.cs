@@ -153,7 +153,7 @@ public sealed class PostTests(ApiFixture fixture)
             using var response = await client.GetAsync($"/api/post/{route}?page=1&pageSize=1");
             response.EnsureSuccessStatusCode();
             Check(response.Headers.GetValues("Content-Items-Total").Single() == "1", "Pagination total changed");
-            Check(response.Headers.GetValues("Content-Page-Current").Single() == "1", "Pagination page changed");
+            Check(response.Headers.GetValues("Content-Page-Current").Single() == "0", "First page must have index 0 in the response header");
             Check((await response.Content.ReadFromJsonAsync<PlayerPostDTO[]>())!.Single().Id == post.Id, "Wrong paginated post");
         }
         using var latest = await client.GetAsync("/api/post/latest?pageSize=1&hasReplay=false");

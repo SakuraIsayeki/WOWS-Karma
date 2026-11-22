@@ -23,6 +23,6 @@ public sealed record PostModAction : IDisposable
 
 	public void Dispose()
 	{
-		Post.Dispose();
+		Post?.Dispose();
 	}
 }

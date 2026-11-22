@@ -84,7 +84,10 @@ public sealed class ModService
 
 	public async Task RevertModActionAsync(Guid modActionId)
 	{
-		using PostModAction modAction = await _context.PostModActions.FindAsync(modActionId) ?? throw new ArgumentException($"Mod action with id {modActionId} not found");
+		using PostModAction modAction = await _context.PostModActions
+			.Include(action => action.Post)
+			.FirstOrDefaultAsync(action => action.Id == modActionId)
+			?? throw new ArgumentException($"Mod action with id {modActionId} not found");
 
 		_context.PostModActions.Remove(modAction);
 		await _postService.RevertPostModLockAsync(modAction.PostId);

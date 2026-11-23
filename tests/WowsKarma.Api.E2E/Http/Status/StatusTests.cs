@@ -13,7 +13,7 @@ namespace WowsKarma.Api.E2E.Http.Status;
 public sealed class StatusTests(ApiFixture fixture)
 {
     [Test]
-    [DisplayName("The running API responds to its health check and exposes the post contract in OpenAPI.")]
+    [DisplayName("The running API responds to its health check and exposes the post contract and bearer authentication in OpenAPI.")]
     public async Task ExposesStatusAndOpenApi()
     {
         using var client = fixture.Client();
@@ -23,5 +23,12 @@ public sealed class StatusTests(ApiFixture fixture)
         swagger.EnsureSuccessStatusCode();
         using var json = JsonDocument.Parse(await swagger.Content.ReadAsStringAsync());
         Check(json.RootElement.GetProperty("paths").TryGetProperty("/api/Post", out _), "Post contract absent from OpenAPI");
+
+        var bearer = json.RootElement.GetProperty("components").GetProperty("securitySchemes").GetProperty("jwt_auth");
+        Check(bearer.GetProperty("type").GetString() is "http" && bearer.GetProperty("scheme").GetString() is "bearer",
+            "JWT bearer security scheme absent from OpenAPI");
+        Check(json.RootElement.GetProperty("security").EnumerateArray().Any(requirement =>
+                requirement.TryGetProperty("jwt_auth", out var scopes) && scopes.GetArrayLength() == 0),
+            "OpenAPI security requirement does not reference the JWT bearer scheme");
     }
 }

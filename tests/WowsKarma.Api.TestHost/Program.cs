@@ -10,13 +10,14 @@ var blobs = builder.AddAzureStorage("storage").RunAsEmulator().AddBlobs("replay-
 
 // Use the prebuilt API so Aspire does not rebuild an assembly prepared by the coverage collector.
 var configuration = typeof(TestHostSettings).Assembly.GetCustomAttribute<AssemblyConfigurationAttribute>()!.Configuration;
-var apiAssembly = Path.GetFullPath(Path.Combine("../../WowsKarma.Api/bin", configuration, "net10.0", "WowsKarma.Api.dll"), builder.AppHostDirectory);
+var apiAssembly = Path.GetFullPath(Path.Combine("../../WowsKarma.Api/bin", configuration, "net11.0", "WowsKarma.Api.dll"), builder.AppHostDirectory);
 if (!File.Exists(apiAssembly))
 {
     throw new FileNotFoundException("Build the API end-to-end test project before starting its AppHost.", apiAssembly);
 }
 
-builder.AddExecutable("api", "dotnet", builder.AppHostDirectory, apiAssembly)
+var dotnetHost = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet";
+builder.AddExecutable("api", dotnetHost, builder.AppHostDirectory, apiAssembly)
     .WithEnvironment("ASPNETCORE_CONTENTROOT", builder.AppHostDirectory)
     .WithEnvironment("DOTNET_STARTUP_HOOKS", typeof(WowsKarma.Api.TestOverrides.ExternalServiceOverrides).Assembly.Location)
     .WithEnvironment("ASPNETCORE_HOSTINGSTARTUPASSEMBLIES", "WowsKarma.Api.TestOverrides")
